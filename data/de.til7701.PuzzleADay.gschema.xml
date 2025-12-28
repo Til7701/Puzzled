@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="puzzleaday">
+	<schema id="de.til7701.PuzzleADay" path="/de/til7701/PuzzleADay/">
+	</schema>
+</schemalist>

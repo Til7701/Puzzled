@@ -1,0 +1,6 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/de.til7701.PuzzleADay.desktop.in
+data/de.til7701.PuzzleADay.metainfo.xml.in
+data/de.til7701.PuzzleADay.gschema.xml
+src/window.ui

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=puzzleaday
+Exec=puzzleaday
+Icon=de.til7701.PuzzleADay
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true

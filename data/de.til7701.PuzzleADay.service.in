@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=de.til7701.PuzzleADay
+Exec=@bindir@/puzzleaday --gapplication-service
