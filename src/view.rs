@@ -1,10 +1,12 @@
 use crate::application::GRID_SIZE;
+use adw::prelude::Cast;
 use gtk::prelude::{FrameExt, GridExt, WidgetExt};
-use gtk::Grid;
+use gtk::{Grid, Widget};
 use ndarray::Array2;
 
 pub struct TileView {
     pub parent: Grid,
+    pub draggables: Vec<Widget>,
 }
 
 impl TileView {
@@ -14,6 +16,7 @@ impl TileView {
         grid.set_column_homogeneous(true);
 
         let (rows, cols) = base.dim();
+        let mut draggables: Vec<Widget> = Vec::new();
 
         for r in 0..rows {
             for c in 0..cols {
@@ -25,11 +28,15 @@ impl TileView {
                     cell.set_height_request(GRID_SIZE);
 
                     grid.attach(&cell, c as i32, r as i32, 1, 1);
+                    draggables.push(cell.upcast::<Widget>());
                 }
             }
         }
 
-        TileView { parent: grid }
+        TileView {
+            parent: grid,
+            draggables,
+        }
     }
 }
 pub struct BoardView {

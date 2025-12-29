@@ -201,11 +201,13 @@ impl PuzzleadayApplication {
         let tile_view = TileView::new(tile.id, tile.base.clone());
         let widget = tile_view.parent.upcast::<Widget>();
         grid.put(&widget, 0.0, 0.0);
-        self.setup_drag_and_drop(&widget, grid);
+        for draggable in tile_view.draggables.iter() {
+            self.setup_drag_and_drop(&widget, &draggable, grid);
+        }
         widgets_in_grid.push(widget);
     }
 
-    fn setup_drag_and_drop(&self, widget: &Widget, grid: &Fixed) {
+    fn setup_drag_and_drop(&self, widget: &Widget, draggable: &Widget, grid: &Fixed) {
         let drag = GestureDrag::new();
         drag.set_propagation_phase(PropagationPhase::Capture);
 
@@ -227,7 +229,7 @@ impl PuzzleadayApplication {
             grid_clone2.move_(&item_clone2, snapped_x, snapped_y);
         });
 
-        widget.add_controller(drag);
+        draggable.add_controller(drag);
     }
 
     fn setup_board(
