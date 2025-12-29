@@ -18,8 +18,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-use gtk::prelude::*;
 use adw::subclass::prelude::*;
+use gtk::prelude::*;
 use gtk::{gio, glib};
 
 mod imp {
@@ -28,9 +28,12 @@ mod imp {
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(resource = "/de/til7701/PuzzleADay/window.ui")]
     pub struct PuzzleadayWindow {
-        // Template widgets
         #[template_child]
-        pub label: TemplateChild<gtk::Label>,
+        pub grid: TemplateChild<gtk::Fixed>,
+        #[template_child]
+        pub drawing: TemplateChild<gtk::DrawingArea>,
+        #[template_child]
+        pub puzzle_selection: TemplateChild<gtk::DropDown>,
     }
 
     #[glib::object_subclass]
@@ -65,5 +68,17 @@ impl PuzzleadayWindow {
         glib::Object::builder()
             .property("application", application)
             .build()
+    }
+
+    pub fn grid(&self) -> gtk::Fixed {
+        self.imp().grid.clone()
+    }
+
+    pub fn puzzle_selection(&self) -> gtk::DropDown {
+        self.imp().puzzle_selection.clone()
+    }
+
+    pub fn drawing_area(&self) -> gtk::DrawingArea {
+        self.imp().drawing.clone()
     }
 }

@@ -17,14 +17,14 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-
-use gettextrs::gettext;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use gtk::{gio, glib};
+use gettextrs::gettext;
+use gtk::{gio, glib, GestureDrag};
 
 use crate::config::VERSION;
-use crate::PuzzleadayWindow;
+use crate::puzzle::PuzzleConfig;
+use crate::{puzzle, PuzzleadayWindow};
 
 mod imp {
     use super::*;
@@ -61,7 +61,12 @@ mod imp {
                 window.upcast()
             });
 
-            // Ask the window manager/compositor to present the window
+            application.setup(
+                &window
+                    .downcast_ref::<PuzzleadayWindow>()
+                    .expect("active window is not a PuzzleadayWindow"),
+            );
+
             window.present();
         }
     }
@@ -109,5 +114,77 @@ impl PuzzleadayApplication {
             .build();
 
         about.present(Some(&window));
+    }
+
+    fn setup(&self, window: &PuzzleadayWindow) {
+        let puzzle_selection = window.puzzle_selection();
+        puzzle_selection.set_selected(0);
+        let app_weak = self.downgrade();
+        let window_weak = window.downgrade();
+
+        puzzle_selection.connect_selected_notify(move |dropdown| {
+            let index = dropdown.selected();
+            let puzzle_config = match index {
+                0 => puzzle::get_default_config(),
+                1 => puzzle::get_year_config(),
+                _ => panic!("Unknown puzzle selection index: {}", index),
+            };
+
+            if let (Some(app), Some(window)) = (app_weak.upgrade(), window_weak.upgrade()) {
+                app.setup_puzzle_config(&window, puzzle_config);
+            }
+        });
+    }
+
+    fn setup_puzzle_config(&self, window: &PuzzleadayWindow, config: PuzzleConfig) {
+        let grid = window.grid();
+        let drawing = window.drawing_area();
+
+        // TODO remove existing items from grid
+
+        const GRID_SIZE: i32 = 32;
+        let item = gtk::Button::with_label("Drag me");
+        grid.put(&item, 0.0, 0.0);
+
+        // create gesture, connect handlers, then add to widget (moved)
+        let drag = GestureDrag::new();
+
+        // clones for the drag update closure
+        let fixed_clone1 = grid.clone();
+        let item_clone1 = item.clone();
+
+        drag.connect_drag_update(move |_, dx, dy| {
+            let (x, y) = fixed_clone1.child_position(&item_clone1);
+            let new_x = x + dx;
+            let new_y = y + dy;
+            fixed_clone1.move_(&item_clone1, new_x, new_y);
+        });
+
+        // clones for the drag end closure
+        let grid_clone2 = grid.clone();
+        let item_clone2 = item.clone();
+
+        drag.connect_drag_end(move |_, _, _| {
+            let (x, y) = grid_clone2.child_position(&item_clone2);
+            let snapped_x = (x as i32 / GRID_SIZE) * GRID_SIZE;
+            let snapped_y = (y as i32 / GRID_SIZE) * GRID_SIZE;
+            grid_clone2.move_(&item_clone2, snapped_x as f64, snapped_y as f64);
+        });
+
+        // move the gesture into the widget (no `&`)
+        item.add_controller(drag);
+
+        drawing.set_draw_func(move |_, cr, width, height| {
+            cr.set_source_rgba(1.0, 1.0, 1.0, 0.1);
+            for x in (0..width).step_by(GRID_SIZE as usize) {
+                cr.move_to(x as f64, 0.0);
+                cr.line_to(x as f64, height as f64);
+            }
+            for y in (0..height).step_by(GRID_SIZE as usize) {
+                cr.move_to(0.0, y as f64);
+                cr.line_to(width as f64, y as f64);
+            }
+            cr.stroke().unwrap();
+        });
     }
 }

@@ -1,2 +1,4 @@
 target/
 src/config.rs
+
+.idea/
