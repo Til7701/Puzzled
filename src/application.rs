@@ -183,18 +183,18 @@ impl PuzzleadayApplication {
             self.setup_tile(&grid, tile, &mut widgets_in_grid);
         }
 
-        drawing.set_draw_func(move |_, cr, width, height| {
-            cr.set_source_rgba(1.0, 1.0, 1.0, 0.1);
-            for x in (0..width).step_by(GRID_SIZE as usize) {
-                cr.move_to(x as f64, 0.0);
-                cr.line_to(x as f64, height as f64);
-            }
-            for y in (0..height).step_by(GRID_SIZE as usize) {
-                cr.move_to(0.0, y as f64);
-                cr.line_to(width as f64, y as f64);
-            }
-            cr.stroke().unwrap();
-        });
+        // drawing.set_draw_func(move |_, cr, width, height| {
+        //     cr.set_source_rgba(1.0, 1.0, 1.0, 0.1);
+        //     for x in (0..width).step_by(GRID_SIZE as usize) {
+        //         cr.move_to(x as f64, 0.0);
+        //         cr.line_to(x as f64, height as f64);
+        //     }
+        //     for y in (0..height).step_by(GRID_SIZE as usize) {
+        //         cr.move_to(0.0, y as f64);
+        //         cr.line_to(width as f64, y as f64);
+        //     }
+        //     cr.stroke().unwrap();
+        // });
     }
 
     fn setup_tile(&self, grid: &Fixed, tile: &Tile, widgets_in_grid: &mut Vec<Widget>) {
