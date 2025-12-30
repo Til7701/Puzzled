@@ -25,12 +25,13 @@ use crate::state::get_state;
 use crate::view::TileView;
 use crate::window::PuzzlemoredaysWindow;
 use adw::gdk::Display;
+use adw::glib::property::PropertyGet;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::{
-    gio, glib, CssProvider, Fixed, GestureDrag, PropagationPhase, Widget,
-    STYLE_PROVIDER_PRIORITY_APPLICATION,
+    gio, glib, CssProvider, Fixed, GestureDrag, PropagationPhase,
+    Widget, STYLE_PROVIDER_PRIORITY_APPLICATION,
 };
 use std::cell::RefCell;
 
@@ -218,34 +219,30 @@ impl PuzzlemoredaysApplication {
     }
 
     fn setup_drag_and_drop(&self, tile_view: &TileView, draggable: &Widget, fixed: &Fixed) {
-        let widgets_with_offset = &tile_view.elements_with_offset;
-
         let drag = GestureDrag::new();
         drag.set_propagation_phase(PropagationPhase::Capture);
 
         let fixed_clone1 = fixed.clone();
-        let widgets_with_offset_clone = widgets_with_offset.clone();
         let tile_view_clone = tile_view.clone();
         drag.connect_drag_update(move |_, dx, dy| {
-            let widgets_with_offset = widgets_with_offset_clone.borrow();
-            let item = widgets_with_offset.first().unwrap().clone();
-
-            let (x, y) = fixed_clone1.child_position(&item.0);
-            let new_x = x + dx;
-            let new_y = y + dy;
+            let (new_x, new_y) = {
+                let (x, y) = (*tile_view_clone.x.borrow(), *tile_view_clone.y.borrow());
+                let new_x = x + dx;
+                let new_y = y + dy;
+                (new_x, new_y)
+            };
             tile_view_clone.move_to(&fixed_clone1, new_x, new_y);
         });
 
         let fixed_clone2 = fixed.clone();
-        let widgets_with_offset_clone = widgets_with_offset.clone();
         let tile_view_clone = tile_view.clone();
         drag.connect_drag_end(move |_, _, _| {
-            let widgets_with_offset = widgets_with_offset_clone.borrow();
-            let item = widgets_with_offset.first().unwrap().clone();
-
-            let (x, y) = fixed_clone2.child_position(&item.0);
-            let snapped_x = (x / GRID_SIZE as f64).round() * GRID_SIZE as f64;
-            let snapped_y = (y / GRID_SIZE as f64).round() * GRID_SIZE as f64;
+            let (snapped_x, snapped_y) = {
+                let (x, y) = (*tile_view_clone.x.borrow(), *tile_view_clone.y.borrow());
+                let snapped_x = (x / GRID_SIZE as f64).round() * GRID_SIZE as f64;
+                let snapped_y = (y / GRID_SIZE as f64).round() * GRID_SIZE as f64;
+                (snapped_x, snapped_y)
+            };
             tile_view_clone.move_to(&fixed_clone2, snapped_x, snapped_y);
         });
 
@@ -268,4 +265,3 @@ impl PuzzlemoredaysApplication {
         widgets_in_grid.push(widget);
     }
 }
-

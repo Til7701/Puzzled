@@ -5,15 +5,15 @@ use gtk::gdk::BUTTON_MIDDLE;
 use gtk::prelude::{FixedExt, FrameExt, GestureSingleExt, GridExt, WidgetExt};
 use gtk::{EventController, Fixed, GestureClick, Grid, Widget};
 use ndarray::Array2;
-use std::cell::RefCell;
+use std::cell::{RefCell, RefMut};
 use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct TileView {
     pub elements_with_offset: Rc<RefCell<Vec<(Widget, f64, f64)>>>,
     pub draggables: Vec<Widget>,
-    x: Rc<RefCell<f64>>,
-    y: Rc<RefCell<f64>>,
+    pub x: Rc<RefCell<f64>>,
+    pub y: Rc<RefCell<f64>>,
 }
 
 impl TileView {
@@ -68,56 +68,29 @@ impl TileView {
         let gesture = GestureClick::new();
         gesture.set_button(BUTTON_SECONDARY);
 
-        let elements_with_offset = self.elements_with_offset.clone();
         let draggable_clone = draggable.clone();
-        let rows = self
-            .elements_with_offset
-            .borrow()
-            .iter()
-            .map(|(_, r, _)| *r as i32)
-            .max()
-            .unwrap()
-            + 1;
-        let cols = self
-            .elements_with_offset
-            .borrow()
-            .iter()
-            .map(|(_, _, c)| *c as i32)
-            .max()
-            .unwrap()
-            + 1;
-        let x = self.x.clone();
-        let y = self.y.clone();
+        let self_clone = self.clone();
         gesture.connect_pressed(move |_, _n_press, _x, _y| {
-            // Rotate the offsets of the elements 90 degrees clockwise
+            let (_, cols) = self_clone.get_rows_cols();
             let mut new_offsets: Vec<(Widget, f64, f64)> = Vec::new();
-            let mut elements_with_offset = elements_with_offset.borrow_mut();
-            for (widget, r_offset, c_offset) in elements_with_offset.iter() {
-                let new_r_offset = -(*c_offset) + (rows - 1) as f64;
+            let mut elements_with_offset_mut = self_clone.elements_with_offset.borrow_mut();
+            for (widget, r_offset, c_offset) in elements_with_offset_mut.iter() {
+                let new_r_offset = -(*c_offset) + (cols - 1) as f64;
                 let new_c_offset = *r_offset;
                 new_offsets.push((widget.clone(), new_r_offset, new_c_offset));
             }
 
-            // Update the elements_with_offset with new offsets
-            elements_with_offset.clear();
-            elements_with_offset.extend(new_offsets.into_iter());
-
-            for (_, x, y) in elements_with_offset.iter() {
-                println!("Offset after rotation: ({}, {})", x, y);
-            }
-            println!();
-
-            if let Some(parent_widget) = draggable_clone.parent() {
-                if let Ok(fixed) = parent_widget.downcast::<Fixed>() {
-                    for (widget, r_offset, c_offset) in elements_with_offset.iter() {
-                        fixed.move_(
-                            &widget.clone().upcast::<Widget>(),
-                            *x.borrow() + (*r_offset * GRID_SIZE as f64),
-                            *y.borrow() + (*c_offset * GRID_SIZE as f64),
-                        );
-                    }
-                }
-            }
+            Self::update_widget_positions(
+                &draggable_clone
+                    .parent()
+                    .unwrap()
+                    .downcast::<Fixed>()
+                    .unwrap(),
+                &mut elements_with_offset_mut,
+                new_offsets,
+                *self_clone.x.borrow(),
+                *self_clone.y.borrow(),
+            )
         });
 
         draggable.add_controller(gesture.clone().upcast::<EventController>());
@@ -127,59 +100,51 @@ impl TileView {
         let gesture = GestureClick::new();
         gesture.set_button(BUTTON_MIDDLE);
 
-        let elements_with_offset = self.elements_with_offset.clone();
         let draggable_clone = draggable.clone();
-        let rows = self
-            .elements_with_offset
-            .borrow()
-            .iter()
-            .map(|(_, r, _)| *r as i32)
-            .max()
-            .unwrap()
-            + 1;
-        let cols = self
-            .elements_with_offset
-            .borrow()
-            .iter()
-            .map(|(_, _, c)| *c as i32)
-            .max()
-            .unwrap()
-            + 1;
-        let x = self.x.clone();
-        let y = self.y.clone();
+        let self_clone = self.clone();
         gesture.connect_pressed(move |_, _n_press, _x, _y| {
-            // Rotate the offsets of the elements 90 degrees clockwise
+            let (rows, _) = self_clone.get_rows_cols();
             let mut new_offsets: Vec<(Widget, f64, f64)> = Vec::new();
-            let mut elements_with_offset = elements_with_offset.borrow_mut();
-            for (widget, r_offset, c_offset) in elements_with_offset.iter() {
-                let new_r_offset = -(*r_offset) + (cols - 1) as f64;
+            let mut elements_with_offset_mut = self_clone.elements_with_offset.borrow_mut();
+            for (widget, r_offset, c_offset) in elements_with_offset_mut.iter() {
+                let new_r_offset = -(*r_offset) + (rows - 1) as f64;
                 let new_c_offset = *c_offset;
                 new_offsets.push((widget.clone(), new_r_offset, new_c_offset));
             }
 
-            // Update the elements_with_offset with new offsets
-            elements_with_offset.clear();
-            elements_with_offset.extend(new_offsets.into_iter());
-
-            for (_, x, y) in elements_with_offset.iter() {
-                println!("Offset after flip: ({}, {})", x, y);
-            }
-            println!();
-
-            if let Some(parent_widget) = draggable_clone.parent() {
-                if let Ok(fixed) = parent_widget.downcast::<Fixed>() {
-                    for (widget, r_offset, c_offset) in elements_with_offset.iter() {
-                        fixed.move_(
-                            &widget.clone().upcast::<Widget>(),
-                            *x.borrow() + (*r_offset * GRID_SIZE as f64),
-                            *y.borrow() + (*c_offset * GRID_SIZE as f64),
-                        );
-                    }
-                }
-            }
+            Self::update_widget_positions(
+                &draggable_clone
+                    .parent()
+                    .unwrap()
+                    .downcast::<Fixed>()
+                    .unwrap(),
+                &mut elements_with_offset_mut,
+                new_offsets,
+                *self_clone.x.borrow(),
+                *self_clone.y.borrow(),
+            )
         });
 
         draggable.add_controller(gesture.clone().upcast::<EventController>());
+    }
+
+    fn update_widget_positions(
+        fixed: &Fixed,
+        original_elements_with_offset: &mut RefMut<Vec<(Widget, f64, f64)>>,
+        new_elements_with_offset: Vec<(Widget, f64, f64)>,
+        x: f64,
+        y: f64,
+    ) {
+        original_elements_with_offset.clear();
+        original_elements_with_offset.extend(new_elements_with_offset.into_iter());
+
+        for (widget, r_offset, c_offset) in original_elements_with_offset.iter() {
+            fixed.move_(
+                &widget.clone().upcast::<Widget>(),
+                x + (*r_offset * GRID_SIZE as f64),
+                y + (*c_offset * GRID_SIZE as f64),
+            );
+        }
     }
 
     pub fn put(&self, area: &Fixed, x: f64, y: f64) {
@@ -193,13 +158,33 @@ impl TileView {
     }
 
     pub fn move_to(&self, area: &Fixed, x: f64, y: f64) {
+        self.x.replace(x);
+        self.y.replace(y);
         for (widget, r_offset, c_offset) in self.elements_with_offset.borrow().iter() {
             let new_x = x + (r_offset * GRID_SIZE as f64);
             let new_y = y + (c_offset * GRID_SIZE as f64);
             area.move_(widget, new_x, new_y);
-            self.x.replace(new_x);
-            self.y.replace(new_y);
         }
+    }
+
+    pub fn get_rows_cols(&self) -> (i32, i32) {
+        let rows = self
+            .elements_with_offset
+            .borrow()
+            .iter()
+            .map(|(_, r, _)| *r as i32)
+            .max()
+            .unwrap()
+            + 1;
+        let cols = self
+            .elements_with_offset
+            .borrow()
+            .iter()
+            .map(|(_, _, c)| *c as i32)
+            .max()
+            .unwrap()
+            + 1;
+        (rows, cols)
     }
 }
 
