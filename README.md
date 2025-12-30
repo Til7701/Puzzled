@@ -5,7 +5,7 @@ or, whether it is impossible to solve the puzzle with your current approach.
 
 ## Build and Run
 
-You need to have Rust and Cargo installed. Then you can build and run the application with Gnome Builder or from the
+You need to have Rust and Cargo installed. Then you can build and run the application with Gnome Builder (recommended) or from the
 command line (more dependencies may be required):
 
 ```bash
