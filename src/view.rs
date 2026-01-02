@@ -1,4 +1,4 @@
-use crate::presenter::puzzle_area::Offset;
+use crate::offset::Offset;
 use adw::prelude::Cast;
 use gtk::prelude::{FrameExt, GridExt, WidgetExt};
 use gtk::{Grid, Widget};
@@ -10,8 +10,7 @@ use std::rc::Rc;
 pub struct TileView {
     pub elements_with_offset: Rc<RefCell<Vec<(Widget, Offset)>>>,
     pub draggables: Vec<Widget>,
-    pub x_pixels: Rc<RefCell<f64>>,
-    pub y_pixels: Rc<RefCell<f64>>,
+    pub position_pixels: Rc<RefCell<Offset>>,
 }
 
 impl TileView {
@@ -31,7 +30,10 @@ impl TileView {
                             .css_classes(vec!["tile-cell", format!("tile-cell-{}", id).as_str()])
                             .build();
 
-                        elements.push((cell.clone().upcast::<Widget>(), Offset::new(r, c)));
+                        elements.push((
+                            cell.clone().upcast::<Widget>(),
+                            Offset::new(r as f64, c as f64),
+                        ));
                         draggables.push(cell.upcast::<Widget>());
                     }
                 }
@@ -43,8 +45,7 @@ impl TileView {
         let tile_view = TileView {
             elements_with_offset,
             draggables,
-            x_pixels: Rc::new(RefCell::new(0.0)),
-            y_pixels: Rc::new(RefCell::new(0.0)),
+            position_pixels: Rc::new(RefCell::new(Offset::default())),
         };
 
         tile_view

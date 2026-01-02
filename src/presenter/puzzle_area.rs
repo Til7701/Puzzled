@@ -1,3 +1,4 @@
+use crate::offset::Offset;
 use crate::puzzle::tile::Tile;
 use crate::puzzle::PuzzleConfig;
 use crate::state::get_state;
@@ -38,8 +39,24 @@ impl PuzzleAreaPresenter {
         let puzzle_config = &state.puzzle_config;
 
         self.setup_board(puzzle_config);
+        let mut position_start = Offset::new(1.0, 1.0);
         for tile in puzzle_config.tiles.iter() {
-            self.setup_tile(tile);
+            self.setup_tile(tile, &position_start);
+
+            let (rows, cols) = Self::get_dims(
+                &self
+                    .tile_views
+                    .borrow()
+                    .last()
+                    .unwrap()
+                    .elements_with_offset
+                    .borrow(),
+            );
+            position_start.x += rows + 1.0;
+            if position_start.x > 10.0 {
+                position_start.x = 1.0;
+                position_start.y += cols + 1.0;
+            }
         }
 
         self.update_layout();
@@ -52,22 +69,27 @@ impl PuzzleAreaPresenter {
             puzzle_config.meaning_values.clone(),
         );
         let widget = board_view.parent.clone().upcast::<Widget>();
-        self.add_to_fixed(&widget, 0.0, 0.0);
+        self.add_to_fixed(&widget, &Offset::default());
 
         let grid_h_cell_count =
             (puzzle_config.board_layout.dim().1 as f64 * WINDOW_TO_BOARD_RATIO) as u32;
         let board_offset_x_cells =
-            ((grid_h_cell_count - puzzle_config.board_layout.dim().1 as u32) / 2) as i32;
+            ((grid_h_cell_count - puzzle_config.board_layout.dim().1 as u32) / 2) as f64;
         let mut grid_config = self.grid_config.borrow_mut();
         grid_config.grid_h_cell_count = grid_h_cell_count;
-        grid_config.board_offset_cells = Offset::new(board_offset_x_cells, 1);
+        grid_config.board_offset_cells = Offset::new(board_offset_x_cells, 1.0);
         self.elements_in_fixed.borrow_mut().push(widget.clone());
         self.elements_in_fixed.borrow_mut().push(widget);
         self.board_view.replace(Some(board_view));
     }
 
-    fn setup_tile(&self, tile: &Tile) {
+    fn setup_tile(&self, tile: &Tile, start_position_cell: &Offset) {
         let tile_view = TileView::new(tile.id, tile.base.clone());
+
+        let grid_config = self.grid_config.borrow();
+        let start_position = start_position_cell.mul_scalar(grid_config.cell_width_pixel as f64);
+        tile_view.position_pixels.replace(start_position);
+
         for draggable in tile_view.draggables.iter() {
             self.setup_drag_and_drop(&tile_view, &draggable);
             self.setup_tile_rotation_and_flip(&tile_view, &draggable);
@@ -78,7 +100,7 @@ impl PuzzleAreaPresenter {
             .iter()
             .map(|e| e.0.clone())
             .for_each(|w| {
-                self.add_to_fixed(&w, 0.0, 0.0);
+                self.add_to_fixed(&w, &start_position);
             });
         self.tile_views.borrow_mut().push(tile_view);
     }
@@ -91,13 +113,11 @@ impl PuzzleAreaPresenter {
             let tile_view = tile_view.clone();
             let self_clone = self.clone();
             move |_, dx, dy| {
-                let (new_x, new_y) = {
-                    let (x, y) = (*tile_view.x_pixels.borrow(), *tile_view.y_pixels.borrow());
-                    let new_x = x + dx;
-                    let new_y = y + dy;
-                    (new_x, new_y)
+                let new = {
+                    let pos = tile_view.position_pixels.borrow();
+                    pos.add_tuple((dx, dy))
                 };
-                self_clone.move_tile_to(&tile_view, new_x, new_y);
+                self_clone.move_tile_to(&tile_view, new);
             }
         });
 
@@ -106,14 +126,14 @@ impl PuzzleAreaPresenter {
             let grid_config = self.grid_config.clone();
             let self_clone = self.clone();
             move |_, _, _| {
-                let (snapped_x, snapped_y) = {
-                    let (x, y) = (*tile_view.x_pixels.borrow(), *tile_view.y_pixels.borrow());
+                let snapped = {
+                    let pos = tile_view.position_pixels.borrow();
                     let grid_size = grid_config.borrow().cell_width_pixel;
-                    let snapped_x = (x / grid_size as f64).round() * grid_size as f64;
-                    let snapped_y = (y / grid_size as f64).round() * grid_size as f64;
-                    (snapped_x, snapped_y)
+                    pos.div_scalar(grid_size as f64)
+                        .round()
+                        .mul_scalar(grid_size as f64)
                 };
-                self_clone.move_tile_to(&tile_view, snapped_x, snapped_y);
+                self_clone.move_tile_to(&tile_view, snapped);
             }
         });
 
@@ -128,7 +148,7 @@ impl PuzzleAreaPresenter {
             let tile_view = tile_view.clone();
             move |offset| {
                 let (_, cols) = Self::get_dims(tile_view.elements_with_offset.borrow().as_ref());
-                Offset::new(-offset.y + (cols - 1) as f64 as i32, offset.x)
+                Offset::new(-offset.y + (cols - 1.0), offset.x)
             }
         });
         draggable.add_controller(gesture.clone().upcast::<EventController>());
@@ -140,15 +160,25 @@ impl PuzzleAreaPresenter {
             let tile_view = tile_view.clone();
             move |offset| {
                 let (rows, _) = Self::get_dims(tile_view.elements_with_offset.borrow().as_ref());
-                Offset::new(-offset.x + (rows - 1) as f64 as i32, offset.y)
+                Offset::new(-offset.x + (rows - 1.0), offset.y)
             }
         });
         draggable.add_controller(gesture.clone().upcast::<EventController>());
     }
 
-    fn get_dims(elements_with_offset: &Vec<(Widget, Offset)>) -> (i32, i32) {
-        let rows = elements_with_offset.iter().map(|(_, o)| o.x).max().unwrap() + 1;
-        let cols = elements_with_offset.iter().map(|(_, o)| o.y).max().unwrap() + 1;
+    fn get_dims(elements_with_offset: &Vec<(Widget, Offset)>) -> (f64, f64) {
+        let rows = elements_with_offset
+            .iter()
+            .map(|(_, o)| o.x)
+            .max_by(|a, b| a.partial_cmp(b).unwrap())
+            .unwrap()
+            + 1.0;
+        let cols = elements_with_offset
+            .iter()
+            .map(|(_, o)| o.y)
+            .max_by(|a, b| a.partial_cmp(b).unwrap())
+            .unwrap()
+            + 1.0;
         (rows, cols)
     }
 
@@ -226,31 +256,28 @@ impl PuzzleAreaPresenter {
                     .0
                     .set_height_request(grid_config.cell_width_pixel as i32);
             }
-            let x = { *tile_view.x_pixels.borrow() };
-            let y = { *tile_view.y_pixels.borrow() };
-            self.move_tile_to(tile_view, x, y);
+            let pos = { tile_view.position_pixels.clone().borrow().clone() };
+            self.move_tile_to(tile_view, pos);
         }
     }
 
     /// Move the tile to the specified (x, y) position in pixels.
-    fn move_tile_to(&self, tile_view: &TileView, x: f64, y: f64) {
+    fn move_tile_to(&self, tile_view: &TileView, pos_pixel: Offset) {
         let fixed_borrow = self.fixed.borrow();
         let fixed = fixed_borrow.as_ref().unwrap();
 
-        tile_view.x_pixels.replace(x);
-        tile_view.y_pixels.replace(y);
         let grid_size = self.grid_config.borrow().cell_width_pixel as f64;
         for (widget, offset) in tile_view.elements_with_offset.borrow().iter() {
-            let new_x = x + (offset.x as f64 * grid_size);
-            let new_y = y + (offset.y as f64 * grid_size);
-            fixed.move_(widget, new_x, new_y);
+            let new = pos_pixel + offset.mul_scalar(grid_size);
+            fixed.move_(widget, new.x, new.y);
         }
+        tile_view.position_pixels.replace(pos_pixel);
     }
 
-    fn add_to_fixed(&self, widget: &Widget, x: f64, y: f64) {
+    fn add_to_fixed(&self, widget: &Widget, pos: &Offset) {
         let fixed_borrow = self.fixed.borrow();
         let fixed = fixed_borrow.as_ref().unwrap();
-        fixed.put(widget, x, y);
+        fixed.put(widget, pos.x, pos.y);
         self.elements_in_fixed.borrow_mut().push(widget.clone());
     }
 
@@ -272,19 +299,4 @@ struct GridConfig {
     grid_h_cell_count: u32,
     cell_width_pixel: u32,
     board_offset_cells: Offset,
-}
-
-/// Represents an offset in x and y directions.
-///
-/// The offset can be in pixels or in grid cells, depending on the context.
-#[derive(Debug, Default, Clone)]
-pub struct Offset {
-    pub(crate) x: i32,
-    pub(crate) y: i32,
-}
-
-impl Offset {
-    pub(crate) fn new(x: i32, y: i32) -> Self {
-        Offset { x, y }
-    }
 }

@@ -20,6 +20,7 @@
 
 mod application;
 mod config;
+mod offset;
 mod presenter;
 mod puzzle;
 mod state;
