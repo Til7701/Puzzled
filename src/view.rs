@@ -11,6 +11,7 @@ pub struct TileView {
     pub elements_with_offset: Rc<RefCell<Vec<(Widget, Offset)>>>,
     pub draggables: Vec<Widget>,
     pub position_pixels: Rc<RefCell<Offset>>,
+    pub position_cells: Rc<RefCell<Option<Offset>>>,
 }
 
 impl TileView {
@@ -46,6 +47,7 @@ impl TileView {
             elements_with_offset,
             draggables,
             position_pixels: Rc::new(RefCell::new(Offset::default())),
+            position_cells: Rc::new(RefCell::new(None)),
         };
 
         tile_view

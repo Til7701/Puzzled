@@ -134,10 +134,17 @@ impl PuzzleAreaPresenter {
                         .mul_scalar(grid_size as f64)
                 };
                 self_clone.move_tile_to(&tile_view, snapped);
+                let new_position_cells = self_clone.calculate_cells_from_pixels(&snapped);
+                tile_view.position_cells.replace(Some(new_position_cells));
             }
         });
 
         draggable.add_controller(drag);
+    }
+
+    fn calculate_cells_from_pixels(&self, pos_pixel: &Offset) -> Offset {
+        let grid_size = self.grid_config.borrow().cell_width_pixel as f64;
+        pos_pixel.div_scalar(grid_size).round()
     }
 
     fn setup_tile_rotation_and_flip(&self, tile_view: &TileView, draggable: &Widget) {
@@ -235,9 +242,10 @@ impl PuzzleAreaPresenter {
         if let Some(board_view) = self.board_view.borrow().as_ref() {
             let widget = board_view.parent.clone().upcast::<Widget>();
             let grid_config = self.grid_config.borrow();
-            let x = grid_config.board_offset_cells.x as f64 * grid_config.cell_width_pixel as f64;
-            let y = grid_config.board_offset_cells.y as f64 * grid_config.cell_width_pixel as f64;
-            fixed.move_(&widget, x, y);
+            let pos = grid_config
+                .board_offset_cells
+                .mul_scalar(grid_config.cell_width_pixel as f64);
+            fixed.move_(&widget, pos.x, pos.y);
             for widget in board_view.elements.iter() {
                 widget.set_width_request(grid_config.cell_width_pixel as i32);
                 widget.set_height_request(grid_config.cell_width_pixel as i32);
@@ -256,7 +264,13 @@ impl PuzzleAreaPresenter {
                     .0
                     .set_height_request(grid_config.cell_width_pixel as i32);
             }
-            let pos = { tile_view.position_pixels.clone().borrow().clone() };
+            let pos = {
+                if let Some(position_cells) = tile_view.position_cells.borrow().as_ref() {
+                    position_cells.mul_scalar(self.grid_config.borrow().cell_width_pixel as f64)
+                } else {
+                    tile_view.position_pixels.clone().borrow().clone()
+                }
+            };
             self.move_tile_to(tile_view, pos);
         }
     }
