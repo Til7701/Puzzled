@@ -113,7 +113,7 @@ impl TilePresenter {
         self.setup_tile_offset_updating_gesture(tile_view_index, &gesture, {
             move |offset, tile_view| {
                 let (_, cols) = Self::get_dims(&tile_view.elements_with_offset);
-                PixelOffset(-offset.1 + (cols - 1.0), offset.0)
+                PixelOffset(-offset.1 + (cols - 1) as f64, offset.0)
             }
         });
         draggable.add_controller(gesture.clone().upcast::<EventController>());
@@ -124,15 +124,15 @@ impl TilePresenter {
         self.setup_tile_offset_updating_gesture(tile_view_index, &gesture, {
             move |offset, tile_view| {
                 let (rows, _) = Self::get_dims(&tile_view.elements_with_offset);
-                PixelOffset(-offset.0 + (rows - 1.0), offset.1)
+                PixelOffset(-offset.0 + (rows - 1) as f64, offset.1)
             }
         });
         draggable.add_controller(gesture.clone().upcast::<EventController>());
     }
 
-    pub fn get_dims(elements_with_offset: &Vec<(Widget, PixelOffset)>) -> (f64, f64) {
+    pub fn get_dims(elements_with_offset: &[(Widget, PixelOffset)]) -> (i32, i32) {
         if elements_with_offset.is_empty() {
-            return (0.0, 0.0);
+            return (0, 0);
         }
         let max_row = elements_with_offset
             .iter()
@@ -142,7 +142,7 @@ impl TilePresenter {
             .iter()
             .map(|(_, o)| o.1)
             .fold(f64::NEG_INFINITY, f64::max);
-        (max_row + 1.0, max_col + 1.0)
+        (max_row as i32 + 1, max_col as i32 + 1)
     }
 
     fn setup_tile_offset_updating_gesture<
