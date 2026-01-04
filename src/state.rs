@@ -20,15 +20,10 @@ pub fn get_state() -> MutexGuard<'static, State> {
                 std::process::id(),
                 Backtrace::capture()
             );
-            // pause so you can attach a debugger (gdb/rust-gdb) to inspect threads/stacks
             std::thread::sleep(std::time::Duration::from_secs(2));
-            // fallback to blocking lock so program can continue after inspection
             APP_STATE.lock().unwrap()
         }
-        Err(TryLockError::Poisoned(_)) => {
-            // preserve original behavior on poisoned lock
-            APP_STATE.lock().unwrap()
-        }
+        Err(TryLockError::Poisoned(_)) => APP_STATE.lock().unwrap(),
     }
 }
 
