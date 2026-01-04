@@ -8,6 +8,7 @@ pub struct PuzzleConfig {
     pub board_layout: Array2<bool>,
     pub meaning_areas: Array2<i32>,
     pub meaning_values: Array2<i32>,
+    pub display_values: Array2<String>,
     pub tiles: Vec<Tile>,
 }
 
@@ -16,14 +17,21 @@ impl PuzzleConfig {
         board_layout: Array2<bool>,
         meaning_areas: Array2<i32>,
         meaning_values: Array2<i32>,
+        display_values: Array2<String>,
+
         tiles: Vec<Tile>,
     ) -> PuzzleConfig {
         PuzzleConfig {
             board_layout,
             meaning_areas,
             meaning_values,
+            display_values,
             tiles,
         }
+    }
+
+    pub fn max_meaning_value(&self) -> i32 {
+        *self.meaning_values.iter().max().unwrap_or(&0)
     }
 }
 

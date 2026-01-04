@@ -48,9 +48,10 @@ pub struct BoardView {
 
 impl BoardView {
     pub fn new(
-        board_layout: Array2<bool>,
-        meaning_areas: Array2<i32>,
-        meaning_values: Array2<i32>,
+        board_layout: &Array2<bool>,
+        meaning_areas: &Array2<i32>,
+        meaning_values: &Array2<i32>,
+        display_values: &Array2<String>,
     ) -> Result<BoardView, String> {
         if board_layout.dim() != meaning_areas.dim() || board_layout.dim() != meaning_values.dim() {
             return Err(
@@ -59,7 +60,9 @@ impl BoardView {
             );
         }
 
-        let grid = Grid::new();
+        let grid = Grid::builder()
+            .css_classes(vec!["board-grid".to_string()])
+            .build();
         grid.set_row_homogeneous(true);
         grid.set_column_homogeneous(true);
 
@@ -67,10 +70,14 @@ impl BoardView {
 
         for ((x, y), value) in board_layout.indexed_iter() {
             if *value {
-                let cell = Frame::new(None);
+                let css_classes: Vec<String> = vec![
+                    "board-cell".to_string(),
+                    format!("board-cell-{}", meaning_areas[[x, y]]),
+                ];
+                let cell = Frame::builder().css_classes(css_classes).build();
 
                 if meaning_areas[[x, y]] != -1 {
-                    let label = Label::new(Some(&meaning_values[[x, y]].to_string()));
+                    let label = Label::new(Some(&display_values[[x, y]]));
                     cell.set_child(Some(&label));
                 } else {
                     return Err(format!(

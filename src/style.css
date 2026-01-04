@@ -47,6 +47,10 @@
     background-color: #F8E45C;
 }
 
+.tile-cell-11 {
+    background-color: #B5835A;
+}
+
 .overlap-highlight {
     border-style: dotted;
     border-width: 3px;
@@ -57,4 +61,28 @@
     border-style: dotted;
     border-width: 3px;
     border-color: #FF7800;
+}
+
+.board-grid {
+}
+
+.board-cell {
+    border-style: none;
+    border-radius: 0;
+}
+
+.board-cell-0 {
+    background-color: #333333;
+}
+
+.board-cell-1 {
+    background-color: #444444;
+}
+
+.board-cell-2 {
+    background-color: #555555;
+}
+
+.board-cell-3 {
+    background-color: #666666;
 }

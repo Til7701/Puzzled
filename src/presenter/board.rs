@@ -20,9 +20,10 @@ impl BoardPresenter {
 
     pub fn setup(&self, puzzle_config: &PuzzleConfig) {
         let board_view = BoardView::new(
-            puzzle_config.board_layout.clone(),
-            puzzle_config.meaning_areas.clone(),
-            puzzle_config.meaning_values.clone(),
+            &puzzle_config.board_layout,
+            &puzzle_config.meaning_areas,
+            &puzzle_config.meaning_values,
+            &puzzle_config.display_values,
         )
         .expect("Failed to initialize board view");
         let widget = board_view.parent.clone().upcast::<Widget>();
