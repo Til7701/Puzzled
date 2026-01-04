@@ -36,7 +36,7 @@ impl BoardPresenter {
 
         let grid_config = &mut data.grid_config;
         grid_config.grid_h_cell_count = grid_h_cell_count;
-        grid_config.board_offset_cells = CellOffset(1, board_offset_horizontal_cells);
+        grid_config.board_offset_cells = CellOffset(board_offset_horizontal_cells, 1);
         data.elements_in_fixed.push(widget.clone());
         data.elements_in_fixed.push(widget);
         data.board_view = Some(board_view);
@@ -52,7 +52,7 @@ impl BoardPresenter {
             let pos = grid_config
                 .board_offset_cells
                 .mul_scalar(grid_config.cell_width_pixel as f64);
-            fixed.move_(&widget, pos.1 as f64, pos.0 as f64);
+            fixed.move_(&widget, pos.0 as f64, pos.1 as f64);
             for widget in board_view.elements.iter() {
                 widget.set_width_request(grid_config.cell_width_pixel as i32);
                 widget.set_height_request(grid_config.cell_width_pixel as i32);

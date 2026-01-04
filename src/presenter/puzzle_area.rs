@@ -34,7 +34,7 @@ impl PuzzleAreaData {
     pub fn add_to_fixed(&mut self, widget: &Widget, pos: &PixelOffset) {
         match &self.fixed {
             Some(fixed) => {
-                fixed.put(widget, pos.1, pos.0);
+                fixed.put(widget, pos.0, pos.1);
                 self.elements_in_fixed.push(widget.clone());
             }
             None => {}

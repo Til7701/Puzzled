@@ -94,7 +94,7 @@ impl TilePresenter {
                         }
                     };
                     let pos = tile_view.position_pixels;
-                    pos.add_tuple((dy, dx))
+                    pos.add_tuple((dx, dy))
                 };
                 self_clone.move_to(tile_view_index, new);
             }
@@ -262,7 +262,7 @@ impl TilePresenter {
         if let Some(tile_view) = data.tile_views.get_mut(tile_view_index) {
             for (widget, offset) in tile_view.elements_with_offset.iter() {
                 let new = pos_pixel + offset.mul_scalar(grid_size);
-                fixed.move_(widget, new.1, new.0);
+                fixed.move_(widget, new.0, new.1);
             }
             tile_view.position_pixels = pos_pixel;
         }

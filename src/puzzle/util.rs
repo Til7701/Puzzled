@@ -1,4 +1,5 @@
 use ndarray::Array2;
+use std::mem::take;
 
 pub fn rotate_90(array: &Array2<bool>) -> Array2<bool> {
     let (rows, cols) = array.dim();
@@ -11,14 +12,14 @@ pub fn rotate_90(array: &Array2<bool>) -> Array2<bool> {
     rotated
 }
 
-pub fn transform(array: &Array2<bool>) -> Array2<bool> {
+pub fn transform<T: Default + Clone>(array: &mut Array2<T>) -> Array2<T> {
     let (rows, cols) = array.dim();
-    let mut rotated = Array2::from_elem((cols, rows), false);
+    let mut rotated = Array2::from_elem((cols, rows), T::default());
     for r in 0..rows {
         for c in 0..cols {
-            rotated[[c, r]] = array[[r, c]];
+            let value = take(&mut array[[r, c]]);
+            rotated[[c, r]] = value;
         }
     }
     rotated
 }
-

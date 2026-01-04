@@ -17,7 +17,7 @@ impl TileView {
         let mut draggables: Vec<Widget> = Vec::new();
         let mut elements_with_offset: Vec<(Widget, PixelOffset)> = Vec::new();
 
-        for ((r, c), value) in base.indexed_iter() {
+        for ((x, y), value) in base.indexed_iter() {
             if *value {
                 let css_classes: Vec<String> =
                     vec!["tile-cell".to_string(), format!("tile-cell-{}", id)];
@@ -25,7 +25,7 @@ impl TileView {
 
                 elements_with_offset.push((
                     cell.clone().upcast::<Widget>(),
-                    PixelOffset(r as f64, c as f64),
+                    PixelOffset(x as f64, y as f64),
                 ));
                 draggables.push(cell.upcast::<Widget>());
             }
@@ -65,21 +65,21 @@ impl BoardView {
 
         let mut elements: Vec<Widget> = Vec::new();
 
-        for ((r, c), value) in board_layout.indexed_iter() {
+        for ((x, y), value) in board_layout.indexed_iter() {
             if *value {
                 let cell = Frame::new(None);
 
-                if meaning_areas[[r, c]] != -1 {
-                    let label = Label::new(Some(&meaning_values[[r, c]].to_string()));
+                if meaning_areas[[x, y]] != -1 {
+                    let label = Label::new(Some(&meaning_values[[x, y]].to_string()));
                     cell.set_child(Some(&label));
                 } else {
                     return Err(format!(
                         "Meaning area is -1 while board layout is true at position ({}, {})",
-                        r, c,
+                        x, y,
                     ));
                 }
 
-                grid.attach(&cell, c as i32, r as i32, 1, 1);
+                grid.attach(&cell, x as i32, y as i32, 1, 1);
                 elements.push(cell.upcast::<Widget>());
             }
         }

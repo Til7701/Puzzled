@@ -22,7 +22,7 @@ impl Tile {
         tmp = rotate_90(&tmp);
         all_rotations_set.insert(tmp.clone());
 
-        tmp = transform(&base);
+        tmp = transform(&mut base.clone());
         all_rotations_set.insert(tmp.clone());
 
         tmp = rotate_90(&tmp);
