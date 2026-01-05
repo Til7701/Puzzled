@@ -18,8 +18,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 use crate::config::VERSION;
-use crate::puzzle;
-use crate::state::get_state;
 use crate::window::PuzzlemoredaysWindow;
 use adw::gdk::Display;
 use adw::prelude::*;
@@ -29,11 +27,13 @@ use gtk::{gio, glib, CssProvider, STYLE_PROVIDER_PRIORITY_APPLICATION};
 
 mod imp {
     use super::*;
+    use crate::presenter::main::MainPresenter;
     use crate::presenter::puzzle_area::PuzzleAreaPresenter;
     use crate::window::PuzzlemoredaysWindow;
 
     #[derive(Debug, Default)]
     pub struct PuzzlemoredaysApplication {
+        pub main_presenter: MainPresenter,
         pub puzzle_area_presenter: PuzzleAreaPresenter,
     }
 
@@ -141,24 +141,9 @@ impl PuzzlemoredaysApplication {
 
     fn setup(&self, window: &PuzzlemoredaysWindow) {
         self.imp().puzzle_area_presenter.set_view(window.grid());
-
-        let puzzle_selection = window.puzzle_selection();
-        puzzle_selection.set_selected(0);
-
-        puzzle_selection.connect_selected_notify({
-            let puzzle_area_presenter = self.imp().puzzle_area_presenter.clone();
-            move |dropdown| {
-                let index = dropdown.selected();
-                let puzzle_config = match index {
-                    0 => puzzle::get_default_config(),
-                    1 => puzzle::get_year_config(),
-                    _ => panic!("Unknown puzzle selection index: {}", index),
-                };
-                get_state().puzzle_config = puzzle_config;
-
-                puzzle_area_presenter.setup_puzzle_config_from_state();
-            }
-        });
+        self.imp()
+            .main_presenter
+            .set_puzzle_area_presenter(&self.imp().puzzle_area_presenter);
 
         window.connect_default_width_notify({
             let puzzle_area_presenter = self.imp().puzzle_area_presenter.clone();
@@ -177,5 +162,6 @@ impl PuzzlemoredaysApplication {
         self.imp()
             .puzzle_area_presenter
             .setup_puzzle_config_from_state();
+        self.imp().main_presenter.setup(window);
     }
 }
