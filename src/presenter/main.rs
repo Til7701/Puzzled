@@ -16,11 +16,15 @@ impl MainPresenter {
     }
 
     pub fn setup(&self, window: &PuzzlemoredaysWindow) {
+        let puzzle_area_presenter = self.puzzle_area_presenter.borrow();
+        puzzle_area_presenter.set_view(window.grid());
+        puzzle_area_presenter.setup_puzzle_config_from_state();
+
         let puzzle_selection = window.puzzle_selection();
         puzzle_selection.set_selected(0);
 
         puzzle_selection.connect_selected_notify({
-            let puzzle_area_presenter = self.puzzle_area_presenter.borrow().clone();
+            let puzzle_area_presenter = puzzle_area_presenter.clone();
             move |dropdown| {
                 let index = dropdown.selected();
                 let puzzle_config = match index {
@@ -33,5 +37,9 @@ impl MainPresenter {
                 puzzle_area_presenter.setup_puzzle_config_from_state();
             }
         });
+    }
+
+    pub fn update_layout(&self) {
+        self.puzzle_area_presenter.borrow().update_layout();
     }
 }

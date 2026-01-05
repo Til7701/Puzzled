@@ -28,13 +28,11 @@ use gtk::{gio, glib, CssProvider, STYLE_PROVIDER_PRIORITY_APPLICATION};
 mod imp {
     use super::*;
     use crate::presenter::main::MainPresenter;
-    use crate::presenter::puzzle_area::PuzzleAreaPresenter;
     use crate::window::PuzzlemoredaysWindow;
 
     #[derive(Debug, Default)]
     pub struct PuzzlemoredaysApplication {
         pub main_presenter: MainPresenter,
-        pub puzzle_area_presenter: PuzzleAreaPresenter,
     }
 
     #[glib::object_subclass]
@@ -74,8 +72,6 @@ mod imp {
             );
 
             window.present();
-
-            application.imp().puzzle_area_presenter.update_layout();
         }
     }
 
@@ -140,28 +136,20 @@ impl PuzzlemoredaysApplication {
     }
 
     fn setup(&self, window: &PuzzlemoredaysWindow) {
-        self.imp().puzzle_area_presenter.set_view(window.grid());
-        self.imp()
-            .main_presenter
-            .set_puzzle_area_presenter(&self.imp().puzzle_area_presenter);
-
         window.connect_default_width_notify({
-            let puzzle_area_presenter = self.imp().puzzle_area_presenter.clone();
-            move |_| puzzle_area_presenter.update_layout()
+            let main_presenter = self.imp().main_presenter.clone();
+            move |_| main_presenter.update_layout()
         });
         window.connect_is_active_notify({
-            let puzzle_area_presenter = self.imp().puzzle_area_presenter.clone();
-            move |_| puzzle_area_presenter.update_layout()
+            let main_presenter = self.imp().main_presenter.clone();
+            move |_| main_presenter.update_layout()
         });
         // Currently, this does not work, since the width is not updated yet when this signal is emitted.
         window.connect_maximized_notify({
-            let puzzle_area_presenter = self.imp().puzzle_area_presenter.clone();
-            move |_| puzzle_area_presenter.update_layout()
+            let main_presenter = self.imp().main_presenter.clone();
+            move |_| main_presenter.update_layout()
         });
 
-        self.imp()
-            .puzzle_area_presenter
-            .setup_puzzle_config_from_state();
         self.imp().main_presenter.setup(window);
     }
 }
