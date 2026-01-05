@@ -33,17 +33,9 @@
                     </object>
                 </child>
                 <property name="content">
-                    <object class="GtkOverlay" id="overlay">
-                        <child>
-                            <object class="GtkDrawingArea" id="drawing">
-                            </object>
-                        </child>
-                        <child type="overlay">
-                            <object class="GtkFixed" id="grid">
-                                <property name="hexpand">True</property>
-                                <property name="vexpand">True</property>
-                            </object>
-                        </child>
+                    <object class="GtkFixed" id="grid">
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
                     </object>
                 </property>
             </object>

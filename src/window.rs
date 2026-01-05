@@ -31,8 +31,6 @@ mod imp {
         #[template_child]
         pub grid: TemplateChild<gtk::Fixed>,
         #[template_child]
-        pub drawing: TemplateChild<gtk::DrawingArea>,
-        #[template_child]
         pub puzzle_selection: TemplateChild<gtk::DropDown>,
     }
 
@@ -76,9 +74,5 @@ impl PuzzlemoredaysWindow {
 
     pub fn puzzle_selection(&self) -> gtk::DropDown {
         self.imp().puzzle_selection.clone()
-    }
-
-    pub fn drawing_area(&self) -> gtk::DrawingArea {
-        self.imp().drawing.clone()
     }
 }
