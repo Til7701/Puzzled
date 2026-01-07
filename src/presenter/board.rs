@@ -1,7 +1,8 @@
 use crate::offset::{CellOffset, PixelOffset};
 use crate::presenter::puzzle_area::{PuzzleAreaData, WINDOW_TO_BOARD_RATIO};
+use crate::puzzle::config::TargetIndex;
 use crate::puzzle::PuzzleConfig;
-use crate::state::{get_state, MeaningSelection};
+use crate::state::get_state;
 use crate::view::BoardView;
 use adw::prelude::Cast;
 use gtk::prelude::{FixedExt, GridExt, WidgetExt};
@@ -22,21 +23,16 @@ impl BoardPresenter {
     }
 
     pub fn setup(&self, puzzle_config: &PuzzleConfig) {
-        let board_view = BoardView::new(
-            &puzzle_config.board_layout,
-            &puzzle_config.meaning_areas,
-            &puzzle_config.meaning_values,
-            &puzzle_config.display_values,
-        )
-        .expect("Failed to initialize board view");
+        let board_view =
+            BoardView::new(&puzzle_config.board_config).expect("Failed to initialize board view");
         let widget = board_view.parent.clone().upcast::<Widget>();
         let mut data = self.data.borrow_mut();
         data.add_to_fixed(&widget, &PixelOffset::default());
 
         let grid_h_cell_count =
-            (puzzle_config.board_layout.dim().0 as f64 * WINDOW_TO_BOARD_RATIO) as u32;
+            (puzzle_config.board_config.layout.dim().0 as f64 * WINDOW_TO_BOARD_RATIO) as u32;
         let board_offset_horizontal_cells =
-            ((grid_h_cell_count - puzzle_config.board_layout.dim().0 as u32) / 2) as i32;
+            ((grid_h_cell_count - puzzle_config.board_config.layout.dim().0 as u32) / 2) as i32;
 
         let grid_config = &mut data.grid_config;
         grid_config.grid_h_cell_count = grid_h_cell_count;
@@ -70,28 +66,12 @@ impl BoardPresenter {
         let data = self.data.borrow();
         match target_selection {
             Some(selection) => {
-                let puzzle_config = &state.puzzle_config;
-                let puzzle_meaning_values = &puzzle_config.meaning_values;
-                let puzzle_meaning_areas = &puzzle_config.meaning_areas;
                 if let Some(board_view) = &data.board_view {
-                    selection.meaning_selections.iter().for_each(
-                        |MeaningSelection {
-                             meaning_index,
-                             selected_value,
-                         }| {
-                            for ((x, y), &area_index) in puzzle_meaning_areas.indexed_iter() {
-                                if area_index == *meaning_index {
-                                    if puzzle_meaning_values[[x, y]] == *selected_value {
-                                        if let Some(widget) =
-                                            board_view.parent.child_at(x as i32, y as i32)
-                                        {
-                                            widget.add_css_class(TARGET_SELECTION_CLASS);
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                    )
+                    selection.indices.iter().for_each(|TargetIndex(x, y)| {
+                        if let Some(widget) = board_view.parent.child_at(*x as i32, *y as i32) {
+                            widget.add_css_class(TARGET_SELECTION_CLASS);
+                        }
+                    })
                 }
             }
             None => {}

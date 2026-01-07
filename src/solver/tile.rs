@@ -1,4 +1,4 @@
-use crate::puzzle::util::{rotate_90, transform};
+use crate::util::{rotate_90, transform};
 use ndarray::Array2;
 use std::collections::HashSet;
 

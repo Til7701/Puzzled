@@ -1,6 +1,7 @@
 use crate::offset::{CellOffset, PixelOffset};
+use crate::puzzle::config::{AreaConfig, BoardConfig, Target, TargetIndex};
 use crate::puzzle::PuzzleConfig;
-use crate::state::{get_state, MeaningSelection, TargetSelection};
+use crate::state::get_state;
 use adw::prelude::{AdwDialogExt, PreferencesGroupExt};
 use adw::prelude::{Cast, PreferencesDialogExt};
 use adw::prelude::{ComboRowExt, PreferencesPageExt};
@@ -53,13 +54,13 @@ pub struct BoardView {
 }
 
 impl BoardView {
-    pub fn new(
-        board_layout: &Array2<bool>,
-        meaning_areas: &Array2<i32>,
-        meaning_values: &Array2<i32>,
-        display_values: &Array2<String>,
-    ) -> Result<BoardView, String> {
-        if board_layout.dim() != meaning_areas.dim() || board_layout.dim() != meaning_values.dim() {
+    pub fn new(board_config: &BoardConfig) -> Result<BoardView, String> {
+        let board_layout = &board_config.layout;
+        let board_area_indices = &board_config.area_indices;
+        let display_values = &board_config.display_values;
+        if board_layout.dim() != board_area_indices.dim()
+            || board_layout.dim() != display_values.dim()
+        {
             return Err(
                 "Dimensions of board_layout, meaning_areas, and meaning_values must match"
                     .to_string(),
@@ -78,11 +79,11 @@ impl BoardView {
             if *value {
                 let css_classes: Vec<String> = vec![
                     "board-cell".to_string(),
-                    format!("board-cell-{}", meaning_areas[[x, y]]),
+                    format!("board-cell-{}", board_area_indices[[x, y]]),
                 ];
                 let cell = Frame::builder().css_classes(css_classes).build();
 
-                if meaning_areas[[x, y]] != -1 {
+                if board_area_indices[[x, y]] != -1 {
                     let label = Label::new(Some(&display_values[[x, y]]));
                     cell.set_child(Some(&label));
                 } else {
@@ -131,8 +132,8 @@ fn create_content_for_puzzle_info(puzzle_config: &PuzzleConfig) -> PreferencesPa
         "Board Dimensions",
         &format!(
             "{} x {}",
-            puzzle_config.board_layout.nrows(),
-            puzzle_config.board_layout.ncols()
+            puzzle_config.board_config.layout.nrows(),
+            puzzle_config.board_config.layout.ncols()
         ),
     );
     general_group.add(&board_dimensions);
@@ -148,25 +149,25 @@ fn create_content_for_puzzle_info(puzzle_config: &PuzzleConfig) -> PreferencesPa
             .build();
         let min_per_meaning = create_row(
             "Minimum Solutions per Day",
-            &format!("{}", stats.min_per_meaning),
+            &format!("{}", stats.min_per_target),
         );
         solution_statistics_group.add(&min_per_meaning);
 
         let max_per_meaning = create_row(
             "Maximum Solutions per Day",
-            &format!("{}", stats.max_per_meaning),
+            &format!("{}", stats.max_per_target),
         );
         solution_statistics_group.add(&max_per_meaning);
 
         let average_per_meaning = create_row(
             "Average Solutions per Day",
-            &format!("{:.2}", stats.average_per_meaning),
+            &format!("{:.2}", stats.average_per_target),
         );
         solution_statistics_group.add(&average_per_meaning);
 
         let mean_per_meaning = create_row(
             "Mean Solutions per Day",
-            &format!("{}", stats.mean_per_meaning),
+            &format!("{}", stats.mean_per_target),
         );
         solution_statistics_group.add(&mean_per_meaning);
 
@@ -190,6 +191,12 @@ fn create_row(title: &str, value: &str) -> ActionRow {
         .build()
 }
 
+#[derive(Debug, Clone, PartialEq)]
+struct TargetIndexListItem {
+    display_value: String,
+    target_index: TargetIndex,
+}
+
 pub fn create_target_selection_dialog() -> Dialog {
     let dialog = Dialog::builder().title("Select Target Day").build();
 
@@ -200,30 +207,18 @@ pub fn create_target_selection_dialog() -> Dialog {
     let state = get_state();
     let puzzle_config = &state.puzzle_config;
     let current_selection = &state.target_selection;
-    let meaning_options = &puzzle_config.meaning_options;
+    let area_configs = &puzzle_config.board_config.area_configs;
+    let mut area_items: Vec<Vec<TargetIndexListItem>> = Vec::new();
     let mut dropdowns: Vec<ComboRow> = Vec::new();
-    for meaning in meaning_options {
-        let mut items: Vec<String> = Vec::new();
-        for value in meaning.min..=meaning.max {
-            items.push(value.to_string());
-        }
-        let item_slices: Vec<&str> = items.iter().map(String::as_str).collect();
-        let model = StringList::new(&item_slices);
-
-        let meaning = meaning.clone();
-        let current_index: u32 = current_selection
-            .as_ref()
-            .map(|target_selection| {
-                target_selection.meaning_selections[meaning.index as usize].selected_value
-                    - meaning.min
-            })
-            .unwrap_or(0) as u32;
-        let dropdown = ComboRow::builder()
-            .title(&meaning.name)
-            .model(&model)
-            .selected(current_index)
-            .build();
-        content.add(&dropdown);
+    for area_index in 0..puzzle_config.area_count() {
+        let (items, dropdown) = create_dropdown_for_area(
+            &content,
+            puzzle_config,
+            current_selection,
+            &area_configs,
+            area_index,
+        );
+        area_items.push(items);
         dropdowns.push(dropdown);
     }
     let dropdowns = dropdowns;
@@ -235,19 +230,18 @@ pub fn create_target_selection_dialog() -> Dialog {
     accept_button.connect_clicked({
         let dialog = dialog.clone();
         let dropdowns = dropdowns.clone();
-        let puzzle_config = puzzle_config.clone();
+        let area_items = area_items.clone();
         move |_| {
-            let mut selected_values: Vec<MeaningSelection> = Vec::new();
+            let mut selected_values: Vec<TargetIndex> = Vec::new();
             for (i, dropdown) in dropdowns.iter().enumerate() {
-                let selected = dropdown.selected();
-                selected_values.push(MeaningSelection {
-                    meaning_index: i as i32,
-                    selected_value: selected as i32 + puzzle_config.meaning_options[i].min,
-                });
+                let sel = dropdown.selected();
+                if (sel as usize) < area_items[i].len() {
+                    selected_values.push(area_items[i][sel as usize].target_index.clone());
+                }
             }
             let mut state = get_state();
-            state.target_selection = Some(TargetSelection {
-                meaning_selections: selected_values,
+            state.target_selection = Some(Target {
+                indices: selected_values,
             });
             drop(state);
             dialog.close();
@@ -289,4 +283,58 @@ pub fn create_target_selection_dialog() -> Dialog {
     drop(state);
     dialog.set_child(Some(&box_content));
     dialog.upcast()
+}
+
+fn create_dropdown_for_area(
+    content: &PreferencesGroup,
+    puzzle_config: &PuzzleConfig,
+    current_selection: &Option<Target>,
+    area_configs: &&Vec<AreaConfig>,
+    area_index: usize,
+) -> (Vec<TargetIndexListItem>, ComboRow) {
+    let mut items: Vec<TargetIndexListItem> = puzzle_config
+        .get_display_values_for_area(area_index as i32)
+        .iter()
+        .map(|(display_value, target_index)| TargetIndexListItem {
+            display_value: display_value.clone(),
+            target_index: target_index.clone(),
+        })
+        .collect();
+    items.sort_by(|a, b| {
+        let first = puzzle_config
+            .board_config
+            .value_order
+            .get((a.target_index.0, a.target_index.1))
+            .cloned()
+            .unwrap_or(i32::MAX);
+        let second = puzzle_config
+            .board_config
+            .value_order
+            .get((b.target_index.0, b.target_index.1))
+            .cloned()
+            .unwrap_or(i32::MAX);
+
+        first.cmp(&second)
+    });
+
+    let string_list = StringList::new(&[]);
+    for it in &items {
+        string_list.append(&it.display_value);
+    }
+
+    let dropdown = ComboRow::builder()
+        .title(&area_configs[area_index].name)
+        .model(&string_list)
+        .build();
+
+    if let Some(idx) = current_selection
+        .as_ref()
+        .and_then(|sel| sel.indices.get(area_index))
+        .and_then(|target_index| items.iter().position(|i| i.target_index == *target_index))
+    {
+        dropdown.set_selected(idx as u32);
+    }
+
+    content.add(&dropdown);
+    (items, dropdown)
 }

@@ -1,3 +1,4 @@
+use crate::puzzle::config::Target;
 use crate::puzzle::PuzzleConfig;
 use once_cell::sync::Lazy;
 use std::backtrace::Backtrace;
@@ -8,18 +9,7 @@ static APP_STATE: Lazy<Mutex<State>> = Lazy::new(|| Mutex::new(State::default())
 #[derive(Debug, Clone)]
 pub struct State {
     pub puzzle_config: PuzzleConfig,
-    pub target_selection: Option<TargetSelection>,
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct TargetSelection {
-    pub meaning_selections: Vec<MeaningSelection>,
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct MeaningSelection {
-    pub meaning_index: i32,
-    pub selected_value: i32,
+    pub target_selection: Option<Target>,
 }
 
 pub fn get_state() -> MutexGuard<'static, State> {

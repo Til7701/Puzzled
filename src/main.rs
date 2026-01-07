@@ -24,7 +24,9 @@ mod offset;
 mod presenter;
 mod puzzle;
 mod puzzle_state;
+mod solver;
 mod state;
+mod util;
 mod view;
 mod window;
 

@@ -91,13 +91,9 @@ impl MainPresenter {
             let state = get_state();
             let target_selection = &state.target_selection;
             match target_selection {
-                Some(selection) => {
+                Some(target) => {
                     let puzzle_config = &state.puzzle_config;
-                    let text = puzzle_config.target_name.create_target_name(selection);
-                    let text = match text {
-                        Ok(t) => t,
-                        Err(e) => format!("Error: {}", e),
-                    };
+                    let text = puzzle_config.format_target(target);
                     window.target_selection_button().set_label(&text);
                 }
                 None => {

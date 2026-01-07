@@ -1,6 +1,6 @@
 use crate::offset::{CellOffset, PixelOffset};
 use crate::presenter::puzzle_area::PuzzleAreaData;
-use crate::puzzle::tile::Tile;
+use crate::puzzle::config::TileConfig;
 use crate::view::TileView;
 use adw::gdk::{BUTTON_MIDDLE, BUTTON_SECONDARY};
 use gtk::prelude::{
@@ -22,7 +22,7 @@ impl TilePresenter {
 
     pub fn setup(
         &self,
-        tile: &Tile,
+        tile: &TileConfig,
         start_position_cell: &CellOffset,
         on_position_changed: Rc<dyn Fn()>,
     ) {
