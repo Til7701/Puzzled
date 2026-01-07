@@ -69,7 +69,7 @@ impl PuzzleAreaPresenter {
     /// This adds the board and tiles to the puzzle area based on the current puzzle configuration.
     /// Final positions and layout are handled in `update_layout()`. Before that, all elements are
     /// added at position (0, 0) and will be moved later.
-    pub fn setup_puzzle_config_from_state(&self) {
+    pub fn setup_puzzle_config_from_state(&self, on_position_changed: Rc<dyn Fn()>) {
         self.clear_elements();
 
         let state = get_state();
@@ -85,7 +85,11 @@ impl PuzzleAreaPresenter {
                 &start_positions[i],
                 Rc::new({
                     let self_clone = self.clone();
-                    move || self_clone.update_highlights()
+                    let on_position_changed = on_position_changed.clone();
+                    move || {
+                        self_clone.update_highlights();
+                        on_position_changed();
+                    }
                 }),
             );
         }

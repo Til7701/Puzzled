@@ -39,7 +39,9 @@
                             </object>
                         </child>
                         <child type="start">
-                            <object class="AdwBin" id="solver_status">
+                            <object class="GtkButton" id="solver_status">
+                                <property name="icon-name">application-x-addon-symbolic</property>
+                                <property name="tooltip-text" translatable="yes">Solver Status</property>
                             </object>
                         </child>
                         <child type="end">

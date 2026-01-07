@@ -37,7 +37,7 @@ mod imp {
         #[template_child]
         pub target_selection_button: TemplateChild<gtk::Button>,
         #[template_child]
-        pub solver_status: TemplateChild<adw::Bin>,
+        pub solver_status: TemplateChild<gtk::Button>,
     }
 
     #[glib::object_subclass]
@@ -90,7 +90,7 @@ impl PuzzlemoredaysWindow {
         self.imp().target_selection_button.clone()
     }
 
-    pub fn solver_status(&self) -> adw::Bin {
+    pub fn solver_status(&self) -> gtk::Button {
         self.imp().solver_status.clone()
     }
 }

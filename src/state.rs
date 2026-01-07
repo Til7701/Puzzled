@@ -1,5 +1,6 @@
 use crate::puzzle::config::Target;
 use crate::puzzle::PuzzleConfig;
+use crate::solver::SolverCallId;
 use once_cell::sync::Lazy;
 use std::backtrace::Backtrace;
 use std::sync::{Mutex, MutexGuard, TryLockError};
@@ -10,6 +11,7 @@ static APP_STATE: Lazy<Mutex<State>> = Lazy::new(|| Mutex::new(State::default())
 pub struct State {
     pub puzzle_config: PuzzleConfig,
     pub target_selection: Option<Target>,
+    pub solver_status: SolverStatus,
 }
 
 pub fn get_state() -> MutexGuard<'static, State> {
@@ -34,6 +36,14 @@ impl Default for State {
         State {
             puzzle_config,
             target_selection: None,
+            solver_status: SolverStatus::Disabled,
         }
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum SolverStatus {
+    Disabled,
+    Running { call_id: SolverCallId },
+    Done { solvable: bool },
 }
