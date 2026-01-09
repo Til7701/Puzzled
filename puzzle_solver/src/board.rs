@@ -16,9 +16,17 @@ impl Board {
         Board(Array2::default(dims))
     }
 
+    pub fn get_array(&self) -> &Array2<bool> {
+        &self.0
+    }
+
     pub fn debug_print(&self) {
         debug!("Board:");
         array_util::debug_print(&self.0);
+    }
+
+    pub fn trim(&mut self) {
+        array_util::remove_true_rows_cols_from_sides(&mut self.0);
     }
 }
 

@@ -1,3 +1,4 @@
+use ndarray::Array2;
 use std::ops::{BitAnd, BitOr, BitXor};
 
 const BITS_IN_PRIMITIVE: usize = 128;
@@ -154,3 +155,18 @@ impl Default for Bitmask {
     }
 }
 
+impl From<&Array2<bool>> for Bitmask {
+    fn from(value: &Array2<bool>) -> Self {
+        let mut bitmask = Bitmask::new();
+        let (rows, cols) = value.dim();
+        for r in 0..rows {
+            for c in 0..cols {
+                if value[[r, c]] {
+                    let index = r * cols + c;
+                    bitmask.set_bit(index);
+                }
+            }
+        }
+        bitmask
+    }
+}
