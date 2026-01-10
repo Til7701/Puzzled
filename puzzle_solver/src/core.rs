@@ -4,7 +4,8 @@ use crate::board::Board;
 use crate::tile::Tile;
 use log::debug;
 use ndarray::Array2;
-use std::fmt::{Display, Formatter, Pointer};
+use tokio::runtime::Runtime;
+use tokio::task::JoinSet;
 
 #[derive(Clone)]
 pub struct PositionedTile {
@@ -54,18 +55,38 @@ pub fn solve_filling(
     board_bitmask: &Bitmask,
     positioned_tiles: &[PositionedTile],
 ) -> Option<Vec<usize>> {
-    let mut solvers = prepare_solvers(board_width, board_bitmask, positioned_tiles);
+    let solvers: Vec<RecursiveSolver> =
+        prepare_solvers(board_width, board_bitmask, positioned_tiles);
+    let mut set: JoinSet<bool> = JoinSet::new();
     debug!("Solvers prepared: {}", solvers.len());
 
-    for solver in solvers.iter_mut().rev() {
-        if solver.solve() {
-            debug!("Solved with placements: {:?}", solver.used_tile_indices);
-            return Some(solver.used_tile_indices.clone());
+    let result: Option<Vec<usize>> = {
+        Runtime::new().unwrap().block_on(async {
+            for mut solver in solvers.into_iter() {
+                set.spawn(async move { solver.solve().await });
+            }
+            block_until_complete(&mut set).await
+        })
+    };
+
+    result
+}
+
+async fn block_until_complete(set: &mut JoinSet<bool>) -> Option<Vec<usize>> {
+    let mut result: Option<Vec<usize>> = None;
+    while let Some(res) = set.join_next().await {
+        match res {
+            Ok(solved) => {
+                if solved {
+                    result = Some(Vec::new());
+                    break;
+                }
+            }
+            Err(_) => {}
         }
     }
-
-    debug!("No solution found");
-    None
+    set.abort_all();
+    result
 }
 
 fn prepare_solvers(
@@ -140,11 +161,11 @@ impl RecursiveSolver {
         }
     }
 
-    pub fn solve(&mut self) -> bool {
+    pub async fn solve(&mut self) -> bool {
         self.solve_recursive(self.start_tile_index)
     }
 
-    pub fn solve_recursive(&mut self, tile_index: usize) -> bool {
+    fn solve_recursive(&mut self, tile_index: usize) -> bool {
         if tile_index >= self.positioned_tiles.len() {
             return self.submit_solution();
         }

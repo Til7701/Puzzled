@@ -6,3 +6,4 @@ version.workspace = true
 [dependencies]
 ndarray = { workspace = true }
 log = { workspace = true }
+tokio = { workspace = true }
