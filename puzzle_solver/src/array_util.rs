@@ -49,22 +49,42 @@ pub fn place_on_all_positions(parent: &Array2<bool>, child: &Array2<bool>) -> Ve
     let child_cols = child.ncols();
 
     if child_rows > parent_rows || child_cols > parent_cols {
-        return placements;
+        panic!("Child array is larger than parent array");
     }
 
     for row_offset in 0..=(parent_rows - child_rows) {
         for col_offset in 0..=(parent_cols - child_cols) {
             let mut new_array = parent.clone();
+            let mut valid = true;
             for r in 0..child_rows {
                 for c in 0..child_cols {
+                    if child[[r, c]] && parent[[row_offset + r, col_offset + c]] {
+                        valid = false;
+                        break;
+                    }
                     new_array[[row_offset + r, col_offset + c]] |= child[[r, c]];
                 }
+                if !valid {
+                    break;
+                }
             }
-            placements.push(new_array);
+            if valid {
+                placements.push(new_array);
+            }
         }
     }
 
     placements
+}
+
+pub fn remove_parent(parent: &Array2<bool>, child: &mut Array2<bool>) {
+    for row in 0..parent.nrows() {
+        for col in 0..parent.ncols() {
+            if parent[[row, col]] {
+                child[[row, col]] = false;
+            }
+        }
+    }
 }
 
 pub fn debug_print(array: &Array2<bool>) {

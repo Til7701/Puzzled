@@ -28,7 +28,11 @@ pub fn solve_all_filling(board: Board, tiles: &[Tile]) -> Result<Solution, Unsol
         .map(|(index, tile)| PositionedTile::new(index, tile, &board))
         .collect();
 
-    let result = core::solve_filling(&board_bitmask, &positioned_tiles);
+    let result = core::solve_filling(
+        board.get_array().dim().0 as i32,
+        &board_bitmask,
+        &positioned_tiles,
+    );
 
     match result {
         Some(_) => Ok(Solution { placements: vec![] }),

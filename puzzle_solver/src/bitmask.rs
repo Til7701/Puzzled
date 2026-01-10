@@ -1,8 +1,11 @@
 use ndarray::Array2;
-use std::ops::{BitAnd, BitOr, BitXor};
+use std::fmt::{Display, Formatter};
+use std::ops::{BitAnd, BitOr, BitXor, Index};
 
 const BITS_IN_PRIMITIVE: usize = 128;
 const BITMASK_ARRAY_LENGTH: usize = 1;
+
+const TOTAL_BITS: usize = BITMASK_ARRAY_LENGTH * BITS_IN_PRIMITIVE;
 
 pub struct Bitmask {
     bits: [u128; BITMASK_ARRAY_LENGTH],
@@ -117,6 +120,36 @@ impl Bitmask {
             }
         }
     }
+
+    pub fn to_string(&self, board_width: i32) -> String {
+        let mut output = String::new();
+        for bit_index in 0..TOTAL_BITS {
+            if bit_index as i32 % board_width == 0 && bit_index != 0 {
+                output.push('_');
+            }
+            let bit_set = self[bit_index];
+            let symbol = if bit_set { '1' } else { '0' };
+            output.push(symbol);
+        }
+        output
+
+        // let mut output = String::new();
+        // let bits_per_row = board_width as usize;
+        // for row_start in (0..TOTAL_BITS).step_by(bits_per_row) {
+        //     for col in 0..bits_per_row {
+        //         let index = row_start + col;
+        //         let bit_set = self[index];
+        //         let symbol = if bit_set { '1' } else { '0' };
+        //         output.push(symbol);
+        //     }
+        //     output.push('\n');
+        // }
+        // output
+    }
+
+    pub fn fmt(&self, f: &mut Formatter<'_>, board_width: i32) -> std::fmt::Result {
+        write!(f, "{}", self.to_string(board_width))
+    }
 }
 
 impl BitOr for Bitmask {
@@ -158,11 +191,11 @@ impl Default for Bitmask {
 impl From<&Array2<bool>> for Bitmask {
     fn from(value: &Array2<bool>) -> Self {
         let mut bitmask = Bitmask::new();
-        let (rows, cols) = value.dim();
-        for r in 0..rows {
-            for c in 0..cols {
-                if value[[r, c]] {
-                    let index = r * cols + c;
+        let (xs, ys) = value.dim();
+        for x in 0..ys {
+            for y in 0..xs {
+                if value[[y, x]] {
+                    let index = x * xs + y;
                     bitmask.set_bit(index);
                 }
             }
@@ -178,5 +211,19 @@ impl Clone for Bitmask {
             new_bitmask.bits[i] = self.bits[i];
         }
         new_bitmask
+    }
+}
+
+impl Index<usize> for Bitmask {
+    type Output = bool;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        let array_index = index / BITS_IN_PRIMITIVE;
+        let bit_index = index % BITS_IN_PRIMITIVE;
+        if self.bits[array_index] & (1 << bit_index) != 0 {
+            &true
+        } else {
+            &false
+        }
     }
 }
