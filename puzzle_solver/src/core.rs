@@ -64,7 +64,7 @@ pub async fn solve_filling(
                 None
             }
             res = await_completion(&mut set) => {
-                debug!("Found Solution, aborting remaining solver tasks.");
+                debug!("Solver Finished, aborting remaining solver tasks.");
                 res
             }
         }

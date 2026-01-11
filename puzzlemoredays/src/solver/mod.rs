@@ -33,6 +33,13 @@ pub fn solve_for_target(
         .iter()
         .map(|tile_state| Tile::new(tile_state.base.clone()))
         .collect();
+
+    if !plausibility_check(&board, &tiles) {
+        debug!("Plausibility check failed.");
+        handle_on_complete(solver_call_id.clone(), false, on_complete);
+        return;
+    }
+
     let runtime = get_runtime();
     runtime.spawn({
         let solver_call_id = solver_call_id.clone();
@@ -43,6 +50,19 @@ pub fn solve_for_target(
             handle_on_complete(solver_call_id, result.is_ok(), on_complete);
         }
     });
+}
+
+fn plausibility_check(board: &Board, tiles: &[Tile]) -> bool {
+    let board_area = board.get_array().iter().filter(|&&cell| !cell).count();
+    let tiles_area: usize = tiles
+        .iter()
+        .map(|tile| tile.base.iter().filter(|&&cell| cell).count())
+        .sum();
+    debug!(
+        "Plausibility check: board area = {}, tiles area = {}",
+        board_area, tiles_area
+    );
+    tiles_area == board_area
 }
 
 fn handle_on_complete(
