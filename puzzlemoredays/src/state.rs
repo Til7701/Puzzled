@@ -6,6 +6,7 @@ use std::backtrace::Backtrace;
 use std::mem;
 use std::ops::DerefMut;
 use std::sync::{Mutex, MutexGuard, TryLockError};
+use std::time::Duration;
 use tokio::runtime;
 use tokio::runtime::Runtime;
 use tokio_util::sync::CancellationToken;
@@ -18,6 +19,7 @@ pub struct State {
     pub puzzle_config: PuzzleConfig,
     pub target_selection: Option<Target>,
     pub solver_state: SolverState,
+    pub preferences_state: PreferencesState,
 }
 
 pub fn get_state() -> MutexGuard<'static, State> {
@@ -44,6 +46,7 @@ impl Default for State {
             puzzle_config,
             target_selection: default_target,
             solver_state: SolverState::Disabled,
+            preferences_state: PreferencesState::default(),
         }
     }
 }
@@ -57,6 +60,7 @@ pub enum SolverState {
     },
     Done {
         solvable: bool,
+        duration: Duration,
     },
 }
 
@@ -83,4 +87,17 @@ pub fn take_runtime() -> Runtime {
 
 fn create_runtime() -> Runtime {
     runtime::Builder::new_multi_thread().build().unwrap()
+}
+
+#[derive(Debug)]
+pub struct PreferencesState {
+    pub solver_enabled: bool,
+}
+
+impl Default for PreferencesState {
+    fn default() -> Self {
+        PreferencesState {
+            solver_enabled: true,
+        }
+    }
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <object class="AdwPreferencesDialog" id="solver_dialog">
+        <property name="title">Solver</property>
+        <child>
+            <object class="AdwPreferencesPage">
+                <child>
+                    <object class="AdwPreferencesGroup">
+                        <child>
+                            <object class="AdwSwitchRow" id="enable_solver">
+                                <!-- @formatter:off -->
+                                <property name="title" translatable="yes" context="solver window">Run on Change</property>
+                                <!-- @formatter:on -->
+                                <property name="subtitle">Whether to call the solver after changes</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwActionRow" id="last_run_duration">
+                                <!-- @formatter:off -->
+                                <property name="title" translatable="yes" context="solver window">Last Run Duration</property>
+                                <!-- @formatter:on -->
+                                <property name="subtitle">N/A</property>
+                                <property name="css_classes">property</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </object>
+</interface>

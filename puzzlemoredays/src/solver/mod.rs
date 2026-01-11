@@ -7,6 +7,7 @@ use puzzle_solver::board::Board;
 use puzzle_solver::tile::Tile;
 use std::cmp::PartialEq;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{Duration, Instant};
 use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -35,13 +36,16 @@ pub fn solve_for_target(
         .collect();
 
     let runtime = get_runtime();
+    let now = Instant::now();
     runtime.spawn({
         let solver_call_id = solver_call_id.clone();
         let cancel_token = cancel_token.clone();
         async move {
             debug!("Starting Solver task.");
             let result = puzzle_solver::solve_all_filling(board, &tiles, cancel_token).await;
-            handle_on_complete(solver_call_id, result.is_ok(), on_complete);
+            let end = Instant::now();
+            let duration = end.duration_since(now);
+            handle_on_complete(solver_call_id, result.is_ok(), duration, on_complete);
         }
     });
 }
@@ -49,15 +53,22 @@ pub fn solve_for_target(
 fn handle_on_complete(
     solver_call_id: SolverCallId,
     solvable: bool,
+    run_duration: Duration,
     on_complete: OnCompleteCallback,
 ) {
     let mut state = get_state();
     if let SolverState::Running { call_id, .. } = &state.solver_state
         && *call_id == solver_call_id
     {
-        state.solver_state = Done { solvable };
+        state.solver_state = Done {
+            solvable,
+            duration: run_duration,
+        };
         drop(state);
-        on_complete(Done { solvable });
+        on_complete(Done {
+            solvable,
+            duration: run_duration,
+        });
     }
 }
 
