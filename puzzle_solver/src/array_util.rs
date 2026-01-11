@@ -41,6 +41,33 @@ pub fn remove_true_rows_cols_from_sides(array: &mut Array2<bool>) {
     }
 }
 
+pub fn or_arrays_at(
+    parent: &Array2<bool>,
+    child: &Array2<bool>,
+    x_offset: isize,
+    y_offset: isize,
+) -> Array2<bool> {
+    let mut new_array = parent.clone();
+    let child_xs = child.nrows();
+    let child_ys = child.ncols();
+
+    for x in 0..child_xs {
+        for y in 0..child_ys {
+            let parent_x = x as isize + x_offset;
+            let parent_y = y as isize + y_offset;
+            if parent_x >= 0
+                && parent_x < parent.nrows() as isize
+                && parent_y >= 0
+                && parent_y < parent.ncols() as isize
+            {
+                new_array[[parent_x as usize, parent_y as usize]] |= child[[x, y]];
+            }
+        }
+    }
+
+    new_array
+}
+
 pub fn place_on_all_positions(parent: &Array2<bool>, child: &Array2<bool>) -> Vec<Array2<bool>> {
     let mut placements = Vec::new();
     let parent_rows = parent.nrows();

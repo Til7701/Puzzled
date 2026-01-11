@@ -1,4 +1,5 @@
 use crate::array_util;
+use crate::banned::BannedBitmask;
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
@@ -45,7 +46,7 @@ pub async fn solve_filling(
     board_width: i32,
     board_bitmask: &Bitmask,
     positioned_tiles: &[PositionedTile],
-    banned_bitmasks: Vec<Bitmask>,
+    banned_bitmasks: Vec<BannedBitmask>,
     cancel_token: CancellationToken,
 ) -> Option<Vec<usize>> {
     if board_bitmask.all_relevant_bits_set() {
@@ -100,7 +101,7 @@ fn prepare_solvers(
     board_width: i32,
     board_bitmask: &Bitmask,
     positioned_tiles: &[PositionedTile],
-    banned_bitmasks: Vec<Bitmask>,
+    banned_bitmasks: Vec<BannedBitmask>,
     cancel_token: &CancellationToken,
 ) -> Vec<AllFillingSolver> {
     if positioned_tiles.is_empty() {
@@ -137,7 +138,7 @@ fn prepare_solvers(
 struct AllFillingShared {
     board_width: i32,
     positioned_tiles: Vec<PositionedTile>,
-    banned_bitmasks: Vec<Bitmask>,
+    banned_bitmasks: Vec<BannedBitmask>,
     cancel_token: CancellationToken,
 }
 
@@ -198,6 +199,9 @@ impl AllFillingSolver {
             if self.board_bitmasks[tile_index - 1].and_is_zero(&placement) {
                 self.tmp_bitmask
                     .xor(&self.board_bitmasks[tile_index - 1], &placement);
+                if self.prune(&self.tmp_bitmask) {
+                    continue;
+                }
                 self.used_tile_indices[tile_index] = i;
                 self.board_bitmasks[tile_index] = self.tmp_bitmask.clone();
                 if Box::pin(async { self.solve_recursive(tile_index + 1).await }).await {
@@ -206,6 +210,15 @@ impl AllFillingSolver {
             }
         }
 
+        false
+    }
+
+    fn prune(&self, current_board: &Bitmask) -> bool {
+        for banned in self.shared.banned_bitmasks.iter() {
+            if banned.matches(current_board) {
+                return true;
+            }
+        }
         false
     }
 
