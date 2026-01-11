@@ -43,7 +43,7 @@
       "sources": [
         {
           "type": "git",
-          "url": "file://~/Projects"
+          "url": "https://github.com/Til7701/PuzzleMoreDays.git"
         }
       ]
     }
