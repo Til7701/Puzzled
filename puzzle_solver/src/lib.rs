@@ -7,6 +7,7 @@ use log::debug;
 use tokio_util::sync::CancellationToken;
 
 mod array_util;
+mod banned;
 mod bitmask;
 pub mod board;
 mod core;
@@ -32,10 +33,13 @@ pub async fn solve_all_filling(
         .map(|tile| PositionedTile::new(tile, &board))
         .collect();
 
+    let banned_bitmasks = banned::create_banned_bitmasks_for_filling(&board, &tiles);
+
     let result = core::solve_filling(
         board.get_array().dim().0 as i32,
         &board_bitmask,
         &positioned_tiles,
+        banned_bitmasks,
         cancel_token,
     )
     .await;

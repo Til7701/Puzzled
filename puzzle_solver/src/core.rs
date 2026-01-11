@@ -4,6 +4,7 @@ use crate::board::Board;
 use crate::tile::Tile;
 use log::debug;
 use ndarray::Array2;
+use std::sync::Arc;
 use tokio::task::JoinSet;
 use tokio_util::sync::CancellationToken;
 
@@ -44,14 +45,20 @@ pub async fn solve_filling(
     board_width: i32,
     board_bitmask: &Bitmask,
     positioned_tiles: &[PositionedTile],
+    banned_bitmasks: Vec<Bitmask>,
     cancel_token: CancellationToken,
 ) -> Option<Vec<usize>> {
     if board_bitmask.all_relevant_bits_set() {
         return Some(Vec::new());
     }
 
-    let solvers: Vec<AllFillingSolver> =
-        prepare_solvers(board_width, board_bitmask, positioned_tiles, &cancel_token);
+    let solvers: Vec<AllFillingSolver> = prepare_solvers(
+        board_width,
+        board_bitmask,
+        positioned_tiles,
+        banned_bitmasks,
+        &cancel_token,
+    );
     let mut set: JoinSet<bool> = JoinSet::new();
 
     let result: Option<Vec<usize>> = {
@@ -93,6 +100,7 @@ fn prepare_solvers(
     board_width: i32,
     board_bitmask: &Bitmask,
     positioned_tiles: &[PositionedTile],
+    banned_bitmasks: Vec<Bitmask>,
     cancel_token: &CancellationToken,
 ) -> Vec<AllFillingSolver> {
     if positioned_tiles.is_empty() {
@@ -100,6 +108,13 @@ fn prepare_solvers(
     }
     let first_tile = positioned_tiles.first().unwrap();
     let mut solvers = Vec::with_capacity(first_tile.bitmasks.len());
+
+    let shared = Arc::new(AllFillingShared {
+        board_width,
+        positioned_tiles: positioned_tiles.to_vec(),
+        banned_bitmasks,
+        cancel_token: cancel_token.clone(),
+    });
 
     for i in 0..first_tile.bitmasks.len() {
         let placement = &first_tile.bitmasks[i];
@@ -109,13 +124,8 @@ fn prepare_solvers(
             let mut used_tile_indices: Vec<usize> = vec![0; 1];
             used_tile_indices[0] = i;
 
-            let solver = AllFillingSolver::new(
-                board_width,
-                &board_with_placements,
-                &used_tile_indices,
-                positioned_tiles,
-                cancel_token.clone(),
-            );
+            let solver =
+                AllFillingSolver::new(&board_with_placements, &used_tile_indices, shared.clone());
 
             solvers.push(solver);
         }
@@ -124,27 +134,29 @@ fn prepare_solvers(
     solvers
 }
 
-struct AllFillingSolver {
+struct AllFillingShared {
     board_width: i32,
-    start_tile_index: usize,
     positioned_tiles: Vec<PositionedTile>,
+    banned_bitmasks: Vec<Bitmask>,
+    cancel_token: CancellationToken,
+}
+
+struct AllFillingSolver {
+    start_tile_index: usize,
     board_bitmasks: Vec<Bitmask>,
     used_tile_indices: Vec<usize>,
     tmp_bitmask: Bitmask,
     yield_counter: u32,
-    cancel_token: CancellationToken,
+    shared: Arc<AllFillingShared>,
 }
 
 impl AllFillingSolver {
     pub fn new(
-        board_width: i32,
         board_bitmasks: &Bitmask,
         used_tile_indices: &[usize],
-        positioned_tiles: &[PositionedTile],
-        cancel_token: CancellationToken,
+        shared: Arc<AllFillingShared>,
     ) -> Self {
-        let positioned_tiles: Vec<PositionedTile> = positioned_tiles.to_vec();
-        let num_tiles = positioned_tiles.len();
+        let num_tiles = shared.positioned_tiles.len();
 
         let mut use_tile_indices_vec: Vec<usize> = Vec::with_capacity(num_tiles);
         for used_tile_index in used_tile_indices {
@@ -154,14 +166,12 @@ impl AllFillingSolver {
             use_tile_indices_vec.push(0);
         }
         AllFillingSolver {
-            board_width,
             start_tile_index: used_tile_indices.len(),
-            positioned_tiles,
             board_bitmasks: vec![board_bitmasks.clone(); num_tiles],
             used_tile_indices: use_tile_indices_vec,
             tmp_bitmask: Bitmask::new(board_bitmasks.get_relevant_bits()),
             yield_counter: 0,
-            cancel_token,
+            shared,
         }
     }
 
@@ -173,18 +183,18 @@ impl AllFillingSolver {
         self.yield_counter += 1;
         if self.yield_counter & 0xf == 0 {
             tokio::task::yield_now().await;
-            if self.cancel_token.is_cancelled() {
+            if self.shared.cancel_token.is_cancelled() {
                 return false;
             }
         }
 
-        if tile_index >= self.positioned_tiles.len() {
+        if tile_index >= self.shared.positioned_tiles.len() {
             return self.submit_solution();
         }
 
-        let num_placements = self.positioned_tiles[tile_index].bitmasks.len();
+        let num_placements = self.shared.positioned_tiles[tile_index].bitmasks.len();
         for i in 0..num_placements {
-            let placement = &self.positioned_tiles[tile_index].bitmasks[i];
+            let placement = &self.shared.positioned_tiles[tile_index].bitmasks[i];
             if self.board_bitmasks[tile_index - 1].and_is_zero(&placement) {
                 self.tmp_bitmask
                     .xor(&self.board_bitmasks[tile_index - 1], &placement);
@@ -213,14 +223,14 @@ impl AllFillingSolver {
 
     pub fn print_debug(&self) {
         debug!("RecursiveSolver Debug Info:");
-        debug!("Board Width: {}", self.board_width);
+        debug!("Board Width: {}", self.shared.board_width);
         debug!("Start Tile Index: {}", self.start_tile_index);
         debug!("Used Tile Indices: {:?}", self.used_tile_indices);
         for (i, bitmask) in self.board_bitmasks.iter().enumerate() {
             debug!(
                 "Board Bitmask after tile {}: {}",
                 i,
-                bitmask.to_string(self.board_width)
+                bitmask.to_string(self.shared.board_width)
             );
         }
     }
