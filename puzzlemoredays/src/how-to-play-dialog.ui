@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <object class="AdwDialog" id="how_to_play_dialog">
+        <property name="title">How to Play</property>
+        <child>
+            <object class="AdwToolbarView">
+                <child type="top">
+                    <object class="AdwHeaderBar"/>
+                </child>
+                <property name="content">
+                    <object class="AdwClampScrollable">
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">12</property>
+                                <property name="halign">center</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <!-- @formatter:off -->
+                                        <property name="label">
+Fill all cells on the board with the tiles that are lying
+around the board. You can drag and drop tiles onto the board,
+right-click a tile to rotate it, or use the middle-click to flip it.
+                                        </property>
+                                        <!-- @formatter:on -->
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </property>
+            </object>
+        </child>
+    </object>
+</interface>

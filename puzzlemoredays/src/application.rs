@@ -110,7 +110,10 @@ impl PuzzlemoredaysApplication {
         let about_action = gio::ActionEntry::builder("about")
             .activate(move |app: &Self, _, _| app.show_about())
             .build();
-        self.add_action_entries([quit_action, about_action]);
+        let how_to_play_action = gio::ActionEntry::builder("how_to_play")
+            .activate(move |app: &Self, _, _| app.show_how_to_play())
+            .build();
+        self.add_action_entries([quit_action, about_action, how_to_play_action]);
     }
 
     fn show_about(&self) {
@@ -127,6 +130,17 @@ impl PuzzlemoredaysApplication {
             .build();
 
         about.present(Some(&window));
+    }
+
+    fn show_how_to_play(&self) {
+        const RESOURCE_PATH: &str = "/de/til7701/PuzzleMoreDays/how-to-play-dialog.ui";
+        let builder = gtk::Builder::from_resource(RESOURCE_PATH);
+        let dialog: adw::Dialog = builder
+            .object("how_to_play_dialog")
+            .expect("Missing `how_to_play_dialog` in resource");
+        if let Some(window) = self.active_window() {
+            dialog.present(Some(&window));
+        }
     }
 
     fn load_css(&self) {
