@@ -7,13 +7,18 @@ on:
 
 jobs:
   flatpak:
-    name: Build with Flatpak
+    name: Build and Test with Flatpak
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
       options: --privileged
     steps:
-      - name: Install Flatpak
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          manifest-path: de.til7701.PuzzleMoreDays.json
+          run-tests: true
+          bundle: PuzzleMoreDays.flatpak
+      - name: Install Flatpak Builder
         run: |
           flatpak install flathub -y org.flatpak.Builder
       - uses: actions/checkout@v6.0.2
@@ -21,11 +26,6 @@ jobs:
         run: |
           # Run linting but do not fail the build if there are linting issues
           flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest de.til7701.PuzzleMoreDays.json || true
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
-        with:
-          manifest-path: de.til7701.PuzzleMoreDays.json
-          run-tests: true
-          bundle: PuzzleMoreDays.flatpak
       - name: Run Lint on Repo
         run: |
           # Run linting on the built repo but do not fail the build if there are linting issues
