@@ -11,6 +11,18 @@
       Inspired by Puzzle a Day, this application provides more variants and a
       solver to aid in your puzzling endeavours.
     </p>
+    <p>
+      You can drag the tiles with your mouse, rotate them with right-click, and
+      flip them with middle, click. Move the tiles to fill the board in the
+      middle to solve the puzzle for any day you like by leaving the desired
+      cells free. You can select your target day at the top.
+    </p>
+    <p>
+      When you select a day, the solver with predict, whether or not you can
+      solve the day with the tiles currently placed on the board.
+      You can disable this by clicking on the icon next to the target day
+      selection.
+    </p>
   </description>
 
   <categories>
@@ -54,12 +66,12 @@
 
   <releases>
     <release version="0.1.0" date="2099-01-01">
-      <url type="details">https://til7701.de/projects/puzzlemoredays#release0.1.0</url>
       <description translate="no">
-        <p>First Release</p>
-        <ul>
-          <li>Two puzzle variants</li>
-        </ul>
+        <p>
+          First Release of Puzzle More Days, including the default layout and
+          a layout with a two-digit year. Potential errors are highlighted
+          and a solver predicts the solvability of the current approach.
+        </p>
       </description>
     </release>
   </releases>
