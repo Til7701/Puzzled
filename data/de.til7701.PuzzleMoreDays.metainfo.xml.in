@@ -43,11 +43,11 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/Til7701/PuzzleMoreDays/refs/heads/main/data/screenshot-default.png</image>
+      <image>https://raw.githubusercontent.com/Til7701/PuzzleMoreDays/refs/heads/main/data/screenshot-default-light.png</image>
       <caption>Default layout for Puzzle a Day mid solving it</caption>
     </screenshot>
-    <screenshot type="default">
-      <image>https://raw.githubusercontent.com/Til7701/PuzzleMoreDays/refs/heads/main/data/screenshot-year.png</image>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/Til7701/PuzzleMoreDays/refs/heads/main/data/screenshot-year-light.png</image>
       <caption>The layout with two additional digits for the year</caption>
     </screenshot>
   </screenshots>
