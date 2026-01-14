@@ -55,17 +55,17 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/Til7701/PuzzleMoreDays/refs/heads/main/data/screenshot-default-light.png</image>
+      <image>https://raw.githubusercontent.com/Til7701/PuzzleMoreDays/refs/tags/v0.1.0/data/screenshot-default-light.png</image>
       <caption>Default layout for Puzzle a Day mid solving it</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/Til7701/PuzzleMoreDays/refs/heads/main/data/screenshot-year-light.png</image>
+      <image>https://raw.githubusercontent.com/Til7701/PuzzleMoreDays/refs/tags/v0.1.0/data/screenshot-year-light.png</image>
       <caption>The layout with two additional digits for the year</caption>
     </screenshot>
   </screenshots>
 
   <releases>
-    <release version="0.1.0" date="2099-01-01">
+    <release version="0.1.0" date="2026-01-14">
       <description translate="no">
         <p>
           First Release of Puzzle More Days, including the default layout and

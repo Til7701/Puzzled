@@ -1,6 +1,6 @@
 /* application.rs
  *
- * Copyright 2025 Tilman
+ * Copyright 2026 Tilman
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ impl PuzzlemoredaysApplication {
             .developers(vec!["Tilman Holube"])
             // Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
             .translator_credits(&gettext("translator-credits"))
-            .copyright("© 2025 Tilman Holube")
+            .copyright("© 2026 Tilman Holube\n\n This application comes with absolutely no warranty. See the GNU General Public Licence, version 3 or later for details.")
             .build();
 
         about.present(Some(&window));

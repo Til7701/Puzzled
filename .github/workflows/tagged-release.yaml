@@ -9,4 +9,7 @@ jobs:
   build:
     uses: ./.github/workflows/build-and-test.yaml
   release:
+    needs: build
     uses: ./.github/workflows/release-github.yaml
+    permissions:
+      contents: write

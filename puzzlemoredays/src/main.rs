@@ -1,6 +1,6 @@
 /* main.rs
  *
- * Copyright 2025 Tilman
+ * Copyright 2026 Tilman
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
