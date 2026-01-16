@@ -1,6 +1,7 @@
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::core::PositionedTile;
+use crate::plausibility::check;
 use crate::result::{Solution, UnsolvableReason};
 use crate::tile::Tile;
 use log::debug;
@@ -11,6 +12,7 @@ mod banned;
 mod bitmask;
 pub mod board;
 mod core;
+mod plausibility;
 pub mod result;
 pub mod tile;
 
@@ -19,7 +21,7 @@ pub async fn solve_all_filling(
     tiles: &[Tile],
     cancel_token: CancellationToken,
 ) -> Result<Solution, UnsolvableReason> {
-    if !plausibility_check(&board, &tiles) {
+    if !check(&board, &tiles) {
         debug!("Plausibility check failed.");
         return Err(UnsolvableReason::NoFit);
     }
@@ -50,17 +52,4 @@ pub async fn solve_all_filling(
         Some(_) => Ok(Solution { placements: vec![] }),
         None => Err(UnsolvableReason::NoFit),
     }
-}
-
-fn plausibility_check(board: &Board, tiles: &[Tile]) -> bool {
-    let board_area = board.get_array().iter().filter(|&&cell| !cell).count();
-    let tiles_area: usize = tiles
-        .iter()
-        .map(|tile| tile.base.iter().filter(|&&cell| cell).count())
-        .sum();
-    debug!(
-        "Plausibility check: board area = {}, tiles area = {}",
-        board_area, tiles_area
-    );
-    tiles_area == board_area
 }
