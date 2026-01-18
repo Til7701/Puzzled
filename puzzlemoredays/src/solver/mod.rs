@@ -10,13 +10,18 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 use tokio_util::sync::CancellationToken;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+/// Unique identifier for a solver call.
+/// It can be used to track and manage individual solver tasks.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd)]
 pub struct SolverCallId(u64);
 
+/// Callback type to be invoked upon solver completion.
+/// It receives the final `SolverState` as an argument.
 pub type OnCompleteCallback = Box<dyn FnOnce(SolverState) + Send>;
 
 static SOLVER_CALL_ID_ATOMIC_COUNTER: AtomicU64 = AtomicU64::new(0);
 
+/// Creates a new unique `SolverCallId` to be used to identify a solver call.
 pub fn create_solver_call_id() -> SolverCallId {
     SolverCallId(SOLVER_CALL_ID_ATOMIC_COUNTER.fetch_add(1, Ordering::SeqCst))
 }
@@ -72,6 +77,13 @@ fn handle_on_complete(
     }
 }
 
+/// Interrupts an ongoing solver stored in the given `state`.
+///
+/// # Arguments
+///
+/// * `state`: A reference to the current application state containing the solver state.
+///
+/// returns: ()
 pub fn interrupt_solver_call(state: &State) {
     match &state.solver_state {
         SolverState::Running {
@@ -86,11 +98,28 @@ pub fn interrupt_solver_call(state: &State) {
     };
 }
 
+/// Checks if the given puzzle state is already solved for the specified target.
+/// This can be used to skip unnecessary solver calls.
+///
+/// # Arguments
+///
+/// * `puzzle_state`: A reference to the current puzzle state.
+/// * `target`: A reference to the target configuration to check against.
+///
+/// returns: bool
 pub fn is_solved(puzzle_state: &PuzzleState, target: &Target) -> bool {
     let board = create_board(puzzle_state, target);
     board.get_array().iter().all(|cell| *cell)
 }
 
+/// Creates a board representation from the given puzzle state and target to give to the solver.
+///
+/// # Arguments
+///
+/// * `puzzle_state`: A reference to the current puzzle state.
+/// * `target`: A reference to the target configuration.
+///
+/// returns: Board
 fn create_board(puzzle_state: &PuzzleState, target: &Target) -> Board {
     let dims = puzzle_state.grid.dim();
     let mut board = Board::new(dims);
@@ -112,4 +141,17 @@ fn create_board(puzzle_state: &PuzzleState, target: &Target) -> Board {
     }
 
     board
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_create_solver_call_id() {
+        let id1 = create_solver_call_id();
+        let id2 = create_solver_call_id();
+        assert_ne!(id1, id2);
+        assert!(id1 > id2);
+    }
 }
