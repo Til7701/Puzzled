@@ -235,7 +235,7 @@ pub fn get_default_config() -> PuzzleConfig {
     let display_values = default_board_display_values().reversed_axes();
     let value_order = default_board_value_order().reversed_axes();
     PuzzleConfig::new(
-        "Default Puzzle".to_string(),
+        "Default".to_string(),
         board_layout,
         area_indices,
         display_values,
@@ -264,7 +264,7 @@ pub fn get_year_config() -> PuzzleConfig {
     let display_values = year_board_meaning_display_values().reversed_axes();
     let value_order = year_board_value_order().reversed_axes();
     PuzzleConfig::new(
-        "Year Puzzle".to_string(),
+        "Year".to_string(),
         board_layout,
         area_indices,
         display_values,
