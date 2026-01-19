@@ -60,6 +60,9 @@ impl Sub for PixelOffset {
     }
 }
 
+/// Represents an offset in x and y directions.
+///
+/// The offset values are in cell units. For pixel-based offsets, use `PixelOffset`.
 #[derive(Debug, Default, Clone, Copy)]
 pub struct CellOffset(pub i32, pub i32);
 

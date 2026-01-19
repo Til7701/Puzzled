@@ -5,13 +5,25 @@ use gtk::Widget;
 use ndarray::Array2;
 use std::collections::HashSet;
 
+/// Represents data associated with a cell in the puzzle grid.
 #[derive(Default, Debug)]
 pub struct CellData {
+    /// The position of the cell in the grid.
     pub position: CellOffset,
+    /// Indicates whether the cell is part of the playable board area.
     pub is_on_board: bool,
+    /// Indicates whether placing a tile in this cell is allowed.
     pub allowed: bool,
 }
 
+/// Represents a cell in the puzzle grid.
+///
+/// It can be empty, contain one widget, or contain multiple widgets.
+/// A widget is an element of a tile that occupies the cell.
+///
+/// A cell is not always a part of the playable board area.
+/// It may be part of the border area used to indicate out-of-bounds or the board design blocks
+/// placing a tile there.
 #[derive(Debug)]
 pub enum Cell {
     Empty(CellData),
@@ -25,11 +37,16 @@ impl Default for Cell {
     }
 }
 
+/// Represents a tile that has not been placed on the puzzle grid.
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub struct UnusedTile {
     pub base: Array2<bool>,
 }
 
+/// Represents the current state of the puzzle.
+///
+/// The grid contains information about each cell, and unused_tiles keeps track of tiles that have
+/// not been placed yet.
 #[derive(Debug)]
 pub struct PuzzleState {
     pub grid: Array2<Cell>,
