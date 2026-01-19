@@ -152,6 +152,6 @@ mod tests {
         let id1 = create_solver_call_id();
         let id2 = create_solver_call_id();
         assert_ne!(id1, id2);
-        assert!(id1 > id2);
+        assert!(id1 < id2);
     }
 }
