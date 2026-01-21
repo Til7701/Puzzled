@@ -1,6 +1,9 @@
-use crate::puzzle::get_default_config;
+mod solution;
+
 use ndarray::Array2;
 use std::fmt::{Debug, Display, Formatter};
+
+pub use solution::SolutionStatistics;
 
 /// Configuration for a puzzle. It describes the board layout and tiles.
 /// It additionally contains configuration for the areas to show in the target selection.
@@ -170,18 +173,6 @@ impl TileConfig {
     }
 }
 
-/// Statistics about the solutions for a puzzle.
-///
-/// This may be provided in the puzzle configuration if known.
-#[derive(Debug, Clone)]
-pub struct SolutionStatistics {
-    pub min_per_target: i32,
-    pub max_per_target: i32,
-    pub average_per_target: f64,
-    pub mean_per_target: i32,
-    pub total_solutions: i32,
-}
-
 /// Metadata for an area on the board.
 /// Includes the name and the formatter for the area values.
 /// This is used by the target selection UI.
@@ -223,7 +214,7 @@ impl TargetTemplate {
     }
 
     /// Formats the given target using this template.
-    /// For format the value of each area, the corresponding area config is used.
+    /// For format the value of each area, the corresponding area puzzle_config is used.
     ///
     /// # Arguments
     ///

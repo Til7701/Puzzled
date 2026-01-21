@@ -1,0 +1,8 @@
+[package]
+name = "puzzle_config"
+edition = "2024"
+version.workspace = true
+
+[dependencies]
+ndarray = { workspace = true }
+log = { workspace = true }

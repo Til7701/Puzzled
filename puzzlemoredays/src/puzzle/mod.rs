@@ -1,12 +1,7 @@
-pub mod config;
-
-use crate::puzzle::config::AreaValueFormatter::{Nth, Plain};
-pub(crate) use crate::puzzle::config::PuzzleConfig;
-use crate::puzzle::config::{
-    AreaConfig, SolutionStatistics, Target, TargetIndex, TargetTemplate, TileConfig,
-};
 use ndarray::{arr2, Array2};
 use time::OffsetDateTime;
+
+use puzzle_config::SolutionStatistics;
 
 fn default_tiles() -> Vec<Array2<bool>> {
     vec![
