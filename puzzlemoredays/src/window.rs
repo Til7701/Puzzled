@@ -28,9 +28,15 @@ mod imp {
     #[template(resource = "/de/til7701/PuzzleMoreDays/window.ui")]
     pub struct PuzzlemoredaysWindow {
         #[template_child]
-        pub grid: TemplateChild<gtk::Fixed>,
+        pub navigation_view: TemplateChild<adw::NavigationView>,
         #[template_child]
-        pub puzzle_selection: TemplateChild<gtk::Button>,
+        pub core_collection_list: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub community_collection_list: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub puzzle_list: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub grid: TemplateChild<gtk::Fixed>,
         #[template_child]
         pub puzzle_info_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -75,12 +81,24 @@ impl PuzzlemoredaysWindow {
             .build()
     }
 
-    pub fn grid(&self) -> gtk::Fixed {
-        self.imp().grid.clone()
+    pub fn navigation_view(&self) -> adw::NavigationView {
+        self.imp().navigation_view.clone()
     }
 
-    pub fn puzzle_selection(&self) -> gtk::Button {
-        self.imp().puzzle_selection.clone()
+    pub fn core_collection_list(&self) -> gtk::ListBox {
+        self.imp().core_collection_list.clone()
+    }
+
+    pub fn community_collection_list(&self) -> gtk::ListBox {
+        self.imp().community_collection_list.clone()
+    }
+
+    pub fn puzzle_list(&self) -> gtk::ListBox {
+        self.imp().puzzle_list.clone()
+    }
+
+    pub fn grid(&self) -> gtk::Fixed {
+        self.imp().grid.clone()
     }
 
     pub fn puzzle_info_button(&self) -> gtk::Button {

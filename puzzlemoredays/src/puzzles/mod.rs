@@ -10,29 +10,33 @@ static PUZZLE_COLLECTION_STORE: Lazy<Mutex<PuzzleCollectionStore>> =
 
 #[derive(Debug, Default)]
 pub struct PuzzleCollectionStore {
-    puzzle_collections: Vec<PuzzleConfigCollection>,
+    core_puzzle_collections: Vec<PuzzleConfigCollection>,
+    community_puzzle_collections: Vec<PuzzleConfigCollection>,
 }
 
 impl PuzzleCollectionStore {
-    pub fn puzzle_collections(&self) -> &Vec<PuzzleConfigCollection> {
-        &self.puzzle_collections
+    pub fn core_puzzle_collections(&self) -> &[PuzzleConfigCollection] {
+        &self.core_puzzle_collections
+    }
+
+    pub fn community_puzzle_collections(&self) -> &[PuzzleConfigCollection] {
+        &self.community_puzzle_collections
     }
 }
 
 pub fn init() {
     let mut store = PUZZLE_COLLECTION_STORE.lock().unwrap();
     let collection =
-        load_included_from_gresource("/de/til7701/PuzzleMoreDays/puzzles/puzzle_a_day.json");
-    store.puzzle_collections.push(collection);
+        load_core_from_resource("/de/til7701/PuzzleMoreDays/puzzles/puzzle_a_day.json");
+    store.core_puzzle_collections.push(collection);
     let collection =
-        load_included_from_gresource("/de/til7701/PuzzleMoreDays/puzzles/puzzle_more_days.json");
-    store.puzzle_collections.push(collection);
-    let collection =
-        load_included_from_gresource("/de/til7701/PuzzleMoreDays/puzzles/trominoes.json");
-    store.puzzle_collections.push(collection);
+        load_core_from_resource("/de/til7701/PuzzleMoreDays/puzzles/puzzle_more_days.json");
+    store.core_puzzle_collections.push(collection);
+    let collection = load_core_from_resource("/de/til7701/PuzzleMoreDays/puzzles/trominoes.json");
+    store.core_puzzle_collections.push(collection);
 }
 
-fn load_included_from_gresource(filename: &str) -> PuzzleConfigCollection {
+fn load_core_from_resource(filename: &str) -> PuzzleConfigCollection {
     let data = resources_lookup_data(filename, ResourceLookupFlags::NONE).unwrap();
     let json_str = std::str::from_utf8(&*data).unwrap();
     puzzle_config::load_puzzle_collection_from_json(json_str).unwrap()
@@ -40,7 +44,7 @@ fn load_included_from_gresource(filename: &str) -> PuzzleConfigCollection {
 
 pub fn default_puzzle() -> PuzzleConfig {
     let store = get_puzzle_collection_store();
-    let collections = store.puzzle_collections();
+    let collections = store.core_puzzle_collections();
     if let Some(first_collection) = collections.first() {
         if let Some(first_puzzle) = first_collection.puzzles().first() {
             return first_puzzle.clone();

@@ -7,52 +7,146 @@
         <property name="default-width">1280</property>
         <property name="default-height">720</property>
         <property name="content">
-            <object class="AdwToolbarView">
-                <child type="top">
-                    <object class="AdwHeaderBar">
-                        <child type="start">
-                            <object class="GtkButton" id="puzzle_selection">
-                                <property name="label" translatable="yes">Select Puzzle</property>
+            <object class="AdwNavigationView" id="navigation_view">
+                <child>
+                    <object class="AdwNavigationPage">
+                        <property name="title" translatable="yes">Collections</property>
+                        <property name="tag">collection-selection</property>
+                        <property name="child">
+                            <object class="AdwToolbarView">
+                                <child type="top">
+                                    <object class="AdwHeaderBar">
+                                        <child type="end">
+                                            <object class="GtkMenuButton">
+                                                <property name="primary">True</property>
+                                                <property name="icon-name">open-menu-symbolic</property>
+                                                <property name="tooltip-text" translatable="yes">Main Menu</property>
+                                                <property name="menu-model">primary_menu</property>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <property name="content">
+                                    <object class="GtkScrolledWindow">
+                                        <property name="hexpand">True</property>
+                                        <property name="vexpand">True</property>
+                                        <child>
+                                            <object class="GtkBox">
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                    <object class="GtkLabel">
+                                                        <property name="label" translatable="yes">Core Collections</property>
+                                                        <property name="halign">start</property>
+                                                        <property name="xalign">0</property>
+                                                        <property name="use-markup">True</property>
+                                                        <property name="margin-start">12</property>
+                                                        <property name="margin-top">12</property>
+                                                        <property name="margin-bottom">6</property>
+                                                    </object>
+                                                </child>
+                                                <child>
+                                                    <object class="GtkListBox" id="core_collection_list">
+                                                    </object>
+                                                </child>
+                                                <child>
+                                                    <object class="GtkLabel">
+                                                        <property name="label" translatable="yes">Community Collections</property>
+                                                        <property name="halign">start</property>
+                                                        <property name="xalign">0</property>
+                                                        <property name="use-markup">True</property>
+                                                        <property name="margin-start">12</property>
+                                                        <property name="margin-top">12</property>
+                                                        <property name="margin-bottom">6</property>
+                                                    </object>
+                                                </child>
+                                                <child>
+                                                    <object class="GtkListBox" id="community_collection_list">
+                                                    </object>
+                                                </child>
+                                                <child>
+                                                    <object class="GtkButton">
+                                                        <property name="action-name">app.load_collection</property>
+                                                        <property name="label" translatable="yes">Load Collection</property>
+                                                        <property name="halign">center</property>
+                                                        <property name="margin-top">12</property>
+                                                        <property name="margin-bottom">12</property>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </property>
                             </object>
-                        </child>
-                        <child type="start">
-                            <object class="GtkButton" id="puzzle_info_button">
-                                <property name="icon-name">info-outline-symbolic</property>
-                                <property name="tooltip-text" translatable="yes">Puzzle Information</property>
-                            </object>
-                        </child>
-                        <child type="start">
-                            <object class="GtkSeparator">
-                                <property name="orientation">vertical</property>>
-                            </object>
-                        </child>
-                        <child type="start">
-                            <object class="GtkButton" id="target_selection_button">
-                                <property name="label" translatable="yes">No Target Selected</property>
-                            </object>
-                        </child>
-                        <child type="start">
-                            <object class="GtkButton" id="solver_status">
-                                <property name="icon-name">circle-outline-thick-symbolic</property>
-                                <property name="tooltip-text" translatable="yes">Solver Status</property>
-                            </object>
-                        </child>
-                        <child type="end">
-                            <object class="GtkMenuButton">
-                                <property name="primary">True</property>
-                                <property name="icon-name">open-menu-symbolic</property>
-                                <property name="tooltip-text" translatable="yes">Main Menu</property>
-                                <property name="menu-model">primary_menu</property>
-                            </object>
-                        </child>
+                        </property>
                     </object>
                 </child>
-                <property name="content">
-                    <object class="GtkFixed" id="grid">
-                        <property name="hexpand">True</property>
-                        <property name="vexpand">True</property>
+                <child>
+                    <object class="AdwNavigationPage">
+                        <property name="title" translatable="yes">Puzzle Selection</property>
+                        <property name="tag">puzzle-selection</property>
+                        <property name="child">
+                            <object class="AdwToolbarView">
+                                <child type="top">
+                                    <object class="AdwHeaderBar"/>
+                                </child>
+                                <property name="content">
+                                    <object class="GtkScrolledWindow">
+                                        <property name="hexpand">True</property>
+                                        <property name="vexpand">True</property>
+                                        <child>
+                                            <object class="GtkListBox" id="puzzle_list">
+                                            </object>
+                                        </child>
+                                    </object>
+                                </property>
+                            </object>
+                        </property>
                     </object>
-                </property>
+                </child>
+                <child>
+                    <object class="AdwNavigationPage">
+                        <property name="title" translatable="yes">Puzzle Area</property>
+                        <property name="tag">puzzle-area</property>
+                        <property name="child">
+                            <object class="AdwToolbarView">
+                                <child type="top">
+                                    <object class="AdwHeaderBar">
+                                        <child type="start">
+                                            <object class="GtkButton" id="puzzle_info_button">
+                                                <property name="icon-name">info-outline-symbolic</property>
+                                                <property name="tooltip-text" translatable="yes">Puzzle Information
+                                                </property>
+                                            </object>
+                                        </child>
+                                        <child type="start">
+                                            <object class="GtkSeparator">
+                                                <property name="orientation">vertical</property>>
+                                            </object>
+                                        </child>
+                                        <child type="start">
+                                            <object class="GtkButton" id="target_selection_button">
+                                                <property name="label" translatable="yes">No Target Selected</property>
+                                            </object>
+                                        </child>
+                                        <child type="start">
+                                            <object class="GtkButton" id="solver_status">
+                                                <property name="icon-name">circle-outline-thick-symbolic</property>
+                                                <property name="tooltip-text" translatable="yes">Solver Status
+                                                </property>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <property name="content">
+                                    <object class="GtkFixed" id="grid">
+                                        <property name="hexpand">True</property>
+                                        <property name="vexpand">True</property>
+                                    </object>
+                                </property>
+                            </object>
+                        </property>
+                    </object>
+                </child>
             </object>
         </property>
     </template>

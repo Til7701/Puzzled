@@ -18,6 +18,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 use crate::config::VERSION;
+use crate::presenter::collection_selection::CollectionSelectionPresenter;
+use crate::presenter::navigation::NavigationPresenter;
+use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::window::PuzzlemoredaysWindow;
 use adw::gdk::Display;
 use adw::prelude::*;
@@ -25,6 +28,7 @@ use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::{gio, glib, CssProvider, Settings, STYLE_PROVIDER_PRIORITY_APPLICATION};
 use std::fmt::Debug;
+use std::rc::Rc;
 
 mod imp {
     use super::*;
@@ -33,10 +37,13 @@ mod imp {
     use crate::state::take_runtime;
     use crate::window::PuzzlemoredaysWindow;
     use simple_logger::SimpleLogger;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
     #[derive(Debug, Default)]
     pub struct PuzzlemoredaysApplication {
         pub main_presenter: MainPresenter,
+        pub collection_selection_presenter: RefCell<Option<Rc<CollectionSelectionPresenter>>>,
     }
 
     #[glib::object_subclass]
@@ -188,5 +195,32 @@ impl PuzzlemoredaysApplication {
         });
 
         self.imp().main_presenter.setup(window);
+
+        let mut navigation_presenter = NavigationPresenter::new(window);
+
+        let puzzle_selection_presenter = Rc::new(PuzzleSelectionPresenter::new(
+            &window,
+            navigation_presenter.clone(),
+        ));
+        puzzle_selection_presenter.register_actions(self);
+        puzzle_selection_presenter.setup();
+
+        let collection_selection_presenter = Rc::new(CollectionSelectionPresenter::new(
+            &window,
+            navigation_presenter.clone(),
+        ));
+        self.set_collection_selection_presenter(collection_selection_presenter.clone());
+        collection_selection_presenter.register_actions(self);
+        collection_selection_presenter.setup();
+
+        navigation_presenter.setup(&collection_selection_presenter, &puzzle_selection_presenter);
+    }
+
+    pub fn set_collection_selection_presenter(&self, presenter: Rc<CollectionSelectionPresenter>) {
+        *self.imp().collection_selection_presenter.borrow_mut() = Some(presenter);
+    }
+
+    pub fn collection_selection_presenter(&self) -> Option<Rc<CollectionSelectionPresenter>> {
+        self.imp().collection_selection_presenter.borrow().clone()
     }
 }

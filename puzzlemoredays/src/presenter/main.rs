@@ -1,3 +1,4 @@
+use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
 use crate::solver;
 use crate::solver::{interrupt_solver_call, is_solved};
@@ -7,7 +8,6 @@ use crate::window::PuzzlemoredaysWindow;
 use adw::glib;
 use adw::prelude::{ActionRowExt, AdwDialogExt, AlertDialogExt};
 use gtk::prelude::{ButtonExt, WidgetExt};
-use gtk::Settings;
 use humantime::format_duration;
 use log::debug;
 use puzzle_config::BoardConfig;
@@ -25,10 +25,6 @@ pub struct MainPresenter {
 }
 
 impl MainPresenter {
-    pub fn set_puzzle_area_presenter(&self, presenter: &PuzzleAreaPresenter) {
-        self.puzzle_area_presenter.replace(presenter.clone());
-    }
-
     pub fn setup(&self, window: &PuzzlemoredaysWindow) {
         self.setup_puzzle_type();
         self.window.replace(Some(window.clone()));
@@ -39,7 +35,7 @@ impl MainPresenter {
             move || self_clone.calculate_solvability_if_enabled()
         }));
 
-        let puzzle_selection = window.puzzle_selection();
+        // let puzzle_selection = window.puzzle_selection();
 
         // puzzle_selection.connect_selected_notify({
         //     let puzzle_area_presenter = puzzle_area_presenter.clone();

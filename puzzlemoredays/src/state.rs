@@ -1,7 +1,7 @@
 use crate::puzzles;
 use crate::solver::SolverCallId;
 use once_cell::sync::Lazy;
-use puzzle_config::{PuzzleConfig, Target};
+use puzzle_config::{PuzzleConfig, PuzzleConfigCollection, Target};
 use std::backtrace::Backtrace;
 use std::mem;
 use std::ops::DerefMut;
@@ -17,6 +17,8 @@ static RUNTIME: Lazy<Mutex<Runtime>> = Lazy::new(|| Mutex::new(create_runtime())
 /// Represents the global application state.
 #[derive(Debug)]
 pub struct State {
+    /// The currently selected puzzle collection.
+    pub puzzle_collection: Option<PuzzleConfigCollection>,
     /// The puzzle configuration currently shown on the screen.
     pub puzzle_config: PuzzleConfig,
     /// The currently selected target for the puzzle.
@@ -52,6 +54,7 @@ impl Default for State {
         let puzzle_config = puzzles::default_puzzle();
         let default_target = puzzle_config.board_config().default_target();
         State {
+            puzzle_collection: None,
             puzzle_config,
             target_selection: default_target,
             solver_state: SolverState::Disabled,

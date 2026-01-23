@@ -5,6 +5,8 @@
         <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
         <file preprocess="xml-stripblanks">solver-dialog.ui</file>
         <file preprocess="xml-stripblanks">how-to-play-dialog.ui</file>
+        <file preprocess="xml-stripblanks">puzzle-collection-item.ui</file>
+        <file preprocess="xml-stripblanks">puzzle-selection-item.ui</file>
         <file>style.css</file>
         <file>puzzles/puzzle_a_day.json</file>
         <file>puzzles/puzzle_more_days.json</file>
