@@ -245,10 +245,10 @@ fn convert_board(
                         return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut array = Array2::<bool>::default((width, height));
+                let mut array = Array2::<bool>::default((height, width));
                 for (i, row) in area_layout.iter().enumerate() {
                     for (j, &value) in row.iter().enumerate() {
-                        array[(j, i)] = value >= 0;
+                        array[(i, j)] = value >= 0;
                     }
                 }
                 array
