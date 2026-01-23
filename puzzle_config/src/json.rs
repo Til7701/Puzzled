@@ -214,8 +214,28 @@ fn convert_board(board: Board) -> Result<BoardConfig, ReadError> {
                 .map(|a| convert_area(a))
                 .collect::<Result<Vec<AreaConfig>, ReadError>>()?;
 
+            let board_layout = {
+                let height = area_layout.len();
+                if height == 0 {
+                    return Err(ReadError::BoardWidthOrHeightCannotBeZero);
+                }
+                let width = area_layout[0].len();
+                for row in &area_layout {
+                    if row.len() != width {
+                        return Err(ReadError::BoardWidthOrHeightCannotBeZero);
+                    }
+                }
+                let mut array = Array2::<bool>::default((width, height));
+                for (i, row) in area_layout.iter().enumerate() {
+                    for (j, &value) in row.iter().enumerate() {
+                        array[(j, i)] = value >= 0;
+                    }
+                }
+                array
+            };
+
             Ok(BoardConfig::Area {
-                layout: Default::default(),
+                layout: board_layout,
                 area_indices: vec_vec_to_array2(&area_layout),
                 display_values: vec_vec_to_array2(&values),
                 value_order: vec_vec_to_array2(&value_order),
