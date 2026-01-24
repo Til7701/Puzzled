@@ -2,11 +2,11 @@ use crate::global::state::get_state;
 use crate::offset::CellOffset;
 use crate::presenter::puzzle_area::board::BoardPresenter;
 use crate::presenter::puzzle_area::data::PuzzleAreaData;
+use crate::presenter::puzzle_area::puzzle_state::{Cell, PuzzleState, UnusedTile};
 use crate::presenter::puzzle_area::tile::TilePresenter;
 use crate::presenter::puzzle_area::HighlightMode::{OutOfBounds, Overlapping};
-use crate::puzzle_state::{Cell, PuzzleState, UnusedTile};
 use crate::window::PuzzlemoredaysWindow;
-use gtk::prelude::{FixedExt, WidgetExt};
+use gtk::prelude::{FixedExt, GtkWindowExt, WidgetExt};
 use gtk::Widget;
 use puzzle_config::{PuzzleConfig, TileConfig};
 use std::cell::RefCell;
@@ -15,6 +15,7 @@ use std::rc::Rc;
 
 mod board;
 mod data;
+pub mod puzzle_state;
 mod tile;
 
 pub const WINDOW_TO_BOARD_RATIO: f64 = 2.0;
@@ -29,6 +30,7 @@ enum HighlightMode {
 
 #[derive(Debug, Clone)]
 pub struct PuzzleAreaPresenter {
+    window: PuzzlemoredaysWindow,
     data: Rc<RefCell<PuzzleAreaData>>,
     board_presenter: BoardPresenter,
     tile_presenter: TilePresenter,
@@ -37,7 +39,7 @@ pub struct PuzzleAreaPresenter {
 impl PuzzleAreaPresenter {
     pub fn new(window: &PuzzlemoredaysWindow) -> Self {
         let data = Rc::new(RefCell::new(PuzzleAreaData::default()));
-        data.borrow_mut().fixed = Some(window.grid());
+        data.borrow_mut().fixed = window.grid();
 
         let mut board_presenter = BoardPresenter::default();
         board_presenter.set_data(data.clone());
@@ -45,10 +47,28 @@ impl PuzzleAreaPresenter {
         tile_presenter.set_data(data.clone());
 
         Self {
+            window: window.clone(),
             data,
             board_presenter,
             tile_presenter,
         }
+    }
+
+    pub fn setup(&self) {
+        self.window.connect_default_width_notify({
+            let self_clone = self.clone();
+            move |_| self_clone.update_layout()
+        });
+        self.window.connect_is_active_notify({
+            let self_clone = self.clone();
+            move |_| self_clone.update_layout()
+        });
+        // Currently, this does not work, since the width is not updated yet when this signal is emitted.
+        self.window.connect_maximized_notify({
+            let self_clone = self.clone();
+            move |_| self_clone.update_layout()
+        });
+        self.window.navigation_view().set_animate_transitions(false);
     }
 
     /// Set up the puzzle configuration from the current state.
@@ -182,18 +202,19 @@ impl PuzzleAreaPresenter {
     ///
     /// This moves the puzzle area elements according to the current window size.
     pub fn update_layout(&self) {
-        self.update_cell_width();
-        self.board_presenter.update_layout();
-        self.tile_presenter.update_layout();
+        let data = self.data.borrow();
+        if data.fixed.width() > 0 {
+            drop(data);
+            self.update_cell_width();
+            self.board_presenter.update_layout();
+            self.tile_presenter.update_layout();
+        }
     }
 
     fn update_cell_width(&self) {
         let width = {
             let data = self.data.borrow();
-            match &data.fixed {
-                Some(fixed) => fixed.parent().map(|w| w.width()).unwrap_or(0),
-                None => 0,
-            }
+            data.fixed.width()
         };
 
         let grid_config = &mut self.data.borrow_mut().grid_config;
@@ -203,22 +224,18 @@ impl PuzzleAreaPresenter {
     fn set_min_width(&self) {
         let min_board_elements_width = self.board_presenter.get_min_element_width();
         let data = self.data.borrow();
-        if let Some(fixed) = &data.fixed {
-            let fixed_min_width =
-                data.grid_config.grid_h_cell_count as i32 * min_board_elements_width;
-            fixed.set_width_request(fixed_min_width);
-        }
+        let fixed_min_width = data.grid_config.grid_h_cell_count as i32 * min_board_elements_width;
+        data.fixed.set_width_request(fixed_min_width);
     }
 
     fn clear_elements(&self) {
         let mut data = self.data.borrow_mut();
-        if let Some(fixed) = data.fixed.clone() {
-            data.elements_in_fixed
-                .drain(..)
-                .for_each(|e| fixed.remove(&e));
-            data.tile_views.clear();
-            data.board_view = None;
-        }
+        let fixed = data.fixed.clone();
+        data.elements_in_fixed
+            .drain(..)
+            .for_each(|e| fixed.remove(&e));
+        data.tile_views.clear();
+        data.board_view = None;
     }
 
     pub fn extract_puzzle_state(&self) -> Result<PuzzleState, String> {

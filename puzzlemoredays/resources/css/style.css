@@ -73,11 +73,11 @@
     border-radius: 0;
 }
 
-.board-cell-simple {
-    background-color: red;
-}
-
 @media (prefers-color-scheme: dark) {
+    .board-cell-simple {
+        background-color: #333333;
+    }
+
     .board-cell-0 {
         background-color: #333333;
     }
@@ -96,6 +96,10 @@
 }
 
 @media (prefers-color-scheme: light) {
+    .board-cell-simple {
+        background-color: var(--light-2);
+    }
+
     .board-cell-0 {
         background-color: var(--light-2);
     }

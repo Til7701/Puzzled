@@ -38,12 +38,8 @@ impl TilePresenter {
         tile_view.position_cells = Some(*start_position_cell);
 
         for draggable in tile_view.draggables.iter() {
-            self.setup_drag_and_drop(tile_id as usize, &draggable, on_position_changed.clone());
-            self.setup_tile_rotation_and_flip(
-                tile_id as usize,
-                &draggable,
-                on_position_changed.clone(),
-            );
+            self.setup_drag_and_drop(tile_id, &draggable, on_position_changed.clone());
+            self.setup_tile_rotation_and_flip(tile_id, &draggable, on_position_changed.clone());
         }
         let mut data = self.data.borrow_mut();
         tile_view
@@ -253,18 +249,13 @@ impl TilePresenter {
     fn move_to(&self, tile_view_index: usize, pos_pixel: PixelOffset) {
         let mut data = self.data.borrow_mut();
         let grid_size = data.grid_config.cell_width_pixel as f64;
-        let fixed = {
-            match &data.fixed {
-                Some(fixed) => fixed.clone(),
-                None => return,
-            }
-        };
+        let fixed = &data.fixed.clone();
 
         if let Some(tile_view) = data.tile_views.get_mut(tile_view_index) {
             for (widget, offset) in tile_view.elements_with_offset.iter() {
                 let new = pos_pixel + offset.mul_scalar(grid_size);
                 fixed.move_(widget, new.0, new.1);
-                widget.insert_before(&fixed, None::<&Widget>); // Bring to front
+                widget.insert_before(fixed, None::<&Widget>); // Bring to front
             }
             tile_view.position_pixels = pos_pixel;
         }

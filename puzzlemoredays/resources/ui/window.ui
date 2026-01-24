@@ -122,6 +122,13 @@
                                             </object>
                                         </child>
                                         <child type="start">
+                                            <object class="GtkButton" id="solver_state">
+                                                <property name="icon-name">circle-outline-thick-symbolic</property>
+                                                <property name="tooltip-text" translatable="yes">Solver State</property>
+                                                <property name="action-name">app.solver_state</property>
+                                            </object>
+                                        </child>
+                                        <child type="start">
                                             <object class="GtkSeparator">
                                                 <property name="orientation">vertical</property>>
                                             </object>
@@ -129,12 +136,6 @@
                                         <child type="start">
                                             <object class="GtkButton" id="target_selection_button">
                                                 <property name="label" translatable="yes">No Target Selected</property>
-                                            </object>
-                                        </child>
-                                        <child type="start">
-                                            <object class="GtkButton" id="solver_status">
-                                                <property name="icon-name">circle-outline-thick-symbolic</property>
-                                                <property name="tooltip-text" translatable="yes">Solver Status</property>
                                             </object>
                                         </child>
                                     </object>

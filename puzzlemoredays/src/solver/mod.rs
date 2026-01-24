@@ -1,7 +1,7 @@
 use crate::global::runtime::get_runtime;
 use crate::global::state::SolverState::Done;
 use crate::global::state::{get_state, get_state_mut, SolverState, State};
-use crate::puzzle_state::{Cell, PuzzleState};
+use crate::presenter::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use log::debug;
 use puzzle_config::Target;
 use puzzle_solver::board::Board;
@@ -34,7 +34,7 @@ pub fn solve_for_target(
     on_complete: OnCompleteCallback,
     cancel_token: CancellationToken,
 ) {
-    let board = create_board(puzzle_state, target);
+    let board = create_board(puzzle_state);
     let tiles: Vec<Tile> = puzzle_state
         .unused_tiles
         .iter()
@@ -108,8 +108,8 @@ pub fn interrupt_solver_call(state: &State) {
 /// * `target`: A reference to the target configuration to check against.
 ///
 /// returns: bool
-pub fn is_solved(puzzle_state: &PuzzleState, target: &Target) -> bool {
-    let board = create_board(puzzle_state, target);
+pub fn is_solved(puzzle_state: &PuzzleState) -> bool {
+    let board = create_board(puzzle_state);
     board.get_array().iter().all(|cell| *cell)
 }
 
@@ -121,7 +121,7 @@ pub fn is_solved(puzzle_state: &PuzzleState, target: &Target) -> bool {
 /// * `target`: A reference to the target configuration.
 ///
 /// returns: Board
-fn create_board(puzzle_state: &PuzzleState, target: &Target) -> Board {
+fn create_board(puzzle_state: &PuzzleState) -> Board {
     let dims = puzzle_state.grid.dim();
     let mut board = Board::new(dims);
 
@@ -135,10 +135,13 @@ fn create_board(puzzle_state: &PuzzleState, target: &Target) -> Board {
         board[[x, y]] = is_filled;
     });
 
-    for index in target.indices.iter() {
-        let x = index.0 + 1;
-        let y = index.1 + 1;
-        board[[x, y]] = true;
+    let state = get_state();
+    if let Some(target) = &state.target_selection {
+        for index in target.indices.iter() {
+            let x = index.0 + 1;
+            let y = index.1 + 1;
+            board[[x, y]] = true;
+        }
     }
 
     board

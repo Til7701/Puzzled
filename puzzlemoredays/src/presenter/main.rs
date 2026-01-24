@@ -1,10 +1,9 @@
-use crate::global::state::{get_state, get_state_mut, SolverState};
+use crate::global::state::get_state;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
-use crate::view::{create_solved_dialog, create_target_selection_dialog};
+use crate::view::create_target_selection_dialog;
 use crate::window::PuzzlemoredaysWindow;
-use adw::prelude::{ActionRowExt, AdwDialogExt, AlertDialogExt};
+use adw::prelude::{AdwDialogExt, AlertDialogExt};
 use gtk::prelude::{ButtonExt, WidgetExt};
-use humantime::format_duration;
 use puzzle_config::BoardConfig;
 use std::cell::RefCell;
 use std::fmt::Debug;
@@ -34,19 +33,12 @@ impl MainPresenter {
                         let self_clone = self_clone.clone();
                         move |_, _| {
                             self_clone.update_layout();
-                            self_clone.calculate_solvability_if_enabled();
-                            self_clone.set_solver_status(&get_state().solver_state);
+                            // self_clone.calculate_solvability_if_enabled();
+                            // self_clone.set_solver_status(&get_state().solver_state);
                         }
                     });
                     dialog.present(Some(window));
                 }
-            }
-        });
-
-        window.solver_status().connect_clicked({
-            let self_clone = self.clone();
-            move |_| {
-                self_clone.show_solver_dialog();
             }
         });
     }
@@ -64,13 +56,13 @@ impl MainPresenter {
             BoardConfig::Simple { .. } => {
                 if let Some(window) = self.window.borrow().as_ref() {
                     window.target_selection_button().set_visible(false);
-                    window.solver_status().set_visible(false);
+                    window.solver_state().set_visible(false);
                 }
             }
             BoardConfig::Area { .. } => {
                 if let Some(window) = self.window.borrow().as_ref() {
                     window.target_selection_button().set_visible(true);
-                    window.solver_status().set_visible(true);
+                    window.solver_state().set_visible(true);
                 }
             }
         }
@@ -96,171 +88,6 @@ impl MainPresenter {
                         .set_label("Select Target Day");
                 }
             }
-        }
-    }
-
-    pub fn calculate_solvability_if_enabled(&self) {
-        let state = get_state();
-        if state.preferences_state.solver_enabled {
-            drop(state);
-            self.calculate_solvability();
-        }
-    }
-
-    fn calculate_solvability(&self) {
-        // let puzzle_state = match self.puzzle_area_presenter.borrow().extract_puzzle_state() {
-        //     Ok(state) => state,
-        //     _ => return,
-        // };
-        // let mut state = get_state();
-        // let target = match &state.target_selection {
-        //     Some(target) => target.clone(),
-        //     None => return,
-        // };
-        //
-        // let solver_state = &state.solver_state;
-        // match solver_state {
-        //     SolverState::Running {
-        //         call_id: _,
-        //         cancel_token: _,
-        //     } => interrupt_solver_call(&state),
-        //     _ => {}
-        // }
-        //
-        // if is_solved(&puzzle_state, &target) {
-        //     state.solver_state = SolverState::Done {
-        //         solvable: true,
-        //         duration: Duration::ZERO,
-        //     };
-        //     drop(state);
-        //     self.set_solver_status(&SolverState::Done {
-        //         solvable: true,
-        //         duration: Duration::ZERO,
-        //     });
-        //     self.show_solved_dialog();
-        //     return;
-        // }
-        //
-        // let (tx, rx) = mpsc::channel::<SolverState>();
-        // glib::idle_add_local({
-        //     let self_clone = self.clone();
-        //     move || match rx.try_recv() {
-        //         Ok(solver_status) => {
-        //             dbg!(&solver_status);
-        //             self_clone.set_solver_status(&solver_status);
-        //             glib::ControlFlow::Break
-        //         }
-        //         Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
-        //         Err(mpsc::TryRecvError::Disconnected) => glib::ControlFlow::Break,
-        //     }
-        // });
-        //
-        // let call_id = solver::create_solver_call_id();
-        // debug!("Starting solver call: {:?}", call_id);
-        // let cancel_token = CancellationToken::new();
-        // state.solver_state = SolverState::Running {
-        //     call_id: call_id.clone(),
-        //     cancel_token: cancel_token.clone(),
-        // };
-        // self.set_solver_status(&state.solver_state);
-        // drop(state);
-        // solver::solve_for_target(
-        //     &call_id,
-        //     &puzzle_state,
-        //     &target,
-        //     Box::new(move |solver_status| {
-        //         let _ = tx.send(solver_status);
-        //     }),
-        //     cancel_token,
-        // );
-    }
-
-    fn set_solver_status(&self, status: &SolverState) {
-        if let Some(window) = self.window.borrow().as_ref() {
-            let solver_status_button = window.solver_status();
-            match status {
-                SolverState::Initial => {
-                    solver_status_button.set_tooltip_text(Some("Solver"));
-                    solver_status_button.set_icon_name("circle-outline-thick-symbolic");
-                }
-                SolverState::NotAvailable => {
-                    solver_status_button
-                        .set_tooltip_text(Some("Solver: Not Available without Target Day"));
-                    solver_status_button.set_icon_name("stop-sign-large-outline-symbolic");
-                }
-                SolverState::Disabled => {
-                    solver_status_button.set_tooltip_text(Some("Solver: Disabled"));
-                    solver_status_button.set_icon_name("stop-sign-large-outline-symbolic");
-                }
-                SolverState::Running { .. } => {
-                    solver_status_button.set_tooltip_text(Some("Solver: Running..."));
-                    solver_status_button.set_icon_name("timer-sand-symbolic");
-                }
-                SolverState::Done { solvable, .. } => {
-                    if *solvable {
-                        solver_status_button
-                            .set_tooltip_text(Some("Solver: Solvable for current Target Day!"));
-                        solver_status_button.set_icon_name("check-round-outline2-symbolic");
-                    } else {
-                        solver_status_button
-                            .set_tooltip_text(Some("Solver: Unsolvable for current Target Day!"));
-                        solver_status_button.set_icon_name("cross-large-circle-outline-symbolic");
-                    }
-                }
-            }
-        }
-    }
-
-    fn show_solved_dialog(&self) {
-        if let Some(window) = self.window.borrow().as_ref() {
-            let dialog = create_solved_dialog();
-            dialog.present(Some(window));
-        }
-    }
-
-    fn show_solver_dialog(&self) {
-        const RESOURCE_PATH: &str = "/de/til7701/PuzzleMoreDays/solver-dialog.ui";
-        let builder = gtk::Builder::from_resource(RESOURCE_PATH);
-        let dialog: adw::PreferencesDialog = builder
-            .object("solver_dialog")
-            .expect("Missing `solver_dialog` in resource");
-
-        let enable_solver = builder
-            .object::<adw::SwitchRow>("enable_solver")
-            .expect("Missing `enable_solver` in resource");
-        let state = get_state();
-        enable_solver.set_active(state.preferences_state.solver_enabled);
-
-        if let SolverState::Done {
-            solvable: _,
-            duration,
-        } = state.solver_state
-        {
-            let last_run_duration = builder
-                .object::<adw::ActionRow>("last_run_duration")
-                .expect("Missing `last_run_duration` in resource");
-            let value = format!("{}", format_duration(duration));
-            last_run_duration.set_subtitle(&value);
-        }
-
-        drop(state);
-        dialog.connect_closed({
-            let self_clone = self.clone();
-            move |_| {
-                let mut state = get_state_mut();
-                let solver_enabled = enable_solver.is_active();
-                state.preferences_state.solver_enabled = enable_solver.is_active();
-                if solver_enabled {
-                    drop(state);
-                    self_clone.calculate_solvability();
-                } else {
-                    self_clone.set_solver_status(&SolverState::Disabled {});
-                }
-            }
-        });
-
-        if let Some(window) = self.window.borrow().as_ref() {
-            dialog.present(Some(window));
         }
     }
 }

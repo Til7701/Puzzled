@@ -24,7 +24,6 @@ mod config;
 mod global;
 mod offset;
 mod presenter;
-mod puzzle_state;
 mod puzzles;
 mod solver;
 mod view;

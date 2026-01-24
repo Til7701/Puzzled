@@ -6,7 +6,7 @@ use gtk::{Fixed, Widget};
 
 #[derive(Debug, Default)]
 pub struct PuzzleAreaData {
-    pub fixed: Option<Fixed>,
+    pub fixed: Fixed,
     pub elements_in_fixed: Vec<Widget>,
     pub board_view: Option<BoardView>,
     pub tile_views: Vec<TileView>,
@@ -15,13 +15,8 @@ pub struct PuzzleAreaData {
 
 impl PuzzleAreaData {
     pub fn add_to_fixed(&mut self, widget: &Widget, pos: &PixelOffset) {
-        match &self.fixed {
-            Some(fixed) => {
-                fixed.put(widget, pos.0, pos.1);
-                self.elements_in_fixed.push(widget.clone());
-            }
-            None => {}
-        }
+        self.fixed.put(widget, pos.0, pos.1);
+        self.elements_in_fixed.push(widget.clone());
     }
 }
 

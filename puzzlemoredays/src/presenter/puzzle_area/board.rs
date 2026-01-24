@@ -51,15 +51,13 @@ impl BoardPresenter {
     pub fn update_layout(&self) {
         self.update_target_selection();
         let data = self.data.borrow();
-        if let Some(board_view) = &data.board_view
-            && let Some(fixed) = &data.fixed
-        {
+        if let Some(board_view) = &data.board_view {
             let widget = board_view.parent.clone().upcast::<Widget>();
             let grid_config = &data.grid_config;
             let pos = grid_config
                 .board_offset_cells
                 .mul_scalar(grid_config.cell_width_pixel as f64);
-            fixed.move_(&widget, pos.0 as f64, pos.1 as f64);
+            data.fixed.move_(&widget, pos.0 as f64, pos.1 as f64);
             for widget in board_view.elements.iter() {
                 widget.set_width_request(grid_config.cell_width_pixel as i32);
                 widget.set_height_request(grid_config.cell_width_pixel as i32);
