@@ -125,6 +125,7 @@ impl PuzzleState {
                             Cell::One(data, _) => data,
                             Cell::Many(data, _) => data,
                         };
+                        data.allowed = false;
                         data.is_on_board = false;
                     }
                 }

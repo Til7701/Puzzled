@@ -48,7 +48,7 @@ impl ExtensionPresenter {
                 self.target_selection_button.set_visible(false);
             }
             Some(PuzzleTypeExtension::Simple) => {
-                self.separator.set_visible(true);
+                self.separator.set_visible(false);
                 self.target_selection_button.set_visible(false);
             }
             Some(PuzzleTypeExtension::Area { .. }) => {

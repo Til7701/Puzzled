@@ -68,7 +68,6 @@ impl PuzzleAreaPresenter {
             let self_clone = self.clone();
             move |_| self_clone.update_layout()
         });
-        self.window.navigation_view().set_animate_transitions(false);
     }
 
     /// Set up the puzzle configuration from the current state.
