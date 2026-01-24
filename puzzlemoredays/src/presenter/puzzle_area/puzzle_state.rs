@@ -118,14 +118,14 @@ impl PuzzleState {
                 target: Some(target),
             } => {
                 for index in &target.indices {
-                    let cell = self.grid.get_mut((index.0, index.1));
+                    let cell = self.grid.get_mut((index.0 + 1, index.1 + 1));
                     if let Some(cell) = cell {
                         let data = match cell {
                             Cell::Empty(data) => data,
                             Cell::One(data, _) => data,
                             Cell::Many(data, _) => data,
                         };
-                        data.allowed = false;
+                        data.is_on_board = false;
                     }
                 }
             }
