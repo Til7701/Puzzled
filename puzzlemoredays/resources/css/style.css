@@ -16,15 +16,15 @@
 }
 
 .tile-cell-3 {
-    background-color: var(--orange-5);
-}
-
-.tile-cell-4 {
     background-color: var(--red-5);
 }
 
-.tile-cell-5 {
+.tile-cell-4 {
     background-color: var(--purple-5);
+}
+
+.tile-cell-5 {
+    background-color: var(--orange-5);
 }
 
 .tile-cell-6 {

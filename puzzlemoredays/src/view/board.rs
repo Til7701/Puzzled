@@ -29,7 +29,7 @@ impl BoardView {
                             vec!["board-cell".to_string(), "board-cell-simple".to_string()];
                         let cell = Frame::builder().css_classes(css_classes).build();
 
-                        let label = Label::new(Some(format!("({}, {})", x, y).as_str()));
+                        let label = Label::new(Some(""));
                         cell.set_child(Some(&label));
                         cell
                     }

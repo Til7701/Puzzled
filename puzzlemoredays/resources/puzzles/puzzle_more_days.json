@@ -2,16 +2,16 @@
   "config_version": 1,
   "name": "Puzzle More Days",
   "author": "Puzzle More Days",
-  "description": "The Puzzle More Days Icon",
   "puzzles": [
     {
       "name": "Icon",
+      "description": "The Puzzle More Days Icon",
       "tiles": [
         "O4",
         "L3",
+        [[1]],
         "L4",
-        "Z4",
-        [[1]]
+        "Z4"
       ],
       "board": {
         "layout": [
