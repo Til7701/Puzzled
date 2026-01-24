@@ -1,9 +1,9 @@
+use crate::global::state::get_state;
 use crate::offset::{CellOffset, PixelOffset};
 use crate::presenter::puzzle_area::{
     PuzzleAreaData, MIN_CELLS_TO_THE_SIDES_OF_BOARD, WINDOW_TO_BOARD_RATIO,
 };
-use crate::state::get_state;
-use crate::view::BoardView;
+use crate::view::board::BoardView;
 use adw::prelude::Cast;
 use gtk::prelude::{FixedExt, FrameExt, GridExt, WidgetExt};
 use gtk::{Frame, Label, Widget};

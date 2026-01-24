@@ -1,18 +1,12 @@
-use crate::puzzles;
 use crate::solver::SolverCallId;
 use once_cell::sync::Lazy;
 use puzzle_config::{PuzzleConfig, PuzzleConfigCollection, Target};
 use std::backtrace::Backtrace;
-use std::mem;
-use std::ops::DerefMut;
-use std::sync::{Mutex, MutexGuard, TryLockError};
+use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard, TryLockError};
 use std::time::Duration;
-use tokio::runtime;
-use tokio::runtime::Runtime;
 use tokio_util::sync::CancellationToken;
 
-static APP_STATE: Lazy<Mutex<State>> = Lazy::new(|| Mutex::new(State::default()));
-static RUNTIME: Lazy<Mutex<Runtime>> = Lazy::new(|| Mutex::new(create_runtime()));
+static APP_STATE: Lazy<RwLock<State>> = Lazy::new(|| RwLock::new(State::default()));
 
 /// Represents the global application state.
 #[derive(Debug)]
@@ -20,7 +14,7 @@ pub struct State {
     /// The currently selected puzzle collection.
     pub puzzle_collection: Option<PuzzleConfigCollection>,
     /// The puzzle configuration currently shown on the screen.
-    pub puzzle_config: PuzzleConfig,
+    pub puzzle_config: Option<PuzzleConfig>,
     /// The currently selected target for the puzzle.
     pub target_selection: Option<Target>,
     /// The current state of the puzzle solver.
@@ -28,35 +22,44 @@ pub struct State {
     pub preferences_state: PreferencesState,
 }
 
-/// Acquires a lock on the global application state and returns a guard to it.
-///
-/// If the mutex is already locked, it will log a warning and wait before retrying to acquire the
-/// lock.
-/// This is to help diagnose potential deadlocks in the application.
-pub fn get_state() -> MutexGuard<'static, State> {
-    match APP_STATE.try_lock() {
+pub fn get_state() -> RwLockReadGuard<'static, State> {
+    match APP_STATE.try_read() {
         Ok(guard) => guard,
         Err(TryLockError::WouldBlock) => {
             eprintln!(
-                "get_state: mutex busy (possible deadlock). PID={} Backtrace:\n{:?}",
+                "get_state: rwlock busy (possible deadlock). PID={} Backtrace:\n{:?}",
                 std::process::id(),
                 Backtrace::force_capture()
             );
             std::thread::sleep(Duration::from_secs(2));
-            APP_STATE.lock().unwrap()
+            APP_STATE.read().unwrap()
         }
-        Err(TryLockError::Poisoned(_)) => APP_STATE.lock().unwrap(),
+        Err(TryLockError::Poisoned(_)) => APP_STATE.read().unwrap(),
+    }
+}
+
+pub fn get_state_mut() -> RwLockWriteGuard<'static, State> {
+    match APP_STATE.try_write() {
+        Ok(guard) => guard,
+        Err(TryLockError::WouldBlock) => {
+            eprintln!(
+                "get_state_mut: rwlock busy (possible deadlock). PID={} Backtrace:\n{:?}",
+                std::process::id(),
+                Backtrace::force_capture()
+            );
+            std::thread::sleep(Duration::from_secs(2));
+            APP_STATE.write().unwrap()
+        }
+        Err(TryLockError::Poisoned(_)) => APP_STATE.write().unwrap(),
     }
 }
 
 impl Default for State {
     fn default() -> Self {
-        let puzzle_config = puzzles::default_puzzle();
-        let default_target = puzzle_config.board_config().default_target();
         State {
             puzzle_collection: None,
-            puzzle_config,
-            target_selection: default_target,
+            puzzle_config: None,
+            target_selection: None,
             solver_state: SolverState::Disabled,
             preferences_state: PreferencesState::default(),
         }
@@ -85,35 +88,6 @@ pub enum SolverState {
         /// Duration the solver took to complete.
         duration: Duration,
     },
-}
-
-/// Acquires a lock on the global Tokio runtime and returns a guard to it.
-pub fn get_runtime() -> MutexGuard<'static, Runtime> {
-    match RUNTIME.try_lock() {
-        Ok(guard) => guard,
-        Err(TryLockError::WouldBlock) => {
-            eprintln!(
-                "get_runtime: mutex busy (possible deadlock). PID={} Backtrace:\n{:?}",
-                std::process::id(),
-                Backtrace::force_capture()
-            );
-            std::thread::sleep(std::time::Duration::from_secs(2));
-            RUNTIME.lock().unwrap()
-        }
-        Err(TryLockError::Poisoned(_)) => RUNTIME.lock().unwrap(),
-    }
-}
-
-/// Takes ownership of the global Tokio runtime, replacing it with a new one.
-/// This can be used to shut down the current runtime.
-pub fn take_runtime() -> Runtime {
-    let runtime = mem::replace(get_runtime().deref_mut(), create_runtime());
-    runtime
-}
-
-/// Creates a new Tokio runtime instance for the solver tasks.
-fn create_runtime() -> Runtime {
-    runtime::Builder::new_multi_thread().build().unwrap()
 }
 
 /// Represents the user preferences state.

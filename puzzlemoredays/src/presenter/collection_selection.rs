@@ -1,7 +1,7 @@
 use crate::application::PuzzlemoredaysApplication;
+use crate::global::state::{get_state, get_state_mut};
 use crate::presenter::navigation::NavigationPresenter;
 use crate::puzzles::get_puzzle_collection_store;
-use crate::state::get_state;
 use crate::window::PuzzlemoredaysWindow;
 use adw::glib::{Variant, VariantTy};
 use adw::prelude::{ActionMapExtManual, ActionRowExt, PreferencesRowExt};
@@ -72,8 +72,6 @@ impl CollectionSelectionPresenter {
 
     fn update_community_collections(&self) {
         self.community_collection_list.remove_all();
-        self.community_collection_list
-            .append(&self.load_collection_button_row);
 
         let collection_store = get_puzzle_collection_store();
         for (i, collection) in collection_store
@@ -84,6 +82,9 @@ impl CollectionSelectionPresenter {
             let row = create_collection_row(CollectionId::Community(i), collection);
             self.community_collection_list.append(&row);
         }
+
+        self.community_collection_list
+            .append(&self.load_collection_button_row);
     }
 
     fn load_collection(&self) {
@@ -107,10 +108,10 @@ impl CollectionSelectionPresenter {
                 );
             }
             Some(c) => {
-                let mut state = get_state();
+                let mut state = get_state_mut();
                 state.puzzle_collection = Some(c.clone());
                 drop(state);
-                self.navigation.show_puzzle_selection(c);
+                self.navigation.show_puzzle_selection();
             }
         };
     }

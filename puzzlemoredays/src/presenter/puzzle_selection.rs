@@ -1,12 +1,11 @@
 use crate::application::PuzzlemoredaysApplication;
+use crate::global::state::{get_state, get_state_mut};
 use crate::presenter::navigation::NavigationPresenter;
-use crate::puzzles::get_puzzle_collection_store;
-use crate::state::get_state;
 use crate::window::PuzzlemoredaysWindow;
+use adw::gio;
 use adw::glib::{Variant, VariantTy};
 use adw::prelude::{ActionMapExtManual, ActionRowExt, PreferencesRowExt};
-use adw::{gio, NavigationView};
-use gtk::prelude::{ActionableExt, WidgetExt};
+use gtk::prelude::ActionableExt;
 use gtk::ListBox;
 use log::error;
 use puzzle_config::{PuzzleConfig, PuzzleConfigCollection};
@@ -43,25 +42,31 @@ impl PuzzleSelectionPresenter {
 
     pub fn setup(&self) {}
 
-    pub fn show_collection(&self, collection: &PuzzleConfigCollection) {
+    pub fn show_collection(&self) {
         self.puzzle_list.remove_all();
 
-        for (i, puzzle) in collection.puzzles().iter().enumerate() {
-            let row = create_puzzle_row(i as u32, puzzle);
-            self.puzzle_list.append(&row);
+        let state = get_state();
+        if let Some(collection) = &state.puzzle_collection {
+            for (i, puzzle) in collection.puzzles().iter().enumerate() {
+                let row = create_puzzle_row(i as u32, puzzle);
+                self.puzzle_list.append(&row);
+            }
         }
     }
 
     fn activate_puzzle(&self, index: u32) {
-        let state = get_state();
+        let mut state = get_state_mut();
         let collection = &state.puzzle_collection;
         match collection {
             None => {
                 error!("No puzzle collection selected");
             }
-            Some(c) => self
-                .navigation
-                .show_puzzle_area(&c.puzzles()[index as usize]),
+            Some(c) => {
+                let puzzle_config = &c.puzzles()[index as usize];
+                state.puzzle_config = Some(puzzle_config.clone());
+                drop(state);
+                self.navigation.show_puzzle_area();
+            }
         };
     }
 }

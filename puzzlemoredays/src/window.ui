@@ -117,8 +117,8 @@
                                         <child type="start">
                                             <object class="GtkButton" id="puzzle_info_button">
                                                 <property name="icon-name">info-outline-symbolic</property>
-                                                <property name="tooltip-text" translatable="yes">Puzzle Information
-                                                </property>
+                                                <property name="tooltip-text" translatable="yes">Puzzle Information</property>
+                                                <property name="action-name">app.puzzle_info</property>
                                             </object>
                                         </child>
                                         <child type="start">
@@ -134,8 +134,7 @@
                                         <child type="start">
                                             <object class="GtkButton" id="solver_status">
                                                 <property name="icon-name">circle-outline-thick-symbolic</property>
-                                                <property name="tooltip-text" translatable="yes">Solver Status
-                                                </property>
+                                                <property name="tooltip-text" translatable="yes">Solver Status</property>
                                             </object>
                                         </child>
                                     </object>

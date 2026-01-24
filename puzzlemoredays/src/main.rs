@@ -21,12 +21,12 @@ extern crate core;
 
 mod application;
 mod config;
+mod global;
 mod offset;
 mod presenter;
 mod puzzle_state;
 mod puzzles;
 mod solver;
-mod state;
 mod view;
 mod window;
 

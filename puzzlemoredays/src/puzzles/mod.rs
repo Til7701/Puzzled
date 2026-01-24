@@ -1,6 +1,6 @@
 use adw::gio::{resources_lookup_data, ResourceLookupFlags};
 use once_cell::sync::Lazy;
-use puzzle_config::{PuzzleConfig, PuzzleConfigCollection};
+use puzzle_config::PuzzleConfigCollection;
 use std::backtrace::Backtrace;
 use std::sync::{Mutex, MutexGuard, TryLockError};
 use std::time::Duration;
@@ -40,17 +40,6 @@ fn load_core_from_resource(filename: &str) -> PuzzleConfigCollection {
     let data = resources_lookup_data(filename, ResourceLookupFlags::NONE).unwrap();
     let json_str = std::str::from_utf8(&*data).unwrap();
     puzzle_config::load_puzzle_collection_from_json(json_str).unwrap()
-}
-
-pub fn default_puzzle() -> PuzzleConfig {
-    let store = get_puzzle_collection_store();
-    let collections = store.core_puzzle_collections();
-    if let Some(first_collection) = collections.first() {
-        if let Some(first_puzzle) = first_collection.puzzles().first() {
-            return first_puzzle.clone();
-        }
-    }
-    panic!("No default puzzle found in the puzzle collection store");
 }
 
 pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStore> {

@@ -1,6 +1,7 @@
+use crate::global::runtime::get_runtime;
+use crate::global::state::SolverState::Done;
+use crate::global::state::{get_state, get_state_mut, SolverState, State};
 use crate::puzzle_state::{Cell, PuzzleState};
-use crate::state::SolverState::Done;
-use crate::state::{get_runtime, get_state, SolverState, State};
 use log::debug;
 use puzzle_config::Target;
 use puzzle_solver::board::Board;
@@ -61,7 +62,7 @@ fn handle_on_complete(
     run_duration: Duration,
     on_complete: OnCompleteCallback,
 ) {
-    let mut state = get_state();
+    let mut state = get_state_mut();
     if let SolverState::Running { call_id, .. } = &state.solver_state
         && *call_id == solver_call_id
     {

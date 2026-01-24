@@ -1,6 +1,6 @@
 use crate::offset::{CellOffset, PixelOffset};
 use crate::presenter::puzzle_area::PuzzleAreaData;
-use crate::view::TileView;
+use crate::view::tile::TileView;
 use adw::gdk::{BUTTON_MIDDLE, BUTTON_SECONDARY};
 use gtk::prelude::{
     Cast, EventControllerExt, FixedExt, GestureDragExt, GestureSingleExt, WidgetExt,
