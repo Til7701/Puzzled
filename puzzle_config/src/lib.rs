@@ -90,11 +90,7 @@ mod tests {
         assert_eq!(2, puzzle.tiles().len());
         assert_eq!(
             puzzle.board_config().layout(),
-            arr2(&[
-                [false, false, false],
-                [false, true, false],
-                [false, false, false]
-            ])
+            arr2(&[[true, true, true], [true, false, true], [true, true, true]])
         );
         let ref_tile = &puzzle.tiles()[0];
         assert_eq!(
