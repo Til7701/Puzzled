@@ -2,7 +2,7 @@ use crate::application::PuzzlemoredaysApplication;
 use crate::global::state::{get_state, get_state_mut, SolverState};
 use crate::presenter::puzzle_area::puzzle_state::PuzzleState;
 use crate::solver;
-use crate::solver::{interrupt_solver_call, is_solved};
+use crate::solver::interrupt_solver_call;
 use crate::window::PuzzlemoredaysWindow;
 use adw::prelude::{ActionMapExtManual, ActionRowExt, AdwDialogExt};
 use adw::{gio, glib};
@@ -11,7 +11,6 @@ use gtk::Button;
 use humantime::format_duration;
 use log::debug;
 use std::sync::mpsc;
-use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
@@ -83,7 +82,7 @@ impl SolverStatePresenter {
         dialog.present(Some(&self.window));
     }
 
-    pub fn calculate_solvability_if_enabled(&self, puzzle_state: &PuzzleState) {
+    pub fn calculate_solvability_if_enabled(&self, puzzle_state: &mut PuzzleState) {
         let state = get_state();
         if state.preferences_state.solver_enabled {
             drop(state);
@@ -91,12 +90,8 @@ impl SolverStatePresenter {
         }
     }
 
-    fn calculate_solvability(&self, puzzle_state: &PuzzleState) {
+    fn calculate_solvability(&self, puzzle_state: &mut PuzzleState) {
         let mut state = get_state_mut();
-        let target = match &state.target_selection {
-            Some(target) => target.clone(),
-            None => return,
-        };
 
         let solver_state = &state.solver_state;
         match solver_state {
@@ -133,7 +128,6 @@ impl SolverStatePresenter {
         solver::solve_for_target(
             &call_id,
             &puzzle_state,
-            &target,
             Box::new(move |solver_status| {
                 let _ = tx.send(solver_status);
             }),

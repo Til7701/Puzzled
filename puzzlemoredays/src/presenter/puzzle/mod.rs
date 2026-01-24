@@ -58,7 +58,7 @@ impl PuzzlePresenter {
         let puzzle_state = self.puzzle_area_presenter.extract_puzzle_state();
 
         match puzzle_state {
-            Ok(puzzle_state) => {
+            Ok(mut puzzle_state) => {
                 if is_solved(&puzzle_state) {
                     let mut state = get_state_mut();
                     state.solver_state = SolverState::Done {
@@ -76,7 +76,7 @@ impl PuzzlePresenter {
                 }
 
                 self.solver_state_presenter
-                    .calculate_solvability_if_enabled(&puzzle_state);
+                    .calculate_solvability_if_enabled(&mut puzzle_state);
             }
             Err(msg) => {
                 debug!(

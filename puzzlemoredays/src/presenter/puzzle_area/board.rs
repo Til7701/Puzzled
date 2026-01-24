@@ -1,4 +1,4 @@
-use crate::global::state::get_state;
+use crate::global::state::{get_state, PuzzleTypeExtension};
 use crate::offset::{CellOffset, PixelOffset};
 use crate::presenter::puzzle_area::{
     PuzzleAreaData, MIN_CELLS_TO_THE_SIDES_OF_BOARD, WINDOW_TO_BOARD_RATIO,
@@ -68,19 +68,19 @@ impl BoardPresenter {
     fn update_target_selection(&self) {
         self.clear_target_selection();
         let state = get_state();
-        let target_selection = &state.target_selection;
+        let puzzle_type_extension = &state.puzzle_type_extension;
         let data = self.data.borrow();
-        match target_selection {
-            Some(selection) => {
+        match puzzle_type_extension {
+            Some(PuzzleTypeExtension::Area { target }) => {
                 if let Some(board_view) = &data.board_view {
-                    selection.indices.iter().for_each(|TargetIndex(x, y)| {
+                    target.indices.iter().for_each(|TargetIndex(x, y)| {
                         if let Some(widget) = board_view.parent.child_at(*x as i32, *y as i32) {
                             widget.add_css_class(TARGET_SELECTION_CLASS);
                         }
                     })
                 }
             }
-            None => {}
+            _ => {}
         }
     }
 

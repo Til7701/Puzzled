@@ -764,7 +764,6 @@ version = "0.1.0"
 dependencies = [
  "log",
  "ndarray",
- "regex",
  "serde",
  "serde_json",
  "time",
@@ -793,7 +792,6 @@ dependencies = [
  "once_cell",
  "puzzle_config",
  "puzzle_solver",
- "regex",
  "simple_logger",
  "tokio",
  "tokio-util",

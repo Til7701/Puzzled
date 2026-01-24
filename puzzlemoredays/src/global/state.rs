@@ -15,8 +15,7 @@ pub struct State {
     pub puzzle_collection: Option<PuzzleConfigCollection>,
     /// The puzzle configuration currently shown on the screen.
     pub puzzle_config: Option<PuzzleConfig>,
-    /// The currently selected target for the puzzle.
-    pub target_selection: Option<Target>,
+    pub puzzle_type_extension: Option<PuzzleTypeExtension>,
     /// The current state of the puzzle solver.
     pub solver_state: SolverState,
     pub preferences_state: PreferencesState,
@@ -59,7 +58,7 @@ impl Default for State {
         State {
             puzzle_collection: None,
             puzzle_config: None,
-            target_selection: None,
+            puzzle_type_extension: None,
             solver_state: SolverState::Disabled,
             preferences_state: PreferencesState::default(),
         }
@@ -104,4 +103,10 @@ impl Default for PreferencesState {
             solver_enabled: true,
         }
     }
+}
+
+#[derive(Debug)]
+pub enum PuzzleTypeExtension {
+    Simple,
+    Area { target: Target },
 }

@@ -5,6 +5,7 @@ use crate::{
 };
 use ndarray::Array2;
 use serde::Deserialize;
+use serde_json::Value;
 use std::collections::HashMap;
 use time::OffsetDateTime;
 
@@ -93,9 +94,9 @@ enum DefaultFactory {
 }
 
 pub fn load_puzzle_collection_from_json(
-    json_data: &str,
+    json_data: Value,
 ) -> Result<PuzzleConfigCollection, ReadError> {
-    let result = serde_json::from_str::<PuzzleCollection>(json_data);
+    let result = serde_json::from_value::<PuzzleCollection>(json_data);
     match result {
         Ok(collection) => convert(collection),
         Err(e) => Err(ReadError::JsonError(e.to_string())),

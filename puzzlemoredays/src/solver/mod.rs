@@ -30,7 +30,6 @@ pub fn create_solver_call_id() -> SolverCallId {
 pub fn solve_for_target(
     solver_call_id: &SolverCallId,
     puzzle_state: &PuzzleState,
-    target: &Target,
     on_complete: OnCompleteCallback,
     cancel_token: CancellationToken,
 ) {
@@ -134,15 +133,6 @@ fn create_board(puzzle_state: &PuzzleState) -> Board {
 
         board[[x, y]] = is_filled;
     });
-
-    let state = get_state();
-    if let Some(target) = &state.target_selection {
-        for index in target.indices.iter() {
-            let x = index.0 + 1;
-            let y = index.1 + 1;
-            board[[x, y]] = true;
-        }
-    }
 
     board
 }

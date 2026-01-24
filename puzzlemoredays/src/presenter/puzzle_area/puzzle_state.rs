@@ -1,7 +1,8 @@
+use crate::global::state::PuzzleTypeExtension;
 use crate::offset::CellOffset;
 use gtk::Widget;
 use ndarray::Array2;
-use puzzle_config::{PuzzleConfig, Target};
+use puzzle_config::PuzzleConfig;
 use std::collections::HashSet;
 
 /// Represents data associated with a cell in the puzzle grid.
@@ -53,7 +54,10 @@ pub struct PuzzleState {
 }
 
 impl PuzzleState {
-    pub fn new(puzzle_config: &PuzzleConfig, target_selection: &Option<Target>) -> Self {
+    pub fn new(
+        puzzle_config: &PuzzleConfig,
+        puzzle_type_extension: &Option<PuzzleTypeExtension>,
+    ) -> Self {
         let board_config = &puzzle_config.board_config();
         let layout = &board_config.layout();
 
@@ -68,12 +72,7 @@ impl PuzzleState {
                 .get((board_index.0 as usize, board_index.1 as usize))
                 .unwrap_or(&false);
             let is_adjacent = Self::is_adjacent_to_board(board_index, puzzle_config);
-            let allowed = !(is_adjacent
-                || target_selection
-                    .iter()
-                    .flat_map(|target_selection| &target_selection.indices)
-                    .filter(|target_index| **target_index == board_index)
-                    .any(|_| true));
+            let allowed = !is_adjacent;
             *cell = Cell::Empty(CellData {
                 position: CellOffset(x as i32, y as i32),
                 is_on_board: on_board,
@@ -107,5 +106,24 @@ impl PuzzleState {
             }
         }
         false
+    }
+
+    fn handle_extension(&mut self, puzzle_type_extension: &PuzzleTypeExtension) {
+        match puzzle_type_extension {
+            PuzzleTypeExtension::Area { target } => {
+                for index in &target.indices {
+                    let cell = self.grid.get_mut((index.0, index.1));
+                    if let Some(cell) = cell {
+                        let data = match cell {
+                            Cell::Empty(data) => data,
+                            Cell::One(data, _) => data,
+                            Cell::Many(data, _) => data,
+                        };
+                        data.allowed = false;
+                    }
+                }
+            }
+            _ => {}
+        }
     }
 }

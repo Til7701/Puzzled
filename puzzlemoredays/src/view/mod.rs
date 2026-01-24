@@ -1,11 +1,12 @@
 pub mod board;
 pub mod tile;
 
-use crate::global::state::{get_state, get_state_mut, SolverState};
+use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
 use adw::prelude::{AlertDialogExt, AlertDialogExtManual, PreferencesGroupExt};
 use adw::prelude::{ComboRowExt, PreferencesPageExt};
 use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppearance};
 use gtk::StringList;
+use ndarray::Array2;
 use puzzle_config::{AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -21,7 +22,10 @@ pub fn create_target_selection_dialog() -> AlertDialog {
 
     let state = get_state();
     let puzzle_config = &state.puzzle_config.clone().unwrap();
-    let current_selection = &state.target_selection;
+    let current_selection = match &state.puzzle_type_extension {
+        Some(PuzzleTypeExtension::Area { target }) => Some(target),
+        _ => None,
+    };
     let (area_configs, area_count) = match &puzzle_config.board_config() {
         BoardConfig::Area { area_configs, .. } => {
             (area_configs, puzzle_config.board_config().area_count())
@@ -72,9 +76,9 @@ pub fn create_target_selection_dialog() -> AlertDialog {
                 }
             }
             let mut state = get_state_mut();
-            state.target_selection = Some(Target {
-                indices: selected_values,
-            });
+            if let Some(PuzzleTypeExtension::Area { target }) = &mut state.puzzle_type_extension {
+                target.indices = selected_values.clone();
+            }
             drop(state);
         }
     });
@@ -82,7 +86,9 @@ pub fn create_target_selection_dialog() -> AlertDialog {
         move |_, _| {
             dbg!("Cleared target selection");
             let mut state = get_state_mut();
-            state.target_selection = None;
+            if let Some(PuzzleTypeExtension::Area { .. }) = state.puzzle_type_extension {
+                state.puzzle_type_extension = None;
+            }
             state.solver_state = SolverState::Initial;
             drop(state);
         }
@@ -101,7 +107,7 @@ pub fn create_target_selection_dialog() -> AlertDialog {
 fn create_dropdown_for_area(
     content: &PreferencesGroup,
     puzzle_config: &PuzzleConfig,
-    current_selection: &Option<Target>,
+    current_selection: Option<&Target>,
     area_configs: &&Vec<AreaConfig>,
     area_index: usize,
 ) -> (Vec<TargetIndexListItem>, ComboRow) {
@@ -114,22 +120,24 @@ fn create_dropdown_for_area(
             target_index: target_index.clone(),
         })
         .collect();
-    // items.sort_by(|a, b| {
-    //     let first = puzzle_config
-    //         .board_config()
-    //         .value_order()
-    //         .get((a.target_index.0, a.target_index.1))
-    //         .cloned()
-    //         .unwrap_or(i32::MAX);
-    //     let second = puzzle_config
-    //         .board_config()
-    //         .value_order()
-    //         .get((b.target_index.0, b.target_index.1))
-    //         .cloned()
-    //         .unwrap_or(i32::MAX);
-    //
-    //     first.cmp(&second)
-    // });
+    let value_order: &Array2<i32> = match puzzle_config.board_config() {
+        BoardConfig::Simple { .. } => {
+            return (Vec::new(), ComboRow::builder().build());
+        }
+        BoardConfig::Area { value_order, .. } => value_order,
+    };
+    items.sort_by(|a, b| {
+        let first = value_order
+            .get((a.target_index.0, a.target_index.1))
+            .cloned()
+            .unwrap_or(i32::MAX);
+        let second = value_order
+            .get((b.target_index.0, b.target_index.1))
+            .cloned()
+            .unwrap_or(i32::MAX);
+
+        first.cmp(&second)
+    });
 
     let string_list = StringList::new(&[]);
     for it in &items {

@@ -16,4 +16,3 @@ simple_logger = { workspace = true }
 humantime = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }
-regex = { workspace = true }

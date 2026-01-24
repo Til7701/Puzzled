@@ -242,7 +242,7 @@ impl PuzzleAreaPresenter {
         let state = get_state();
         let mut state = PuzzleState::new(
             &state.puzzle_config.clone().unwrap(),
-            &state.target_selection,
+            &state.puzzle_type_extension,
         );
         let data = self.data.borrow();
         let board_position = data.grid_config.board_offset_cells;

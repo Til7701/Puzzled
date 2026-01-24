@@ -71,23 +71,23 @@ impl MainPresenter {
     fn update_target_selection_button(&self) {
         if let Some(window) = self.window.borrow().as_ref() {
             let state = get_state();
-            let target_selection = &state.target_selection;
-            match target_selection {
-                Some(target) => {
-                    let puzzle_config = &state.puzzle_config.clone().unwrap();
-                    let board_config = puzzle_config.board_config();
-                    let text = match board_config {
-                        BoardConfig::Simple { .. } => "",
-                        BoardConfig::Area { .. } => &*board_config.format_target(target),
-                    };
-                    window.target_selection_button().set_label(&text);
-                }
-                None => {
-                    window
-                        .target_selection_button()
-                        .set_label("Select Target Day");
-                }
-            }
+            // let target_selection = &state.target_selection;
+            // match target_selection {
+            //     Some(target) => {
+            //         let puzzle_config = &state.puzzle_config.clone().unwrap();
+            //         let board_config = puzzle_config.board_config();
+            //         let text = match board_config {
+            //             BoardConfig::Simple { .. } => "",
+            //             BoardConfig::Area { .. } => &*board_config.format_target(target),
+            //         };
+            //         window.target_selection_button().set_label(&text);
+            //     }
+            //     None => {
+            //         window
+            //             .target_selection_button()
+            //             .set_label("Select Target Day");
+            //     }
+            // }
         }
     }
 }
