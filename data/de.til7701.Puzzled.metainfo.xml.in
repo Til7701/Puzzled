@@ -40,8 +40,8 @@
   </developer>
 
   <url type="homepage">https://til7701.de/projects/puzzled</url>
-  <url type="vcs-browser">https://github.com/Til7701/puzzled</url>
-  <url type="bugtracker">https://github.com/Til7701/puzzled/issues</url>
+  <url type="vcs-browser">https://github.com/Til7701/Puzzled</url>
+  <url type="bugtracker">https://github.com/Til7701/Puzzled/issues</url>
 
   <translation type="gettext">puzzled</translation>
   <launchable type="desktop-id">de.til7701.Puzzled.desktop</launchable>
