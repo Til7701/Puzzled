@@ -1,6 +1,6 @@
 desktop_file = i18n.merge_file(
-        input: 'de.til7701.PuzzleMoreDays.desktop.in',
-       output: 'de.til7701.PuzzleMoreDays.desktop',
+        input: 'de.til7701.Puzzled.desktop.in',
+       output: 'de.til7701.Puzzled.desktop',
          type: 'desktop',
        po_dir: '../po',
       install: true,
@@ -13,8 +13,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-        input: 'de.til7701.PuzzleMoreDays.metainfo.xml.in',
-       output: 'de.til7701.PuzzleMoreDays.metainfo.xml',
+        input: 'de.til7701.Puzzled.metainfo.xml.in',
+       output: 'de.til7701.Puzzled.metainfo.xml',
        po_dir: '../po',
       install: true,
   install_dir: get_option('datadir') / 'metainfo'
@@ -24,7 +24,7 @@ appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 test('Validate appstream file', appstreamcli,
      args: ['validate', '--no-net', '--explain', appstream_file])
 
-install_data('de.til7701.PuzzleMoreDays.gschema.xml',
+install_data('de.til7701.Puzzled.gschema.xml',
   install_dir: get_option('datadir') / 'glib-2.0' / 'schemas'
 )
 
@@ -37,8 +37,8 @@ test('Validate schema file',
 service_conf = configuration_data()
 service_conf.set('bindir', get_option('prefix') / get_option('bindir'))
 configure_file(
-  input: 'de.til7701.PuzzleMoreDays.service.in',
-  output: 'de.til7701.PuzzleMoreDays.service',
+  input: 'de.til7701.Puzzled.service.in',
+  output: 'de.til7701.Puzzled.service',
   configuration: service_conf,
   install_dir: get_option('datadir') / 'dbus-1' / 'services'
 )

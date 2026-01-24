@@ -1,4 +1,4 @@
-application_id = 'de.til7701.PuzzleMoreDays'
+application_id = 'de.til7701.Puzzled'
 
 scalable_dir = 'hicolor' / 'scalable' / 'apps'
 install_data(

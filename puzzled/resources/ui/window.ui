@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="PuzzledWindow" parent="AdwApplicationWindow">
+        <property name="title" translatable="yes">Puzzled</property>
+        <property name="default-width">1280</property>
+        <property name="default-height">720</property>
+        <property name="content">
+            <object class="AdwNavigationView" id="navigation_view">
+                <child>
+                    <object class="AdwNavigationPage">
+                        <property name="title" translatable="yes">Puzzled - Collections</property>
+                        <property name="tag">collection-selection</property>
+                        <property name="child">
+                            <object class="AdwToolbarView">
+                                <child type="top">
+                                    <object class="AdwHeaderBar">
+                                        <child type="end">
+                                            <object class="GtkMenuButton">
+                                                <property name="primary">True</property>
+                                                <property name="icon-name">open-menu-symbolic</property>
+                                                <property name="tooltip-text" translatable="yes">Main Menu</property>
+                                                <property name="menu-model">primary_menu</property>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <property name="content">
+                                    <object class="GtkScrolledWindow">
+                                        <child>
+                                            <object class="AdwClamp">
+                                                <child>
+                                                    <object class="GtkBox">
+                                                        <property name="orientation">vertical</property>
+                                                        <child>
+                                                            <object class="GtkLabel">
+                                                                <property name="label" translatable="yes">Core Collections</property>
+                                                                <style>
+                                                                    <class name="section-label"/>
+                                                                </style>
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkListBox" id="core_collection_list">
+                                                                <style>
+                                                                    <class name="boxed-list"/>
+                                                                </style>
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkLabel">
+                                                                <property name="label" translatable="yes">Community Collections</property>
+                                                                <style>
+                                                                    <class name="section-label"/>
+                                                                </style>
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkListBox" id="community_collection_list">
+                                                                <style>
+                                                                    <class name="boxed-list"/>
+                                                                </style>
+                                                                <child>
+                                                                    <object class="AdwButtonRow" id="load_collection_button_row">
+                                                                        <property name="title" translatable="yes">Load Collection</property>
+                                                                        <property name="action-name">app.load_collection</property>
+                                                                        <property name="selectable">False</property>
+                                                                    </object>
+                                                                </child>
+                                                            </object>
+                                                        </child>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </property>
+                            </object>
+                        </property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwNavigationPage">
+                        <property name="title" translatable="yes">Puzzle Selection</property>
+                        <property name="tag">puzzle-selection</property>
+                        <property name="child">
+                            <object class="AdwToolbarView">
+                                <child type="top">
+                                    <object class="AdwHeaderBar"/>
+                                </child>
+                                <property name="content">
+                                    <object class="GtkScrolledWindow">
+                                        <child>
+                                            <object class="AdwClamp">
+                                                <child>
+                                                    <object class="GtkBox">
+                                                        <property name="orientation">vertical</property>
+                                                        <child>
+                                                            <object class="GtkListBox" id="puzzle_list">
+                                                                <style>
+                                                                    <class name="boxed-list"/>
+                                                                </style>
+                                                            </object>
+                                                        </child>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </property>
+                            </object>
+                        </property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwNavigationPage">
+                        <property name="title" translatable="yes">Puzzle Area</property>
+                        <property name="tag">puzzle-area</property>
+                        <property name="child">
+                            <object class="AdwToolbarView">
+                                <child type="top">
+                                    <object class="AdwHeaderBar">
+                                        <child type="start">
+                                            <object class="GtkButton" id="puzzle_info_button">
+                                                <property name="icon-name">info-outline-symbolic</property>
+                                                <property name="tooltip-text" translatable="yes">Puzzle Information</property>
+                                                <property name="action-name">app.puzzle_info</property>
+                                            </object>
+                                        </child>
+                                        <child type="start">
+                                            <object class="GtkButton" id="solver_state">
+                                                <property name="icon-name">circle-outline-thick-symbolic</property>
+                                                <property name="tooltip-text" translatable="yes">Solver State</property>
+                                                <property name="action-name">app.solver_state</property>
+                                            </object>
+                                        </child>
+                                        <child type="start">
+                                            <object class="GtkSeparator" id="extension_separator">
+                                                <property name="orientation">vertical</property>>
+                                            </object>
+                                        </child>
+                                        <child type="start">
+                                            <object class="GtkButton" id="target_selection_button">
+                                                <property name="label" translatable="yes">No Target Selected</property>
+                                                <property name="action-name">app.select_target</property>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <property name="content">
+                                    <object class="GtkFixed" id="grid">
+                                        <property name="hexpand">True</property>
+                                        <property name="vexpand">True</property>
+                                    </object>
+                                </property>
+                            </object>
+                        </property>
+                    </object>
+                </child>
+            </object>
+        </property>
+    </template>
+    <menu id="primary_menu">
+        <!--        <section>-->
+        <!--            <item>-->
+        <!--                <attribute name="label" translatable="yes">How to Play</attribute>-->
+        <!--                <attribute name="action">app.how_to_play</attribute>-->
+        <!--            </item>-->
+        <!--        </section>-->
+        <section>
+            <!--            <item>-->
+            <!--                <attribute name="label" translatable="yes">_Preferences</attribute>-->
+            <!--                <attribute name="action">app.preferences</attribute>-->
+            <!--            </item>-->
+            <item>
+                <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
+                <attribute name="action">app.shortcuts</attribute>
+            </item>
+            <item>
+                <attribute name="label" translatable="yes">_About Puzzle More Days</attribute>
+                <attribute name="action">app.about</attribute>
+            </item>
+        </section>
+    </menu>
+</interface>

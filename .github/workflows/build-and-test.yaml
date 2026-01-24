@@ -35,15 +35,15 @@ jobs:
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           arch: ${{ matrix.arch }}
-          manifest-path: de.til7701.PuzzleMoreDays.json
+          manifest-path: de.til7701.Puzzled.json
           run-tests: true
-          bundle: PuzzleMoreDays.flatpak
+          bundle: Puzzled.flatpak
       - name: Install Flatpak Builder
         run: |
           flatpak install flathub -y org.flatpak.Builder
       - name: Run Lint on Manifest
         run: |
-          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest de.til7701.PuzzleMoreDays.json
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest de.til7701.Puzzled.json
       - name: Run Lint on Repo
         run: |
           flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo || true

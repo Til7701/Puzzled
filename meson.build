@@ -1,4 +1,4 @@
-project('puzzlemoredays', 'rust',
+project('puzzled', 'rust',
           version: '0.1.0',
     meson_version: '>= 1.0.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
@@ -11,13 +11,13 @@ gnome = import('gnome')
 
 
 subdir('data')
-subdir('puzzlemoredays/resources')
-subdir('puzzlemoredays/src')
+subdir('puzzled/resources')
+subdir('puzzled/src')
 
 cargo_bin  = find_program('cargo')
 cargo_opt  = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]
-cargo_opt += [ '--target-dir', meson.project_build_root() / 'puzzlemoredays' / 'src' ]
-cargo_env  = [ 'CARGO_HOME=' + meson.project_build_root() / 'puzzlemoredays' / 'cargo-home' ]
+cargo_opt += [ '--target-dir', meson.project_build_root() / 'puzzled' / 'src' ]
+cargo_env  = [ 'CARGO_HOME=' + meson.project_build_root() / 'puzzled' / 'cargo-home' ]
 
 test('cargo-test',
   cargo_bin,
