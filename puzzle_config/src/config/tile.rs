@@ -28,88 +28,105 @@ impl TileConfig {
 pub fn from_predefined_tile(name: &str) -> Option<TileConfig> {
     match name {
         // https://en.wikipedia.org/wiki/Domino_(mathematics)
-        "D2" => Some(TileConfig::new(arr2(&[[true, true]]))),
+        "D2" => Some(TileConfig::new(arr2(&[[true, true]]).reversed_axes())),
 
         // https://en.wikipedia.org/wiki/Tromino
-        "I3" => Some(TileConfig::new(arr2(&[[true, true, true]]))),
-        "L3" => Some(TileConfig::new(arr2(&[[true, false], [true, true]]))),
+        "I3" => Some(TileConfig::new(arr2(&[[true, true, true]]).reversed_axes())),
+        "L3" => Some(TileConfig::new(
+            arr2(&[[true, false], [true, true]]).reversed_axes(),
+        )),
 
         // https://en.wikipedia.org/wiki/Tetromino
-        "I4" => Some(TileConfig::new(arr2(&[[true, true, true, true]]))),
-        "O4" => Some(TileConfig::new(arr2(&[[true, true], [true, true]]))),
+        "I4" => Some(TileConfig::new(
+            arr2(&[[true, true, true, true]]).reversed_axes(),
+        )),
+        "O4" => Some(TileConfig::new(
+            arr2(&[[true, true], [true, true]]).reversed_axes(),
+        )),
         "T4" => Some(TileConfig::new(arr2(&[
             [false, true, false],
             [true, true, true],
         ]))),
-        "J4" => Some(TileConfig::new(arr2(&[
-            [true, false, false],
-            [true, true, true],
-        ]))),
-        "L4" => Some(TileConfig::new(arr2(&[
-            [false, false, true],
-            [true, true, true],
-        ]))),
-        "S4" => Some(TileConfig::new(arr2(&[
-            [false, true, true],
-            [true, true, false],
-        ]))),
-        "Z4" => Some(TileConfig::new(arr2(&[
-            [true, true, false],
-            [false, true, true],
-        ]))),
+        "J4" => Some(TileConfig::new(
+            arr2(&[[true, false, false], [true, true, true]]).reversed_axes(),
+        )),
+        "L4" => Some(TileConfig::new(
+            arr2(&[[false, false, true], [true, true, true]]).reversed_axes(),
+        )),
+        "S4" => Some(TileConfig::new(
+            arr2(&[[false, true, true], [true, true, false]]).reversed_axes(),
+        )),
+        "Z4" => Some(TileConfig::new(
+            arr2(&[[true, true, false], [false, true, true]]).reversed_axes(),
+        )),
 
         // https://en.wikipedia.org/wiki/Pentomino
-        "F5" => Some(TileConfig::new(arr2(&[
-            [false, true, true],
-            [true, true, false],
-            [false, true, false],
-        ]))),
-        "I5" => Some(TileConfig::new(arr2(&[[true, true, true, true, true]]))),
-        "L5" => Some(TileConfig::new(arr2(&[
-            [true, false, false, false],
-            [true, true, true, true],
-        ]))),
-        "N5" => Some(TileConfig::new(arr2(&[
-            [true, true, false, false],
-            [false, true, true, true],
-        ]))),
-        "P5" => Some(TileConfig::new(arr2(&[
-            [true, true, false],
-            [true, true, true],
-        ]))),
-        "T5" => Some(TileConfig::new(arr2(&[
-            [true, true, true],
-            [false, true, false],
-            [false, true, false],
-        ]))),
-        "U5" => Some(TileConfig::new(arr2(&[
-            [true, false, true],
-            [true, true, true],
-        ]))),
-        "V5" => Some(TileConfig::new(arr2(&[
-            [true, false, false],
-            [true, false, false],
-            [true, true, true],
-        ]))),
-        "W5" => Some(TileConfig::new(arr2(&[
-            [true, false, false],
-            [true, true, false],
-            [false, true, true],
-        ]))),
-        "X5" => Some(TileConfig::new(arr2(&[
-            [false, true, false],
-            [true, true, true],
-            [false, true, false],
-        ]))),
-        "Y5" => Some(TileConfig::new(arr2(&[
-            [false, true, false, false],
-            [true, true, true, true],
-        ]))),
-        "Z5" => Some(TileConfig::new(arr2(&[
-            [true, true, false],
-            [false, true, false],
-            [false, true, true],
-        ]))),
+        "F5" => Some(TileConfig::new(
+            arr2(&[
+                [false, true, true],
+                [true, true, false],
+                [false, true, false],
+            ])
+            .reversed_axes(),
+        )),
+        "I5" => Some(TileConfig::new(
+            arr2(&[[true, true, true, true, true]]).reversed_axes(),
+        )),
+        "L5" => Some(TileConfig::new(
+            arr2(&[[true, false, false, false], [true, true, true, true]]).reversed_axes(),
+        )),
+        "N5" => Some(TileConfig::new(
+            arr2(&[[true, true, false, false], [false, true, true, true]]).reversed_axes(),
+        )),
+        "P5" => Some(TileConfig::new(
+            arr2(&[[true, true, false], [true, true, true]]).reversed_axes(),
+        )),
+        "T5" => Some(TileConfig::new(
+            arr2(&[
+                [true, true, true],
+                [false, true, false],
+                [false, true, false],
+            ])
+            .reversed_axes(),
+        )),
+        "U5" => Some(TileConfig::new(
+            arr2(&[[true, false, true], [true, true, true]]).reversed_axes(),
+        )),
+        "V5" => Some(TileConfig::new(
+            arr2(&[
+                [true, false, false],
+                [true, false, false],
+                [true, true, true],
+            ])
+            .reversed_axes(),
+        )),
+        "W5" => Some(TileConfig::new(
+            arr2(&[
+                [true, false, false],
+                [true, true, false],
+                [false, true, true],
+            ])
+            .reversed_axes(),
+        )),
+        "X5" => Some(TileConfig::new(
+            arr2(&[
+                [false, true, false],
+                [true, true, true],
+                [false, true, false],
+            ])
+            .reversed_axes(),
+        )),
+        "Y5" => Some(TileConfig::new(
+            arr2(&[[false, true, false, false], [true, true, true, true]]).reversed_axes(),
+        )),
+        "Z5" => Some(TileConfig::new(
+            arr2(&[
+                [true, true, false],
+                [false, true, false],
+                [false, true, true],
+            ])
+            .reversed_axes(),
+        )),
 
         _ => None,
     }

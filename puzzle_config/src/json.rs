@@ -186,6 +186,7 @@ fn convert_tile(
                     base[(i, j)] = value != 0;
                 }
             }
+            let base = base.reversed_axes();
             Ok(TileConfig::new(base))
         }
     }
@@ -220,6 +221,7 @@ fn convert_board(
                     array[(i, j)] = value >= 0;
                 }
             }
+            let array = array.reversed_axes();
             Ok(BoardConfig::Simple { layout: array })
         }
         Board::AreaBoard {
@@ -251,14 +253,15 @@ fn convert_board(
                         array[(i, j)] = value >= 0;
                     }
                 }
+                let array = array.reversed_axes();
                 array
             };
 
             Ok(BoardConfig::Area {
                 layout: board_layout,
-                area_indices: vec_vec_to_array2(&area_layout),
-                display_values: vec_vec_to_array2(&values),
-                value_order: vec_vec_to_array2(&value_order),
+                area_indices: vec_vec_to_array2(&area_layout).reversed_axes(),
+                display_values: vec_vec_to_array2(&values).reversed_axes(),
+                value_order: vec_vec_to_array2(&value_order).reversed_axes(),
                 area_configs,
                 target_template: TargetTemplate::new(&target_template),
             })
