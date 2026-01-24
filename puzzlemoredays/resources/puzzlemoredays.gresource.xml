@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
     <gresource prefix="/de/til7701/PuzzleMoreDays">
-        <file preprocess="xml-stripblanks">window.ui</file>
-        <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
-        <file preprocess="xml-stripblanks">solver-dialog.ui</file>
-        <file preprocess="xml-stripblanks">how-to-play-dialog.ui</file>
-        <file preprocess="xml-stripblanks">puzzle-collection-item.ui</file>
-        <file preprocess="xml-stripblanks">puzzle-selection-item.ui</file>
-        <file>style.css</file>
+        <file preprocess="xml-stripblanks" alias="window.ui">ui/window.ui</file>
+        <file preprocess="xml-stripblanks" alias="shortcuts-dialog.ui">ui/shortcuts-dialog.ui</file>
+        <file preprocess="xml-stripblanks" alias="solver-dialog.ui">ui/solver-dialog.ui</file>
+        <file preprocess="xml-stripblanks" alias="how-to-play-dialog.ui">ui/how-to-play-dialog.ui</file>
+        <file preprocess="xml-stripblanks" alias="puzzle-collection-item.ui">ui/puzzle-collection-item.ui</file>
+        <file preprocess="xml-stripblanks" alias="puzzle-selection-item.ui">ui/puzzle-selection-item.ui</file>
+        <file alias="style.css">css/style.css</file>
         <file>puzzles/puzzle_a_day.json</file>
         <file>puzzles/puzzle_more_days.json</file>
         <file>puzzles/trominoes.json</file>

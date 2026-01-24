@@ -11,6 +11,7 @@ gnome = import('gnome')
 
 
 subdir('data')
+subdir('puzzlemoredays/resources')
 subdir('puzzlemoredays/src')
 
 cargo_bin  = find_program('cargo')
