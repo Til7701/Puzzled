@@ -2,6 +2,6 @@
 /build/
 /repo/
 /.flatpak-builder/
-/puzzlemoredays/src/config.rs
+/puzzled/src/config.rs
 
 /.idea/

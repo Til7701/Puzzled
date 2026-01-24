@@ -1,6 +1,6 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
-data/de.til7701.PuzzleMoreDays.desktop.in
-data/de.til7701.PuzzleMoreDays.metainfo.xml.in
-data/de.til7701.PuzzleMoreDays.gschema.xml
+data/de.til7701.Puzzled.desktop.in
+data/de.til7701.Puzzled.metainfo.xml.in
+data/de.til7701.Puzzled.gschema.xml
 src/window.ui

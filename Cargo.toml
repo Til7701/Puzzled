@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["puzzle_solver", "puzzle_config", "puzzlemoredays"]
+members = ["puzzle_solver", "puzzle_config", "puzzled"]
 
 [workspace.package]
 version = "0.1.0"

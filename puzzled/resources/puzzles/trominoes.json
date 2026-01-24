@@ -1,0 +1,26 @@
+{
+  "config_version": 1,
+  "name": "Trominoes",
+  "author": "Puzzled",
+  "description": "Fill the board with trominoes.",
+  "custom_boards": {
+    "3x3": {
+      "layout": [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+      ]
+    }
+  },
+  "puzzles": [
+    {
+      "name": "Simple",
+      "tiles": [
+        "I3",
+        "L3",
+        "L3"
+      ],
+      "board": "3x3"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>de.til7701.Puzzled</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>Puzzled</name>
+  <summary>Do your best</summary>
+  <description>
+    <p>
+      Inspired by Puzzle a Day, this application provides more variants and a
+      solver to aid in your puzzling endeavours.
+    </p>
+    <p>
+      You can drag the tiles with your mouse, rotate them with right-click, and
+      flip them with middle, click. Move the tiles to fill the board in the
+      middle to solve the puzzle for any day you like by leaving the desired
+      cells free. You can select your target day at the top.
+    </p>
+    <p>
+      When you select a day, the solver with predict, whether or not you can
+      solve the day with the tiles currently placed on the board.
+      You can disable this by clicking on the icon next to the target day
+      selection.
+    </p>
+  </description>
+
+  <categories>
+    <category>Game</category>
+    <category>LogicGame</category>
+  </categories>
+  <keywords>
+    <keyword>Puzzle</keyword>
+    <keyword>Adwaita</keyword>
+    <keyword>GTK</keyword>
+  </keywords>
+
+  <developer id="de.til7701">
+    <name>Tilman Holube</name>
+  </developer>
+
+  <url type="homepage">https://til7701.de/projects/puzzled</url>
+  <url type="vcs-browser">https://github.com/Til7701/Puzzled</url>
+  <url type="bugtracker">https://github.com/Til7701/Puzzled/issues</url>
+
+  <translation type="gettext">puzzled</translation>
+  <launchable type="desktop-id">de.til7701.Puzzled.desktop</launchable>
+  <!-- Use the OARS website (https://hughsie.github.io/oars/generate.html) to generate these and make sure to use oars-1.1 -->
+  <content_rating type="oars-1.1"/>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#FEA500</color>
+    <color type="primary" scheme_preference="dark">#C74402</color>
+  </branding>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v0.1.0/data/screenshot-default-light.png</image>
+      <caption>Default layout for Puzzle a Day mid solving it</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v0.1.0/data/screenshot-year-light.png</image>
+      <caption>The layout with two additional digits for the year</caption>
+    </screenshot>
+  </screenshots>
+
+  <releases>
+    <release version="0.1.0" date="2026-01-14">
+      <description translate="no">
+        <p>
+          First Release of Puzzle More Days, including the default layout and
+          a layout with a two-digit year. Potential errors are highlighted
+          and a solver predicts the solvability of the current approach.
+        </p>
+      </description>
+    </release>
+  </releases>
+
+</component>
+

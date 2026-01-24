@@ -1,1 +1,1 @@
-i18n.gettext('puzzlemoredays', preset: 'glib')
+i18n.gettext('puzzled', preset: 'glib')

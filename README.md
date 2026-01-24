@@ -1,4 +1,4 @@
-# Puzzle More Days
+# Puzzled
 
 A Libadwaita application to solve daily puzzles in various formats. It can tell you, if you are on the
 right track or, whether it is impossible to solve the puzzle with your current approach.
