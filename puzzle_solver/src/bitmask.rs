@@ -77,6 +77,7 @@ impl Bitmask {
     /// * `index`: Index of the bit to clear.
     ///
     /// returns: ()
+    #[allow(dead_code)]
     pub(crate) fn clear_bit(&mut self, index: usize) {
         let array_index = index / BITS_IN_PRIMITIVE;
         let bit_index = index % BITS_IN_PRIMITIVE;

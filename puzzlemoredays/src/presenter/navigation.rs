@@ -1,4 +1,3 @@
-use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::window::PuzzlemoredaysWindow;
@@ -22,12 +21,10 @@ impl NavigationPresenter {
 
     pub fn setup(
         &mut self,
-        collection_selection_presenter: &CollectionSelectionPresenter,
         puzzle_selection_presenter: &PuzzleSelectionPresenter,
         puzzle_presenter: &PuzzlePresenter,
     ) {
         *self.presenters.borrow_mut() = Some(Presenters {
-            collection_selection: collection_selection_presenter.clone(),
             puzzle_selection: puzzle_selection_presenter.clone(),
             puzzle_presenter: puzzle_presenter.clone(),
         });
@@ -49,7 +46,6 @@ impl NavigationPresenter {
 }
 
 struct Presenters {
-    collection_selection: CollectionSelectionPresenter,
     puzzle_selection: PuzzleSelectionPresenter,
     puzzle_presenter: PuzzlePresenter,
 }

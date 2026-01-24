@@ -64,6 +64,7 @@ impl Board {
     }
 
     /// Prints the board to the debug log.
+    #[allow(dead_code)]
     pub(crate) fn debug_print(&self) {
         debug!("Board:");
         array_util::debug_print(&self.0);

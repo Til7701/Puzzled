@@ -87,6 +87,7 @@ impl Tile {
     }
 
     /// Debug prints the tile's base and all its rotations.
+    #[allow(dead_code)]
     pub(crate) fn debug_print(&self) {
         debug!("Tile Base: ");
         debug_print(&self.base);

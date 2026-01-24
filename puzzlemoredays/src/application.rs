@@ -195,10 +195,6 @@ impl PuzzlemoredaysApplication {
         collection_selection_presenter.register_actions(self);
         collection_selection_presenter.setup();
 
-        navigation_presenter.setup(
-            &collection_selection_presenter,
-            &puzzle_selection_presenter,
-            &puzzle_presenter,
-        );
+        navigation_presenter.setup(&puzzle_selection_presenter, &puzzle_presenter);
     }
 }
