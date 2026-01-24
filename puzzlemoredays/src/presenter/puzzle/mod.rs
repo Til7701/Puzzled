@@ -69,6 +69,7 @@ impl PuzzlePresenter {
                         .solver_state_presenter
                         .calculate_solvability_if_enabled(&mut puzzle_state);
                     self_clone.puzzle_area_presenter.update_layout();
+                    self_clone.puzzle_area_presenter.update_highlights();
                 }
             }
         }));
@@ -77,33 +78,25 @@ impl PuzzlePresenter {
     fn on_tile_moved(&self) {
         let puzzle_state = self.puzzle_area_presenter.extract_puzzle_state();
 
-        match puzzle_state {
-            Ok(mut puzzle_state) => {
-                if is_solved(&puzzle_state) {
-                    let mut state = get_state_mut();
-                    state.solver_state = SolverState::Done {
+        if let Ok(mut puzzle_state) = puzzle_state {
+            if is_solved(&puzzle_state) {
+                let mut state = get_state_mut();
+                state.solver_state = SolverState::Done {
+                    solvable: true,
+                    duration: Duration::ZERO,
+                };
+                drop(state);
+                self.solver_state_presenter
+                    .display_solver_state(&SolverState::Done {
                         solvable: true,
                         duration: Duration::ZERO,
-                    };
-                    drop(state);
-                    self.solver_state_presenter
-                        .display_solver_state(&SolverState::Done {
-                            solvable: true,
-                            duration: Duration::ZERO,
-                        });
-                    self.show_solved_dialog();
-                    return;
-                }
+                    });
+                self.show_solved_dialog();
+                return;
+            }
 
-                self.solver_state_presenter
-                    .calculate_solvability_if_enabled(&mut puzzle_state);
-            }
-            Err(msg) => {
-                debug!(
-                    "Failed to extract puzzle state: '{}' This is normal at the start of a drag and drop operation of a tile",
-                    msg
-                );
-            }
+            self.solver_state_presenter
+                .calculate_solvability_if_enabled(&mut puzzle_state);
         }
     }
 

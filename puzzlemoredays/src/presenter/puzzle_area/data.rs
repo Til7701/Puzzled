@@ -21,9 +21,19 @@ impl PuzzleAreaData {
 }
 
 /// Configuration for the puzzle grid layout.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct GridConfig {
     pub grid_h_cell_count: u32,
     pub cell_width_pixel: u32,
     pub board_offset_cells: CellOffset,
+}
+
+impl Default for GridConfig {
+    fn default() -> Self {
+        GridConfig {
+            grid_h_cell_count: 1,
+            cell_width_pixel: 1,
+            board_offset_cells: CellOffset(0, 0),
+        }
+    }
 }

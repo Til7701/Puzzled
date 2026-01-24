@@ -201,21 +201,13 @@ impl PuzzleAreaPresenter {
     ///
     /// This moves the puzzle area elements according to the current window size.
     pub fn update_layout(&self) {
-        let data = self.data.borrow();
-        if data.fixed.width() > 0 {
-            drop(data);
-            self.update_cell_width();
-            self.board_presenter.update_layout();
-            self.tile_presenter.update_layout();
-        }
+        self.update_cell_width();
+        self.board_presenter.update_layout();
+        self.tile_presenter.update_layout();
     }
 
     fn update_cell_width(&self) {
-        let width = {
-            let data = self.data.borrow();
-            data.fixed.width()
-        };
-
+        let width = self.window.width();
         let grid_config = &mut self.data.borrow_mut().grid_config;
         grid_config.cell_width_pixel = width as u32 / grid_config.grid_h_cell_count;
     }
