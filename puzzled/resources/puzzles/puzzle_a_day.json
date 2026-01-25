@@ -1,5 +1,5 @@
 {
-  "config_version": 1,
+  "spec": 1,
   "name": "Puzzle a Day",
   "author": "Puzzled",
   "custom_tiles": {

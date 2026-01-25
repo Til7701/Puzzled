@@ -14,6 +14,7 @@ struct PuzzleCollection {
     name: String,
     description: Option<String>,
     author: String,
+    version: Option<String>,
     /// Custom tiles to override or extend predefined tiles.
     custom_tiles: Option<HashMap<String, Tile>>,
     custom_boards: Option<HashMap<String, Board>>,
@@ -144,6 +145,7 @@ fn convert(puzzle_collection: PuzzleCollection) -> Result<PuzzleConfigCollection
         puzzle_collection.name,
         puzzle_collection.description,
         puzzle_collection.author,
+        puzzle_collection.version,
         puzzle_configs,
     ))
 }

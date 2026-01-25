@@ -12,6 +12,8 @@ pub use config::tile::TileConfig;
 pub use error::ReadError;
 use serde_json::Value;
 
+const SPEC_VERSION_FIELD: &str = "spec";
+
 pub fn load_puzzle_collection_from_json(
     json_str: &str,
 ) -> Result<PuzzleConfigCollection, ReadError> {
@@ -20,19 +22,19 @@ pub fn load_puzzle_collection_from_json(
 
     let version: Result<i32, ReadError> = match &value {
         Value::Object(object) => {
-            let version_value = object.get("config_version");
+            let version_value = object.get(SPEC_VERSION_FIELD);
             match version_value {
                 Some(Value::Number(num)) => Ok(num.as_i64().unwrap_or(-1) as i32),
-                _ => Err(ReadError::MalformedVersion),
+                _ => Err(ReadError::MissingVersion),
             }
         }
         _ => Err(ReadError::MissingVersion),
     };
-    if version? != 1 {
-        return Err(ReadError::UnsupportedVersion);
+    if version? == 1 {
+        json::load_puzzle_collection_from_json(value)
+    } else {
+        Err(ReadError::UnsupportedVersion)
     }
-
-    json::load_puzzle_collection_from_json(value)
 }
 
 #[cfg(test)]
@@ -43,7 +45,7 @@ mod tests {
     fn test_load_puzzle_collection_from_json() {
         let json_str = r#"
         {
-          "config_version": 1,
+          "spec": 1,
           "name": "Test Collection",
           "author": "Test Author",
           "description": "A test puzzle collection",
