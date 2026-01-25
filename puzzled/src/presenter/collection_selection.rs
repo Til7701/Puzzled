@@ -10,7 +10,7 @@ use adw::prelude::{
     PreferencesRowExt,
 };
 use adw::{gio, AlertDialog, ButtonRow, ResponseAppearance};
-use gtk::prelude::ActionableExt;
+use gtk::prelude::{ActionableExt, BoxExt, WidgetExt};
 use gtk::ListBox;
 use log::{debug, error};
 use puzzle_config::ReadError::FileReadError;
@@ -214,16 +214,52 @@ impl CollectionSelectionPresenter {
     }
 }
 
-fn create_collection_row(id: CollectionId, collection: &PuzzleConfigCollection) -> adw::ActionRow {
+fn create_collection_row(id: CollectionId, collection: &PuzzleConfigCollection) -> gtk::ListBoxRow {
     const RESOURCE_PATH: &str = "/de/til7701/Puzzled/puzzle-collection-item.ui";
     let builder = gtk::Builder::from_resource(RESOURCE_PATH);
-    let row: adw::ActionRow = builder
+    let row: gtk::ListBoxRow = builder
         .object("row")
         .expect("Missing `puzzle-collection-item.ui` in resource");
+    let info_box: adw::WrapBox = builder
+        .object("info_box")
+        .expect("Missing `info_box` in resource");
 
-    row.set_title(collection.name());
+    let name_label: gtk::Label = builder.object("name").expect("Missing `name` in resource");
+    name_label.set_label(collection.name());
+
+    let description_label: gtk::Label = builder
+        .object("description")
+        .expect("Missing `description` in resource");
     if let Some(description) = collection.description() {
-        row.set_subtitle(description);
+        description_label.set_label(description);
+    } else {
+        let outer_box: gtk::Box = builder
+            .object("outer_box")
+            .expect("Missing `outer_box` in resource");
+        outer_box.remove(&description_label);
+    }
+
+    let puzzle_count_label: gtk::Label = builder
+        .object("puzzle_count")
+        .expect("Missing `puzzle_count` in resource");
+    let puzzle_count_text = format!("{}", collection.puzzles().len());
+    puzzle_count_label.set_label(&puzzle_count_text);
+
+    let author_label: gtk::Label = builder
+        .object("author")
+        .expect("Missing `author` in resource");
+    author_label.set_label(collection.author());
+
+    if let Some(version) = collection.version() {
+        let version_label: gtk::Label = builder
+            .object("version")
+            .expect("Missing `version` in resource");
+        version_label.set_label(version);
+    } else {
+        let version_box: gtk::Box = builder
+            .object("version_box")
+            .expect("Missing `version_box` in resource");
+        info_box.remove(&version_box);
     }
 
     row.set_action_target_value(Some(&id.into()));

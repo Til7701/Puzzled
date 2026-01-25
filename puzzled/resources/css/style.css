@@ -1,8 +1,7 @@
-.section-label {
-    font-weight: bold;
-    font-size: medium;
-    margin-top: 10px;
-    margin-bottom: 5px;
+.info-pill {
+    background-color: var(--shade-color);
+    border-radius: var(--window-radius);
+    padding: 4px 8px;
 }
 
 .tile-cell {
