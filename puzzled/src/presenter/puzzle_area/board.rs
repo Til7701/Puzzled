@@ -5,8 +5,8 @@ use crate::presenter::puzzle_area::{
 };
 use crate::view::board::BoardView;
 use adw::prelude::Cast;
-use gtk::prelude::{FixedExt, FrameExt, GridExt, WidgetExt};
-use gtk::{Frame, Label, Widget};
+use gtk::prelude::{FixedExt, GridExt, WidgetExt};
+use gtk::Widget;
 use puzzle_config::{PuzzleConfig, TargetIndex};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -98,24 +98,7 @@ impl BoardPresenter {
     pub fn get_min_element_width(&self) -> i32 {
         let data = self.data.borrow();
         if let Some(board_view) = &data.board_view {
-            let max_elements_width = board_view
-                .elements
-                .iter()
-                .map(|w| {
-                    if let Ok(frame) = w.clone().downcast::<Frame>()
-                        && let Some(child) = frame.child()
-                        && let Ok(label) = child.downcast::<Label>()
-                    {
-                        let pixel_width = label.layout().pixel_size().0;
-                        (pixel_width as f64 * 1.4) as i32
-                    } else {
-                        0
-                    }
-                })
-                .chain(0..1)
-                .max()
-                .unwrap_or(0);
-            max_elements_width
+            board_view.get_min_element_size()
         } else {
             0
         }

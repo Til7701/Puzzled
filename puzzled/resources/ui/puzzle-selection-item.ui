@@ -1,9 +1,139 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
     <requires lib="gtk" version="4.0"/>
-    <object class="AdwActionRow" id="row">
+    <requires lib="Adw" version="1.0"/>
+    <object class="GtkListBoxRow" id="row">
         <property name="selectable">False</property>
         <property name="activatable">True</property>
         <property name="action-name">app.puzzle_activated</property>
+        <child>
+            <object class="GtkBox" id="outer_box">
+                <property name="orientation">vertical</property>
+                <property name="spacing">4</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">8</property>
+                <property name="margin-bottom">8</property>
+                <child>
+                    <object class="GtkLabel" id="name">
+                        <property name="halign">start</property>
+                        <style>
+                            <class name="title-3"/>
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="description">
+                        <property name="halign">start</property>
+                        <property name="wrap">True</property>
+                        <style>
+                            <class name="dimmed"/>
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwWrapBox" id="info_box">
+                        <property name="child-spacing">4</property>
+                        <property name="line-spacing">4</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="spacing">4</property>
+                                <property name="tooltip-text">The dimensions of the board</property>
+                                <style>
+                                    <class name="info-pill"/>
+                                </style>
+                                <child>
+                                    <object class="GtkImage">
+                                        <property name="icon-name">checkerboard-big-symbolic</property>
+                                        <style>
+                                            <class name="accent"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="board_size">
+                                        <style>
+                                            <class name="numeric"/>
+                                        </style>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="spacing">4</property>
+                                <property name="tooltip-text">The number of tiles in this puzzle</property>
+                                <style>
+                                    <class name="info-pill"/>
+                                </style>
+                                <child>
+                                    <object class="GtkImage">
+                                        <property name="icon-name">puzzle-piece-symbolic</property>
+                                        <style>
+                                            <class name="accent"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="tile_count">
+                                        <style>
+                                            <class name="numeric"/>
+                                        </style>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox" id="difficulty_box">
+                                <property name="spacing">4</property>
+                                <property name="tooltip-text">Difficulty of this puzzle</property>
+                                <style>
+                                    <class name="info-pill"/>
+                                </style>
+                                <child>
+                                    <object class="GtkImage">
+                                        <property name="icon-name">brain-symbolic</property>
+                                        <style>
+                                            <class name="accent"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="difficulty">
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkScrolledWindow">
+                        <property name="vscrollbar-policy">never</property>
+                        <child>
+                            <object class="GtkFixed" id="tile_preview_fixed">
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox">
+                        <property name="halign">fill</property>
+                        <property name="hexpand">True</property>
+                        <property name="hexpand-set">True</property>
+                        <style>
+                            <class name="board-preview"/>
+                        </style>
+
+                        <child>
+                            <object class="GtkBox" id="board_preview_box">
+                                <property name="halign">center</property>
+                                <property name="hexpand">True</property>
+                                <property name="hexpand-set">True</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
     </object>
 </interface>

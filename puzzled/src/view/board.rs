@@ -1,5 +1,5 @@
 use adw::prelude::Cast;
-use gtk::prelude::{FrameExt, GridExt};
+use gtk::prelude::{FrameExt, GridExt, WidgetExt};
 use gtk::{Frame, Grid, Label, Widget};
 use puzzle_config::BoardConfig;
 
@@ -29,8 +29,6 @@ impl BoardView {
                             vec!["board-cell".to_string(), "board-cell-simple".to_string()];
                         let cell = Frame::builder().css_classes(css_classes).build();
 
-                        let label = Label::new(Some(""));
-                        cell.set_child(Some(&label));
                         cell
                     }
                     BoardConfig::Area {
@@ -59,5 +57,30 @@ impl BoardView {
             parent: grid,
             elements,
         })
+    }
+
+    pub fn get_min_element_size(&self) -> i32 {
+        let max_elements_width = self
+            .elements
+            .iter()
+            .map(|w| {
+                if let Ok(frame) = w.clone().downcast::<Frame>()
+                    && let Some(child) = frame.child()
+                    && let Ok(label) = child.downcast::<Label>()
+                {
+                    let size = label
+                        .layout()
+                        .pixel_size()
+                        .0
+                        .max(label.layout().pixel_size().1);
+                    (size as f64 * 1.4) as i32
+                } else {
+                    0
+                }
+            })
+            .chain(0..1)
+            .max()
+            .unwrap_or(0);
+        max_elements_width
     }
 }

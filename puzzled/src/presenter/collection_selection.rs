@@ -5,12 +5,9 @@ use crate::puzzles::{add_community_collection_from_string, get_puzzle_collection
 use crate::window::PuzzledWindow;
 use adw::gio::{Cancellable, File};
 use adw::glib::{Variant, VariantTy};
-use adw::prelude::{
-    ActionMapExtManual, ActionRowExt, AdwDialogExt, AlertDialogExt, FileExtManual,
-    PreferencesRowExt,
-};
+use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt, FileExtManual};
 use adw::{gio, AlertDialog, ButtonRow, ResponseAppearance};
-use gtk::prelude::{ActionableExt, BoxExt, WidgetExt};
+use gtk::prelude::{ActionableExt, BoxExt};
 use gtk::ListBox;
 use log::{debug, error};
 use puzzle_config::ReadError::FileReadError;

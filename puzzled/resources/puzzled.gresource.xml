@@ -24,6 +24,8 @@
         <file preprocess="xml-stripblanks" alias="person-symbolic.svg">icons/person-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="puzzle-piece-symbolic.svg">icons/puzzle-piece-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="commit-horizontal-symbolic.svg">icons/commit-horizontal-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="checkerboard-big-symbolic.svg">icons/checkerboard-big-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="brain-symbolic.svg">icons/brain-symbolic.svg</file>
     </gresource>
     <!-- @formatter:on -->
 </gresources>

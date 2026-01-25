@@ -1,7 +1,17 @@
 .info-pill {
     background-color: var(--shade-color);
-    border-radius: var(--window-radius);
+    border-radius: 15px;
     padding: 4px 8px;
+}
+
+.board-preview {
+    border-radius: 15px;
+    padding: 8px;
+    background-color: var(--window-bg-color);
+}
+
+.board-preview label {
+    font-size: xx-small;
 }
 
 .tile-cell {
