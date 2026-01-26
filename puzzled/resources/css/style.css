@@ -89,6 +89,12 @@
     border-radius: 0;
 }
 
+.board-cell-outside {
+    border-style: none;
+    border-radius: 0;
+    background-color: var(--background-color);
+}
+
 @media (prefers-color-scheme: dark) {
     .board-cell-simple {
         background-color: #333333;

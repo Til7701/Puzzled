@@ -1,5 +1,5 @@
 use crate::config::difficulty::PuzzleDifficultyConfig;
-use crate::config::tile;
+use crate::config::{board, tile};
 use crate::{
     AreaConfig, AreaValueFormatter, BoardConfig, PuzzleConfig, PuzzleConfigCollection, ReadError,
     TargetTemplate, TileConfig,
@@ -226,6 +226,8 @@ fn convert_board(
         Board::Ref(name) => {
             if let Some(custom_board) = custom_boards.get(&name) {
                 Ok(custom_board.clone())
+            } else if let Some(predefined_board) = board::from_predefined_board(&name) {
+                Ok(predefined_board)
             } else {
                 Err(ReadError::UnknownCustomBoard {
                     puzzle_name: "unknown".to_string(),

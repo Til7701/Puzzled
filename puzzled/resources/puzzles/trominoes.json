@@ -4,17 +4,17 @@
   "author": "Puzzled",
   "description": "Fill the board with trominoes.",
   "custom_boards": {
-    "3x3": {
+    "double": {
       "layout": [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0]
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0]
       ]
     }
   },
   "puzzles": [
     {
-      "name": "Simple",
+      "name": "Very Simple",
       "difficulty": "Easy",
       "tiles": [
         "I3",
@@ -22,6 +22,30 @@
         "L3"
       ],
       "board": "3x3"
+    },
+    {
+      "name": "Simple",
+      "difficulty": "Easy",
+      "tiles": [
+        "I3",
+        "I3",
+        "L3",
+        "L3"
+      ],
+      "board": "4x3"
+    },
+    {
+      "name": "Double the Board, Double the Fun",
+      "difficulty": "Easy",
+      "tiles": [
+        "I3",
+        "L3",
+        "L3",
+        "I3",
+        "L3",
+        "L3"
+      ],
+      "board": "double"
     }
   ]
 }

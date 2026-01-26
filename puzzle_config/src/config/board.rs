@@ -134,6 +134,18 @@ impl BoardConfig {
     }
 }
 
+pub fn from_predefined_board(name: &str) -> Option<BoardConfig> {
+    let dim: Option<(i32, i32)> = name
+        .split("x")
+        .filter_map(|part| part.parse::<i32>().ok())
+        .collect::<Vec<i32>>()
+        .get(0..2)
+        .and_then(|dims| Some((dims[0], dims[1])));
+    dim.map(|(rows, cols)| BoardConfig::Simple {
+        layout: Array2::from_shape_fn((rows as usize, cols as usize), |_| true),
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
