@@ -1,17 +1,29 @@
 use adw::gio::Settings;
-use adw::prelude::SettingsExt;
+use adw::glib;
+use adw::prelude::{IsA, SettingsExt, SettingsExtManual};
 
-pub fn get_settings() -> Settings {
+fn get_settings() -> Settings {
     Settings::new("de.til7701.Puzzled")
 }
 
-pub fn get_setting_bool(key: SettingsKey) -> bool {
-    let settings = get_settings();
-    match key {
-        SettingsKey::SolverEnabled => settings.boolean("solver-enabled"),
+pub trait SettingKey {
+    type Value;
+
+    fn key(&self) -> &'static str;
+    fn get(&self) -> Self::Value;
+    fn bind(&self, obj: &impl IsA<glib::Object>, property: &str) {
+        get_settings().bind(self.key(), obj, property).build();
     }
 }
 
-pub enum SettingsKey {
-    SolverEnabled,
+pub struct SolverEnabled;
+
+impl SettingKey for SolverEnabled {
+    type Value = bool;
+    fn key(&self) -> &'static str {
+        "solver-enabled"
+    }
+    fn get(&self) -> Self::Value {
+        get_settings().boolean(self.key())
+    }
 }
