@@ -18,7 +18,6 @@ pub struct State {
     pub puzzle_type_extension: Option<PuzzleTypeExtension>,
     /// The current state of the puzzle solver.
     pub solver_state: SolverState,
-    pub preferences_state: PreferencesState,
 }
 
 pub fn get_state() -> RwLockReadGuard<'static, State> {
@@ -60,7 +59,6 @@ impl Default for State {
             puzzle_config: None,
             puzzle_type_extension: None,
             solver_state: SolverState::Disabled,
-            preferences_state: PreferencesState::default(),
         }
     }
 }
@@ -87,22 +85,6 @@ pub enum SolverState {
         /// Duration the solver took to complete.
         duration: Duration,
     },
-}
-
-/// Represents the user preferences state.
-///
-/// TODO save/load preferences to/from disk.
-#[derive(Debug)]
-pub struct PreferencesState {
-    pub solver_enabled: bool,
-}
-
-impl Default for PreferencesState {
-    fn default() -> Self {
-        PreferencesState {
-            solver_enabled: true,
-        }
-    }
 }
 
 #[derive(Debug)]

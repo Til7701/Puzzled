@@ -1,10 +1,12 @@
 use crate::application::PuzzledApplication;
+use crate::global::settings::SettingsKey::SolverEnabled;
+use crate::global::settings::{get_setting_bool, get_settings};
 use crate::global::state::{get_state, get_state_mut, SolverState};
 use crate::presenter::puzzle_area::puzzle_state::PuzzleState;
 use crate::solver;
 use crate::solver::interrupt_solver_call;
 use crate::window::PuzzledWindow;
-use adw::prelude::{ActionMapExtManual, ActionRowExt, AdwDialogExt};
+use adw::prelude::{ActionMapExtManual, ActionRowExt, AdwDialogExt, SettingsExtManual};
 use adw::{gio, glib};
 use gtk::prelude::{ButtonExt, WidgetExt};
 use gtk::Button;
@@ -50,7 +52,9 @@ impl SolverStatePresenter {
             .object::<adw::SwitchRow>("enable_solver")
             .expect("Missing `enable_solver` in resource");
         let state = get_state();
-        enable_solver.set_active(state.preferences_state.solver_enabled);
+        get_settings()
+            .bind("solver-enabled", &enable_solver, "active")
+            .build();
 
         if let SolverState::Done {
             solvable: _,
@@ -68,11 +72,8 @@ impl SolverStatePresenter {
         dialog.connect_closed({
             let self_clone = self.clone();
             move |_| {
-                let mut state = get_state_mut();
                 let solver_enabled = enable_solver.is_active();
-                state.preferences_state.solver_enabled = enable_solver.is_active();
                 if solver_enabled {
-                    drop(state);
                 } else {
                     self_clone.display_solver_state(&SolverState::Disabled {});
                 }
@@ -83,9 +84,7 @@ impl SolverStatePresenter {
     }
 
     pub fn calculate_solvability_if_enabled(&self, puzzle_state: &mut PuzzleState) {
-        let state = get_state();
-        if state.preferences_state.solver_enabled {
-            drop(state);
+        if get_setting_bool(SolverEnabled) {
             self.calculate_solvability(puzzle_state);
         }
     }
