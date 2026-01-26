@@ -23,7 +23,7 @@ impl SolverStatePresenter {
     pub fn new(window: &PuzzledWindow) -> Self {
         SolverStatePresenter {
             window: window.clone(),
-            solver_status_button: window.solver_state().clone(),
+            solver_status_button: window.puzzle_area_nav_page().solver_state().clone(),
         }
     }
 

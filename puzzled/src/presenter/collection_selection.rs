@@ -7,7 +7,7 @@ use adw::gio::{Cancellable, File};
 use adw::glib::{Variant, VariantTy};
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt, FileExtManual};
 use adw::{gio, AlertDialog, ButtonRow, ResponseAppearance};
-use gtk::prelude::{ActionableExt, BoxExt};
+use gtk::prelude::ActionableExt;
 use gtk::ListBox;
 use log::{debug, error};
 use puzzle_config::ReadError::FileReadError;
@@ -24,12 +24,13 @@ pub struct CollectionSelectionPresenter {
 
 impl CollectionSelectionPresenter {
     pub fn new(window: &PuzzledWindow, navigation: NavigationPresenter) -> Self {
+        let page = window.collection_selection_nav_page();
         CollectionSelectionPresenter {
             window: window.clone(),
             navigation,
-            core_collection_list: window.core_collection_list(),
-            community_collection_list: window.community_collection_list(),
-            load_collection_button_row: window.load_collection_button_row(),
+            core_collection_list: page.core_collection_list(),
+            community_collection_list: page.community_collection_list(),
+            load_collection_button_row: page.load_collection_button_row(),
         }
     }
 
@@ -58,6 +59,23 @@ impl CollectionSelectionPresenter {
     pub fn setup(&self) {
         self.load_core_collections();
         self.update_community_collections();
+
+        self.core_collection_list.connect_row_selected({
+            let self_clone = self.clone();
+            move |_, row| {
+                if row.is_some() {
+                    self_clone.community_collection_list.unselect_all();
+                }
+            }
+        });
+        self.community_collection_list.connect_row_selected({
+            let self_clone = self.clone();
+            move |_, row| {
+                if row.is_some() {
+                    self_clone.core_collection_list.unselect_all();
+                }
+            }
+        });
     }
 
     fn load_core_collections(&self) {
@@ -223,18 +241,6 @@ fn create_collection_row(id: CollectionId, collection: &PuzzleConfigCollection) 
 
     let name_label: gtk::Label = builder.object("name").expect("Missing `name` in resource");
     name_label.set_label(collection.name());
-
-    let description_label: gtk::Label = builder
-        .object("description")
-        .expect("Missing `description` in resource");
-    if let Some(description) = collection.description() {
-        description_label.set_label(description);
-    } else {
-        let outer_box: gtk::Box = builder
-            .object("outer_box")
-            .expect("Missing `outer_box` in resource");
-        outer_box.remove(&description_label);
-    }
 
     let puzzle_count_label: gtk::Label = builder
         .object("puzzle_count")

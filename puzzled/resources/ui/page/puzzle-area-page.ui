@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="PuzzleAreaPage" parent="AdwNavigationPage">
+        <property name="tag">puzzle-area</property>
+        <property name="child">
+            <object class="AdwToolbarView">
+                <child type="top">
+                    <object class="AdwHeaderBar">
+                        <child type="start">
+                            <object class="GtkButton" id="puzzle_info_button">
+                                <property name="icon-name">info-outline-symbolic</property>
+                                <property name="tooltip-text" translatable="yes">Puzzle Information</property>
+                                <property name="action-name">app.puzzle_info</property>
+                            </object>
+                        </child>
+                        <child type="start">
+                            <object class="GtkButton" id="solver_state">
+                                <property name="icon-name">circle-outline-thick-symbolic</property>
+                                <property name="tooltip-text" translatable="yes">Solver State</property>
+                                <property name="action-name">app.solver_state</property>
+                            </object>
+                        </child>
+                        <child type="start">
+                            <object class="GtkSeparator" id="extension_separator">
+                                <property name="orientation">vertical</property>>
+                            </object>
+                        </child>
+                        <child type="start">
+                            <object class="GtkButton" id="target_selection_button">
+                                <property name="label" translatable="yes">No Target Selected</property>
+                                <property name="action-name">app.select_target</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <property name="content">
+                    <object class="GtkFixed" id="grid">
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                    </object>
+                </property>
+            </object>
+        </property>
+    </template>
+</interface>

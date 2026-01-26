@@ -39,7 +39,7 @@ pub struct PuzzleAreaPresenter {
 impl PuzzleAreaPresenter {
     pub fn new(window: &PuzzledWindow) -> Self {
         let data = Rc::new(RefCell::new(PuzzleAreaData::default()));
-        data.borrow_mut().fixed = window.grid();
+        data.borrow_mut().fixed = window.puzzle_area_nav_page().grid();
 
         let mut board_presenter = BoardPresenter::default();
         board_presenter.set_data(data.clone());

@@ -8,7 +8,7 @@ use adw::glib::{Variant, VariantTy};
 use adw::prelude::{ActionMapExtManual, ObjectExt};
 use adw::{gio, WrapBox};
 use gtk::prelude::{ActionableExt, BoxExt, FixedExt, WidgetExt};
-use gtk::{Align, Fixed, Label, ListBox, Widget};
+use gtk::{Align, Fixed, Label, ListBox};
 use log::error;
 use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleDifficultyConfig, TileConfig};
 
@@ -29,16 +29,17 @@ pub struct PuzzleSelectionPresenter {
 
 impl PuzzleSelectionPresenter {
     pub fn new(window: &PuzzledWindow, navigation: NavigationPresenter) -> Self {
+        let page = window.puzzle_selection_nav_page();
         PuzzleSelectionPresenter {
             navigation,
-            puzzle_name_label: window.puzzle_name_label(),
-            puzzle_description_label: window.puzzle_description_label(),
-            collection_info_box: window.collection_info_box(),
-            puzzle_count_label: window.puzzle_count_label(),
-            author_label: window.author_label(),
-            version_box: window.version_box(),
-            version_label: window.version_label(),
-            puzzle_list: window.puzzle_list(),
+            puzzle_name_label: page.puzzle_name_label(),
+            puzzle_description_label: page.puzzle_description_label(),
+            collection_info_box: page.collection_info_box(),
+            puzzle_count_label: page.puzzle_count_label(),
+            author_label: page.author_label(),
+            version_box: page.version_box(),
+            version_label: page.version_label(),
+            puzzle_list: page.puzzle_list(),
         }
     }
 
@@ -58,7 +59,9 @@ impl PuzzleSelectionPresenter {
         app.add_action_entries([collection_item_activated]);
     }
 
-    pub fn setup(&self) {}
+    pub fn setup(&self) {
+        self.show_collection();
+    }
 
     pub fn show_collection(&self) {
         self.puzzle_list.remove_all();

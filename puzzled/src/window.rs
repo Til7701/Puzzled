@@ -17,6 +17,9 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+use crate::view::collection_selection_page::CollectionSelectionPage;
+use crate::view::puzzle_area_page::PuzzleAreaPage;
+use crate::view::puzzle_selection_page::PuzzleSelectionPage;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{gio, glib};
@@ -28,44 +31,15 @@ mod imp {
     #[template(resource = "/de/til7701/Puzzled/window.ui")]
     pub struct PuzzledWindow {
         #[template_child]
-        pub navigation_view: TemplateChild<adw::NavigationView>,
+        pub outer_view: TemplateChild<adw::NavigationSplitView>,
         #[template_child]
-        pub puzzle_area_nav_page: TemplateChild<adw::NavigationPage>,
-
+        pub inner_view: TemplateChild<adw::NavigationSplitView>,
         #[template_child]
-        pub core_collection_list: TemplateChild<gtk::ListBox>,
+        pub collection_selection_nav_page: TemplateChild<CollectionSelectionPage>,
         #[template_child]
-        pub community_collection_list: TemplateChild<gtk::ListBox>,
+        pub puzzle_selection_nav_page: TemplateChild<PuzzleSelectionPage>,
         #[template_child]
-        pub load_collection_button_row: TemplateChild<adw::ButtonRow>,
-
-        #[template_child]
-        pub puzzle_name_label: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub puzzle_description_label: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub collection_info_box: TemplateChild<adw::WrapBox>,
-        #[template_child]
-        pub puzzle_count_label: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub author_label: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub version_box: TemplateChild<gtk::Box>,
-        #[template_child]
-        pub version_label: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub puzzle_list: TemplateChild<gtk::ListBox>,
-
-        #[template_child]
-        pub grid: TemplateChild<gtk::Fixed>,
-        #[template_child]
-        pub puzzle_info_button: TemplateChild<gtk::Button>,
-        #[template_child]
-        pub extension_separator: TemplateChild<gtk::Separator>,
-        #[template_child]
-        pub target_selection_button: TemplateChild<gtk::Button>,
-        #[template_child]
-        pub solver_state: TemplateChild<gtk::Button>,
+        pub puzzle_area_nav_page: TemplateChild<PuzzleAreaPage>,
     }
 
     #[glib::object_subclass]
@@ -104,75 +78,23 @@ impl PuzzledWindow {
             .build()
     }
 
-    pub fn navigation_view(&self) -> adw::NavigationView {
-        self.imp().navigation_view.clone()
+    pub fn outer_view(&self) -> adw::NavigationSplitView {
+        self.imp().outer_view.clone()
     }
 
-    pub fn puzzle_area_nav_page(&self) -> adw::NavigationPage {
+    pub fn inner_view(&self) -> adw::NavigationSplitView {
+        self.imp().inner_view.clone()
+    }
+
+    pub fn collection_selection_nav_page(&self) -> CollectionSelectionPage {
+        self.imp().collection_selection_nav_page.clone()
+    }
+
+    pub fn puzzle_selection_nav_page(&self) -> PuzzleSelectionPage {
+        self.imp().puzzle_selection_nav_page.clone()
+    }
+
+    pub fn puzzle_area_nav_page(&self) -> PuzzleAreaPage {
         self.imp().puzzle_area_nav_page.clone()
-    }
-
-    pub fn core_collection_list(&self) -> gtk::ListBox {
-        self.imp().core_collection_list.clone()
-    }
-
-    pub fn community_collection_list(&self) -> gtk::ListBox {
-        self.imp().community_collection_list.clone()
-    }
-
-    pub fn load_collection_button_row(&self) -> adw::ButtonRow {
-        self.imp().load_collection_button_row.clone()
-    }
-
-    pub fn puzzle_name_label(&self) -> gtk::Label {
-        self.imp().puzzle_name_label.clone()
-    }
-
-    pub fn puzzle_description_label(&self) -> gtk::Label {
-        self.imp().puzzle_description_label.clone()
-    }
-
-    pub fn collection_info_box(&self) -> adw::WrapBox {
-        self.imp().collection_info_box.clone()
-    }
-
-    pub fn puzzle_count_label(&self) -> gtk::Label {
-        self.imp().puzzle_count_label.clone()
-    }
-
-    pub fn author_label(&self) -> gtk::Label {
-        self.imp().author_label.clone()
-    }
-
-    pub fn version_box(&self) -> gtk::Box {
-        self.imp().version_box.clone()
-    }
-
-    pub fn version_label(&self) -> gtk::Label {
-        self.imp().version_label.clone()
-    }
-
-    pub fn puzzle_list(&self) -> gtk::ListBox {
-        self.imp().puzzle_list.clone()
-    }
-
-    pub fn grid(&self) -> gtk::Fixed {
-        self.imp().grid.clone()
-    }
-
-    pub fn puzzle_info_button(&self) -> gtk::Button {
-        self.imp().puzzle_info_button.clone()
-    }
-
-    pub fn extension_separator(&self) -> gtk::Separator {
-        self.imp().extension_separator.clone()
-    }
-
-    pub fn target_selection_button(&self) -> gtk::Button {
-        self.imp().target_selection_button.clone()
-    }
-
-    pub fn solver_state(&self) -> gtk::Button {
-        self.imp().solver_state.clone()
     }
 }

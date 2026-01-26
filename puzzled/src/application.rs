@@ -18,10 +18,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 use crate::config::VERSION;
+use crate::global::state::get_state_mut;
 use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::navigation::NavigationPresenter;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
+use crate::puzzles;
 use crate::window::PuzzledWindow;
 use adw::gdk::Display;
 use adw::prelude::*;
@@ -34,7 +36,6 @@ use std::rc::Rc;
 mod imp {
     use super::*;
     use crate::global::runtime::take_runtime;
-    use crate::puzzles;
     use crate::window::PuzzledWindow;
     use simple_logger::SimpleLogger;
 
@@ -72,7 +73,6 @@ mod imp {
             });
 
             application.load_css();
-            puzzles::init();
             application.setup(
                 &window
                     .downcast_ref::<PuzzledWindow>()
@@ -175,6 +175,19 @@ impl PuzzledApplication {
     }
 
     fn setup(&self, window: &PuzzledWindow) {
+        puzzles::init();
+        let collection_store = puzzles::get_puzzle_collection_store();
+        let mut state = get_state_mut();
+        state.puzzle_collection = Some(
+            collection_store
+                .core_puzzle_collections()
+                .first()
+                .unwrap()
+                .clone(),
+        );
+        drop(collection_store);
+        drop(state);
+
         let mut navigation_presenter = NavigationPresenter::new(window);
 
         let puzzle_presenter = PuzzlePresenter::new(window);

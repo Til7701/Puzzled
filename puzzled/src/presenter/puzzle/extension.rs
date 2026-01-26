@@ -19,10 +19,11 @@ pub struct ExtensionPresenter {
 
 impl ExtensionPresenter {
     pub fn new(window: &PuzzledWindow) -> Self {
+        let page = window.puzzle_area_nav_page();
         ExtensionPresenter {
             window: window.clone(),
-            separator: window.extension_separator(),
-            target_selection_button: window.target_selection_button(),
+            separator: page.extension_separator(),
+            target_selection_button: page.target_selection_button(),
             target_changed_callback: Rc::new(RefCell::new(None)),
         }
     }

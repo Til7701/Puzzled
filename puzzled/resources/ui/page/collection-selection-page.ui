@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="CollectionSelectionPage" parent="AdwNavigationPage">
+        <property name="title" translatable="yes">Puzzled</property>
+        <property name="tag">collection-selection</property>
+        <property name="child">
+            <object class="AdwToolbarView">
+                <child type="top">
+                    <object class="AdwHeaderBar">
+                    </object>
+                </child>
+                <property name="content">
+                    <object class="GtkScrolledWindow">
+                        <child>
+                            <object class="AdwClamp">
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">12</property>
+                                        <property name="margin-top">8</property>
+                                        <property name="margin-bottom">8</property>
+                                        <property name="margin-start">8</property>
+                                        <property name="margin-end">8</property>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="label" translatable="yes">Core Collections</property>
+                                                <style>
+                                                    <class name="title-3"/>
+                                                </style>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkListBox" id="core_collection_list">
+                                                <style>
+                                                    <class name="boxed-list"/>
+                                                </style>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="label" translatable="yes">Community Collections</property>
+                                                <style>
+                                                    <class name="title-3"/>
+                                                </style>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkListBox" id="community_collection_list">
+                                                <style>
+                                                    <class name="boxed-list"/>
+                                                </style>
+                                                <child>
+                                                    <object class="AdwButtonRow" id="load_collection_button_row">
+                                                        <property name="title" translatable="yes">Load Collection</property>
+                                                        <property name="action-name">app.load_collection</property>
+                                                        <property name="selectable">False</property>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </property>
+            </object>
+        </property>
+    </template>
+</interface>

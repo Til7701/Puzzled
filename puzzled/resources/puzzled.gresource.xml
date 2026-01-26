@@ -2,12 +2,15 @@
 <gresources>
     <gresource prefix="/de/til7701/Puzzled">
         <file preprocess="xml-stripblanks" alias="window.ui">ui/window.ui</file>
-        <file preprocess="xml-stripblanks" alias="shortcuts-dialog.ui">ui/shortcuts-dialog.ui</file>
-        <file preprocess="xml-stripblanks" alias="solver-dialog.ui">ui/solver-dialog.ui</file>
-        <file preprocess="xml-stripblanks" alias="how-to-play-dialog.ui">ui/how-to-play-dialog.ui</file>
-        <file preprocess="xml-stripblanks" alias="puzzle-collection-item.ui">ui/puzzle-collection-item.ui</file>
-        <file preprocess="xml-stripblanks" alias="puzzle-selection-item.ui">ui/puzzle-selection-item.ui</file>
-        <file preprocess="xml-stripblanks" alias="puzzle-info-dialog.ui">ui/puzzle-info-dialog.ui</file>
+        <file preprocess="xml-stripblanks">ui/page/collection-selection-page.ui</file>
+        <file preprocess="xml-stripblanks">ui/page/puzzle-selection-page.ui</file>
+        <file preprocess="xml-stripblanks">ui/page/puzzle-area-page.ui</file>
+        <file preprocess="xml-stripblanks" alias="shortcuts-dialog.ui">ui/dialog/shortcuts-dialog.ui</file>
+        <file preprocess="xml-stripblanks" alias="solver-dialog.ui">ui/dialog/solver-dialog.ui</file>
+        <file preprocess="xml-stripblanks" alias="how-to-play-dialog.ui">ui/dialog/how-to-play-dialog.ui</file>
+        <file preprocess="xml-stripblanks" alias="puzzle-collection-item.ui">ui/widget/puzzle-collection-item.ui</file>
+        <file preprocess="xml-stripblanks" alias="puzzle-selection-item.ui">ui/widget/puzzle-selection-item.ui</file>
+        <file preprocess="xml-stripblanks" alias="puzzle-info-dialog.ui">ui/dialog/puzzle-info-dialog.ui</file>
         <file alias="style.css">css/style.css</file>
         <file>puzzles/puzzle_a_day.json</file>
         <file>puzzles/puzzled.json</file>

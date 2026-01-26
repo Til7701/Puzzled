@@ -10,10 +10,9 @@ use crate::presenter::puzzle::solver::SolverStatePresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
 use crate::solver::is_solved;
 use crate::view::create_solved_dialog;
+use crate::view::puzzle_area_page::PuzzleAreaPage;
 use crate::window::PuzzledWindow;
 use adw::prelude::{AdwDialogExt, NavigationPageExt};
-use adw::NavigationPage;
-use gtk::prelude::GtkWindowExt;
 use log::debug;
 use std::rc::Rc;
 use std::time::Duration;
@@ -21,7 +20,7 @@ use std::time::Duration;
 #[derive(Clone)]
 pub struct PuzzlePresenter {
     window: PuzzledWindow,
-    puzzle_area_nav_page: NavigationPage,
+    puzzle_area_nav_page: PuzzleAreaPage,
     puzzle_info_presenter: PuzzleInfoPresenter,
     puzzle_area_presenter: PuzzleAreaPresenter,
     solver_state_presenter: SolverStatePresenter,
