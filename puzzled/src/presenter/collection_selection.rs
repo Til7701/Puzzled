@@ -59,6 +59,23 @@ impl CollectionSelectionPresenter {
     pub fn setup(&self) {
         self.load_core_collections();
         self.update_community_collections();
+
+        self.core_collection_list.connect_row_selected({
+            let self_clone = self.clone();
+            move |_, row| {
+                if row.is_some() {
+                    self_clone.community_collection_list.unselect_all();
+                }
+            }
+        });
+        self.community_collection_list.connect_row_selected({
+            let self_clone = self.clone();
+            move |_, row| {
+                if row.is_some() {
+                    self_clone.core_collection_list.unselect_all();
+                }
+            }
+        });
     }
 
     fn load_core_collections(&self) {

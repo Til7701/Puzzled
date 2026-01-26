@@ -1,20 +1,22 @@
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::window::PuzzledWindow;
-use adw::NavigationView;
+use adw::NavigationSplitView;
 use std::cell::RefCell;
 use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct NavigationPresenter {
-    navigation_view: NavigationView,
+    outer_view: NavigationSplitView,
+    inner_view: NavigationSplitView,
     presenters: Rc<RefCell<Option<Presenters>>>,
 }
 
 impl NavigationPresenter {
     pub fn new(window: &PuzzledWindow) -> Self {
         NavigationPresenter {
-            navigation_view: window.navigation_view(),
+            outer_view: window.outer_view(),
+            inner_view: window.inner_view(),
             presenters: Rc::new(RefCell::new(None)),
         }
     }
@@ -33,13 +35,14 @@ impl NavigationPresenter {
     pub fn show_puzzle_selection(&self) {
         if let Some(presenters) = &self.presenters.borrow().as_ref() {
             presenters.puzzle_selection.show_collection();
+            self.inner_view.set_show_content(true);
         }
     }
 
     pub fn show_puzzle_area(&self) {
         if let Some(presenters) = &self.presenters.borrow().as_ref() {
             presenters.puzzle_presenter.show_puzzle();
-            self.navigation_view.push_by_tag("puzzle-area");
+            self.outer_view.set_show_content(true);
         }
     }
 }

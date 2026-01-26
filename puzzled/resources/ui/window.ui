@@ -8,16 +8,20 @@
         <property name="default-height">720</property>
         <child>
             <object class="AdwBreakpoint">
-                <condition>max-width: 600sp</condition>
-                <setter object="split_view" property="collapsed">True</setter>
+                <condition>max-width: 750sp</condition>
+                <setter object="inner_view" property="collapsed">True</setter>
             </object>
         </child>
         <property name="content">
-            <object class="AdwNavigationView" id="navigation_view">
-                <child>
+            <object class="AdwNavigationSplitView" id="outer_view">
+                <property name="collapsed">True</property>
+                <property name="sidebar">
                     <object class="AdwNavigationPage">
-                        <child>
-                            <object class="AdwNavigationSplitView" id="split_view">
+                        <property name="child">
+                            <object class="AdwNavigationSplitView" id="inner_view">
+                                <property name="min-sidebar-width">260</property>
+                                <property name="max-sidebar-width">500</property>
+                                <property name="sidebar-width-fraction">0.25</property>
                                 <property name="sidebar">
                                     <object class="CollectionSelectionPage" id="collection_selection_nav_page"/>
                                 </property>
@@ -25,12 +29,12 @@
                                     <object class="PuzzleSelectionPage" id="puzzle_selection_nav_page"/>
                                 </property>
                             </object>
-                        </child>
+                        </property>
                     </object>
-                </child>
-                <child>
+                </property>
+                <property name="content">
                     <object class="PuzzleAreaPage" id="puzzle_area_nav_page"/>
-                </child>
+                </property>
             </object>
         </property>
     </template>

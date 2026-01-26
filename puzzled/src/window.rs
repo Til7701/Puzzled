@@ -31,7 +31,9 @@ mod imp {
     #[template(resource = "/de/til7701/Puzzled/window.ui")]
     pub struct PuzzledWindow {
         #[template_child]
-        pub navigation_view: TemplateChild<adw::NavigationView>,
+        pub outer_view: TemplateChild<adw::NavigationSplitView>,
+        #[template_child]
+        pub inner_view: TemplateChild<adw::NavigationSplitView>,
         #[template_child]
         pub collection_selection_nav_page: TemplateChild<CollectionSelectionPage>,
         #[template_child]
@@ -76,8 +78,12 @@ impl PuzzledWindow {
             .build()
     }
 
-    pub fn navigation_view(&self) -> adw::NavigationView {
-        self.imp().navigation_view.clone()
+    pub fn outer_view(&self) -> adw::NavigationSplitView {
+        self.imp().outer_view.clone()
+    }
+
+    pub fn inner_view(&self) -> adw::NavigationSplitView {
+        self.imp().inner_view.clone()
     }
 
     pub fn collection_selection_nav_page(&self) -> CollectionSelectionPage {

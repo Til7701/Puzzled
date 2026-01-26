@@ -3,7 +3,7 @@
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
     <object class="GtkListBoxRow" id="row">
-        <property name="selectable">False</property>
+        <property name="selectable">True</property>
         <property name="activatable">True</property>
         <property name="action-name">app.collection_item_activated</property>
         <child>
