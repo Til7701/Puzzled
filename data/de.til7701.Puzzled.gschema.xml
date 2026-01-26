@@ -3,8 +3,6 @@
     <schema id="de.til7701.Puzzled" path="/de/til7701/Puzzled/">
         <key name="solver-enabled" type="b">
             <default>true</default>
-            <summary>Run on Change</summary>
-            <description>Whether to call the solver after changes</description>
         </key>
     </schema>
 </schemalist>

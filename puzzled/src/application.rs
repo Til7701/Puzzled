@@ -18,6 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 use crate::config::VERSION;
+use crate::global::settings::{Preferences, SolverEnabled};
 use crate::global::state::get_state_mut;
 use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::navigation::NavigationPresenter;
@@ -140,7 +141,24 @@ impl PuzzledApplication {
         about.present(Some(&window));
     }
 
-    fn show_preferences(&self) {}
+    fn show_preferences(&self) {
+        const RESOURCE_PATH: &str = "/de/til7701/Puzzled/preferences-dialog.ui";
+        let builder = gtk::Builder::from_resource(RESOURCE_PATH);
+        let dialog: adw::PreferencesDialog = builder
+            .object("preferences_dialog")
+            .expect("Missing `preferences_dialog` in resource");
+
+        let preferences = Preferences::default();
+
+        let enable_solver = builder
+            .object::<adw::SwitchRow>("enable_solver")
+            .expect("Missing `enable_solver` in resource");
+        preferences.bind(SolverEnabled, &enable_solver, "active");
+
+        if let Some(window) = self.active_window() {
+            dialog.present(Some(&window));
+        }
+    }
 
     fn show_how_to_play(&self) {
         const RESOURCE_PATH: &str = "/de/til7701/Puzzled/how-to-play-dialog.ui";
