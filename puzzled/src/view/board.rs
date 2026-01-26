@@ -22,8 +22,8 @@ impl BoardView {
         let mut elements: Vec<Widget> = Vec::new();
 
         for ((x, y), value) in board_layout.indexed_iter() {
-            if *value {
-                let cell = match board_config {
+            let cell = if *value {
+                match board_config {
                     BoardConfig::Simple { .. } => {
                         let css_classes: Vec<String> =
                             vec!["board-cell".to_string(), "board-cell-simple".to_string()];
@@ -46,11 +46,14 @@ impl BoardView {
                         cell.set_child(Some(&label));
                         cell
                     }
-                };
-
-                grid.attach(&cell, x as i32, y as i32, 1, 1);
-                elements.push(cell.upcast::<Widget>());
-            }
+                }
+            } else {
+                let css_classes: Vec<String> =
+                    vec!["board-cell".to_string(), "board-cell-outside".to_string()];
+                Frame::builder().css_classes(css_classes).build()
+            };
+            grid.attach(&cell, x as i32, y as i32, 1, 1);
+            elements.push(cell.upcast::<Widget>());
         }
 
         Ok(BoardView {
