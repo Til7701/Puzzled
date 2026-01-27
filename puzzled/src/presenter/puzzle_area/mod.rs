@@ -8,13 +8,13 @@ use crate::presenter::puzzle_area::HighlightMode::{OutOfBounds, Overlapping};
 use crate::window::PuzzledWindow;
 use gtk::prelude::{FixedExt, GtkWindowExt, WidgetExt};
 use gtk::Widget;
-use puzzle_config::{PuzzleConfig, TileConfig};
 use std::cell::RefCell;
 use std::mem::take;
 use std::rc::Rc;
 
 mod board;
 mod data;
+mod placement;
 pub mod puzzle_state;
 mod tile;
 
@@ -82,8 +82,11 @@ impl PuzzleAreaPresenter {
         if let Some(puzzle_config) = &state.puzzle_config {
             self.board_presenter.setup(puzzle_config);
 
-            let start_positions =
-                self.calculate_tile_start_positions(&puzzle_config.tiles(), puzzle_config);
+            let start_positions = placement::calculate_tile_start_positions(
+                &puzzle_config.tiles(),
+                puzzle_config,
+                self.data.borrow().grid_config.board_offset_cells,
+            );
             for (i, tile) in puzzle_config.tiles().iter().enumerate() {
                 self.tile_presenter.setup(
                     tile,
@@ -105,96 +108,6 @@ impl PuzzleAreaPresenter {
             self.update_layout();
             self.set_min_width();
         }
-    }
-
-    fn calculate_tile_start_positions(
-        &self,
-        tiles: &[TileConfig],
-        puzzle_config: &PuzzleConfig,
-    ) -> Vec<CellOffset> {
-        let mut positions: Vec<CellOffset> = Vec::new();
-        let grid_config = &self.data.borrow().grid_config;
-
-        let first = grid_config.board_offset_cells;
-        positions.push(first);
-
-        // Left
-        if tiles.len() != positions.len() {
-            let end = puzzle_config.board_config().layout().dim().1 as i32;
-            let mut next_pos = CellOffset(1, 1);
-            let mut next_tile_index = positions.len();
-            while end > next_pos.1 {
-                positions.push(next_pos.clone());
-                if tiles.len() == positions.len() {
-                    break;
-                }
-                let tile = &tiles[next_tile_index];
-                next_pos.1 += tile.base().dim().1 as i32 + 1;
-                next_tile_index += 1;
-            }
-        }
-
-        // Right
-        if tiles.len() != positions.len() {
-            let end = puzzle_config.board_config().layout().dim().1 as i32;
-            let mut next_pos = grid_config.board_offset_cells
-                + CellOffset(puzzle_config.board_config().layout().dim().0 as i32 + 1, 0);
-            let mut next_tile_index = positions.len();
-            while end > next_pos.1 {
-                positions.push(next_pos.clone());
-                if tiles.len() == positions.len() {
-                    break;
-                }
-                let tile = &tiles[next_tile_index];
-                next_pos.1 += tile.base().dim().1 as i32 + 1;
-                next_tile_index += 1;
-            }
-        }
-
-        // Bottom
-        if tiles.len() != positions.len() {
-            let end = grid_config.board_offset_cells.0 * 2
-                + puzzle_config.board_config().layout().dim().0 as i32;
-            let mut next_pos =
-                CellOffset(1, 2 + puzzle_config.board_config().layout().dim().1 as i32);
-            let mut next_tile_index = positions.len();
-            while end > next_pos.0 {
-                positions.push(next_pos.clone());
-                if tiles.len() == positions.len() {
-                    break;
-                }
-                let tile = &tiles[next_tile_index];
-                next_pos.0 += tile.base().dim().0 as i32 + 1;
-                next_tile_index += 1;
-            }
-        }
-
-        // Buttom second row
-        if tiles.len() != positions.len() {
-            let end = grid_config.board_offset_cells.0 * 2
-                + puzzle_config.board_config().layout().dim().0 as i32;
-            let mut next_pos = CellOffset(
-                1,
-                2 + 4 + puzzle_config.board_config().layout().dim().1 as i32,
-            );
-            let mut next_tile_index = positions.len();
-            while end > next_pos.0 {
-                positions.push(next_pos.clone());
-                if tiles.len() == positions.len() {
-                    break;
-                }
-                let tile = &tiles[next_tile_index];
-                next_pos.0 += tile.base().dim().0 as i32 + 1;
-                next_tile_index += 1;
-            }
-        }
-
-        if tiles.len() != positions.len() {
-            dbg!(&positions);
-            panic!("Not enough space to place all tiles around the board");
-        }
-
-        positions
     }
 
     /// Update the layout based on the current state.
