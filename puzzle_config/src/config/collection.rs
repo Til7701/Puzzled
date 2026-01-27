@@ -5,6 +5,7 @@ pub struct PuzzleConfigCollection {
     name: String,
     description: Option<String>,
     author: String,
+    id: String,
     version: Option<String>,
     puzzles: Vec<PuzzleConfig>,
 }
@@ -14,6 +15,7 @@ impl PuzzleConfigCollection {
         name: String,
         description: Option<String>,
         author: String,
+        id: String,
         version: Option<String>,
         puzzles: Vec<PuzzleConfig>,
     ) -> PuzzleConfigCollection {
@@ -21,6 +23,7 @@ impl PuzzleConfigCollection {
             name,
             description,
             author,
+            id,
             version,
             puzzles,
         }
@@ -36,6 +39,10 @@ impl PuzzleConfigCollection {
 
     pub fn author(&self) -> &str {
         &self.author
+    }
+
+    pub fn id(&self) -> &str {
+        &self.id
     }
 
     pub fn version(&self) -> &Option<String> {

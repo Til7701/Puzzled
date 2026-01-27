@@ -764,6 +764,7 @@ version = "0.2.0"
 dependencies = [
  "log",
  "ndarray",
+ "regex",
  "semver",
  "serde",
  "serde_json",

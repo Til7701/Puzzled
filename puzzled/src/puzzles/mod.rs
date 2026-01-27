@@ -6,6 +6,8 @@ use std::backtrace::Backtrace;
 use std::sync::{Mutex, MutexGuard, TryLockError};
 use std::time::Duration;
 
+const CORE_COLLECTIONS: [&str; 3] = ["puzzle_a_day", "trominoes", "puzzled"];
+
 static PUZZLE_COLLECTION_STORE: Lazy<Mutex<PuzzleCollectionStore>> =
     Lazy::new(|| Mutex::new(PuzzleCollectionStore::default()));
 
@@ -27,12 +29,12 @@ impl PuzzleCollectionStore {
 
 pub fn init() {
     let mut store = PUZZLE_COLLECTION_STORE.lock().unwrap();
-    let collection = load_core_from_resource("/de/til7701/Puzzled/puzzles/puzzle_a_day.json");
-    store.core_puzzle_collections.push(collection);
-    let collection = load_core_from_resource("/de/til7701/Puzzled/puzzles/puzzled.json");
-    store.core_puzzle_collections.push(collection);
-    let collection = load_core_from_resource("/de/til7701/Puzzled/puzzles/trominoes.json");
-    store.core_puzzle_collections.push(collection);
+
+    for &collection_name in CORE_COLLECTIONS.iter() {
+        let path = format!("/de/til7701/Puzzled/puzzles/{}.json", collection_name);
+        let collection = load_core_from_resource(&path);
+        store.core_puzzle_collections.push(collection);
+    }
 }
 
 fn load_core_from_resource(filename: &str) -> PuzzleConfigCollection {

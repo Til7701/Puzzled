@@ -18,4 +18,5 @@ pub enum ReadError {
     },
     BoardWidthOrHeightCannotBeZero,
     InvalidVersion(String),
+    InvalidCollectionId(String),
 }

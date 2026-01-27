@@ -60,6 +60,7 @@ mod tests {
           "puzzled": "0.1.0",
           "name": "Test Collection",
           "author": "Test Author",
+          "id": "de.til7701.Puzzled.test-collection",
           "description": "A test puzzle collection",
           "custom_tiles": {
             "testTile": [
@@ -94,6 +95,7 @@ mod tests {
         let collection = result.unwrap();
         assert_eq!(collection.name(), "Test Collection");
         assert_eq!(collection.author(), "Test Author");
+        assert_eq!(collection.id(), "de.til7701.Puzzled.test-collection");
         assert_eq!(
             collection.description(),
             &Some("A test puzzle collection".to_string())

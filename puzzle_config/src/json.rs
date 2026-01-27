@@ -5,6 +5,7 @@ use crate::{
     TargetTemplate, TileConfig,
 };
 use ndarray::Array2;
+use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -15,6 +16,7 @@ struct PuzzleCollection {
     name: String,
     description: Option<String>,
     author: String,
+    id: String,
     version: Option<String>,
     #[serde(default = "default_true")]
     allow_board_rotation: bool,
@@ -168,10 +170,12 @@ fn convert(puzzle_collection: PuzzleCollection) -> Result<PuzzleConfigCollection
         puzzle_collection.name,
         puzzle_collection.description,
         puzzle_collection.author,
+        validate_collection_id(puzzle_collection.id)?,
         puzzle_collection.version,
         puzzle_configs,
     ))
 }
+
 
 fn rotate_board_to_landscape<T>(arr: Array2<T>) -> Array2<T> {
     let shape = arr.shape();
@@ -216,6 +220,20 @@ fn rotate_board(board: BoardConfig) -> BoardConfig {
             }
         }
     }
+}
+
+fn validate_collection_id(id: String) -> Result<String, ReadError> {
+    if id.trim().is_empty() {
+        return Err(ReadError::InvalidCollectionId(id));
+    }
+
+    Regex::new(r"^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+$")
+        .unwrap()
+        .find(&id)
+        .ok_or(ReadError::InvalidCollectionId(id.clone()))?;
+
+    Ok(id)
+
 }
 
 fn convert_difficulty(difficulty: &Option<PuzzleDifficulty>) -> Option<PuzzleDifficultyConfig> {

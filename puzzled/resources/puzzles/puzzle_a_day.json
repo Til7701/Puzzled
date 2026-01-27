@@ -3,6 +3,7 @@
   "name": "Puzzle a Day",
   "author": "Puzzled",
   "allow_board_rotation": false,
+  "id": "de.til7701.Puzzled.PuzzleADay",
   "custom_tiles": {
     "O6": [
       [1, 1, 1],

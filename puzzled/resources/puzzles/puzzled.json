@@ -2,6 +2,7 @@
   "puzzled": "0.2.0",
   "name": "Puzzled",
   "author": "Puzzled",
+  "id": "de.til7701.Puzzled.Puzzled",
   "puzzles": [
     {
       "name": "Icon",

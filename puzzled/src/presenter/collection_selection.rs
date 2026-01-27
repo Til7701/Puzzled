@@ -171,6 +171,9 @@ impl CollectionSelectionPresenter {
                     ReadError::InvalidVersion(_) => {
                         "The version in the `puzzled` field is invalid.".to_string()
                     }
+                    ReadError::InvalidCollectionId(_) => {
+                        "The collection file contains an invalid collection ID.".to_string()
+                    }
                 };
                 self.show_load_collection_error(message);
             }
