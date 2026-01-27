@@ -17,4 +17,5 @@ pub enum ReadError {
         tile_name: String,
     },
     BoardWidthOrHeightCannotBeZero,
+    InvalidVersion(String),
 }

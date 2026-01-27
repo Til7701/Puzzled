@@ -1,4 +1,5 @@
 use crate::application::PuzzledApplication;
+use crate::config;
 use crate::global::state::get_state_mut;
 use crate::presenter::navigation::NavigationPresenter;
 use crate::puzzles::{add_community_collection_from_string, get_puzzle_collection_store};
@@ -131,15 +132,13 @@ impl CollectionSelectionPresenter {
             Err(e) => {
                 let message: String = match &e {
                     FileReadError(e) => e.clone(),
-                    ReadError::MissingVersion => {
-                        "The `config_version` field is missing.".to_string()
-                    }
-                    ReadError::MalformedVersion => {
-                        "The `config_version` field is malformed.".to_string()
-                    }
+                    ReadError::MissingVersion => "The `puzzled` field is missing.".to_string(),
+                    ReadError::MalformedVersion => "The `puzzled` field is malformed.".to_string(),
                     ReadError::UnsupportedVersion => {
-                        "The collection version is not supported. Only version `1` is supported."
-                            .to_string()
+                        format!(
+                            "The collection is requiring a higher version of Puzzled. Only version {} or lower is supported.",
+                            config::VERSION
+                        )
                     }
                     ReadError::JsonError(e) => {
                         format!("The collection file could not be parsed correctly: {}", e)
@@ -168,6 +167,9 @@ impl CollectionSelectionPresenter {
                     ReadError::BoardWidthOrHeightCannotBeZero => {
                         "The collection file contains a board with zero width or height."
                             .to_string()
+                    }
+                    ReadError::InvalidVersion(_) => {
+                        "The version in the `puzzled` field is invalid.".to_string()
                     }
                 };
                 self.show_load_collection_error(message);

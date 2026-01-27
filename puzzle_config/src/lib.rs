@@ -11,21 +11,32 @@ pub use config::puzzle::PuzzleConfig;
 pub use config::target::{Target, TargetIndex, TargetTemplate};
 pub use config::tile::TileConfig;
 pub use error::ReadError;
+use semver::{Version, VersionReq};
 use serde_json::Value;
 
-const SPEC_VERSION_FIELD: &str = "spec";
+const PUZZLED_VERSION_FIELD: &str = "puzzled";
 
 pub fn load_puzzle_collection_from_json(
     json_str: &str,
+    puzzled_version: &str,
 ) -> Result<PuzzleConfigCollection, ReadError> {
     let value: Value =
         serde_json::from_str(json_str).map_err(|e| ReadError::JsonError(e.to_string()))?;
 
     let version: Result<i32, ReadError> = match &value {
         Value::Object(object) => {
-            let version_value = object.get(SPEC_VERSION_FIELD);
+            let version_value = object.get(PUZZLED_VERSION_FIELD);
             match version_value {
-                Some(Value::Number(num)) => Ok(num.as_i64().unwrap_or(-1) as i32),
+                Some(Value::String(s)) => {
+                    let req = VersionReq::parse(format!("<={}", puzzled_version).as_str()).unwrap();
+                    let collection_version =
+                        Version::parse(s).map_err(|e| ReadError::InvalidVersion(e.to_string()))?;
+                    if req.matches(&collection_version) {
+                        Ok(1)
+                    } else {
+                        Err(ReadError::UnsupportedVersion)
+                    }
+                }
                 _ => Err(ReadError::MissingVersion),
             }
         }
@@ -46,7 +57,7 @@ mod tests {
     fn test_load_puzzle_collection_from_json() {
         let json_str = r#"
         {
-          "spec": 1,
+          "puzzled": "0.1.0",
           "name": "Test Collection",
           "author": "Test Author",
           "description": "A test puzzle collection",
@@ -78,7 +89,7 @@ mod tests {
         }
         "#;
 
-        let result = load_puzzle_collection_from_json(json_str);
+        let result = load_puzzle_collection_from_json(json_str, "0.1.0");
         assert!(result.is_ok());
         let collection = result.unwrap();
         assert_eq!(collection.name(), "Test Collection");

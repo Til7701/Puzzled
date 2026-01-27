@@ -1,3 +1,4 @@
+use crate::config;
 use adw::gio::{resources_lookup_data, ResourceLookupFlags};
 use once_cell::sync::Lazy;
 use puzzle_config::{PuzzleConfigCollection, ReadError};
@@ -37,7 +38,7 @@ pub fn init() {
 fn load_core_from_resource(filename: &str) -> PuzzleConfigCollection {
     let data = resources_lookup_data(filename, ResourceLookupFlags::NONE).unwrap();
     let json_str = std::str::from_utf8(&*data).unwrap();
-    puzzle_config::load_puzzle_collection_from_json(json_str).unwrap()
+    puzzle_config::load_puzzle_collection_from_json(json_str, config::VERSION).unwrap()
 }
 
 pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStore> {
@@ -58,7 +59,7 @@ pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStor
 
 pub fn add_community_collection_from_string(json_str: &str) -> Result<(), ReadError> {
     let mut store = get_puzzle_collection_store();
-    let collection = puzzle_config::load_puzzle_collection_from_json(json_str)?;
+    let collection = puzzle_config::load_puzzle_collection_from_json(json_str, config::VERSION)?;
     store.community_puzzle_collections.push(collection);
     Ok(())
 }
