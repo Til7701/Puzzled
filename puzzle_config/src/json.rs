@@ -18,12 +18,16 @@ struct PuzzleCollection {
     author: String,
     id: String,
     version: Option<String>,
+    #[serde(default = "default_true")]
+    allow_board_rotation: bool,
     /// Custom tiles to override or extend predefined tiles.
     custom_tiles: Option<HashMap<String, Tile>>,
     custom_boards: Option<HashMap<String, Board>>,
     puzzles: Vec<Puzzle>,
 }
-
+fn default_true() -> bool {
+    true
+}
 #[derive(Deserialize)]
 struct Puzzle {
     name: String,
@@ -128,7 +132,10 @@ fn convert(puzzle_collection: PuzzleCollection) -> Result<PuzzleConfigCollection
     let mut custom_boards = HashMap::new();
     if let Some(boards) = puzzle_collection.custom_boards {
         for (name, board) in boards {
-            let converted_board = convert_board(board, &custom_boards)?;
+            let mut converted_board = convert_board(board, &custom_boards)?;
+            if puzzle_collection.allow_board_rotation {
+                converted_board = rotate_board(converted_board);
+            }
             custom_boards.insert(name.clone(), converted_board);
         }
     }
@@ -144,7 +151,10 @@ fn convert(puzzle_collection: PuzzleCollection) -> Result<PuzzleConfigCollection
             tiles.push(converted_tile);
         }
 
-        let board_config = convert_board(puzzle.board, &custom_boards)?;
+        let mut board_config = convert_board(puzzle.board, &custom_boards)?;
+        if puzzle_collection.allow_board_rotation {
+            board_config = rotate_board(board_config);
+        }
         let puzzle_config = PuzzleConfig::new(
             puzzle.name,
             puzzle.description,
@@ -164,6 +174,51 @@ fn convert(puzzle_collection: PuzzleCollection) -> Result<PuzzleConfigCollection
         puzzle_collection.version,
         puzzle_configs,
     ))
+}
+
+fn rotate_board_to_landscape<T>(arr: Array2<T>) -> Array2<T> {
+    let shape = arr.shape();
+    if shape.len() == 2 {
+        let height = shape[0];
+        let width = shape[1];
+        if height < width {
+            arr.reversed_axes()
+        } else {
+            arr
+        }
+    } else {
+        arr
+    }
+}
+
+fn rotate_board(board: BoardConfig) -> BoardConfig {
+    match board {
+        BoardConfig::Simple { layout } => {
+            let layout = rotate_board_to_landscape(layout);
+            BoardConfig::Simple { layout }
+        }
+        BoardConfig::Area {
+            layout,
+            area_indices,
+            display_values,
+            value_order,
+            area_configs,
+            target_template,
+        } => {
+            let layout = rotate_board_to_landscape(layout);
+            let area_indices = rotate_board_to_landscape(area_indices);
+            let display_values = rotate_board_to_landscape(display_values);
+            let value_order = rotate_board_to_landscape(value_order);
+            BoardConfig::Area {
+                layout,
+                area_indices,
+                display_values,
+                value_order,
+                area_configs,
+                target_template,
+            }
+        }
+    }
 }
 
 fn validate_collection_id(id: String) -> Result<String, ReadError> {
