@@ -65,6 +65,19 @@
   </screenshots>
 
   <releases>
+      <release version="0.2.0" date="2099-01-01">
+      <description translate="no">
+          <p>
+              From this release onward, Puzzle More Days has been renamed to Puzzled.
+              This release also includes a basic restructure of the application.
+          </p>
+          <ul>
+              <li>Puzzles are now organised in collections</li>
+              <li>Collections can be loaded at runtime</li>
+              <li>Collections can be created by the community</li>
+          </ul>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-01-14">
       <description translate="no">
         <p>
