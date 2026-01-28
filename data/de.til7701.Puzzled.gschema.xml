@@ -5,4 +5,12 @@
             <default>true</default>
         </key>
     </schema>
+
+    <schema id="de.til7701.Puzzled.puzzle-meta" path="/de/til7701/Puzzled/puzzle-meta/">
+        <!-- Map<CollectionId, Map<PuzzleId, Map<PuzzleExtensionKey, Boolean>>> -->
+        <key name="solved" type="a{sv}">
+            <default>{}</default>
+        </key>
+    </schema>
 </schemalist>
+        <!-- The backend is located here: ~/.var/app/de.til7701.Puzzled/config/glib-2.0/settings/keyfile -->

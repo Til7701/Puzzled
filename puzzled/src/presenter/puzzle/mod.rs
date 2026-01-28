@@ -3,7 +3,8 @@ mod info;
 mod solver;
 
 use crate::application::PuzzledApplication;
-use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
+use crate::global::puzzle_meta::PuzzleMeta;
+use crate::global::state::{get_state, get_state_mut, SolverState};
 use crate::presenter::puzzle::extension::ExtensionPresenter;
 use crate::presenter::puzzle::info::PuzzleInfoPresenter;
 use crate::presenter::puzzle::solver::SolverStatePresenter;
@@ -13,8 +14,7 @@ use crate::view::create_solved_dialog;
 use crate::view::puzzle_area_page::PuzzleAreaPage;
 use crate::window::PuzzledWindow;
 use adw::prelude::{AdwDialogExt, NavigationPageExt};
-use log::debug;
-use puzzle_config::BoardConfig;
+use log::{debug, error};
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -26,6 +26,7 @@ pub struct PuzzlePresenter {
     puzzle_area_presenter: PuzzleAreaPresenter,
     solver_state_presenter: SolverStatePresenter,
     extension_presenter: ExtensionPresenter,
+    puzzle_meta: PuzzleMeta,
 }
 
 impl PuzzlePresenter {
@@ -42,6 +43,7 @@ impl PuzzlePresenter {
             puzzle_area_presenter,
             solver_state_presenter,
             extension_presenter,
+            puzzle_meta: PuzzleMeta::new(),
         }
     }
 
@@ -101,14 +103,28 @@ impl PuzzlePresenter {
                         solvable: true,
                         duration: Duration::ZERO,
                     });
-                self.show_solved_dialog();
+                self.handle_solved();
             } else {
                 self.solver_state_presenter.update(&mut puzzle_state);
             }
         }
     }
 
-    fn show_solved_dialog(&self) {
+    fn handle_solved(&self) {
+        let state = get_state();
+        if let Some(collection) = &state.puzzle_collection
+            && let Some(puzzle_config) = &state.puzzle_config
+        {
+            self.puzzle_meta.set_solved(
+                true,
+                collection,
+                puzzle_config.index(),
+                &state.puzzle_type_extension,
+            );
+        } else {
+            error!("Could not mark puzzle as solved: missing puzzle collection or puzzle config");
+        }
+
         let dialog = create_solved_dialog();
         dialog.present(Some(&self.window));
     }

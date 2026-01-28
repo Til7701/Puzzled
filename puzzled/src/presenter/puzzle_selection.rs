@@ -1,4 +1,5 @@
 use crate::application::PuzzledApplication;
+use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension};
 use crate::presenter::navigation::NavigationPresenter;
 use crate::view::board::BoardView;
@@ -11,7 +12,9 @@ use adw::{gio, WrapBox};
 use gtk::prelude::{ActionableExt, BoxExt, FixedExt, WidgetExt};
 use gtk::{Align, Fixed, Label, ListBox};
 use log::error;
-use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleDifficultyConfig, TileConfig};
+use puzzle_config::{
+    BoardConfig, PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, TileConfig,
+};
 
 const CELL_SIZE: f64 = 20.0;
 
@@ -25,6 +28,7 @@ pub struct PuzzleSelectionPresenter {
     author_pill: InfoPill,
     version_pill: InfoPill,
     puzzle_list: ListBox,
+    puzzle_meta: PuzzleMeta,
 }
 
 impl PuzzleSelectionPresenter {
@@ -39,6 +43,7 @@ impl PuzzleSelectionPresenter {
             author_pill: page.author_pill(),
             version_pill: page.version_pill(),
             puzzle_list: page.puzzle_list(),
+            puzzle_meta: PuzzleMeta::new(),
         }
     }
 
@@ -92,7 +97,7 @@ impl PuzzleSelectionPresenter {
             }
 
             for (i, puzzle) in collection.puzzles().iter().enumerate() {
-                let row = create_puzzle_row(i as u32, puzzle);
+                let row = self.create_puzzle_row(puzzle, collection);
                 self.puzzle_list.append(&row);
             }
         }
@@ -131,73 +136,92 @@ impl PuzzleSelectionPresenter {
 
         state.puzzle_config = Some(puzzle_config);
     }
-}
 
-fn create_puzzle_row(index: u32, puzzle: &PuzzleConfig) -> gtk::ListBoxRow {
-    const RESOURCE_PATH: &str = "/de/til7701/Puzzled/puzzle-selection-item.ui";
-    let builder = gtk::Builder::from_resource(RESOURCE_PATH);
-    let row: gtk::ListBoxRow = builder
-        .object("row")
-        .expect("Missing `puzzle-selection-item.ui` in resource");
+    fn create_puzzle_row(
+        &self,
+        puzzle: &PuzzleConfig,
+        collection: &PuzzleConfigCollection,
+    ) -> gtk::ListBoxRow {
+        const RESOURCE_PATH: &str = "/de/til7701/Puzzled/puzzle-selection-item.ui";
+        let builder = gtk::Builder::from_resource(RESOURCE_PATH);
+        let row: gtk::ListBoxRow = builder
+            .object("row")
+            .expect("Missing `puzzle-selection-item.ui` in resource");
 
-    let name_label: gtk::Label = builder.object("name").expect("Missing `name` in resource");
-    name_label.set_label(puzzle.name());
+        let name_label: Label = builder.object("name").expect("Missing `name` in resource");
+        name_label.set_label(puzzle.name());
 
-    let description_label: gtk::Label = builder
-        .object("description")
-        .expect("Missing `description` in resource");
-    if let Some(description) = puzzle.description() {
-        description_label.set_label(description);
-    } else {
-        let outer_box: gtk::Box = builder
-            .object("outer_box")
-            .expect("Missing `outer_box` in resource");
-        outer_box.remove(&description_label);
+        let state_label: Label = builder
+            .object("state")
+            .expect("Missing `state` in resource");
+        state_label.set_label(
+            format!(
+                "{}",
+                self.puzzle_meta.is_solved(
+                    collection,
+                    puzzle.index(),
+                    &get_state().puzzle_type_extension
+                )
+            )
+            .as_str(),
+        );
+
+        let description_label: Label = builder
+            .object("description")
+            .expect("Missing `description` in resource");
+        if let Some(description) = puzzle.description() {
+            description_label.set_label(description);
+        } else {
+            let outer_box: gtk::Box = builder
+                .object("outer_box")
+                .expect("Missing `outer_box` in resource");
+            outer_box.remove(&description_label);
+        }
+
+        let board_size_pill: InfoPill = builder
+            .object("board_size_pill")
+            .expect("Missing `board_size_pill` in resource");
+        let (width, height) = puzzle.board_config().layout().dim();
+        board_size_pill.set_label(format!("{} x {}", width, height));
+
+        let tile_count_pill: InfoPill = builder
+            .object("tile_count_pill")
+            .expect("Missing `tile_count_pill` in resource");
+        let tile_count = puzzle.tiles().len();
+        tile_count_pill.set_label(format!("{}", tile_count));
+
+        let difficulty_pill: InfoPill = builder
+            .object("difficulty_pill")
+            .expect("Missing `difficulty_pill` in resource");
+        if let Some(difficulty) = puzzle.difficulty() {
+            let text = match difficulty {
+                PuzzleDifficultyConfig::Easy => "Easy",
+                PuzzleDifficultyConfig::Medium => "Medium",
+                PuzzleDifficultyConfig::Hard => "Hard",
+                PuzzleDifficultyConfig::Expert => "Expert",
+            };
+            difficulty_pill.set_label(text);
+        } else {
+            let info_box: WrapBox = builder
+                .object("info_box")
+                .expect("Missing `info_box` in resource");
+            info_box.remove(&difficulty_pill);
+        }
+
+        let fixed: Fixed = builder
+            .object("tile_preview_fixed")
+            .expect("Missing `tile_preview_fixed` in resource");
+        create_tiles_preview(puzzle.tiles(), fixed);
+
+        let preview_box: gtk::Box = builder
+            .object("board_preview_box")
+            .expect("Missing `board_preview_box` in resource");
+        create_board_preview(puzzle.board_config(), preview_box);
+
+        row.set_action_target_value(Some(&Variant::from(puzzle.index() as u32)));
+
+        row
     }
-
-    let board_size_pill: InfoPill = builder
-        .object("board_size_pill")
-        .expect("Missing `board_size_pill` in resource");
-    let (width, height) = puzzle.board_config().layout().dim();
-    board_size_pill.set_label(format!("{} x {}", width, height));
-
-    let tile_count_pill: InfoPill = builder
-        .object("tile_count_pill")
-        .expect("Missing `tile_count_pill` in resource");
-    let tile_count = puzzle.tiles().len();
-    tile_count_pill.set_label(format!("{}", tile_count));
-
-    let difficulty_pill: InfoPill = builder
-        .object("difficulty_pill")
-        .expect("Missing `difficulty_pill` in resource");
-    if let Some(difficulty) = puzzle.difficulty() {
-        let text = match difficulty {
-            PuzzleDifficultyConfig::Easy => "Easy",
-            PuzzleDifficultyConfig::Medium => "Medium",
-            PuzzleDifficultyConfig::Hard => "Hard",
-            PuzzleDifficultyConfig::Expert => "Expert",
-        };
-        difficulty_pill.set_label(text);
-    } else {
-        let info_box: WrapBox = builder
-            .object("info_box")
-            .expect("Missing `info_box` in resource");
-        info_box.remove(&difficulty_pill);
-    }
-
-    let fixed: Fixed = builder
-        .object("tile_preview_fixed")
-        .expect("Missing `tile_preview_fixed` in resource");
-    create_tiles_preview(puzzle.tiles(), fixed);
-
-    let preview_box: gtk::Box = builder
-        .object("board_preview_box")
-        .expect("Missing `board_preview_box` in resource");
-    create_board_preview(puzzle.board_config(), preview_box);
-
-    row.set_action_target_value(Some(&Variant::from(index)));
-
-    row
 }
 
 fn create_tiles_preview(tiles: &[TileConfig], fixed: Fixed) {

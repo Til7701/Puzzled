@@ -15,11 +15,19 @@
                 <property name="margin-top">8</property>
                 <property name="margin-bottom">8</property>
                 <child>
-                    <object class="GtkLabel" id="name">
+                    <object class="GtkBox">
                         <property name="halign">start</property>
-                        <style>
-                            <class name="title-3"/>
-                        </style>
+                        <child>
+                            <object class="GtkLabel" id="name">
+                                <style>
+                                    <class name="title-3"/>
+                                </style>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkLabel" id="state">
+                            </object>
+                        </child>
                     </object>
                 </child>
                 <child>

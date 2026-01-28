@@ -1,3 +1,4 @@
+use crate::global::state::get_state_mut;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::window::PuzzledWindow;
@@ -29,6 +30,20 @@ impl NavigationPresenter {
         *self.presenters.borrow_mut() = Some(Presenters {
             puzzle_selection: puzzle_selection_presenter.clone(),
             puzzle_presenter: puzzle_presenter.clone(),
+        });
+        self.outer_view.connect_show_content_notify({
+            let self_clone = self.clone();
+            move |_| {
+                if !self_clone.outer_view.shows_content()
+                    && let Some(presenters) = self_clone.presenters.borrow().as_ref()
+                {
+                    let mut state = get_state_mut();
+                    state.puzzle_config = None;
+                    state.puzzle_type_extension = None;
+                    drop(state);
+                    presenters.puzzle_selection.show_collection();
+                }
+            }
         });
     }
 
