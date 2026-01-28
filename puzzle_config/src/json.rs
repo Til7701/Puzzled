@@ -1,11 +1,10 @@
 use crate::config::difficulty::PuzzleDifficultyConfig;
 use crate::config::{board, tile};
 use crate::{
-    AreaConfig, AreaValueFormatter, BoardConfig, PuzzleConfig, PuzzleConfigCollection, ReadError,
-    TargetTemplate, TileConfig,
+    validation, AreaConfig, AreaValueFormatter, BoardConfig, PuzzleConfig, PuzzleConfigCollection,
+    ReadError, TargetTemplate, TileConfig,
 };
 use ndarray::Array2;
-use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -170,7 +169,7 @@ fn convert(puzzle_collection: PuzzleCollection) -> Result<PuzzleConfigCollection
         puzzle_collection.name,
         puzzle_collection.description,
         puzzle_collection.author,
-        validate_collection_id(puzzle_collection.id)?,
+        validation::validate_collection_id(puzzle_collection.id)?,
         puzzle_collection.version,
         puzzle_configs,
     ))
@@ -219,19 +218,6 @@ fn rotate_board(board: BoardConfig) -> BoardConfig {
             }
         }
     }
-}
-
-fn validate_collection_id(id: String) -> Result<String, ReadError> {
-    if id.trim().is_empty() {
-        return Err(ReadError::InvalidCollectionId(id));
-    }
-
-    Regex::new(r"^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+$")
-        .unwrap()
-        .find(&id)
-        .ok_or(ReadError::InvalidCollectionId(id.clone()))?;
-
-    Ok(id)
 }
 
 fn convert_difficulty(difficulty: &Option<PuzzleDifficulty>) -> Option<PuzzleDifficultyConfig> {

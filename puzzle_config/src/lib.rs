@@ -1,6 +1,7 @@
 mod config;
 mod error;
 mod json;
+mod validation;
 
 pub use config::area::AreaConfig;
 pub use config::area::AreaValueFormatter;
