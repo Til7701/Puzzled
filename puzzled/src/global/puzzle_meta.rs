@@ -18,6 +18,10 @@ impl PuzzleMeta {
         }
     }
 
+    pub fn reset_all(&self) {
+        self.settings.reset("solved");
+    }
+
     pub fn is_solved(
         &self,
         collection: &PuzzleConfigCollection,

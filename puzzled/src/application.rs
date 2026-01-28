@@ -21,7 +21,7 @@ use crate::config::VERSION;
 use crate::global::settings::{Preferences, SolverEnabled};
 use crate::global::state::get_state_mut;
 use crate::presenter::collection_selection::CollectionSelectionPresenter;
-use crate::presenter::navigation::NavigationPresenter;
+use crate::presenter::main::MainPresenter;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::puzzles;
@@ -211,7 +211,8 @@ impl PuzzledApplication {
         drop(collection_store);
         drop(state);
 
-        let mut navigation_presenter = NavigationPresenter::new(window);
+        let mut main_presenter = MainPresenter::new(window);
+        main_presenter.register_actions(self);
 
         let puzzle_presenter = PuzzlePresenter::new(window);
         puzzle_presenter.register_actions(self);
@@ -219,18 +220,18 @@ impl PuzzledApplication {
 
         let puzzle_selection_presenter = Rc::new(PuzzleSelectionPresenter::new(
             &window,
-            navigation_presenter.clone(),
+            main_presenter.clone(),
         ));
         puzzle_selection_presenter.register_actions(self);
         puzzle_selection_presenter.setup();
 
         let collection_selection_presenter = Rc::new(CollectionSelectionPresenter::new(
             &window,
-            navigation_presenter.clone(),
+            main_presenter.clone(),
         ));
         collection_selection_presenter.register_actions(self);
         collection_selection_presenter.setup();
 
-        navigation_presenter.setup(&puzzle_selection_presenter, &puzzle_presenter);
+        main_presenter.setup(&puzzle_selection_presenter, &puzzle_presenter);
     }
 }

@@ -1,7 +1,7 @@
 use crate::application::PuzzledApplication;
 use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension};
-use crate::presenter::navigation::NavigationPresenter;
+use crate::presenter::main::MainPresenter;
 use crate::view::board::BoardView;
 use crate::view::info_pill::InfoPill;
 use crate::view::puzzle_mod::PuzzleMod;
@@ -21,7 +21,7 @@ const CELL_SIZE: f64 = 20.0;
 
 #[derive(Clone)]
 pub struct PuzzleSelectionPresenter {
-    navigation: NavigationPresenter,
+    navigation: MainPresenter,
     puzzle_name_label: Label,
     puzzle_description_label: Label,
     collection_info_box: WrapBox,
@@ -33,7 +33,7 @@ pub struct PuzzleSelectionPresenter {
 }
 
 impl PuzzleSelectionPresenter {
-    pub fn new(window: &PuzzledWindow, navigation: NavigationPresenter) -> Self {
+    pub fn new(window: &PuzzledWindow, navigation: MainPresenter) -> Self {
         let page = window.puzzle_selection_nav_page();
         PuzzleSelectionPresenter {
             navigation,

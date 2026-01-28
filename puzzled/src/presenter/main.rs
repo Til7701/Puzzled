@@ -1,25 +1,46 @@
+use crate::application::PuzzledApplication;
+use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::get_state_mut;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::window::PuzzledWindow;
-use adw::NavigationSplitView;
+use adw::prelude::ActionMapExtManual;
+use adw::{gio, NavigationSplitView};
+use log::info;
 use std::cell::RefCell;
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct NavigationPresenter {
+pub struct MainPresenter {
     outer_view: NavigationSplitView,
     inner_view: NavigationSplitView,
     presenters: Rc<RefCell<Option<Presenters>>>,
 }
 
-impl NavigationPresenter {
+impl MainPresenter {
     pub fn new(window: &PuzzledWindow) -> Self {
-        NavigationPresenter {
+        MainPresenter {
             outer_view: window.outer_view(),
             inner_view: window.inner_view(),
             presenters: Rc::new(RefCell::new(None)),
         }
+    }
+
+    pub fn register_actions(&self, app: &PuzzledApplication) {
+        let mark_all_puzzles_unsolved = gio::ActionEntry::builder("mark_all_puzzles_unsolved")
+            .activate({
+                let self_clone = self.clone();
+                move |_, _, _| {
+                    info!("Marking all puzzles as unsolved");
+                    let puzzle_meta = PuzzleMeta::new();
+                    puzzle_meta.reset_all();
+                    if let Some(presenters) = self_clone.presenters.borrow().as_ref() {
+                        presenters.puzzle_selection.show_collection();
+                    }
+                }
+            })
+            .build();
+        app.add_action_entries([mark_all_puzzles_unsolved]);
     }
 
     pub fn setup(
