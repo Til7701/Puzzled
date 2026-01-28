@@ -141,7 +141,7 @@ fn convert(puzzle_collection: PuzzleCollection) -> Result<PuzzleConfigCollection
     }
 
     let mut puzzle_configs = Vec::new();
-    for puzzle in puzzle_collection.puzzles {
+    for (i, puzzle) in puzzle_collection.puzzles.into_iter().enumerate() {
         let difficulty_config = convert_difficulty(&puzzle.difficulty);
 
         let mut tiles = Vec::new();
@@ -156,6 +156,7 @@ fn convert(puzzle_collection: PuzzleCollection) -> Result<PuzzleConfigCollection
             board_config = rotate_board(board_config);
         }
         let puzzle_config = PuzzleConfig::new(
+            i,
             puzzle.name,
             puzzle.description,
             difficulty_config,

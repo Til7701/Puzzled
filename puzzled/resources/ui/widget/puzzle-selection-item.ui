@@ -15,11 +15,27 @@
                 <property name="margin-top">8</property>
                 <property name="margin-bottom">8</property>
                 <child>
-                    <object class="GtkLabel" id="name">
-                        <property name="halign">start</property>
-                        <style>
-                            <class name="title-3"/>
-                        </style>
+                    <object class="GtkBox">
+                        <property name="hexpand">True</property>
+                        <property name="hexpand-set">True</property>
+                        <property name="halign">fill</property>
+                        <property name="spacing">4</property>
+                        <child>
+                            <object class="GtkLabel" id="name">
+                                <property name="halign">start</property>
+                                <property name="hexpand">True</property>
+                                <property name="hexpand-set">True</property>
+                                <property name="ellipsize">end</property>
+                                <style>
+                                    <class name="title-3"/>
+                                </style>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="PuzzledPuzzleMod" id="puzzle_mod">
+                                <property name="halign">end</property>
+                            </object>
+                        </child>
                     </object>
                 </child>
                 <child>

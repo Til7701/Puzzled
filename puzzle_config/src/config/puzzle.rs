@@ -8,6 +8,8 @@ use std::collections::HashMap;
 /// The solution statistics are optional since they might not be known yet for all puzzles.
 #[derive(Debug, Clone)]
 pub struct PuzzleConfig {
+    /// The index of the puzzle in the collection.
+    index: usize,
     /// Name of the puzzle to show in the UI.
     name: String,
     description: Option<String>,
@@ -37,6 +39,7 @@ impl PuzzleConfig {
     ///
     /// returns: PuzzleConfig
     pub fn new(
+        index: usize,
         name: String,
         description: Option<String>,
         difficulty: Option<PuzzleDifficultyConfig>,
@@ -45,6 +48,7 @@ impl PuzzleConfig {
         additional_info: Option<HashMap<String, String>>,
     ) -> PuzzleConfig {
         PuzzleConfig {
+            index,
             name,
             description,
             difficulty,
@@ -52,6 +56,10 @@ impl PuzzleConfig {
             tiles,
             additional_info,
         }
+    }
+
+    pub fn index(&self) -> usize {
+        self.index
     }
 
     pub fn name(&self) -> &str {
