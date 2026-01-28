@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <object class="AdwAlertDialog" id="dialog">
+        <property name="heading" translatable="yes">Are you sure?</property>
+        <property name="body" translatable="yes">Marks all puzzles as unsolved. This also affects Community Collections that are not loaded right now.</property>
+        <property name="close-response">cancel</property>
+        <property name="default-response">mark</property>
+        <responses>
+            <response id="cancel">Cancel</response>
+            <response id="mark" appearance="destructive">Mark as Unsolved</response>
+        </responses>
+    </object>
+</interface>

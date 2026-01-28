@@ -6,6 +6,8 @@
         <file preprocess="xml-stripblanks">ui/page/puzzle-selection-page.ui</file>
         <file preprocess="xml-stripblanks">ui/page/puzzle-area-page.ui</file>
         <file preprocess="xml-stripblanks">ui/widget/info-pill.ui</file>
+        <file preprocess="xml-stripblanks">ui/widget/puzzle-mod.ui</file>
+        <file preprocess="xml-stripblanks">ui/dialog/mark-unsolved-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="shortcuts-dialog.ui">ui/dialog/shortcuts-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="solver-dialog.ui">ui/dialog/solver-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="preferences-dialog.ui">ui/dialog/preferences-dialog.ui</file>

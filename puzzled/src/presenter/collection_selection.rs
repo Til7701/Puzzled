@@ -1,7 +1,7 @@
 use crate::application::PuzzledApplication;
 use crate::config;
 use crate::global::state::get_state_mut;
-use crate::presenter::navigation::NavigationPresenter;
+use crate::presenter::main::MainPresenter;
 use crate::puzzles::{add_community_collection_from_string, get_puzzle_collection_store};
 use crate::view::info_pill::InfoPill;
 use crate::window::PuzzledWindow;
@@ -18,14 +18,14 @@ use puzzle_config::{PuzzleConfigCollection, ReadError};
 #[derive(Clone)]
 pub struct CollectionSelectionPresenter {
     window: PuzzledWindow,
-    navigation: NavigationPresenter,
+    navigation: MainPresenter,
     core_collection_list: ListBox,
     community_collection_list: ListBox,
     load_collection_button_row: ButtonRow,
 }
 
 impl CollectionSelectionPresenter {
-    pub fn new(window: &PuzzledWindow, navigation: NavigationPresenter) -> Self {
+    pub fn new(window: &PuzzledWindow, navigation: MainPresenter) -> Self {
         let page = window.collection_selection_nav_page();
         CollectionSelectionPresenter {
             window: window.clone(),

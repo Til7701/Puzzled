@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="PuzzledPuzzleMod" parent="GtkBox">
+        <property name="spacing">4</property>
+        <child>
+            <object class="GtkImage" id="icon">
+                <property name="visible">False</property>
+                <property name="pixel-size">12</property>
+            </object>
+        </child>
+        <child>
+            <object class="GtkLabel" id="label">
+                <property name="visible">False</property>
+                <style>
+                    <class name="numeric"/>
+                </style>
+            </object>
+        </child>
+    </template>
+</interface>
