@@ -43,14 +43,10 @@ impl PositionedTile {
             })
             .collect();
 
-        dbg!(&all_placements);
-
         let bitmasks: Vec<Bitmask> = all_placements
             .iter()
             .map(|array| Bitmask::from(array))
             .collect();
-
-        dbg!(bitmasks.len());
 
         PositionedTile { bitmasks }
     }

@@ -2,7 +2,6 @@ use crate::array_util;
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
-use log::debug;
 use ndarray::{arr2, Array2};
 use std::collections::HashSet;
 use std::hash::Hash;
@@ -44,17 +43,6 @@ pub fn create_banned_bitmasks_for_filling(
         banned_bitmasks.extend(banned_bitmasks_2x2(board));
     }
 
-    debug!(
-        "Created {} banned bitmasks for filling.",
-        banned_bitmasks.len()
-    );
-    for banned in banned_bitmasks.iter() {
-        debug!(
-            "Banned:\n{}\n{}",
-            banned.pattern.to_string(board.get_array().dim().0 as i32),
-            banned.area.to_string(board.get_array().dim().0 as i32)
-        );
-    }
     banned_bitmasks
 }
 

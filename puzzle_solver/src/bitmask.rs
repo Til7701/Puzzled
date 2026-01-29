@@ -6,7 +6,7 @@ const BITS_IN_PRIMITIVE: usize = 128;
 /// Number of elements in the bitmask array. Adjust this to change the size of the bitmask.
 /// This should be kept small to allow for optimized operations. It may be increased, if
 /// more puzzles are added.
-const BITMASK_ARRAY_LENGTH: usize = 1;
+const BITMASK_ARRAY_LENGTH: usize = 3;
 /// A mask with all bits set in a single primitive type.
 const FULL_PRIMITIVE_MASK: u128 = u128::MAX;
 

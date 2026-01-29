@@ -77,6 +77,7 @@ impl SolverStatePresenter {
                 if solver_enabled {
                 } else {
                     self_clone.display_solver_state(&SolverState::Initial {});
+                    interrupt_solver_call(&get_state());
                 }
             }
         });

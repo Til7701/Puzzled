@@ -3,6 +3,7 @@ use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut};
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
+use crate::solver;
 use crate::view::solved_dialog::SolvedDialog;
 use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt};
@@ -59,6 +60,7 @@ impl MainPresenter {
                     state.puzzle_type_extension = None;
                     drop(state);
                     presenters.puzzle_selection.show_collection();
+                    solver::interrupt_solver_call(&get_state());
                 }
             }
         });
