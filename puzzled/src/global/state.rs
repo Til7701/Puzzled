@@ -1,6 +1,6 @@
 use crate::solver::SolverCallId;
 use once_cell::sync::Lazy;
-use puzzle_config::{PuzzleConfig, PuzzleConfigCollection, Target};
+use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleConfigCollection, Target};
 use std::backtrace::Backtrace;
 use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard, TryLockError};
 use std::time::Duration;
@@ -18,6 +18,24 @@ pub struct State {
     pub puzzle_type_extension: Option<PuzzleTypeExtension>,
     /// The current state of the puzzle solver.
     pub solver_state: SolverState,
+}
+
+impl State {
+   pub fn setup_for_puzzle(&mut self, puzzle_config: PuzzleConfig) {
+        match &puzzle_config.board_config() {
+            BoardConfig::Simple { .. } => {
+                self.puzzle_type_extension = Some(PuzzleTypeExtension::Simple);
+            }
+            BoardConfig::Area { .. } => {
+                let default_target = puzzle_config.board_config().default_target();
+                self.puzzle_type_extension = Some(PuzzleTypeExtension::Area {
+                    target: default_target,
+                });
+            }
+        }
+
+        self.puzzle_config = Some(puzzle_config);
+    }
 }
 
 pub fn get_state() -> RwLockReadGuard<'static, State> {

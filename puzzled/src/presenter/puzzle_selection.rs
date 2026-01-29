@@ -117,7 +117,7 @@ impl PuzzleSelectionPresenter {
     }
 
     fn activate_puzzle(&self, index: u32) {
-        let state = get_state();
+        let mut state = get_state_mut();
         let collection = &state.puzzle_collection;
         match collection {
             None => {
@@ -125,29 +125,11 @@ impl PuzzleSelectionPresenter {
             }
             Some(c) => {
                 let puzzle_config = c.puzzles()[index as usize].clone();
+                state.setup_for_puzzle(puzzle_config);
                 drop(state);
-                self.setup_state_for_puzzle(puzzle_config);
                 self.navigation.show_puzzle_area();
             }
         };
-    }
-
-    fn setup_state_for_puzzle(&self, puzzle_config: PuzzleConfig) {
-        let mut state = get_state_mut();
-
-        match &puzzle_config.board_config() {
-            BoardConfig::Simple { .. } => {
-                state.puzzle_type_extension = Some(PuzzleTypeExtension::Simple);
-            }
-            BoardConfig::Area { .. } => {
-                let default_target = puzzle_config.board_config().default_target();
-                state.puzzle_type_extension = Some(PuzzleTypeExtension::Area {
-                    target: default_target,
-                });
-            }
-        }
-
-        state.puzzle_config = Some(puzzle_config);
     }
 
     fn create_puzzle_row(

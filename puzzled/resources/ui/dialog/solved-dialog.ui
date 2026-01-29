@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <template class="PuzzledSolvedDialog" parent="AdwAlertDialog">
+        <property name="heading" translatable="yes">Puzzle Solved!</property>
+        <property name="close-response">close</property>
+        <property name="default-response">next</property>
+        <responses>
+            <response id="back">Back to List</response>
+            <response id="close">Close</response>
+            <response id="next" appearance="suggested">Next Puzzle</response>
+        </responses>
+    </template>
+</interface>

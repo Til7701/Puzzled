@@ -10,10 +10,9 @@ use crate::presenter::puzzle::info::PuzzleInfoPresenter;
 use crate::presenter::puzzle::solver::SolverStatePresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
 use crate::solver::is_solved;
-use crate::view::create_solved_dialog;
 use crate::view::puzzle_area_page::PuzzleAreaPage;
 use crate::window::PuzzledWindow;
-use adw::prelude::{AdwDialogExt, NavigationPageExt};
+use adw::prelude::NavigationPageExt;
 use log::{debug, error};
 use std::rc::Rc;
 use std::time::Duration;
@@ -27,6 +26,7 @@ pub struct PuzzlePresenter {
     solver_state_presenter: SolverStatePresenter,
     extension_presenter: ExtensionPresenter,
     puzzle_meta: PuzzleMeta,
+    puzzle_solved_callback: Option<Rc<dyn Fn()>>,
 }
 
 impl PuzzlePresenter {
@@ -44,6 +44,7 @@ impl PuzzlePresenter {
             solver_state_presenter,
             extension_presenter,
             puzzle_meta: PuzzleMeta::new(),
+            puzzle_solved_callback: None,
         }
     }
 
@@ -53,11 +54,12 @@ impl PuzzlePresenter {
         self.extension_presenter.register_actions(app);
     }
 
-    pub fn setup(&self) {
+    pub fn setup(&mut self, puzzle_solved_callback: Rc<dyn Fn()>) {
         self.puzzle_info_presenter.setup();
         self.puzzle_area_presenter.setup();
         self.solver_state_presenter.setup();
         self.extension_presenter.setup();
+        self.puzzle_solved_callback = Some(puzzle_solved_callback);
     }
 
     pub fn show_puzzle(&self) {
@@ -125,7 +127,9 @@ impl PuzzlePresenter {
             error!("Could not mark puzzle as solved: missing puzzle collection or puzzle config");
         }
 
-        let dialog = create_solved_dialog();
-        dialog.present(Some(&self.window));
+        drop(state);
+        if let Some(callback) = &self.puzzle_solved_callback {
+            callback();
+        }
     }
 }

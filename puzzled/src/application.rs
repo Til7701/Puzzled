@@ -214,9 +214,14 @@ impl PuzzledApplication {
         let mut main_presenter = MainPresenter::new(window);
         main_presenter.register_actions(self);
 
-        let puzzle_presenter = PuzzlePresenter::new(window);
+        let mut puzzle_presenter = PuzzlePresenter::new(window);
         puzzle_presenter.register_actions(self);
-        puzzle_presenter.setup();
+        puzzle_presenter.setup(Rc::new({
+            let main_presenter = main_presenter.clone();
+            move || {
+                main_presenter.on_solved();
+            }
+        }));
 
         let puzzle_selection_presenter = Rc::new(PuzzleSelectionPresenter::new(
             &window,

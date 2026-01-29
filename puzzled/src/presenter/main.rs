@@ -1,12 +1,13 @@
 use crate::application::PuzzledApplication;
 use crate::global::puzzle_meta::PuzzleMeta;
-use crate::global::state::get_state_mut;
+use crate::global::state::{get_state, get_state_mut};
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
+use crate::view::solved_dialog::SolvedDialog;
 use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt};
-use adw::{gio, NavigationSplitView, Window};
-use log::info;
+use adw::{gio, NavigationSplitView};
+use log::{debug, error, info};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -67,6 +68,7 @@ impl MainPresenter {
         if let Some(presenters) = &self.presenters.borrow().as_ref() {
             presenters.puzzle_selection.show_collection();
             self.inner_view.set_show_content(true);
+            self.outer_view.set_show_content(false);
         }
     }
 
@@ -74,6 +76,67 @@ impl MainPresenter {
         if let Some(presenters) = &self.presenters.borrow().as_ref() {
             presenters.puzzle_presenter.show_puzzle();
             self.outer_view.set_show_content(true);
+        }
+    }
+
+    pub fn on_solved(&self) {
+        let solved_dialog = SolvedDialog::new();
+
+        let state = get_state();
+        let has_next = if let Some(collection) = &state.puzzle_collection
+            && let Some(puzzle_config) = &state.puzzle_config
+        {
+            dbg!(&puzzle_config.index());
+            dbg!(&collection.puzzles().len());
+            puzzle_config.index() < collection.puzzles().len() - 1
+        } else {
+            error!(
+                "Could not determine if next puzzle exists: missing puzzle collection or puzzle config"
+            );
+            false
+        };
+
+        if !has_next {
+            debug!("No next puzzle available, removing 'Next' button");
+            solved_dialog.remove_response("next");
+            solved_dialog.set_default_response(Some("back"));
+            solved_dialog.set_response_appearance("back", adw::ResponseAppearance::Suggested);
+        } else {
+            solved_dialog.connect_response(Some("next"), {
+                let self_clone = self.clone();
+                move |_, _| self_clone.show_next_puzzle()
+            });
+        }
+        solved_dialog.connect_response(Some("back"), {
+            let self_clone = self.clone();
+            move |_, _| self_clone.show_puzzle_selection()
+        });
+        solved_dialog.present(Some(&self.window));
+    }
+
+    fn show_next_puzzle(&self) {
+        let mut state = get_state_mut();
+        let next_puzzle = if let Some(collection) = &state.puzzle_collection
+            && let Some(puzzle_config) = &state.puzzle_config
+        {
+            let next_index = puzzle_config.index() + 1;
+            if next_index < collection.puzzles().len() {
+                let next_puzzle_config = collection.puzzles()[next_index].clone();
+                Some(next_puzzle_config)
+            } else {
+                error!("Next puzzle index {} is out of bounds", next_index);
+                None
+            }
+        } else {
+            error!("Could not load next puzzle: missing puzzle collection or puzzle config");
+            None
+        };
+        if let Some(next_puzzle) = next_puzzle {
+            state.setup_for_puzzle(next_puzzle);
+            drop(state);
+            if let Some(presenters) = self.presenters.borrow().as_ref() {
+                presenters.puzzle_presenter.show_puzzle();
+            }
         }
     }
 

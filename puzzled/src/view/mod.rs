@@ -4,6 +4,7 @@ pub mod info_pill;
 pub mod puzzle_area_page;
 pub mod puzzle_mod;
 pub mod puzzle_selection_page;
+pub mod solved_dialog;
 pub mod tile;
 
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
@@ -168,16 +169,4 @@ fn create_dropdown_for_area(
 
     content.add(&dropdown);
     (items, dropdown)
-}
-
-pub fn create_solved_dialog() -> AlertDialog {
-    let dialog = AlertDialog::builder().heading("Puzzle Solved!").build();
-
-    let ok_id = "ok";
-    dialog.add_response(ok_id, "OK");
-    dialog.set_default_response(Some(ok_id));
-    dialog.set_close_response(ok_id);
-    dialog.set_response_appearance(ok_id, ResponseAppearance::Suggested);
-
-    dialog
 }
