@@ -111,6 +111,8 @@ The following standard tiles are available:
 
 | Name            | Shape                      |
 |-----------------|----------------------------|
+| **Domino**     |                            |
+| `I2`            | ![I2 Tile](tiles/2/I2.svg) |
 | **Trominoes**   |                            |
 | `I3`            | ![I3 Tile](tiles/3/I3.svg) |
 | `L3`            | ![L3 Tile](tiles/3/L3.svg) |
