@@ -56,7 +56,7 @@ The fields have the following meaning:
 | allow_board_rotation | `Boolean`            | false    | Flag to define whether the boards in this collection may be rotated in a way deemed most suitable by the application. You may want to disable the rotation for boards that represent a certain shape and do have a "correct" orientiation.                                             | true      | 0.2.0   |
 | version              | `String`             | false    | The version of the collection set by the author. This may be any string. This is not checked, it is just displayed to the user.                                                                                                                                                        | -         | 0.2.0   |
 | description          | `String`             | false    | A short description of the puzzle collection. MUST not be blank if specified.                                                                                                                                                                                                          | None      | 0.2.0   |
-| progression          | `Progression`        | false    | The progression settings for this collection. See [Progression](#progression) for details.                                                                                                                                                                                             | Any       | 0.2.1   |
+| progression          | `Progression`        | false    | The progression settings for this collection. See [Progression](#progression) for details.                                                                                                                                                                                             | Any       | 0.3.0   |
 | custom_tiles         | `Map<String, Tile>`  | false    | A map of custom tile definitions to reuse in this file. See [Custom Tiles](#custom-tiles) for details.                                                                                                                                                                                 | Empty Map | 0.2.0   |
 | custom_boards        | `Map<String, Board>` | false    | A map of custom board definitions to reuse in this file. See [Custom Boards](#custom-boards) for details.                                                                                                                                                                              | Empty Map | 0.2.0   |
 | puzzles              | `List<Puzzle>`       | true     | The list of puzzles in this collection. See [Puzzles](#puzzles) for details. The order of puzzles in this list SHOULD not change since it MAY be used by Puzzled to bind data to it. When adding a new puzzle to a collection, add it at the end of the list.                          | -         | 0.2.0   |
@@ -109,70 +109,70 @@ Example:
 
 The following standard tiles are available:
 
-| Name            | Shape                      |
-|-----------------|----------------------------|
-| **Domino**     |                            |
-| `I2`            | ![I2 Tile](tiles/2/I2.svg) |
-| **Trominoes**   |                            |
-| `I3`            | ![I3 Tile](tiles/3/I3.svg) |
-| `L3`            | ![L3 Tile](tiles/3/L3.svg) |
-| **Tetrominoes** |                            |
-| `I4`            | ![I4 Tile](tiles/4/I4.svg) |
-| `J4`            | ![L4 Tile](tiles/4/J4.svg) |
-| `L4`            | ![L4 Tile](tiles/4/L4.svg) |
-| `O4`            | ![O4 Tile](tiles/4/O4.svg) |
-| `S4`            | ![S4 Tile](tiles/4/S4.svg) |
-| `T4`            | ![T4 Tile](tiles/4/T4.svg) |
-| `Z4`            | ![Z4 Tile](tiles/4/Z4.svg) |
-| **Pentominoes** |                            |
-| `F5`            | ![F5 Tile](tiles/5/F5.svg) |
-| `I5`            | ![I5 Tile](tiles/5/I5.svg) |
-| `L5`            | ![L5 Tile](tiles/5/L5.svg) |
-| `N5`            | ![N5 Tile](tiles/5/N5.svg) |
-| `P5`            | ![P5 Tile](tiles/5/P5.svg) |
-| `T5`            | ![T5 Tile](tiles/5/T5.svg) |
-| `U5`            | ![U5 Tile](tiles/5/U5.svg) |
-| `V5`            | ![V5 Tile](tiles/5/V5.svg) |
-| `W5`            | ![W5 Tile](tiles/5/W5.svg) |
-| `X5`            | ![X5 Tile](tiles/5/X5.svg) |
-| `Y5`            | ![Y5 Tile](tiles/5/Y5.svg) |
-| `Z5`            | ![I3 Tile](tiles/5/Z5.svg) |
-| **Hexominoes**  |                            |
-| `A6`            | ![A6 Tile](tiles/6/A6.svg) |
-| `B6`            | ![B6 Tile](tiles/6/B6.svg) |
-| `C6`            | ![C6 Tile](tiles/6/C6.svg) |
-| `D6`            | ![D6 Tile](tiles/6/D6.svg) |
-| `F6`            | ![F6 Tile](tiles/6/F6.svg) |
-| `f6`            | ![f6 Tile](tiles/6/f6.svg) |
-| `G6`            | ![G6 Tile](tiles/6/G6.svg) |
-| `H6`            | ![H6 Tile](tiles/6/H6.svg) |
-| `I6`            | ![I6 Tile](tiles/6/I6.svg) |
-| `J6`            | ![J6 Tile](tiles/6/J6.svg) |
-| `K6`            | ![K6 Tile](tiles/6/K6.svg) |
-| `L6`            | ![L6 Tile](tiles/6/L6.svg) |
-| `M6`            | ![M6 Tile](tiles/6/M6.svg) |
-| `m6`            | ![m6 Tile](tiles/6/m6.svg) |
-| `N6`            | ![N6 Tile](tiles/6/N6.svg) |
-| `n6`            | ![n6 Tile](tiles/6/n6.svg) |
-| `O6`            | ![O6 Tile](tiles/6/O6.svg) |
-| `P6`            | ![P6 Tile](tiles/6/P6.svg) |
-| `p6`            | ![p6 Tile](tiles/6/p6.svg) |
-| `Q6`            | ![Q6 Tile](tiles/6/Q6.svg) |
-| `R6`            | ![R6 Tile](tiles/6/R6.svg) |
-| `S6`            | ![S6 Tile](tiles/6/S6.svg) |
-| `T6`            | ![T6 Tile](tiles/6/T6.svg) |
-| `t6`            | ![t6 Tile](tiles/6/t6.svg) |
-| `U6`            | ![U6 Tile](tiles/6/U6.svg) |
-| `u6`            | ![u6 Tile](tiles/6/u6.svg) |
-| `V6`            | ![V6 Tile](tiles/6/V6.svg) | 
-| `W6`            | ![W6 Tile](tiles/6/W6.svg) |
-| `w6`            | ![w6 Tile](tiles/6/w6.svg) |
-| `X6`            | ![X6 Tile](tiles/6/X6.svg) |
-| `x6`            | ![x6 Tile](tiles/6/x6.svg) |
-| `Y6`            | ![Y6 Tile](tiles/6/Y6.svg) |
-| `y6`            | ![y6 Tile](tiles/6/y6.svg) |
-| `Z6`            | ![Z6 Tile](tiles/6/Z6.svg) |
-| `z6`            | ![z6 Tile](tiles/6/z6.svg) |
+| Name            | Shape                      | Required Version |
+|-----------------|----------------------------|------------------|
+| **Domino**      |                            |                  |
+| `I2`            | ![I2 Tile](tiles/2/I2.svg) |                  |
+| **Trominoes**   |                            |                  |
+| `I3`            | ![I3 Tile](tiles/3/I3.svg) |                  |
+| `L3`            | ![L3 Tile](tiles/3/L3.svg) |                  |
+| **Tetrominoes** |                            |                  |
+| `I4`            | ![I4 Tile](tiles/4/I4.svg) |                  |
+| `J4`            | ![L4 Tile](tiles/4/J4.svg) |                  |
+| `L4`            | ![L4 Tile](tiles/4/L4.svg) |                  |
+| `O4`            | ![O4 Tile](tiles/4/O4.svg) |                  |
+| `S4`            | ![S4 Tile](tiles/4/S4.svg) |                  |
+| `T4`            | ![T4 Tile](tiles/4/T4.svg) |                  |
+| `Z4`            | ![Z4 Tile](tiles/4/Z4.svg) |                  |
+| **Pentominoes** |                            |                  |
+| `F5`            | ![F5 Tile](tiles/5/F5.svg) |                  |
+| `I5`            | ![I5 Tile](tiles/5/I5.svg) |                  |
+| `L5`            | ![L5 Tile](tiles/5/L5.svg) |                  |
+| `N5`            | ![N5 Tile](tiles/5/N5.svg) |                  |
+| `P5`            | ![P5 Tile](tiles/5/P5.svg) |                  |
+| `T5`            | ![T5 Tile](tiles/5/T5.svg) |                  |
+| `U5`            | ![U5 Tile](tiles/5/U5.svg) |                  |
+| `V5`            | ![V5 Tile](tiles/5/V5.svg) |                  |
+| `W5`            | ![W5 Tile](tiles/5/W5.svg) |                  |
+| `X5`            | ![X5 Tile](tiles/5/X5.svg) |                  |
+| `Y5`            | ![Y5 Tile](tiles/5/Y5.svg) |                  |
+| `Z5`            | ![I3 Tile](tiles/5/Z5.svg) |                  |
+| **Hexominoes**  |                            |                  |
+| `A6`            | ![A6 Tile](tiles/6/A6.svg) | 0.3.0            |
+| `B6`            | ![B6 Tile](tiles/6/B6.svg) | 0.3.0            |
+| `C6`            | ![C6 Tile](tiles/6/C6.svg) | 0.3.0            |
+| `D6`            | ![D6 Tile](tiles/6/D6.svg) | 0.3.0            |
+| `F6`            | ![F6 Tile](tiles/6/F6.svg) | 0.3.0            |
+| `f6`            | ![f6 Tile](tiles/6/f6.svg) | 0.3.0            |
+| `G6`            | ![G6 Tile](tiles/6/G6.svg) | 0.3.0            |
+| `H6`            | ![H6 Tile](tiles/6/H6.svg) | 0.3.0            |
+| `I6`            | ![I6 Tile](tiles/6/I6.svg) | 0.3.0            |
+| `J6`            | ![J6 Tile](tiles/6/J6.svg) | 0.3.0            |
+| `K6`            | ![K6 Tile](tiles/6/K6.svg) | 0.3.0            |
+| `L6`            | ![L6 Tile](tiles/6/L6.svg) | 0.3.0            |
+| `M6`            | ![M6 Tile](tiles/6/M6.svg) | 0.3.0            |
+| `m6`            | ![m6 Tile](tiles/6/m6.svg) | 0.3.0            |
+| `N6`            | ![N6 Tile](tiles/6/N6.svg) | 0.3.0            |
+| `n6`            | ![n6 Tile](tiles/6/n6.svg) | 0.3.0            |
+| `O6`            | ![O6 Tile](tiles/6/O6.svg) | 0.3.0            |
+| `P6`            | ![P6 Tile](tiles/6/P6.svg) | 0.3.0            |
+| `p6`            | ![p6 Tile](tiles/6/p6.svg) | 0.3.0            |
+| `Q6`            | ![Q6 Tile](tiles/6/Q6.svg) | 0.3.0            |
+| `R6`            | ![R6 Tile](tiles/6/R6.svg) | 0.3.0            |
+| `S6`            | ![S6 Tile](tiles/6/S6.svg) | 0.3.0            |
+| `T6`            | ![T6 Tile](tiles/6/T6.svg) | 0.3.0            |
+| `t6`            | ![t6 Tile](tiles/6/t6.svg) | 0.3.0            |
+| `U6`            | ![U6 Tile](tiles/6/U6.svg) | 0.3.0            |
+| `u6`            | ![u6 Tile](tiles/6/u6.svg) | 0.3.0            |
+| `V6`            | ![V6 Tile](tiles/6/V6.svg) | 0.3.0            | 
+| `W6`            | ![W6 Tile](tiles/6/W6.svg) | 0.3.0            |
+| `w6`            | ![w6 Tile](tiles/6/w6.svg) | 0.3.0            |
+| `X6`            | ![X6 Tile](tiles/6/X6.svg) | 0.3.0            |
+| `x6`            | ![x6 Tile](tiles/6/x6.svg) | 0.3.0            |
+| `Y6`            | ![Y6 Tile](tiles/6/Y6.svg) | 0.3.0            |
+| `y6`            | ![y6 Tile](tiles/6/y6.svg) | 0.3.0            |
+| `Z6`            | ![Z6 Tile](tiles/6/Z6.svg) | 0.3.0            |
+| `z6`            | ![z6 Tile](tiles/6/z6.svg) | 0.3.0            |
 
 ### Array
 
@@ -418,7 +418,7 @@ E.g., "6" for the year 26.
 ## Progression
 
 The progression field defines how puzzles in this collection are unlocked for the user.
-This field is available since version `0.2.1` of Puzzled.
+This field is available since version `0.3.0` of Puzzled.
 
 Example:
 
