@@ -72,3 +72,71 @@ pub fn add_community_collection_from_string(json_str: &str) -> Result<(), ReadEr
     store.community_puzzle_collections.push(collection);
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use puzzle_config::BoardConfig;
+    use puzzle_solver::board::Board;
+    use puzzle_solver::tile::Tile;
+    use std::fs;
+    use tokio_util::sync::CancellationToken;
+
+    #[test]
+    fn test_load_core_collections() {
+        for collection_name in CORE_COLLECTIONS.iter() {
+            let json =
+                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+            let collection =
+                puzzle_config::load_puzzle_collection_from_json(&json, config::VERSION).unwrap();
+            assert!(!collection.puzzles().is_empty());
+        }
+    }
+
+    #[tokio::test]
+    async fn test_solve_core_collections() {
+        for collection_name in CORE_COLLECTIONS.iter() {
+            if collection_name == &"sandbox" {
+                // Skip the sandbox collection as it contains puzzles that are not solvable
+                continue;
+            }
+
+            let json =
+                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+            let collection =
+                puzzle_config::load_puzzle_collection_from_json(&json, config::VERSION).unwrap();
+
+            for puzzle in collection.puzzles() {
+                if puzzle.tiles().len() > 12 {
+                    // Skip puzzles with too many tiles to avoid long test times
+                    continue;
+                }
+
+                let board_config = &puzzle.board_config();
+                match board_config {
+                    BoardConfig::Simple { layout } => {
+                        let board: Board = layout.map(|e| !e).clone().into();
+                        let tiles: Vec<Tile> = puzzle
+                            .tiles()
+                            .iter()
+                            .map(|tile_config| Tile::new(tile_config.base().clone()))
+                            .collect();
+                        let result = puzzle_solver::solve_all_filling(
+                            board,
+                            &tiles,
+                            CancellationToken::new(),
+                        )
+                        .await;
+                        assert!(
+                            result.is_ok(),
+                            "Failed to solve puzzle '{}' in collection '{}'",
+                            puzzle.name(),
+                            collection_name
+                        );
+                    }
+                    BoardConfig::Area { .. } => {}
+                }
+            }
+        }
+    }
+}
