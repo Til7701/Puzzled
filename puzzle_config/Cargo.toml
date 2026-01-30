@@ -8,6 +8,6 @@ ndarray = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-time = { workspace = true }
+time = { workspace = true, features = ["local-offset"] }
 semver = { workspace = true }
 regex = { workspace = true }

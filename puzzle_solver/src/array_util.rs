@@ -162,10 +162,10 @@ pub fn remove_parent(parent: &Array2<bool>, child: &mut Array2<bool>) {
 /// Prints a 2D boolean array to the debug log, using '█' for `true` and '░' for `false`.
 #[allow(dead_code)]
 pub fn debug_print(array: &Array2<bool>) {
-    for col in array.columns() {
-        let row_str: String = col
+    for row in array.rows() {
+        let row_str: String = row
             .iter()
-            .map(|&cell| if cell { '█' } else { '░' })
+            .map(|&cell| if cell { '#' } else { '-' })
             .collect();
         debug!("{}", row_str);
     }

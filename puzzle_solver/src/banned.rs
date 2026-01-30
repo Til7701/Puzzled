@@ -2,6 +2,7 @@ use crate::array_util;
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
+use log::debug;
 use ndarray::{arr2, Array2};
 use std::collections::HashSet;
 use std::hash::Hash;
@@ -30,16 +31,17 @@ pub fn create_banned_bitmasks_for_filling(
 
     let mut banned_bitmasks = HashSet::new();
 
-    if min_tile_size == 0 {
-        // No tiles
-        return banned_bitmasks;
-    } else if min_tile_size == 1 {
-        // Tiles of size 1 can fill any gaps
-        return banned_bitmasks;
-    } else {
+    if min_tile_size > 1 {
         banned_bitmasks.extend(banned_bitmasks_1x1(board));
+    }
+    if min_tile_size > 2 {
         banned_bitmasks.extend(banned_bitmasks_1x2(board));
-        // banned_bitmasks.extend(banned_bitmasks_2x2_corner(board)); TODO this causes the solver to always fail
+    }
+    if min_tile_size > 3 {
+        banned_bitmasks.extend(banned_bitmasks_2x2_corner(board));
+        banned_bitmasks.extend(banned_bitmasks_1x3(board));
+    }
+    if min_tile_size > 4 {
         banned_bitmasks.extend(banned_bitmasks_2x2(board));
     }
 
@@ -71,7 +73,7 @@ fn banned_bitmasks_1x2(board: &Board) -> HashSet<BannedBitmask> {
         [true, true, true, true],
         [false, true, true, false],
     ]);
-    banned_bitmasks_with_all_rotations(board, &pattern, &area)
+    banned_bitmasks_with_all_rotations(board, pattern, area)
 }
 
 fn banned_bitmasks_2x2_corner(board: &Board) -> HashSet<BannedBitmask> {
@@ -87,7 +89,21 @@ fn banned_bitmasks_2x2_corner(board: &Board) -> HashSet<BannedBitmask> {
         [true, true, true, false],
         [false, true, false, false],
     ]);
-    banned_bitmasks_with_all_rotations(board, &pattern, &area)
+    banned_bitmasks_with_all_rotations(board, pattern, area)
+}
+
+fn banned_bitmasks_1x3(board: &Board) -> HashSet<BannedBitmask> {
+    let pattern = arr2(&[
+        [false, true, true, true, false],
+        [true, false, false, false, true],
+        [false, true, true, true, false],
+    ]);
+    let area = arr2(&[
+        [false, true, true, true, false],
+        [true, true, true, true, true],
+        [false, true, true, true, false],
+    ]);
+    banned_bitmasks_with_all_rotations(board, pattern, area)
 }
 
 fn banned_bitmasks_2x2(board: &Board) -> HashSet<BannedBitmask> {
@@ -108,12 +124,17 @@ fn banned_bitmasks_2x2(board: &Board) -> HashSet<BannedBitmask> {
 
 fn banned_bitmasks_with_all_rotations(
     board: &Board,
-    pattern: &Array2<bool>,
-    area: &Array2<bool>,
+    pattern: Array2<bool>,
+    area: Array2<bool>,
 ) -> HashSet<BannedBitmask> {
+    debug!("Pattern:");
+    array_util::debug_print(&pattern);
+    debug!("Area:");
+    array_util::debug_print(&area);
+
     let mut banned_bitmasks = HashSet::new();
-    let mut current_pattern = pattern.clone();
-    let mut current_area = area.clone();
+    let mut current_pattern = pattern;
+    let mut current_area = area;
 
     for _ in 0..4 {
         let new_banned_bitmasks = banned_bitmasks_with(board, &current_pattern, &current_area);
@@ -133,8 +154,12 @@ fn banned_bitmasks_with(
 ) -> HashSet<BannedBitmask> {
     let mut banned_bitmasks = HashSet::new();
 
-    for x in 0..board.get_array().dim().0 {
-        for y in 0..board.get_array().dim().1 {
+    if pattern.dim().0 > board.get_array().dim().0 || pattern.dim().1 > board.get_array().dim().1 {
+        return banned_bitmasks;
+    }
+
+    for x in 0..board.get_array().dim().0 - pattern.dim().0 {
+        for y in 0..board.get_array().dim().1 - pattern.dim().1 {
             if !board.get_array()[(x, y)] {
                 let banned_bitmask = create_banned_bitmask_for_pattern_at(
                     &pattern,
@@ -158,13 +183,21 @@ fn create_banned_bitmask_for_pattern_at(
     y: isize,
     board: &Board,
 ) -> BannedBitmask {
-    let board_array = board.get_array().clone();
+    let mut board_array = board.get_array().clone();
+    board_array.fill(false);
 
     let pattern_board = array_util::or_arrays_at(&board_array, pattern, x, y);
     let pattern_bitmask = Bitmask::from(&pattern_board);
 
     let area_board = array_util::or_arrays_at(&board_array, area, x, y);
     let area_bitmask = Bitmask::from(&area_board);
+
+    if log::log_enabled!(log::Level::Debug) {
+        debug!("pattern_board:");
+        array_util::debug_print(&pattern_board);
+        debug!("area_board:");
+        array_util::debug_print(&area_board);
+    }
 
     BannedBitmask {
         pattern: pattern_bitmask,
