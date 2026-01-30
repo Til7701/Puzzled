@@ -154,8 +154,12 @@ fn banned_bitmasks_with(
 ) -> HashSet<BannedBitmask> {
     let mut banned_bitmasks = HashSet::new();
 
-    for x in 0..board.get_array().dim().0 - 1 {
-        for y in 0..board.get_array().dim().1 - 1 {
+    if pattern.dim().0 > board.get_array().dim().0 || pattern.dim().1 > board.get_array().dim().1 {
+        return banned_bitmasks;
+    }
+
+    for x in 0..board.get_array().dim().0 - pattern.dim().0 {
+        for y in 0..board.get_array().dim().1 - pattern.dim().1 {
             if !board.get_array()[(x, y)] {
                 let banned_bitmask = create_banned_bitmask_for_pattern_at(
                     &pattern,
