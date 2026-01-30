@@ -17,11 +17,12 @@
         <file preprocess="xml-stripblanks" alias="puzzle-selection-item.ui">ui/widget/puzzle-selection-item.ui</file>
         <file preprocess="xml-stripblanks" alias="puzzle-info-dialog.ui">ui/dialog/puzzle-info-dialog.ui</file>
         <file alias="style.css">css/style.css</file>
-        <file>puzzles/puzzle_a_day.json</file>
-        <file>puzzles/puzzled.json</file>
-        <file>puzzles/trominoes.json</file>
-        <file>puzzles/hexominoes.json</file>
-        <file>puzzles/circles.json</file>
+
+        <file preprocess="json-stripblanks">puzzles/puzzle_a_day.json</file>
+        <file preprocess="json-stripblanks">puzzles/puzzled.json</file>
+        <file preprocess="json-stripblanks">puzzles/trominoes.json</file>
+        <file preprocess="json-stripblanks">puzzles/hexominoes.json</file>
+        <file preprocess="json-stripblanks">puzzles/circles.json</file>
         <file preprocess="json-stripblanks">puzzles/sandbox.json</file>
     </gresource>
     <!-- @formatter:off -->

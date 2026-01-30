@@ -3,7 +3,7 @@ use adw::prelude::Cast;
 use gtk::{Frame, Widget};
 use ndarray::Array2;
 
-const TILE_CSS_CLASS_COUNT: usize = 12;
+const TILE_CSS_CLASS_COUNT: usize = 28;
 
 #[derive(Debug, Clone)]
 pub struct TileView {

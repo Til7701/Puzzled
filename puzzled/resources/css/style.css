@@ -56,15 +56,79 @@
 }
 
 .tile-cell-9 {
-    background-color: var(--purple-2);
-}
-
-.tile-cell-10 {
     background-color: var(--yellow-2);
 }
 
+.tile-cell-10 {
+    background-color: var(--red-2);
+}
+
 .tile-cell-11 {
+    background-color: var(--purple-2);
+}
+
+.tile-cell-12 {
+    background-color: var(--orange-2);
+}
+
+.tile-cell-13 {
     background-color: var(--brown-2);
+}
+
+.tile-cell-14 {
+    background-color: var(--blue-4);
+}
+
+.tile-cell-15 {
+    background-color: var(--green-4);
+}
+
+.tile-cell-16 {
+    background-color: var(--yellow-4);
+}
+
+.tile-cell-17 {
+    background-color: var(--red-4);
+}
+
+.tile-cell-18 {
+    background-color: var(--purple-4);
+}
+
+.tile-cell-19 {
+    background-color: var(--orange-4);
+}
+
+.tile-cell-20 {
+    background-color: var(--brown-4);
+}
+
+.tile-cell-21 {
+    background-color: var(--blue-3);
+}
+
+.tile-cell-22 {
+    background-color: var(--green-3);
+}
+
+.tile-cell-23 {
+    background-color: var(--yellow-3);
+}
+
+.tile-cell-24 {
+    background-color: var(--red-3);
+}
+
+.tile-cell-25 {
+    background-color: var(--purple-3);
+}
+
+.tile-cell-26 {
+    background-color: var(--orange-3);
+}
+
+.tile-cell-27 {
+    background-color: var(--brown-3);
 }
 
 .overlap-highlight {
