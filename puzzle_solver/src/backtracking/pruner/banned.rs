@@ -2,6 +2,7 @@ use crate::array_util;
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
+use log::log_enabled;
 use ndarray::{arr2, Array2};
 use std::hash::Hash;
 
@@ -106,22 +107,30 @@ fn banned_bitmasks_D2(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [false, true, true, false],
     ]);
     let mut banned_bitmasks = Vec::with_capacity(2);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
+
     let pattern = array_util::rotate_90(&pattern);
     let area = array_util::rotate_90(&area);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
     banned_bitmasks
 }
 
@@ -140,44 +149,60 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [false, true, false, false],
     ]);
     let mut banned_bitmasks = Vec::with_capacity(4);
-    let area = array_util::rotate_90(&area);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
+
     let pattern = array_util::rotate_90(&pattern);
     let area = array_util::rotate_90(&area);
-    let area = array_util::rotate_90(&area);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
+
     let pattern = array_util::rotate_90(&pattern);
     let area = array_util::rotate_90(&area);
-    let area = array_util::rotate_90(&area);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 2,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
+
     let pattern = array_util::rotate_90(&pattern);
     let area = array_util::rotate_90(&area);
-    let area = array_util::rotate_90(&area);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
+
     banned_bitmasks
 }
 
@@ -194,22 +219,32 @@ fn banned_bitmasks_I3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [false, true, true, true, false],
     ]);
     let mut banned_bitmasks = Vec::with_capacity(2);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
+
     let pattern = array_util::rotate_90(&pattern);
     let area = array_util::rotate_90(&area);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
+
     banned_bitmasks
 }
 
@@ -229,14 +264,44 @@ fn banned_bitmasks_O4(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
     ]);
     let mut banned_bitmasks = Vec::with_capacity(1);
     let area = array_util::rotate_90(&area);
-    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+    let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
-    ));
+    );
+    if let Some(banned_bitmask) = opt_banned_bitmask {
+        banned_bitmasks.push(banned_bitmask);
+    }
     banned_bitmasks
+}
+
+fn create_banned_bitmask_for_pattern_at_if_possible(
+    pattern: &Array2<bool>,
+    area: &Array2<bool>,
+    x: isize,
+    y: isize,
+    board: &Board,
+) -> Option<BannedBitmask> {
+    for px in 0..pattern.dim().0 {
+        for py in 0..pattern.dim().1 {
+            let board_x = x + px as isize;
+            let board_y = y + py as isize;
+            if area[[px, py]]
+                && !pattern[[px, py]]
+                && *board
+                    .get_array()
+                    .get((board_x as usize, board_y as usize))
+                    .unwrap_or(&true)
+            {
+                return None;
+            }
+        }
+    }
+    Some(create_banned_bitmask_for_pattern_at(
+        pattern, area, x, y, board,
+    ))
 }
 
 /// Creates a BannedBitmask for a given pattern and area at position (x, y) on the board.
@@ -267,11 +332,13 @@ fn create_banned_bitmask_for_pattern_at(
     let area_board = array_util::or_arrays_at(&board_array, area, x, y);
     let area_bitmask = Bitmask::from(&area_board);
 
-    println!("Created BannedBitmask at ({}, {})", x, y);
-    print!("Pattern Board:\n");
-    array_util::debug_print(&pattern_board);
-    print!("Area Board:\n");
-    array_util::debug_print(&area_board);
+    if log_enabled!(log::Level::Debug) {
+        println!("Created BannedBitmask at ({}, {})", x, y);
+        print!("Pattern Board:\n");
+        array_util::debug_print(&pattern_board);
+        print!("Area Board:\n");
+        array_util::debug_print(&area_board);
+    }
 
     BannedBitmask {
         pattern: pattern_bitmask,

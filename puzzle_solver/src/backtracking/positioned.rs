@@ -1,4 +1,5 @@
 use crate::array_util;
+use crate::backtracking::pruner::Pruner;
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
@@ -27,7 +28,7 @@ impl PositionedTile {
     /// * `board`: The Board on which the Tile will be placed.
     ///
     /// returns: PositionedTile
-    pub(crate) fn new(tile: &Tile, board: &Board) -> Self {
+    pub(crate) fn new(tile: &Tile, board: &Board, pruner: &Pruner) -> Self {
         let all_placements: Vec<Array2<bool>> = tile
             .all_rotations
             .iter()
@@ -42,6 +43,7 @@ impl PositionedTile {
         let bitmasks: Vec<Bitmask> = all_placements
             .iter()
             .map(|array| Bitmask::from(array))
+            .filter(|bitmask| !pruner.prune(bitmask))
             .collect();
 
         PositionedTile { bitmasks }
@@ -71,14 +73,70 @@ mod tests {
         board[[0, 0]] = true;
         let tile = Tile::new(arr2(&[[true, true, true], [true, true, false]]));
 
-        let positioned_tile = PositionedTile::new(&tile, &board);
-        assert_eq!(positioned_tile.bitmasks().len(), 22);
+        let positioned_tile = PositionedTile::new(
+            &tile,
+            &board,
+            &Pruner::new_for_filling(&board, &[tile.clone()]),
+        );
+        assert_eq!(positioned_tile.bitmasks().len(), 15);
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
             [false, true, true, false],
             [false, true, true, true],
             [false, false, false, false]
         ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, false, false, false],
+            [false, true, true, true],
+            [false, true, true, false]
+        ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, false, true, false],
+            [false, true, true, false],
+            [false, true, true, false]
+        ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, false, true, false],
+            [false, false, true, true],
+            [false, false, true, true]
+        ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, true, true, false],
+            [false, true, true, false],
+            [false, false, true, false]
+        ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, false, true, true],
+            [false, false, true, true],
+            [false, false, true, false]
+        ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, false, false, false],
+            [true, true, true, false],
+            [false, true, true, false]
+        ]))));
+
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, true, true, false],
+            [true, true, true, false],
+            [false, false, false, false]
+        ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, true, true, false],
+            [false, true, true, false],
+            [false, true, false, false]
+        ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, true, false, false],
+            [false, true, true, false],
+            [false, true, true, false]
+        ]))));
+        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
+            [false, true, false, false],
+            [true, true, false, false],
+            [true, true, false, false]
+        ]))));
+
         assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
             [false, false, false, false],
             [true, true, false, false],
@@ -99,22 +157,7 @@ mod tests {
             [true, true, true, false],
             [true, true, false, false]
         ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [false, true, true, true],
-            [false, true, true, false]
-        ]))));
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, false, false],
-            [true, true, false, false],
-            [true, true, false, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, true, false],
-            [false, true, true, false],
-            [false, true, true, false]
-        ]))));
         assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
             [false, false, false, true],
             [false, false, true, true],
@@ -122,43 +165,11 @@ mod tests {
         ]))));
 
         assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, false, false],
-            [false, true, true, false],
-            [false, true, true, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, true, false],
-            [false, false, true, true],
-            [false, false, true, true]
-        ]))));
-
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, false],
-            [false, true, true, false],
-            [false, false, true, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
             [false, false, true, true],
             [false, false, true, true],
             [false, false, false, true]
         ]))));
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, false],
-            [false, true, true, false],
-            [false, true, false, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, true, true],
-            [false, false, true, true],
-            [false, false, true, false]
-        ]))));
-
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, false],
-            [true, true, true, false],
-            [false, false, false, false]
-        ]))));
         assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
             [false, false, true, true],
             [false, true, true, true],
@@ -178,11 +189,6 @@ mod tests {
             [false, true, true, true],
             [false, false, true, true],
             [false, false, false, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [true, true, true, false],
-            [false, true, true, false]
         ]))));
         assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
             [false, false, false, false],
@@ -200,7 +206,11 @@ mod tests {
             [false, false, false],
         ]));
 
-        let positioned_tile = PositionedTile::new(&tile, &board);
+        let positioned_tile = PositionedTile::new(
+            &tile,
+            &board,
+            &Pruner::new_for_filling(&board, &[tile.clone()]),
+        );
         assert!(positioned_tile.bitmasks.is_empty());
     }
 
@@ -213,7 +223,11 @@ mod tests {
         board[[1, 1]] = true;
         let tile = Tile::new(arr2(&[[true]]));
 
-        let positioned_tile = PositionedTile::new(&tile, &board);
+        let positioned_tile = PositionedTile::new(
+            &tile,
+            &board,
+            &Pruner::new_for_filling(&board, &[tile.clone()]),
+        );
         assert!(positioned_tile.bitmasks.is_empty());
     }
 
@@ -222,7 +236,11 @@ mod tests {
         let board = Board::new((3, 3));
         let tile = Tile::new(arr2(&[[true, true], [true, true]]));
 
-        let positioned_tile = PositionedTile::new(&tile, &board);
+        let positioned_tile = PositionedTile::new(
+            &tile,
+            &board,
+            &Pruner::new_for_filling(&board, &[tile.clone()]),
+        );
         assert_eq!(positioned_tile.bitmasks.len(), 4);
     }
 }
