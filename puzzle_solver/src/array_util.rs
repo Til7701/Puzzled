@@ -1,4 +1,3 @@
-use log::debug;
 use ndarray::{s, Array2, Axis};
 
 /// Rotates a 2D boolean array 90 degrees clockwise and returns the new array.
@@ -167,7 +166,7 @@ pub fn debug_print(array: &Array2<bool>) {
             .iter()
             .map(|&cell| if cell { '#' } else { '-' })
             .collect();
-        debug!("{}", row_str);
+        println!("{}", row_str);
     }
 }
 

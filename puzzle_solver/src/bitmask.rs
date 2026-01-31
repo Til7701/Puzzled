@@ -64,7 +64,7 @@ impl Bitmask {
     /// * `index`: Index of the bit to set.
     ///
     /// returns: ()
-    pub(crate) fn set_bit(&mut self, index: usize) {
+    pub(crate) const fn set_bit(&mut self, index: usize) {
         let array_index = index / BITS_IN_PRIMITIVE;
         let bit_index = index % BITS_IN_PRIMITIVE;
         self.bits[array_index] |= 1 << bit_index;
@@ -78,10 +78,23 @@ impl Bitmask {
     ///
     /// returns: ()
     #[allow(dead_code)]
-    pub(crate) fn clear_bit(&mut self, index: usize) {
+    pub(crate) const fn clear_bit(&mut self, index: usize) {
         let array_index = index / BITS_IN_PRIMITIVE;
         let bit_index = index % BITS_IN_PRIMITIVE;
         self.bits[array_index] &= !(1 << bit_index);
+    }
+
+    /// Gets the value of the bit at the given index.
+    ///
+    /// # Arguments
+    ///
+    /// * `index`: Index of the bit to get.
+    ///
+    /// returns: bool
+    pub(crate) const fn get_bit(&self, index: usize) -> bool {
+        let array_index = index / BITS_IN_PRIMITIVE;
+        let bit_index = index % BITS_IN_PRIMITIVE;
+        (self.bits[array_index] & (1 << bit_index)) != 0
     }
 
     /// Returns the number of relevant bits in the bitmask.
@@ -89,7 +102,7 @@ impl Bitmask {
     /// # Arguments
     ///
     /// returns: usize
-    pub(crate) fn relevant_bits(&self) -> usize {
+    pub(crate) const fn relevant_bits(&self) -> usize {
         self.relevant_bits
     }
 
@@ -102,11 +115,7 @@ impl Bitmask {
         match BITMASK_ARRAY_LENGTH {
             1 => {
                 let mask = (1 << self.relevant_bits) - 1;
-                if self.bits[0] & mask != mask {
-                    false
-                } else {
-                    true
-                }
+                self.bits[0] & mask == mask
             }
             _ => {
                 let full_words = self.relevant_bits / BITS_IN_PRIMITIVE;
@@ -139,17 +148,21 @@ impl Bitmask {
     /// * `b`: Second bitmask.
     ///
     /// returns: ()
-    pub(crate) fn or(&mut self, a: &Bitmask, b: &Bitmask) {
+    pub(crate) const fn or(&mut self, a: &Bitmask, b: &Bitmask) {
         match BITMASK_ARRAY_LENGTH {
             1 => {
                 self.bits[0] = a.bits[0] | b.bits[0];
-                return;
             }
-            _ => {
-                for i in 0..BITMASK_ARRAY_LENGTH {
-                    self.bits[i] = a.bits[i] | b.bits[i];
-                }
+            2 => {
+                self.bits[0] = a.bits[0] | b.bits[0];
+                self.bits[1] = a.bits[1] | b.bits[1];
             }
+            3 => {
+                self.bits[0] = a.bits[0] | b.bits[0];
+                self.bits[1] = a.bits[1] | b.bits[1];
+                self.bits[2] = a.bits[2] | b.bits[2];
+            }
+            _ => panic!(),
         }
     }
 
@@ -162,17 +175,21 @@ impl Bitmask {
     /// * `b`: Second bitmask.
     ///
     /// returns: ()
-    pub(crate) fn xor(&mut self, a: &Bitmask, b: &Bitmask) {
+    pub(crate) const fn xor(&mut self, a: &Bitmask, b: &Bitmask) {
         match BITMASK_ARRAY_LENGTH {
             1 => {
                 self.bits[0] = a.bits[0] ^ b.bits[0];
-                return;
             }
-            _ => {
-                for i in 0..BITMASK_ARRAY_LENGTH {
-                    self.bits[i] = a.bits[i] ^ b.bits[i];
-                }
+            2 => {
+                self.bits[0] = a.bits[0] ^ b.bits[0];
+                self.bits[1] = a.bits[1] ^ b.bits[1];
             }
+            3 => {
+                self.bits[0] = a.bits[0] ^ b.bits[0];
+                self.bits[1] = a.bits[1] ^ b.bits[1];
+                self.bits[2] = a.bits[2] ^ b.bits[2];
+            }
+            _ => panic!(),
         }
     }
 
@@ -185,17 +202,21 @@ impl Bitmask {
     /// * `b`: Second bitmask.
     ///
     /// returns: ()
-    pub(crate) fn and(&mut self, a: &Bitmask, b: &Bitmask) {
+    pub(crate) const fn and(&mut self, a: &Bitmask, b: &Bitmask) {
         match BITMASK_ARRAY_LENGTH {
             1 => {
                 self.bits[0] = a.bits[0] & b.bits[0];
-                return;
             }
-            _ => {
-                for i in 0..BITMASK_ARRAY_LENGTH {
-                    self.bits[i] = a.bits[i] & b.bits[i];
-                }
+            2 => {
+                self.bits[0] = a.bits[0] & b.bits[0];
+                self.bits[1] = a.bits[1] & b.bits[1];
             }
+            3 => {
+                self.bits[0] = a.bits[0] & b.bits[0];
+                self.bits[1] = a.bits[1] & b.bits[1];
+                self.bits[2] = a.bits[2] & b.bits[2];
+            }
+            _ => panic!(),
         }
     }
 
@@ -209,17 +230,16 @@ impl Bitmask {
     /// * `other`: Other bitmask to AND with.
     ///
     /// returns: bool
-    pub(crate) fn and_is_zero(&self, other: &Bitmask) -> bool {
+    pub(crate) const fn and_is_zero(&self, other: &Bitmask) -> bool {
         match BITMASK_ARRAY_LENGTH {
             1 => (self.bits[0] & other.bits[0]) == 0,
-            _ => {
-                for i in 0..BITMASK_ARRAY_LENGTH {
-                    if (self.bits[i] & other.bits[i]) != 0 {
-                        return false;
-                    }
-                }
-                true
+            2 => (self.bits[0] & other.bits[0]) == 0 && (self.bits[1] & other.bits[1]) == 0,
+            3 => {
+                (self.bits[0] & other.bits[0]) == 0
+                    && (self.bits[1] & other.bits[1]) == 0
+                    && (self.bits[2] & other.bits[2]) == 0
             }
+            _ => panic!(),
         }
     }
 
@@ -233,17 +253,16 @@ impl Bitmask {
     /// * `c`: Bitmask to compare the result against.
     ///
     /// returns: bool
-    pub(crate) fn and_equals(a: &Bitmask, b: &Bitmask, c: &Bitmask) -> bool {
+    pub(crate) const fn and_equals(a: &Bitmask, b: &Bitmask, c: &Bitmask) -> bool {
         match BITMASK_ARRAY_LENGTH {
             1 => (a.bits[0] & b.bits[0]) == c.bits[0],
-            _ => {
-                for i in 0..BITMASK_ARRAY_LENGTH {
-                    if (a.bits[i] & b.bits[i]) != c.bits[i] {
-                        return false;
-                    }
-                }
-                true
+            2 => (a.bits[0] & b.bits[0]) == c.bits[0] && (a.bits[1] & b.bits[1]) == c.bits[1],
+            3 => {
+                (a.bits[0] & b.bits[0]) == c.bits[0]
+                    && (a.bits[1] & b.bits[1]) == c.bits[1]
+                    && (a.bits[2] & b.bits[2]) == c.bits[2]
             }
+            _ => panic!(),
         }
     }
 
@@ -268,6 +287,23 @@ impl Bitmask {
             output.push(symbol);
         }
         output
+    }
+
+    pub(crate) const fn max_bits() -> usize {
+        TOTAL_BITS
+    }
+
+    pub(crate) fn to_array2(&self, rows: usize, cols: usize) -> Array2<bool> {
+        let mut array = Array2::from_elem((rows, cols), false);
+        for x in 0..cols {
+            for y in 0..rows {
+                let index = x * rows + y;
+                if index < self.relevant_bits() {
+                    array[[y, x]] = self.get_bit(index);
+                }
+            }
+        }
+        array
     }
 }
 
@@ -394,6 +430,14 @@ mod tests {
                 assert_eq!(bitmask[i], true);
             }
         }
+    }
+
+    #[test]
+    fn test_get_bit() {
+        let mut bitmask = Bitmask::new(10);
+        bitmask.set_bit(5);
+        assert_eq!(bitmask.get_bit(5), true);
+        assert_eq!(bitmask.get_bit(4), false);
     }
 
     #[test]
@@ -687,5 +731,16 @@ mod tests {
         assert_eq!(bitmask[7], true);
         assert_eq!(bitmask[8], false);
         assert_eq!(bitmask[9], false);
+    }
+
+    #[test]
+    fn test_to_array2() {
+        let bitmask = Bitmask::from(&arr2(&[[true, false, true], [false, false, true]]));
+
+        let array = bitmask.to_array2(2, 3);
+
+        let expected = arr2(&[[true, false, true], [false, false, true]]);
+
+        assert_eq!(array, expected);
     }
 }
