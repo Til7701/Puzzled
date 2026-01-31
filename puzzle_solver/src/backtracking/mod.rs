@@ -66,9 +66,7 @@ fn create_solution(
             )
         })
         .collect();
-    Solution {
-        placements: tile_placements,
-    }
+    Solution::new(tile_placements)
 }
 
 fn create_tile_placement(
@@ -120,9 +118,5 @@ fn create_tile_placement(
         y_start
     };
 
-    TilePlacement {
-        base: tile.base().clone(),
-        rotation: rotation.clone(),
-        position: (x, y),
-    }
+    TilePlacement::new(tile.base().clone(), rotation.clone(), (x, y))
 }

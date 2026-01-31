@@ -74,9 +74,9 @@ pub async fn solve_all_filling(
     let result = backtracking::solve_all_filling(board, tiles, cancel_token).await;
     match &result {
         Ok(solution) => {
-            for placement in &solution.placements {
-                debug!("Placement at position {:?}", placement.position);
-                array_util::debug_print(&placement.rotation);
+            for placement in solution.placements() {
+                debug!("Placement at position {:?}", placement.position());
+                array_util::debug_print(&placement.rotation());
             }
         }
         Err(_) => {}

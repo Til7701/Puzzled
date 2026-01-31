@@ -735,10 +735,7 @@ mod tests {
 
     #[test]
     fn test_to_array2() {
-        let mut bitmask = Bitmask::new(6);
-        bitmask.set_bit(0);
-        bitmask.set_bit(2);
-        bitmask.set_bit(5);
+        let bitmask = Bitmask::from(&arr2(&[[true, false, true], [false, false, true]]));
 
         let array = bitmask.to_array2(2, 3);
 
