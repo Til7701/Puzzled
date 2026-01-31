@@ -162,8 +162,8 @@ fn banned_bitmasks_with(
         return banned_bitmasks;
     }
 
-    for x in 0..board.get_array().dim().0 as isize - pattern.dim().0 as isize - x_offset + 1 {
-        for y in 0..board.get_array().dim().1 as isize - pattern.dim().1 as isize - y_offset + 1 {
+    for x in 0..board.get_array().dim().0 as isize - (pattern.dim().0 as isize + x_offset - 2) {
+        for y in 0..board.get_array().dim().1 as isize - (pattern.dim().1 as isize + y_offset - 2) {
             if !board.get_array()[(x as usize, y as usize)] {
                 let banned_bitmask = create_banned_bitmask_for_pattern_at(
                     &pattern,
@@ -207,6 +207,12 @@ fn create_banned_bitmask_for_pattern_at(
 
     let area_board = array_util::or_arrays_at(&board_array, area, x, y);
     let area_bitmask = Bitmask::from(&area_board);
+
+    println!("Creating BannedBitmask at ({}, {})", x, y);
+    print!("Pattern Board:\n");
+    array_util::debug_print(&pattern_board);
+    print!("Area Board:\n");
+    array_util::debug_print(&area_board);
 
     BannedBitmask {
         pattern: pattern_bitmask,
