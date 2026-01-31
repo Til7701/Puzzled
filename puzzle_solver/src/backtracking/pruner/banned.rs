@@ -61,13 +61,13 @@ fn create_banned_bitmasks_for_cell(
     if min_tile_size > 2 {
         banned_bitmasks.extend(banned_bitmasks_D2(board, x, y));
     }
-    // if min_tile_size > 3 {
-    //     banned_bitmasks.extend(banned_bitmasks_L3(board, x, y));
-    //     banned_bitmasks.extend(banned_bitmasks_I3(board, x, y));
-    // }
-    // if min_tile_size > 4 {
-    //     banned_bitmasks.extend(banned_bitmasks_O4(board, x, y));
-    // }
+    if min_tile_size > 3 {
+        banned_bitmasks.extend(banned_bitmasks_L3(board, x, y));
+        banned_bitmasks.extend(banned_bitmasks_I3(board, x, y));
+    }
+    if min_tile_size > 4 {
+        banned_bitmasks.extend(banned_bitmasks_O4(board, x, y));
+    }
     banned_bitmasks
 }
 
@@ -95,7 +95,6 @@ fn banned_bitmasks_1(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
 
 #[allow(non_snake_case)]
 fn banned_bitmasks_D2(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
-    let mut banned_bitmasks = Vec::new();
     let pattern = arr2(&[
         [false, true, true, false],
         [true, false, false, true],
@@ -106,6 +105,7 @@ fn banned_bitmasks_D2(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [true, true, true, true],
         [false, true, true, false],
     ]);
+    let mut banned_bitmasks = Vec::with_capacity(2);
     banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
         &pattern,
         &area,
@@ -124,104 +124,120 @@ fn banned_bitmasks_D2(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
     ));
     banned_bitmasks
 }
-//
-// #[allow(non_snake_case)]
-// fn banned_bitmasks_L3(board: &Board) -> HashSet<BannedBitmask> {
-//     let mut banned_bitmasks = HashSet::new();
-//     let pattern = arr2(&[
-//         [false, true, true, false],
-//         [true, false, false, true],
-//         [true, false, true, false],
-//         [false, true, false, false],
-//     ]);
-//     let area = arr2(&[
-//         [false, true, true, false],
-//         [true, true, true, true],
-//         [true, true, true, false],
-//         [false, true, false, false],
-//     ]);
-//     banned_bitmasks.extend(banned_bitmasks_with(board, &pattern, &area, -1, -1));
-//     let pattern = array_util::rotate_90(&pattern);
-//     let area = array_util::rotate_90(&area);
-//     banned_bitmasks.extend(banned_bitmasks_with(board, &pattern, &area, -1, -1));
-//     let pattern = array_util::rotate_90(&pattern);
-//     let area = array_util::rotate_90(&area);
-//     banned_bitmasks.extend(banned_bitmasks_with(board, &pattern, &area, -2, -1));
-//     let pattern = array_util::rotate_90(&pattern);
-//     let area = array_util::rotate_90(&area);
-//     banned_bitmasks.extend(banned_bitmasks_with(board, &pattern, &area, -1, -1));
-//     banned_bitmasks
-// }
-//
-// #[allow(non_snake_case)]
-// fn banned_bitmasks_I3(board: &Board) -> HashSet<BannedBitmask> {
-//     let mut banned_bitmasks = HashSet::new();
-//     let pattern = arr2(&[
-//         [false, true, true, true, false],
-//         [true, false, false, false, true],
-//         [false, true, true, true, false],
-//     ]);
-//     let area = arr2(&[
-//         [false, true, true, true, false],
-//         [true, true, true, true, true],
-//         [false, true, true, true, false],
-//     ]);
-//     banned_bitmasks.extend(banned_bitmasks_with(board, &pattern, &area, -1, -1));
-//     let pattern = array_util::rotate_90(&pattern);
-//     let area = array_util::rotate_90(&area);
-//     banned_bitmasks.extend(banned_bitmasks_with(board, &pattern, &area, -1, -1));
-//     banned_bitmasks
-// }
-//
-// #[allow(non_snake_case)]
-// fn banned_bitmasks_O4(board: &Board) -> HashSet<BannedBitmask> {
-//     let pattern = arr2(&[
-//         [false, true, true, false],
-//         [true, false, false, true],
-//         [true, false, false, true],
-//         [false, true, true, false],
-//     ]);
-//     let area = arr2(&[
-//         [false, true, true, false],
-//         [true, true, true, true],
-//         [true, true, true, true],
-//         [false, true, true, false],
-//     ]);
-//     banned_bitmasks_with(board, &pattern, &area, -1, -1)
-// }
-//
-// fn banned_bitmasks_with(
-//     board: &Board,
-//     pattern: &Array2<bool>,
-//     area: &Array2<bool>,
-//     x_offset: isize,
-//     y_offset: isize,
-// ) -> HashSet<BannedBitmask> {
-//     let mut banned_bitmasks = HashSet::new();
-//
-//     if (board.get_array().dim().0 as isize) < (pattern.dim().0 as isize) + x_offset - 1
-//         || (board.get_array().dim().1 as isize) < (pattern.dim().1 as isize) + y_offset - 1
-//     {
-//         return banned_bitmasks;
-//     }
-//
-//     for x in 0..board.get_array().dim().0 as isize - (pattern.dim().0 as isize + x_offset - 2) {
-//         for y in 0..board.get_array().dim().1 as isize - (pattern.dim().1 as isize + y_offset - 2) {
-//             if !board.get_array()[(x as usize, y as usize)] {
-//                 let banned_bitmask = create_banned_bitmask_for_pattern_at(
-//                     &pattern,
-//                     &area,
-//                     x + x_offset,
-//                     y + y_offset,
-//                     board,
-//                 );
-//                 banned_bitmasks.insert(banned_bitmask);
-//             }
-//         }
-//     }
-//
-//     banned_bitmasks
-// }
+
+#[allow(non_snake_case)]
+fn banned_bitmasks_L3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
+    let pattern = arr2(&[
+        [false, true, true, false],
+        [true, false, false, true],
+        [true, false, true, false],
+        [false, true, false, false],
+    ]);
+    let area = arr2(&[
+        [false, true, true, false],
+        [true, true, true, true],
+        [true, true, true, false],
+        [false, true, false, false],
+    ]);
+    let mut banned_bitmasks = Vec::with_capacity(4);
+    let area = array_util::rotate_90(&area);
+    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+        &pattern,
+        &area,
+        x as isize - 1,
+        y as isize - 1,
+        board,
+    ));
+    let pattern = array_util::rotate_90(&pattern);
+    let area = array_util::rotate_90(&area);
+    let area = array_util::rotate_90(&area);
+    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+        &pattern,
+        &area,
+        x as isize - 1,
+        y as isize - 1,
+        board,
+    ));
+    let pattern = array_util::rotate_90(&pattern);
+    let area = array_util::rotate_90(&area);
+    let area = array_util::rotate_90(&area);
+    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+        &pattern,
+        &area,
+        x as isize - 2,
+        y as isize - 1,
+        board,
+    ));
+    let pattern = array_util::rotate_90(&pattern);
+    let area = array_util::rotate_90(&area);
+    let area = array_util::rotate_90(&area);
+    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+        &pattern,
+        &area,
+        x as isize - 1,
+        y as isize - 1,
+        board,
+    ));
+    banned_bitmasks
+}
+
+#[allow(non_snake_case)]
+fn banned_bitmasks_I3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
+    let pattern = arr2(&[
+        [false, true, true, true, false],
+        [true, false, false, false, true],
+        [false, true, true, true, false],
+    ]);
+    let area = arr2(&[
+        [false, true, true, true, false],
+        [true, true, true, true, true],
+        [false, true, true, true, false],
+    ]);
+    let mut banned_bitmasks = Vec::with_capacity(2);
+    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+        &pattern,
+        &area,
+        x as isize - 1,
+        y as isize - 1,
+        board,
+    ));
+    let pattern = array_util::rotate_90(&pattern);
+    let area = array_util::rotate_90(&area);
+    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+        &pattern,
+        &area,
+        x as isize - 1,
+        y as isize - 1,
+        board,
+    ));
+    banned_bitmasks
+}
+
+#[allow(non_snake_case)]
+fn banned_bitmasks_O4(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
+    let pattern = arr2(&[
+        [false, true, true, false],
+        [true, false, false, true],
+        [true, false, false, true],
+        [false, true, true, false],
+    ]);
+    let area = arr2(&[
+        [false, true, true, false],
+        [true, true, true, true],
+        [true, true, true, true],
+        [false, true, true, false],
+    ]);
+    let mut banned_bitmasks = Vec::with_capacity(1);
+    let area = array_util::rotate_90(&area);
+    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
+        &pattern,
+        &area,
+        x as isize - 1,
+        y as isize - 1,
+        board,
+    ));
+    banned_bitmasks
+}
 
 /// Creates a BannedBitmask for a given pattern and area at position (x, y) on the board.
 /// The coordinates (x, y) represent the top-left corner where the pattern is placed.
