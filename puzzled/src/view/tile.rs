@@ -8,6 +8,7 @@ use adw::prelude::GdkCairoContextExt;
 use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
+use log::error;
 use ndarray::{Array2, Axis};
 use std::collections::HashMap;
 
@@ -87,6 +88,7 @@ impl TileView {
     }
 
     fn draw(&self, cr: &Context, width: i32, height: i32) {
+        error!("Drawing tile {}", self.id());
         let current_rotation = self.imp().current_rotation.borrow();
         let highlights = self.imp().highlights.borrow();
 
@@ -152,7 +154,9 @@ impl TileView {
             .highlights
             .replace(Array2::default(rotation.dim()));
         self.imp().current_rotation.replace(rotation);
+        error!("Set current rotation for tile {}", self.id());
         self.queue_draw();
+        error!("Queued draw for tile {}", self.id());
     }
 
     pub fn current_rotation(&self) -> Array2<bool> {
@@ -181,7 +185,9 @@ impl TileView {
 
     pub fn set_highlights(&self, highlights: Array2<HighlightMode>) {
         self.imp().highlights.replace(highlights);
+        error!("Set highlights for tile {}", self.id());
         self.queue_draw();
+        error!("Queued draw for tile {} after highlights", self.id());
     }
 }
 

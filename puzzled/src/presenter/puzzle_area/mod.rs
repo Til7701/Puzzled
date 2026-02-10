@@ -211,7 +211,7 @@ impl PuzzleAreaPresenter {
         let data = self.data.borrow();
         let tile_views = &data.tile_views;
         for tile_view in tile_views {
-            let highlights = Array2::default(tile_view.base().dim());
+            let highlights = Array2::default(tile_view.current_rotation().dim());
             tile_view.set_highlights(highlights);
         }
     }
