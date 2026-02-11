@@ -187,7 +187,7 @@ impl PuzzleAreaPresenter {
                 } else {
                     let unused_tile = UnusedTile {
                         id: i,
-                        base: tile_view.base(),
+                        base: tile_view.base().clone(),
                     };
                     state.unused_tiles.insert(unused_tile);
                 }

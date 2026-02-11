@@ -261,7 +261,7 @@ fn create_tiles_preview(tiles: &[TileConfig], fixed: Fixed) {
         fixed.put(
             &tile_view,
             current_x_offset_cells as f64 * CELL_SIZE,
-            y_offset,
+            y_offset * CELL_SIZE,
         );
         tile_view.set_width_request((CELL_SIZE * tile.base().dim().0 as f64) as i32);
         tile_view.set_height_request((CELL_SIZE * tile.base().dim().1 as f64) as i32);

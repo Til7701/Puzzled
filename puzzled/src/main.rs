@@ -19,6 +19,7 @@
  */
 extern crate core;
 
+#[allow(dead_code)]
 mod adw_ext;
 mod application;
 mod config;
