@@ -56,6 +56,7 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
             }
             let puzzle_config = PuzzleConfig::new(
                 i,
+                puzzle.id.unwrap_or_else(|| format!("{i}")),
                 puzzle.name,
                 puzzle.description,
                 difficulty_config,
