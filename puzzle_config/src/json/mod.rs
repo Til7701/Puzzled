@@ -9,12 +9,18 @@ mod converter;
 mod model;
 mod predefined;
 
+/// Loader for puzzle configuration from JSON strings.
+/// Instances can be reused to load multiple collections.
 pub struct JsonLoader {
     predefined: Predefined,
     version_req: VersionReq,
 }
 
 impl JsonLoader {
+    /// Create a new JSON loader.
+    /// It loads the tiles and boards from the predefined JSON string.
+    /// The `puzzled_version` is used to determine the supported version range for puzzle
+    /// collections.
     pub(crate) fn new(predefined_json: &str, puzzled_version: String) -> Self {
         let predefined: Predefined =
             serde_json::from_str(predefined_json).expect("Failed to parse predefined JSON");
@@ -24,6 +30,8 @@ impl JsonLoader {
         }
     }
 
+    /// Load a puzzle configuration collection from a JSON string.
+    /// Returns an error if the JSON is invalid or the version is unsupported.
     pub fn load_puzzle_collection(
         &self,
         json_str: &str,

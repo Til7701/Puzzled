@@ -9,7 +9,16 @@ use crate::{
 use ndarray::Array2;
 use time::OffsetDateTime;
 
+/// Trait for converting JSON model types to config types.
 pub trait Convertable<R> {
+    /// Convert the JSON model type to the config type.
+    ///
+    /// # Arguments
+    ///
+    /// * `predefined`: Predefined tiles and boards
+    /// * `custom`: Instance to store custom tiles and boards. Should initially be empty.
+    ///
+    /// returns: Result<R, ReadError>
     fn convert(self, predefined: &Predefined, custom: &mut Custom) -> Result<R, ReadError>;
 }
 
