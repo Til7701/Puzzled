@@ -17,6 +17,11 @@ pub use json::JsonLoader;
 
 const PUZZLED_VERSION_FIELD: &str = "puzzled";
 
+/// Create a new JsonLoader.
+/// Subsequent calls to the JsonLoader's load_puzzle_collection method will check if the puzzled
+/// version in the JSON matches the provided puzzled version.
+/// Also, tiles and boards defined in the predefined_json_str will be available for puzzles loaded
+/// via this loader.
 pub fn create_json_loader(
     predefined_json_str: &str,
     puzzled_version: &str,
