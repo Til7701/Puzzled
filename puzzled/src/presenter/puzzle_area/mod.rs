@@ -6,7 +6,7 @@ use crate::presenter::puzzle_area::puzzle_state::{
     Cell, PuzzleState, TileCellPlacement, UnusedTile,
 };
 use crate::presenter::puzzle_area::tile::TilePresenter;
-use crate::view::tile::HighlightMode;
+use crate::view::tile::DrawingMode;
 use crate::window::PuzzledWindow;
 use gtk::prelude::{FixedExt, GtkWindowExt, WidgetExt};
 use ndarray::Array2;
@@ -212,7 +212,7 @@ impl PuzzleAreaPresenter {
         let tile_views = &data.tile_views;
         for tile_view in tile_views {
             let highlights = Array2::default(tile_view.current_rotation().dim());
-            tile_view.set_highlights(highlights);
+            tile_view.set_drawing_modes(highlights);
         }
     }
 
@@ -224,24 +224,24 @@ impl PuzzleAreaPresenter {
             Cell::One(data, tile_cell_placement) => {
                 if !data.allowed {
                     if let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id) {
-                        let mut highlights = tile_view.highlights();
+                        let mut highlights = tile_view.drawing_modes();
                         highlights[(
                             tile_cell_placement.cell_position.0 as usize,
                             tile_cell_placement.cell_position.1 as usize,
-                        )] = HighlightMode::OutOfBounds;
-                        tile_view.set_highlights(highlights);
+                        )] = DrawingMode::OutOfBounds;
+                        tile_view.set_drawing_modes(highlights);
                     }
                 }
             }
             Cell::Many(_, tile_cell_placements) => {
                 for tile_cell_placement in tile_cell_placements {
                     if let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id) {
-                        let mut highlights = tile_view.highlights();
+                        let mut highlights = tile_view.drawing_modes();
                         highlights[(
                             tile_cell_placement.cell_position.0 as usize,
                             tile_cell_placement.cell_position.1 as usize,
-                        )] = HighlightMode::Overlapping;
-                        tile_view.set_highlights(highlights);
+                        )] = DrawingMode::Overlapping;
+                        tile_view.set_drawing_modes(highlights);
                     }
                 }
             }

@@ -8,24 +8,31 @@ use adw::prelude::GdkCairoContextExt;
 use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
-use log::error;
 use ndarray::{Array2, Axis};
+use std::cell::RefCell;
 use std::collections::HashMap;
 
 const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = RGBA::new(1.0, 0.0, 0.0, 1.0);
 const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = RGBA::new(1.0, 1.0, 0.0, 1.0);
 
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq)]
-pub enum HighlightMode {
+pub enum DrawingMode {
     #[default]
     None,
     Overlapping,
     OutOfBounds,
 }
 
+impl DrawingMode {
+    pub const fn variant_count() -> usize {
+        3
+    }
+}
+
 mod imp {
     use super::*;
     use std::cell::{Cell, RefCell};
+    use std::collections::HashMap;
 
     #[derive(Debug, Default)]
     pub struct PuzzledTileView {
@@ -34,8 +41,8 @@ mod imp {
         pub current_rotation: RefCell<Array2<bool>>,
         pub position_cells: Cell<Option<CellOffset>>,
         pub position_pixels: Cell<PixelOffset>,
-        pub color: RefCell<HashMap<HighlightMode, RGBA>>,
-        pub highlights: RefCell<Array2<HighlightMode>>,
+        pub color: RefCell<HashMap<DrawingMode, RGBA>>,
+        pub drawing_modes: RefCell<Array2<DrawingMode>>,
     }
 
     #[glib::object_subclass]
@@ -50,7 +57,31 @@ mod imp {
     }
 
     impl ObjectImpl for PuzzledTileView {}
-    impl WidgetImpl for PuzzledTileView {}
+    impl WidgetImpl for PuzzledTileView {
+        fn contains(&self, x: f64, y: f64) -> bool {
+            if x < 0.0 || y < 0.0 {
+                return false;
+            }
+
+            let width = self.obj().width() as f64;
+            let height = self.obj().height() as f64;
+
+            let current_rotation = self.current_rotation.borrow();
+            let tile_dims = current_rotation.dim();
+
+            let cell_width = width / tile_dims.0 as f64;
+            let cell_height = height / tile_dims.1 as f64;
+
+            let cell_x = (x / cell_width).floor() as usize;
+            let cell_y = (y / cell_height).floor() as usize;
+
+            if cell_x >= 0 && cell_y >= 0 && cell_x < tile_dims.0 && cell_y < tile_dims.1 {
+                current_rotation[(cell_x, cell_y)]
+            } else {
+                false
+            }
+        }
+    }
     impl DrawingAreaImpl for PuzzledTileView {}
 }
 
@@ -67,7 +98,7 @@ impl TileView {
 
         obj.imp().id.replace(id);
         obj.imp().base.replace(base.clone());
-        obj.imp().highlights.replace(Array2::default(base.dim()));
+        obj.imp().drawing_modes.replace(Array2::default(base.dim()));
         obj.imp().current_rotation.replace(base);
         obj.init_color(random_color()); // TODO Replace with color defined in config
 
@@ -81,16 +112,15 @@ impl TileView {
 
     fn init_color(&self, color: RGBA) {
         let mut color_map = HashMap::new();
-        color_map.insert(HighlightMode::None, color);
-        color_map.insert(HighlightMode::Overlapping, color.with_alpha(0.5));
-        color_map.insert(HighlightMode::OutOfBounds, color.with_alpha(0.5));
+        color_map.insert(DrawingMode::None, color);
+        color_map.insert(DrawingMode::Overlapping, color.with_alpha(0.5));
+        color_map.insert(DrawingMode::OutOfBounds, color.with_alpha(0.5));
         self.imp().color.replace(color_map);
     }
 
     fn draw(&self, cr: &Context, width: i32, height: i32) {
-        error!("Drawing tile {}", self.id());
         let current_rotation = self.imp().current_rotation.borrow();
-        let highlights = self.imp().highlights.borrow();
+        let drawing_modes = self.imp().drawing_modes.borrow();
 
         let color_map = self.imp().color.borrow();
         for ((x, y), cell) in current_rotation.indexed_iter() {
@@ -100,16 +130,16 @@ impl TileView {
                 let cell_x = x as f64 * cell_width;
                 let cell_y = y as f64 * cell_height;
 
-                let highlight_mode = &highlights[(x, y)];
-                cr.set_source_color(&color_map[highlight_mode]);
+                let drawing_mode = &drawing_modes[(x, y)];
+                cr.set_source_color(&color_map[drawing_mode]);
                 cr.rectangle(cell_x, cell_y, cell_width, cell_height);
                 cr.fill().expect("Failed to fill");
 
                 // Border
-                let border_color = match highlight_mode {
-                    HighlightMode::None => None,
-                    HighlightMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
-                    HighlightMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
+                let border_color = match drawing_mode {
+                    DrawingMode::None => None,
+                    DrawingMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
+                    DrawingMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
                 };
                 if let Some(border_color) = border_color {
                     cr.set_source_color(&border_color);
@@ -151,12 +181,10 @@ impl TileView {
 
     fn set_current_rotation(&self, rotation: Array2<bool>) {
         self.imp()
-            .highlights
+            .drawing_modes
             .replace(Array2::default(rotation.dim()));
         self.imp().current_rotation.replace(rotation);
-        error!("Set current rotation for tile {}", self.id());
         self.queue_draw();
-        error!("Queued draw for tile {}", self.id());
     }
 
     pub fn current_rotation(&self) -> Array2<bool> {
@@ -179,15 +207,13 @@ impl TileView {
         self.imp().position_pixels.replace(position_pixels);
     }
 
-    pub fn highlights(&self) -> Array2<HighlightMode> {
-        self.imp().highlights.borrow().clone()
+    pub fn drawing_modes(&self) -> Array2<DrawingMode> {
+        self.imp().drawing_modes.borrow().clone()
     }
 
-    pub fn set_highlights(&self, highlights: Array2<HighlightMode>) {
-        self.imp().highlights.replace(highlights);
-        error!("Set highlights for tile {}", self.id());
+    pub fn set_drawing_modes(&self, highlights: Array2<DrawingMode>) {
+        self.imp().drawing_modes.replace(highlights);
         self.queue_draw();
-        error!("Queued draw for tile {} after highlights", self.id());
     }
 }
 
