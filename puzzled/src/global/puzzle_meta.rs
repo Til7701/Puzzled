@@ -3,7 +3,7 @@ use adw::gio::Settings;
 use adw::glib::{Variant, VariantDict, VariantTy};
 use adw::prelude::{SettingsExt, SettingsExtManual};
 use log::{debug, error};
-use puzzle_config::{BoardConfig, PuzzleConfigCollection, Target};
+use puzzle_config::{BoardConfig, PuzzleConfigCollection, PuzzleId, Target};
 
 #[derive(Debug, Clone)]
 pub struct PuzzleMeta {
@@ -105,8 +105,9 @@ fn puzzle_key(
     puzzle_index: usize,
     extension: &Option<PuzzleTypeExtension>,
 ) -> Option<String> {
+    let puzzle = collection.puzzles().get(puzzle_index)?;
     let extension_key = extension_key(collection, puzzle_index, extension);
-    Some(format!("{}/{}", puzzle_index, extension_key?))
+    Some(format!("{}/{}", puzzle.id(), extension_key?))
 }
 
 fn extension_key(

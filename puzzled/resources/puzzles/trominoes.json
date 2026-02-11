@@ -16,6 +16,7 @@
   "puzzles": [
     {
       "name": "Very Simple",
+      "id": "a",
       "difficulty": "Easy",
       "tiles": [
         "I3",
@@ -26,6 +27,7 @@
     },
     {
       "name": "Simple",
+      "id": "b",
       "difficulty": "Easy",
       "tiles": [
         "I3",
@@ -37,6 +39,7 @@
     },
     {
       "name": "Double the Board, Double the Fun",
+      "id": "c",
       "difficulty": "Easy",
       "tiles": [
         "I3",

@@ -3,6 +3,8 @@ use crate::config::difficulty::PuzzleDifficultyConfig;
 use crate::TileConfig;
 use std::collections::HashMap;
 
+pub type PuzzleId = String;
+
 /// Configuration for a puzzle. It describes the board layout and tiles.
 /// It additionally contains configuration for the areas to show in the target selection.
 /// The solution statistics are optional since they might not be known yet for all puzzles.
@@ -10,6 +12,9 @@ use std::collections::HashMap;
 pub struct PuzzleConfig {
     /// The index of the puzzle in the collection.
     index: usize,
+    /// Unique identifier for the puzzle, used for saving progress and other internal purposes.
+    /// By default, this is the index as a hex string.
+    id: PuzzleId,
     /// Name of the puzzle to show in the UI.
     name: String,
     description: Option<String>,
@@ -40,6 +45,7 @@ impl PuzzleConfig {
     /// returns: PuzzleConfig
     pub fn new(
         index: usize,
+        id: PuzzleId,
         name: String,
         description: Option<String>,
         difficulty: Option<PuzzleDifficultyConfig>,
@@ -49,6 +55,7 @@ impl PuzzleConfig {
     ) -> PuzzleConfig {
         PuzzleConfig {
             index,
+            id,
             name,
             description,
             difficulty,
@@ -60,6 +67,10 @@ impl PuzzleConfig {
 
     pub fn index(&self) -> usize {
         self.index
+    }
+
+    pub fn id(&self) -> &PuzzleId {
+        &self.id
     }
 
     pub fn name(&self) -> &str {

@@ -32,6 +32,7 @@ pub enum Progression {
 
 #[derive(Deserialize)]
 pub struct Puzzle {
+    pub id: Option<String>,
     pub name: String,
     pub description: Option<String>,
     pub difficulty: Option<PuzzleDifficulty>,
