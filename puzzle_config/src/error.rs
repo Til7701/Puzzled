@@ -6,16 +6,13 @@ pub enum ReadError {
     UnsupportedVersion,
     JsonError(String),
     UnknownPredefinedTile {
-        tile_name: String,
         name: String,
     },
     UnknownCustomBoard {
         puzzle_name: String,
         board_name: String,
     },
-    TileWidthOrHeightCannotBeZero {
-        tile_name: String,
-    },
+    TileWidthOrHeightCannotBeZero,
     BoardWidthOrHeightCannotBeZero,
     InvalidVersion(String),
     InvalidCollectionId(String),

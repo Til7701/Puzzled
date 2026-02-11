@@ -144,10 +144,10 @@ impl CollectionSelectionPresenter {
                     ReadError::JsonError(e) => {
                         format!("The collection file could not be parsed correctly: {}", e)
                     }
-                    ReadError::UnknownPredefinedTile { tile_name, name } => {
+                    ReadError::UnknownPredefinedTile { name } => {
                         format!(
-                            "The collection file contains an unknown predefined tile '{}' in puzzle '{}'.",
-                            tile_name, name
+                            "The collection file contains an unknown predefined tile in puzzle '{}'.",
+                            name
                         )
                     }
                     ReadError::UnknownCustomBoard {
@@ -159,11 +159,8 @@ impl CollectionSelectionPresenter {
                             board_name, puzzle_name
                         )
                     }
-                    ReadError::TileWidthOrHeightCannotBeZero { tile_name } => {
-                        format!(
-                            "The collection file contains a tile '{}' with zero width or height.",
-                            tile_name
-                        )
+                    ReadError::TileWidthOrHeightCannotBeZero => {
+                        "The collection file contains a tile with zero width or height.".to_string()
                     }
                     ReadError::BoardWidthOrHeightCannotBeZero => {
                         "The collection file contains a board with zero width or height."
