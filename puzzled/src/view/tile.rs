@@ -1,5 +1,7 @@
+use crate::adw_ext;
 use crate::offset::CellOffset;
 use crate::offset::PixelOffset;
+use crate::view::tile::DrawingMode::Normal;
 use adw::gdk::RGBA;
 use adw::gio;
 use adw::glib;
@@ -9,24 +11,22 @@ use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
 use ndarray::{Array2, Axis};
-use std::cell::RefCell;
+use std::cell::Ref;
 use std::collections::HashMap;
 
-const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = RGBA::new(1.0, 0.0, 0.0, 1.0);
-const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = RGBA::new(1.0, 1.0, 0.0, 1.0);
+const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = adw_ext::ERROR_BG_LIGHT;
+const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
 
+/// Defines how a cell of a tile should be drawn, based on its state in the puzzle area.
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq)]
 pub enum DrawingMode {
+    /// Draw normally
     #[default]
-    None,
+    Normal,
+    /// Draw with a highlight indicating that this cell overlaps with another tile
     Overlapping,
+    /// Draw with a highlight indicating that this cell is out of bounds of the board
     OutOfBounds,
-}
-
-impl DrawingMode {
-    pub const fn variant_count() -> usize {
-        3
-    }
 }
 
 mod imp {
@@ -63,8 +63,15 @@ mod imp {
                 return false;
             }
 
-            let width = self.obj().width() as f64;
-            let height = self.obj().height() as f64;
+            let obj = self.obj();
+            let width = obj.width() as f64;
+            if x > width {
+                return false;
+            }
+            let height = obj.height() as f64;
+            if y > height {
+                return false;
+            }
 
             let current_rotation = self.current_rotation.borrow();
             let tile_dims = current_rotation.dim();
@@ -72,14 +79,10 @@ mod imp {
             let cell_width = width / tile_dims.0 as f64;
             let cell_height = height / tile_dims.1 as f64;
 
-            let cell_x = (x / cell_width).floor() as usize;
-            let cell_y = (y / cell_height).floor() as usize;
+            let cell_x = (x / cell_width) as usize;
+            let cell_y = (y / cell_height) as usize;
 
-            if cell_x >= 0 && cell_y >= 0 && cell_x < tile_dims.0 && cell_y < tile_dims.1 {
-                current_rotation[(cell_x, cell_y)]
-            } else {
-                false
-            }
+            *current_rotation.get((cell_x, cell_y)).unwrap_or(&false)
         }
     }
     impl DrawingAreaImpl for PuzzledTileView {}
@@ -112,7 +115,7 @@ impl TileView {
 
     fn init_color(&self, color: RGBA) {
         let mut color_map = HashMap::new();
-        color_map.insert(DrawingMode::None, color);
+        color_map.insert(DrawingMode::Normal, color);
         color_map.insert(DrawingMode::Overlapping, color.with_alpha(0.5));
         color_map.insert(DrawingMode::OutOfBounds, color.with_alpha(0.5));
         self.imp().color.replace(color_map);
@@ -137,7 +140,7 @@ impl TileView {
 
                 // Border
                 let border_color = match drawing_mode {
-                    DrawingMode::None => None,
+                    DrawingMode::Normal => None,
                     DrawingMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
                     DrawingMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
                 };
@@ -167,16 +170,16 @@ impl TileView {
     }
 
     pub fn rotate_clockwise(&self) {
-        let base = self.current_rotation();
-        let mut rotated = base.reversed_axes();
-        rotated.invert_axis(Axis(0));
-        self.set_current_rotation(rotated);
+        let previous = self.current_rotation().clone();
+        let mut layout = previous.reversed_axes();
+        layout.invert_axis(Axis(0));
+        self.set_current_rotation(layout);
     }
 
     pub fn flip_horizontal(&self) {
-        let mut base = self.current_rotation();
-        base.invert_axis(Axis(0));
-        self.set_current_rotation(base);
+        let mut layout = self.current_rotation().clone();
+        layout.invert_axis(Axis(0));
+        self.set_current_rotation(layout);
     }
 
     fn set_current_rotation(&self, rotation: Array2<bool>) {
@@ -187,8 +190,8 @@ impl TileView {
         self.queue_draw();
     }
 
-    pub fn current_rotation(&self) -> Array2<bool> {
-        self.imp().current_rotation.borrow().clone()
+    pub fn current_rotation(&'_ self) -> Ref<'_, Array2<bool>> {
+        self.imp().current_rotation.borrow()
     }
 
     pub fn set_position_cells(&self, position_cells: Option<CellOffset>) {
@@ -207,12 +210,13 @@ impl TileView {
         self.imp().position_pixels.replace(position_pixels);
     }
 
-    pub fn drawing_modes(&self) -> Array2<DrawingMode> {
-        self.imp().drawing_modes.borrow().clone()
+    pub fn set_drawing_mode_at(&self, x: usize, y: usize, drawing_mode: DrawingMode) {
+        self.imp().drawing_modes.borrow_mut()[(x, y)] = drawing_mode;
+        self.queue_draw();
     }
 
-    pub fn set_drawing_modes(&self, highlights: Array2<DrawingMode>) {
-        self.imp().drawing_modes.replace(highlights);
+    pub fn reset_drawing_modes(&self) {
+        self.imp().drawing_modes.borrow_mut().fill(Normal);
         self.queue_draw();
     }
 }

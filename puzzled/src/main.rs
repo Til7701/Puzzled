@@ -19,6 +19,7 @@
  */
 extern crate core;
 
+mod adw_ext;
 mod application;
 mod config;
 mod global;
