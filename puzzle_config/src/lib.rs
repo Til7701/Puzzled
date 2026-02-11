@@ -13,50 +13,39 @@ pub use config::puzzle::PuzzleConfig;
 pub use config::target::{Target, TargetIndex, TargetTemplate};
 pub use config::tile::TileConfig;
 pub use error::ReadError;
-use semver::{Version, VersionReq};
-use serde_json::Value;
+pub use json::JsonLoader;
 
 const PUZZLED_VERSION_FIELD: &str = "puzzled";
 
-pub fn load_puzzle_collection_from_json(
-    json_str: &str,
+pub fn create_json_loader(
+    predefined_json_str: &str,
     puzzled_version: &str,
-) -> Result<PuzzleConfigCollection, ReadError> {
-    let value: Value =
-        serde_json::from_str(json_str).map_err(|e| ReadError::JsonError(e.to_string()))?;
-
-    let version: Result<i32, ReadError> = match &value {
-        Value::Object(object) => {
-            let version_value = object.get(PUZZLED_VERSION_FIELD);
-            match version_value {
-                Some(Value::String(s)) => {
-                    let req = VersionReq::parse(format!("<={}", puzzled_version).as_str()).unwrap();
-                    let collection_version =
-                        Version::parse(s).map_err(|e| ReadError::InvalidVersion(e.to_string()))?;
-                    if req.matches(&collection_version) {
-                        Ok(1)
-                    } else {
-                        Err(ReadError::UnsupportedVersion)
-                    }
-                }
-                _ => Err(ReadError::MissingVersion),
-            }
-        }
-        _ => Err(ReadError::MissingVersion),
-    };
-    if version? == 1 {
-        json::load_puzzle_collection_from_json(value)
-    } else {
-        Err(ReadError::UnsupportedVersion)
-    }
+) -> Result<JsonLoader, ReadError> {
+    let json_loader = JsonLoader::new(predefined_json_str, puzzled_version.to_string());
+    Ok(json_loader)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::create_json_loader;
     use ndarray::arr2;
+
     #[test]
     fn test_load_puzzle_collection_from_json() {
+        let predefined_json_str = r#"
+        {
+            "tiles":
+                {
+                  "L3": [
+                    [1, 0],
+                    [1, 1]
+                  ]
+                },
+            "boards": {}
+        }
+        "#;
+        let json_loader = create_json_loader(predefined_json_str, "0.1.0").unwrap();
+
         let json_str = r#"
         {
           "puzzled": "0.1.0",
@@ -92,7 +81,7 @@ mod tests {
         }
         "#;
 
-        let result = load_puzzle_collection_from_json(json_str, "0.1.0");
+        let result = json_loader.load_puzzle_collection(json_str);
         assert!(result.is_ok());
         let collection = result.unwrap();
         assert_eq!(collection.name(), "Test Collection");

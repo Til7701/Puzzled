@@ -18,6 +18,7 @@
         <file preprocess="xml-stripblanks" alias="puzzle-info-dialog.ui">ui/dialog/puzzle-info-dialog.ui</file>
         <file alias="style.css">css/style.css</file>
 
+        <file preprocess="json-stripblanks">predefined.json</file>
         <file preprocess="json-stripblanks">puzzles/puzzle_a_day.json</file>
         <file preprocess="json-stripblanks">puzzles/puzzled.json</file>
         <file preprocess="json-stripblanks">puzzles/trominoes.json</file>

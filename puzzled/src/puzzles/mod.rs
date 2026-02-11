@@ -1,7 +1,7 @@
 use crate::config;
 use adw::gio::{resources_lookup_data, ResourceLookupFlags};
 use once_cell::sync::Lazy;
-use puzzle_config::{PuzzleConfigCollection, ReadError};
+use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::backtrace::Backtrace;
 use std::sync::{Mutex, MutexGuard, TryLockError};
 use std::time::Duration;
@@ -36,18 +36,34 @@ impl PuzzleCollectionStore {
 
 pub fn init() {
     let mut store = PUZZLE_COLLECTION_STORE.lock().unwrap();
+    let json_loader = create_json_loader();
 
     for &collection_name in CORE_COLLECTIONS.iter() {
         let path = format!("/de/til7701/Puzzled/puzzles/{}.json", collection_name);
-        let collection = load_core_from_resource(&path);
+        let collection = load_core_from_resource(&path, &json_loader);
         store.core_puzzle_collections.push(collection);
     }
 }
 
-fn load_core_from_resource(filename: &str) -> PuzzleConfigCollection {
+fn load_core_from_resource(filename: &str, json_loader: &JsonLoader) -> PuzzleConfigCollection {
+    let json_str = read_resource(filename);
+    match json_loader.load_puzzle_collection(&json_str) {
+        Ok(collection) => collection,
+        Err(e) => panic!(
+            "Failed to load core puzzle collection from '{}': {:?}",
+            filename, e
+        ),
+    }
+}
+
+fn create_json_loader() -> JsonLoader {
+    let predefined_json_str = read_resource("/de/til7701/Puzzled/predefined.json");
+    puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap()
+}
+
+fn read_resource(filename: &str) -> String {
     let data = resources_lookup_data(filename, ResourceLookupFlags::NONE).unwrap();
-    let json_str = std::str::from_utf8(&*data).unwrap();
-    puzzle_config::load_puzzle_collection_from_json(json_str, config::VERSION).unwrap()
+    std::str::from_utf8(&*data).unwrap().to_string()
 }
 
 pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStore> {
@@ -68,7 +84,8 @@ pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStor
 
 pub fn add_community_collection_from_string(json_str: &str) -> Result<(), ReadError> {
     let mut store = get_puzzle_collection_store();
-    let collection = puzzle_config::load_puzzle_collection_from_json(json_str, config::VERSION)?;
+    let json_loader = create_json_loader();
+    let collection = json_loader.load_puzzle_collection(json_str)?;
     store.community_puzzle_collections.push(collection);
     Ok(())
 }
@@ -84,29 +101,40 @@ mod tests {
 
     #[test]
     fn test_load_core_collections() {
+        let predefined_json_str =
+            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let json_loader =
+            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
                 fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
-            let collection =
-                puzzle_config::load_puzzle_collection_from_json(&json, config::VERSION).unwrap();
+            let collection = json_loader.load_puzzle_collection(&json).unwrap();
             assert!(!collection.puzzles().is_empty());
         }
     }
 
     #[tokio::test]
     async fn test_solve_core_collections() {
-        for collection_name in CORE_COLLECTIONS.iter() {
-            if collection_name == &"sandbox" {
-                // Skip the sandbox collection as it contains puzzles that are not solvable
-                continue;
-            }
+        let predefined_json_str =
+            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let json_loader =
+            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
+        // (collection_id, puzzle_name) pairs to skip because they are known to be unsolvable or take too long
+        let skip_list = [("de.til7701.Puzzled.Sandbox", "Large Sandbox")];
+
+        for collection_name in CORE_COLLECTIONS.iter() {
             let json =
                 fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
-            let collection =
-                puzzle_config::load_puzzle_collection_from_json(&json, config::VERSION).unwrap();
+            let collection = json_loader.load_puzzle_collection(&json).unwrap();
 
             for puzzle in collection.puzzles() {
+                if skip_list.contains(&(collection.id(), puzzle.name())) {
+                    // Skip puzzles that are known to be unsolvable or take too long
+                    continue;
+                }
+
                 if puzzle.tiles().len() > 12 {
                     // Skip puzzles with too many tiles to avoid long test times
                     continue;
