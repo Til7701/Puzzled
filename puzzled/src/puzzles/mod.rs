@@ -6,12 +6,11 @@ use std::backtrace::Backtrace;
 use std::sync::{Mutex, MutexGuard, TryLockError};
 use std::time::Duration;
 
-const CORE_COLLECTIONS: [&str; 6] = [
+const CORE_COLLECTIONS: [&str; 5] = [
     "puzzle_a_day",
     "trominoes",
     "hexominoes",
     "circles",
-    "sandbox",
     "puzzled",
 ];
 
@@ -122,7 +121,7 @@ mod tests {
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         // (collection_id, puzzle_name) pairs to skip because they are known to be unsolvable or take too long
-        let skip_list = [("de.til7701.Puzzled.Sandbox", "Large Sandbox")];
+        let skip_list = [("de.til7701.Puzzled.Puzzled", "Large Sandbox")];
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =

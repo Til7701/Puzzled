@@ -24,7 +24,6 @@
         <file preprocess="json-stripblanks">puzzles/trominoes.json</file>
         <file preprocess="json-stripblanks">puzzles/hexominoes.json</file>
         <file preprocess="json-stripblanks">puzzles/circles.json</file>
-        <file preprocess="json-stripblanks">puzzles/sandbox.json</file>
     </gresource>
     <!-- @formatter:off -->
     <gresource prefix="/de/til7701/Puzzled/icons/scalable/actions/">
