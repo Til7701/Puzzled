@@ -3,7 +3,7 @@ use adw::gio::Settings;
 use adw::glib::{Variant, VariantDict, VariantTy};
 use adw::prelude::{SettingsExt, SettingsExtManual};
 use log::{debug, error};
-use puzzle_config::{BoardConfig, PuzzleConfigCollection, PuzzleId, Target};
+use puzzle_config::{BoardConfig, PuzzleConfigCollection, Target};
 
 #[derive(Debug, Clone)]
 pub struct PuzzleMeta {
