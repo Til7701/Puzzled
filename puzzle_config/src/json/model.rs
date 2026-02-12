@@ -12,6 +12,7 @@ pub struct PuzzleCollection {
     pub allow_board_rotation: bool,
     #[serde(default)]
     pub progression: Progression,
+    pub preview: Option<Preview>,
     /// Custom tiles to override or extend predefined tiles.
     pub custom_tiles: Option<HashMap<String, Tile>>,
     pub custom_boards: Option<HashMap<String, Board>>,
@@ -28,6 +29,18 @@ pub enum Progression {
     #[default]
     Any,
     Sequential,
+}
+
+#[derive(Deserialize)]
+pub struct Preview {
+    #[serde(default = "default_true")]
+    pub show_board: bool,
+    #[serde(default = "default_true")]
+    pub show_board_size: bool,
+    #[serde(default = "default_true")]
+    pub show_tiles: bool,
+    #[serde(default = "default_true")]
+    pub show_tile_count: bool,
 }
 
 #[derive(Deserialize)]

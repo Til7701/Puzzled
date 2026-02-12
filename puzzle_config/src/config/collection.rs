@@ -1,3 +1,4 @@
+use crate::config::preview::PreviewConfig;
 use crate::config::progression::ProgressionConfig;
 use crate::PuzzleConfig;
 
@@ -9,6 +10,7 @@ pub struct PuzzleConfigCollection {
     id: String,
     version: Option<String>,
     progression: ProgressionConfig,
+    preview: PreviewConfig,
     puzzles: Vec<PuzzleConfig>,
 }
 
@@ -20,6 +22,7 @@ impl PuzzleConfigCollection {
         id: String,
         version: Option<String>,
         progression: ProgressionConfig,
+        preview: PreviewConfig,
         puzzles: Vec<PuzzleConfig>,
     ) -> PuzzleConfigCollection {
         PuzzleConfigCollection {
@@ -29,6 +32,7 @@ impl PuzzleConfigCollection {
             id,
             version,
             progression,
+            preview,
             puzzles,
         }
     }
@@ -55,6 +59,10 @@ impl PuzzleConfigCollection {
 
     pub fn progression(&self) -> &ProgressionConfig {
         &self.progression
+    }
+
+    pub fn preview(&self) -> &PreviewConfig {
+        &self.preview
     }
 
     pub fn puzzles(&self) -> &Vec<PuzzleConfig> {

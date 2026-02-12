@@ -6,6 +6,9 @@
   "progression": {
     "type": "Sequential"
   },
+  "preview": {
+    "show_tiles": false
+  },
   "puzzles": [
     {
       "name": "Pixel",

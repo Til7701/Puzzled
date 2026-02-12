@@ -1,5 +1,6 @@
 use crate::config::board;
 use crate::config::color::ColorConfig;
+use crate::config::preview::PreviewConfig;
 use crate::json::model::*;
 use crate::json::predefined::{Custom, Predefined};
 use crate::{
@@ -75,6 +76,7 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
             validation::validate_collection_id(self.id)?,
             self.version,
             self.progression.convert(predefined, custom)?,
+            self.preview.convert(predefined, custom)?,
             puzzle_configs,
         ))
     }
@@ -146,6 +148,20 @@ impl Convertable<ProgressionConfig> for Progression {
         match self {
             Progression::Any => Ok(ProgressionConfig::Any),
             Progression::Sequential => Ok(ProgressionConfig::Sequential),
+        }
+    }
+}
+
+impl Convertable<PreviewConfig> for Option<Preview> {
+    fn convert(self, _: &Predefined, _: &mut Custom) -> Result<PreviewConfig, ReadError> {
+        match self {
+            None => Ok(PreviewConfig::default()),
+            Some(preview) => Ok(PreviewConfig::new(
+                preview.show_board,
+                preview.show_board_size,
+                preview.show_tiles,
+                preview.show_tile_count,
+            )),
         }
     }
 }

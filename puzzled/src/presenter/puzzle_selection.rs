@@ -148,20 +148,25 @@ impl PuzzleSelectionPresenter {
         let name_label: Label = builder.object("name").expect("Missing `name` in resource");
         name_label.set_label(puzzle.name());
 
-        let puzzle_mod: PuzzleMod = builder
-            .object("puzzle_mod")
-            .expect("Missing `puzzle_mod` in resource");
         let solved = self.puzzle_meta.is_solved(
             collection,
             puzzle.index(),
             &get_state().puzzle_type_extension,
         );
-        match &collection.progression() {
+
+        #[derive(Debug, PartialEq)]
+        enum State {
+            Solved,
+            Unlocked,
+            Locked,
+        }
+
+        let state = match &collection.progression() {
             ProgressionConfig::Any => {
                 if solved {
-                    puzzle_mod.set_solved();
+                    State::Solved
                 } else {
-                    puzzle_mod.set_off();
+                    State::Unlocked
                 }
             }
             ProgressionConfig::Sequential => {
@@ -173,18 +178,33 @@ impl PuzzleSelectionPresenter {
                 };
 
                 if solved {
-                    puzzle_mod.set_solved();
-                    row.set_activatable(true);
-                    row.remove_css_class("dimmed");
+                    State::Solved
                 } else if previous_solved {
-                    puzzle_mod.set_off();
-                    row.set_activatable(true);
-                    row.remove_css_class("dimmed");
+                    State::Unlocked
                 } else {
-                    puzzle_mod.set_locked();
-                    row.set_activatable(false);
-                    row.add_css_class("dimmed");
+                    State::Locked
                 }
+            }
+        };
+
+        let puzzle_mod: PuzzleMod = builder
+            .object("puzzle_mod")
+            .expect("Missing `puzzle_mod` in resource");
+        match state {
+            State::Solved => {
+                puzzle_mod.set_solved();
+                row.set_activatable(true);
+                row.remove_css_class("dimmed");
+            }
+            State::Unlocked => {
+                puzzle_mod.set_off();
+                row.set_activatable(true);
+                row.remove_css_class("dimmed");
+            }
+            State::Locked => {
+                puzzle_mod.set_locked();
+                row.set_activatable(false);
+                row.add_css_class("dimmed");
             }
         }
 
@@ -200,17 +220,29 @@ impl PuzzleSelectionPresenter {
             outer_box.remove(&description_label);
         }
 
+        let info_box: WrapBox = builder
+            .object("info_box")
+            .expect("Missing `info_box` in resource");
+
         let board_size_pill: InfoPill = builder
             .object("board_size_pill")
             .expect("Missing `board_size_pill` in resource");
-        let (width, height) = puzzle.board_config().layout().dim();
-        board_size_pill.set_label(format!("{} x {}", width, height));
+        if state != State::Locked || collection.preview().show_board_size() {
+            let (width, height) = puzzle.board_config().layout().dim();
+            board_size_pill.set_label(format!("{} x {}", width, height));
+        } else {
+            info_box.remove(&board_size_pill);
+        }
 
         let tile_count_pill: InfoPill = builder
             .object("tile_count_pill")
             .expect("Missing `tile_count_pill` in resource");
-        let tile_count = puzzle.tiles().len();
-        tile_count_pill.set_label(format!("{}", tile_count));
+        if state != State::Locked || collection.preview().show_tile_count() {
+            let tile_count = puzzle.tiles().len();
+            tile_count_pill.set_label(format!("{}", tile_count));
+        } else {
+            info_box.remove(&tile_count_pill);
+        }
 
         let difficulty_pill: InfoPill = builder
             .object("difficulty_pill")
@@ -224,21 +256,22 @@ impl PuzzleSelectionPresenter {
             };
             difficulty_pill.set_label(text);
         } else {
-            let info_box: WrapBox = builder
-                .object("info_box")
-                .expect("Missing `info_box` in resource");
             info_box.remove(&difficulty_pill);
         }
 
-        let fixed: Fixed = builder
-            .object("tile_preview_fixed")
-            .expect("Missing `tile_preview_fixed` in resource");
-        create_tiles_preview(puzzle.tiles(), fixed);
+        if state != State::Locked || collection.preview().show_tiles() {
+            let fixed: Fixed = builder
+                .object("tile_preview_fixed")
+                .expect("Missing `tile_preview_fixed` in resource");
+            create_tiles_preview(puzzle.tiles(), fixed);
+        }
 
-        let preview_box: gtk::Box = builder
-            .object("board_preview_box")
-            .expect("Missing `board_preview_box` in resource");
-        create_board_preview(puzzle.board_config(), preview_box);
+        if state != State::Locked || collection.preview().show_board() {
+            let preview_box: gtk::Box = builder
+                .object("board_preview_box")
+                .expect("Missing `board_preview_box` in resource");
+            create_board_preview(puzzle.board_config(), preview_box);
+        }
 
         row
     }

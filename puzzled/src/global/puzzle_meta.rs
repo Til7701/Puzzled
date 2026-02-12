@@ -44,8 +44,6 @@ impl PuzzleMeta {
             puzzle_index,
             key.unwrap_or_else(|| "none".to_string())
         );
-        let backend = self.settings.backend().unwrap();
-        dbg!(backend);
         solved
     }
 

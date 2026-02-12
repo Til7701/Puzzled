@@ -57,6 +57,7 @@ The fields have the following meaning:
 | version              | `String`             | false    | The version of the collection set by the author. This may be any string. This is not checked, it is just displayed to the user.                                                                                                                                                        | -         | 0.2.0   |
 | description          | `String`             | false    | A short description of the puzzle collection. MUST not be blank if specified.                                                                                                                                                                                                          | None      | 0.2.0   |
 | progression          | `Progression`        | false    | The progression settings for this collection. See [Progression](#progression) for details.                                                                                                                                                                                             | Any       | 0.3.0   |
+| preview              | `Preview`            | false    | Can be used to not show previews of locked puzzles. (See Progression)                                                                                                                                                                                                                  | Any       | 0.3.0   |
 | custom_tiles         | `Map<String, Tile>`  | false    | A map of custom tile definitions to reuse in this file. See [Custom Tiles](#custom-tiles) for details.                                                                                                                                                                                 | Empty Map | 0.2.0   |
 | custom_boards        | `Map<String, Board>` | false    | A map of custom board definitions to reuse in this file. See [Custom Boards](#custom-boards) for details.                                                                                                                                                                              | Empty Map | 0.2.0   |
 | puzzles              | `List<Puzzle>`       | true     | The list of puzzles in this collection. See [Puzzles](#puzzles) for details. The order of puzzles in this list SHOULD not change since it MAY be used by Puzzled to bind data to it. When adding a new puzzle to a collection, add it at the end of the list.                          | -         | 0.2.0   |
@@ -462,3 +463,26 @@ The following progression types are available:
 |------------|----------------------------------------------------------------------------------------------------------------------------------|
 | Any        | All puzzles are available from the start.                                                                                        |
 | Sequential | Puzzles are unlocked one by one in the order they are defined in the puzzles list. The first puzzle is available from the start. |
+
+## Preview
+
+The preview field defines whether to show previews of locked puzzles.
+This field is available since version `0.3.0` of Puzzled.
+
+Example:
+
+```json
+{
+    "show_board": true,
+    "show_tiles": false,
+    "show_tile_count": false,
+    "show_board_size": false
+}
+```
+
+| Type            | Description     | Default |
+|-----------------|-----------------|---------|
+| show_board      | Show Board      | true    |
+| show_tiles      | Show Tiles      | true    |
+| show_tile_count | Show Tile count | true    |
+| show_board_size | Show Board size | true    |

@@ -9,6 +9,7 @@ pub use config::board::BoardConfig;
 pub use config::collection::PuzzleConfigCollection;
 pub use config::color::ColorConfig;
 pub use config::difficulty::PuzzleDifficultyConfig;
+pub use config::preview::PreviewConfig;
 pub use config::progression::ProgressionConfig;
 pub use config::puzzle::PuzzleConfig;
 pub use config::puzzle::PuzzleId;
