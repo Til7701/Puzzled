@@ -1,6 +1,7 @@
 pub mod area;
 pub mod board;
 pub mod collection;
+pub mod color;
 pub mod difficulty;
 pub mod progression;
 pub mod puzzle;

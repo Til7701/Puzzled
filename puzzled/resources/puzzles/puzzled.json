@@ -9,11 +9,26 @@
       "description": "The Puzzled Icon",
       "difficulty": "Easy",
       "tiles": [
-        "O4",
-        "L3",
-        [[1]],
-        "L4",
-        "Z4"
+        {
+          "layout": "O4",
+          "color": "#1C71D8"
+        },
+        {
+          "layout": "L3",
+          "color": "#2EC27E"
+        },
+        {
+          "layout": [[1]],
+          "color": "#F5C211"
+        },
+        {
+          "layout": "L4",
+          "color": "#C01C28"
+        },
+        {
+          "layout": "Z4",
+          "color": "#813D9C"
+        }
       ],
       "board": "4x4"
     },

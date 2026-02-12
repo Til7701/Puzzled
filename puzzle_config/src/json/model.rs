@@ -59,6 +59,10 @@ pub enum Tile {
     /// Can either be predefined in the application or defined in the `custom_tiles` section.
     Ref(String),
     Layout(TileLayout),
+    Custom {
+        layout: TileLayout,
+        color: Option<Color>,
+    },
 }
 
 #[derive(Deserialize, Clone)]
@@ -67,6 +71,12 @@ pub enum TileLayout {
     /// Can either be predefined in the application or defined in the `custom_tiles` section.
     Ref(String),
     Custom(Vec<Vec<i8>>),
+}
+
+#[derive(Deserialize, Clone)]
+#[serde(untagged)]
+pub enum Color {
+    Hex(String),
 }
 
 #[derive(Deserialize, Clone)]

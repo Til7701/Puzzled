@@ -95,7 +95,7 @@ It has the following fields:
 ## Tiles
 
 A tile defines a shape that can be placed on the board.
-Tiles can be defined in two ways: by name or with an array.
+Tiles can be defined in three ways: by name, with an array or as a more complex custom object.
 
 ### Name
 
@@ -195,6 +195,33 @@ For example, the following array defines a Z5 tile:
 Which, as a reminder, looks like this:
 
 <img alt="Z5 Tile" src="tiles/5/Z5.svg" height="100"/>
+
+### Custom Object
+
+Some more extensive tiles need more information than just the shape, so they can be defined as an object with additional
+fields.
+This looks like this:
+
+<!-- @formatter:off -->
+```json
+{
+    "layout": [
+        [1, 1, 0],
+        [0, 1, 0],
+        [0, 1, 1]
+    ],
+    "color": "#AABBCC"
+}
+```
+<!-- @formatter:on -->
+
+The layout must be defined as described in the name or array section above, but additional fields can be added to define
+additional properties of the tile, like its color.
+
+| Field  | Type         | Required | Description                                                                                                                                                                                                                                                                                                                                                                                       | Default   |
+|--------|--------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| layout | `Array2<u8>` | true     | The layout of the tile where `1` indicates a filled cell and `0` indicates an empty cell.                                                                                                                                                                                                                                                                                                         | -         |
+| color  | `String`     | false    | The color of the tile. It must start with a `#` and continues with a hex representation of the color in the order red, green and blue. You may also add the alpha channel. However, this is not recommended, since transparency is reserved for other purposes. You should also keep in mind that people are playing in light or dark mode. So choose colors that can be seen well in both modes. | -         |
 
 ## Board
 

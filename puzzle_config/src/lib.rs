@@ -7,6 +7,7 @@ pub use config::area::AreaConfig;
 pub use config::area::AreaValueFormatter;
 pub use config::board::BoardConfig;
 pub use config::collection::PuzzleConfigCollection;
+pub use config::color::ColorConfig;
 pub use config::difficulty::PuzzleDifficultyConfig;
 pub use config::progression::ProgressionConfig;
 pub use config::puzzle::PuzzleConfig;

@@ -16,4 +16,7 @@ pub enum ReadError {
     BoardWidthOrHeightCannotBeZero,
     InvalidVersion(String),
     InvalidCollectionId(String),
+    InvalidColor {
+        message: String,
+    },
 }

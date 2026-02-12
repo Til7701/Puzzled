@@ -253,7 +253,7 @@ fn create_tiles_preview(tiles: &[TileConfig], fixed: Fixed) {
     let mut current_x_offset_cells = 0;
 
     for (i, tile) in tiles.iter().enumerate() {
-        let tile_view = TileView::new(i, tile.base().clone());
+        let tile_view = TileView::new(i, tile.base().clone(), tile.color());
 
         let tile_height = tile.base().dim().1 as i32;
         let y_offset = (max_tile_cell_height - tile_height) as f64 / 2.0;

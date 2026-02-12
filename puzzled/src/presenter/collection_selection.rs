@@ -172,6 +172,9 @@ impl CollectionSelectionPresenter {
                     ReadError::InvalidCollectionId(_) => {
                         "The collection file contains an invalid collection ID.".to_string()
                     }
+                    ReadError::InvalidColor { message } => {
+                        format!("The collection file contains an invalid color: {}", message)
+                    }
                 };
                 self.show_load_collection_error(message);
             }

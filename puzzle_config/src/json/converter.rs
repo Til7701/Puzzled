@@ -1,4 +1,5 @@
 use crate::config::board;
+use crate::config::color::ColorConfig;
 use crate::json::model::*;
 use crate::json::predefined::{Custom, Predefined};
 use crate::{
@@ -45,8 +46,8 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
             let difficulty_config = puzzle.difficulty.convert(predefined, custom)?;
 
             let mut tiles = Vec::new();
-            for tile in puzzle.tiles.into_iter() {
-                let converted_tile = tile.convert(&predefined, custom)?;
+            for tile_width_index in puzzle.tiles.into_iter().enumerate() {
+                let converted_tile = tile_width_index.convert(&predefined, custom)?;
                 tiles.push(converted_tile);
             }
 
@@ -149,42 +150,54 @@ impl Convertable<ProgressionConfig> for Progression {
     }
 }
 
-impl Convertable<TileConfig> for Tile {
+impl Convertable<TileConfig> for (usize, Tile) {
     fn convert(
         self,
         predefined: &Predefined,
         custom: &mut Custom,
     ) -> Result<TileConfig, ReadError> {
-        match self {
+        match self.1 {
             Tile::Ref(name) => {
                 if let Some(predefined_tile) = predefined.get_tile(&name) {
-                    predefined_tile.convert(predefined, custom)
+                    (self.0, predefined_tile).convert(predefined, custom)
                 } else if let Some(custom_tile) = custom.get_tile(&name) {
-                    custom_tile.convert(predefined, custom)
+                    (self.0, custom_tile).convert(predefined, custom)
                 } else {
                     Err(ReadError::UnknownPredefinedTile { name })
                 }
             }
             Tile::Layout(layout) => {
-                let base = layout.convert(predefined, custom)?;
-                Ok(TileConfig::new(base))
+                let base = (self.0, layout).convert(predefined, custom)?;
+                let color = (self.0, None).convert(predefined, custom)?;
+                Ok(TileConfig::new(base, color))
+            }
+            Tile::Custom { layout, color } => {
+                let base = (self.0, layout).convert(predefined, custom)?;
+                let color = (self.0, color).convert(predefined, custom)?;
+                Ok(TileConfig::new(base, color))
             }
         }
     }
 }
 
-impl Convertable<Array2<bool>> for TileLayout {
+impl Convertable<Array2<bool>> for (usize, TileLayout) {
     fn convert(
         self,
         predefined: &Predefined,
         custom: &mut Custom,
     ) -> Result<Array2<bool>, ReadError> {
-        match self {
+        match self.1 {
             TileLayout::Ref(name) => {
                 if let Some(custom_tile) = custom.get_tile(&name) {
-                    Ok(custom_tile.convert(predefined, custom)?.base().clone())
+                    Ok((self.0, custom_tile)
+                        .convert(predefined, custom)?
+                        .base()
+                        .clone())
                 } else if let Some(predefined_tile) = predefined.get_tile(&name) {
-                    Ok(predefined_tile.convert(predefined, custom)?.base().clone())
+                    Ok((self.0, predefined_tile)
+                        .convert(predefined, custom)?
+                        .base()
+                        .clone())
                 } else {
                     Err(ReadError::UnknownPredefinedTile { name })
                 }
@@ -208,6 +221,17 @@ impl Convertable<Array2<bool>> for TileLayout {
                 }
                 let base = base.reversed_axes();
                 Ok(base)
+            }
+        }
+    }
+}
+
+impl Convertable<ColorConfig> for (usize, Option<Color>) {
+    fn convert(self, _: &Predefined, _: &mut Custom) -> Result<ColorConfig, ReadError> {
+        match self.1 {
+            None => Ok(ColorConfig::default_with_index(self.0)),
+            Some(Color::Hex(hex)) => {
+                ColorConfig::try_from(hex).map_err(|e| ReadError::InvalidColor { message: e })
             }
         }
     }
@@ -382,15 +406,20 @@ mod tests {
         );
 
         let tile = Tile::Ref("L3".to_string());
-        let converted_tile = tile.convert(&predefined, &mut Custom::default()).unwrap();
-        let expected_tile = TileConfig::new(arr2(&[[true, false], [true, true]]).reversed_axes());
+        let converted_tile = (0, tile)
+            .convert(&predefined, &mut Custom::default())
+            .unwrap();
+        let expected_tile = TileConfig::new(
+            arr2(&[[true, false], [true, true]]).reversed_axes(),
+            ColorConfig::default_with_index(0),
+        );
         assert_eq!(converted_tile.base(), expected_tile.base());
     }
 
     #[test]
     fn test_convert_predefined_tile_unknown() {
         let tile = Tile::Ref("test".to_string());
-        let converted_tile = tile.convert(&Predefined::default(), &mut Custom::default());
+        let converted_tile = (0, tile).convert(&Predefined::default(), &mut Custom::default());
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),
@@ -403,17 +432,20 @@ mod tests {
     #[test]
     fn test_convert_custom_tile() {
         let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![1, 1]]));
-        let converted_tile = tile
+        let converted_tile = (0, tile)
             .convert(&Predefined::default(), &mut Custom::default())
             .unwrap();
-        let expected_tile = TileConfig::new(arr2(&[[true, false], [true, true]]).reversed_axes());
+        let expected_tile = TileConfig::new(
+            arr2(&[[true, false], [true, true]]).reversed_axes(),
+            ColorConfig::default_with_index(0),
+        );
         assert_eq!(converted_tile.base(), expected_tile.base());
     }
 
     #[test]
     fn test_convert_custom_tile_zero_dimension() {
         let tile = Tile::Layout(TileLayout::Custom(vec![]));
-        let converted_tile = tile.convert(&Predefined::default(), &mut Custom::default());
+        let converted_tile = (0, tile).convert(&Predefined::default(), &mut Custom::default());
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),
@@ -421,7 +453,7 @@ mod tests {
         );
 
         let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![]]));
-        let converted_tile = tile.convert(&Predefined::default(), &mut Custom::default());
+        let converted_tile = (0, tile).convert(&Predefined::default(), &mut Custom::default());
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),

@@ -9,49 +9,12 @@ use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
 use ndarray::{Array2, Axis};
+use puzzle_config::ColorConfig;
 use std::cell::Ref;
 use std::collections::HashMap;
 
 const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = adw_ext::ERROR_BG_LIGHT;
 const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
-
-const COLORS: [RGBA; 35] = [
-    adw_ext::BLUE_5,
-    adw_ext::GREEN_5,
-    adw_ext::YELLOW_5,
-    adw_ext::RED_5,
-    adw_ext::PURPLE_5,
-    adw_ext::ORANGE_5,
-    adw_ext::BROWN_5,
-    adw_ext::BLUE_2,
-    adw_ext::GREEN_2,
-    adw_ext::YELLOW_2,
-    adw_ext::RED_2,
-    adw_ext::PURPLE_2,
-    adw_ext::ORANGE_2,
-    adw_ext::BROWN_2,
-    adw_ext::BLUE_4,
-    adw_ext::GREEN_4,
-    adw_ext::YELLOW_4,
-    adw_ext::RED_4,
-    adw_ext::PURPLE_4,
-    adw_ext::ORANGE_4,
-    adw_ext::BROWN_4,
-    adw_ext::BLUE_3,
-    adw_ext::GREEN_3,
-    adw_ext::YELLOW_3,
-    adw_ext::RED_3,
-    adw_ext::PURPLE_3,
-    adw_ext::ORANGE_3,
-    adw_ext::BROWN_3,
-    adw_ext::BLUE_1,
-    adw_ext::GREEN_1,
-    adw_ext::YELLOW_1,
-    adw_ext::RED_1,
-    adw_ext::PURPLE_1,
-    adw_ext::ORANGE_1,
-    adw_ext::BROWN_1,
-];
 
 /// Defines how a cell of a tile should be drawn, based on its state in the puzzle area.
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq)]
@@ -133,14 +96,14 @@ glib::wrapper! {
 
 impl TileView {
     /// Creates a new TileView with the given id and base layout.
-    pub fn new(id: usize, base: Array2<bool>) -> Self {
+    pub fn new(id: usize, base: Array2<bool>, color: ColorConfig) -> Self {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
         obj.imp().base.replace(base.clone());
         obj.imp().drawing_modes.replace(Array2::default(base.dim()));
         obj.imp().current_rotation.replace(base);
-        obj.init_color(COLORS[id % COLORS.len()]);
+        obj.init_color(color);
 
         obj.set_draw_func({
             let self_clone = obj.clone();
@@ -150,7 +113,14 @@ impl TileView {
         obj
     }
 
-    fn init_color(&self, color: RGBA) {
+    fn init_color(&self, color: ColorConfig) {
+        let color = RGBA::new(
+            (color.red() as f64 / 255.0) as f32,
+            (color.green() as f64 / 255.0) as f32,
+            (color.blue() as f64 / 255.0) as f32,
+            (color.alpha() as f64 / 255.0) as f32,
+        );
+
         let mut color_map = HashMap::new();
         color_map.insert(DrawingMode::Normal, color);
         color_map.insert(DrawingMode::Overlapping, color.with_alpha(0.5));

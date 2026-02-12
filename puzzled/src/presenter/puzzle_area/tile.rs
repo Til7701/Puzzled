@@ -27,7 +27,7 @@ impl TilePresenter {
         start_position_cell: &CellOffset,
         on_position_changed: Rc<dyn Fn()>,
     ) {
-        let tile_view = TileView::new(tile_id, tile.base().clone());
+        let tile_view = TileView::new(tile_id, tile.base().clone(), tile.color());
 
         let start_position = {
             let data = self.data.borrow();
