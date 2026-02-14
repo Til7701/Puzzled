@@ -7,43 +7,68 @@
         <property name="activatable">True</property>
         <property name="action-name">app.collection_item_activated</property>
         <child>
-            <object class="GtkBox" id="outer_box">
-                <property name="orientation">vertical</property>
+            <object class="GtkBox" id="main_box">
+                <property name="orientation">horizontal</property>
+                <property name="hexpand">True</property>
+                <property name="hexpand-set">True</property>
+                <property name="halign">fill</property>
                 <property name="spacing">4</property>
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">8</property>
-                <property name="margin-bottom">8</property>
                 <child>
-                    <object class="GtkLabel" id="name">
+                    <object class="GtkBox" id="outer_box">
+                        <property name="orientation">vertical</property>
                         <property name="halign">start</property>
-                        <style>
-                            <class name="title-4"/>
-                        </style>
+                        <property name="hexpand">True</property>
+                        <property name="hexpand-set">True</property>
+                        <property name="spacing">4</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">8</property>
+                        <property name="margin-bottom">8</property>
+                        <child>
+                            <object class="GtkLabel" id="name">
+                                <property name="halign">start</property>
+                                <style>
+                                    <class name="title-4"/>
+                                </style>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwWrapBox" id="info_box">
+                                <property name="child-spacing">4</property>
+                                <property name="line-spacing">4</property>
+                                <child>
+                                    <object class="PuzzledInfoPill" id="puzzle_count_pill">
+                                        <property name="tooltip-text">Number of puzzles in this collection</property>
+                                        <property name="icon-name">puzzle-piece-symbolic</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="PuzzledInfoPill" id="author_pill">
+                                        <property name="tooltip-text">Author of this puzzle collection</property>
+                                        <property name="icon-name">avatar-default</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="PuzzledInfoPill" id="version_pill">
+                                        <property name="tooltip-text">Version of the collection</property>
+                                        <property name="icon-name">commit-horizontal-symbolic</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
                     </object>
                 </child>
                 <child>
-                    <object class="AdwWrapBox" id="info_box">
-                        <property name="child-spacing">4</property>
-                        <property name="line-spacing">4</property>
-                        <child>
-                            <object class="PuzzledInfoPill" id="puzzle_count_pill">
-                                <property name="tooltip-text">Number of puzzles in this collection</property>
-                                <property name="icon-name">puzzle-piece-symbolic</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="PuzzledInfoPill" id="author_pill">
-                                <property name="tooltip-text">Author of this puzzle collection</property>
-                                <property name="icon-name">avatar-default</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="PuzzledInfoPill" id="version_pill">
-                                <property name="tooltip-text">Version of the collection</property>
-                                <property name="icon-name">commit-horizontal-symbolic</property>
-                            </object>
-                        </child>
+                    <object class="GtkButton" id="delete_button">
+                        <property name="halign">end</property>
+                        <property name="icon-name">user-trash-symbolic</property>
+                        <property name="action-name">app.delete_community_collection</property>
+                        <property name="vexpand">False</property>
+                        <property name="vexpand-set">True</property>
+                        <style>
+                            <class name="destructive-action"/>
+                            <class name="flat"/>
+                        </style>
                     </object>
                 </child>
             </object>

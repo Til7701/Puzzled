@@ -1,5 +1,9 @@
+mod community;
+
 use crate::config;
+use crate::puzzles::community::save_community_collection;
 use adw::gio::{resources_lookup_data, ResourceLookupFlags};
+use log::error;
 use once_cell::sync::Lazy;
 use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::backtrace::Backtrace;
@@ -31,6 +35,24 @@ impl PuzzleCollectionStore {
     pub fn community_puzzle_collections(&self) -> &[PuzzleConfigCollection] {
         &self.community_puzzle_collections
     }
+
+    pub fn add_community_collection_from_string(
+        &mut self,
+        json_str: &str,
+    ) -> Result<(), ReadError> {
+        let json_loader = create_json_loader();
+        let collection = json_loader.load_puzzle_collection(json_str)?;
+        self.remove_community_collection(collection.id());
+        save_community_collection(collection.id(), json_str);
+        self.community_puzzle_collections.push(collection);
+        Ok(())
+    }
+
+    pub fn remove_community_collection(&mut self, collection_id: &str) {
+        self.community_puzzle_collections
+            .retain(|collection| collection.id() != collection_id);
+        community::delete_community_collection(collection_id);
+    }
 }
 
 pub fn init() {
@@ -41,6 +63,21 @@ pub fn init() {
         let path = format!("/de/til7701/Puzzled/puzzles/{}.json", collection_name);
         let collection = load_core_from_resource(&path, &json_loader);
         store.core_puzzle_collections.push(collection);
+    }
+
+    let community_collections = community::load_community_collections();
+    for json_str in community_collections {
+        let collection = match json_loader.load_puzzle_collection(&json_str) {
+            Ok(collection) => collection,
+            Err(e) => {
+                error!(
+                    "Failed to load community puzzle collection from JSON string: {:?}",
+                    e
+                );
+                continue;
+            }
+        };
+        store.community_puzzle_collections.push(collection);
     }
 }
 
@@ -79,14 +116,6 @@ pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStor
         }
         Err(TryLockError::Poisoned(_)) => PUZZLE_COLLECTION_STORE.lock().unwrap(),
     }
-}
-
-pub fn add_community_collection_from_string(json_str: &str) -> Result<(), ReadError> {
-    let mut store = get_puzzle_collection_store();
-    let json_loader = create_json_loader();
-    let collection = json_loader.load_puzzle_collection(json_str)?;
-    store.community_puzzle_collections.push(collection);
-    Ok(())
 }
 
 #[cfg(test)]

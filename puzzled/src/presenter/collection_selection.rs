@@ -2,18 +2,19 @@ use crate::application::PuzzledApplication;
 use crate::config;
 use crate::global::state::get_state_mut;
 use crate::presenter::main::MainPresenter;
-use crate::puzzles::{add_community_collection_from_string, get_puzzle_collection_store};
+use crate::puzzles::get_puzzle_collection_store;
 use crate::view::info_pill::InfoPill;
 use crate::window::PuzzledWindow;
 use adw::gio::{Cancellable, File};
 use adw::glib::{Variant, VariantTy};
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt, FileExtManual};
 use adw::{gio, AlertDialog, ButtonRow, ResponseAppearance};
-use gtk::prelude::{ActionableExt, WidgetExt};
+use gtk::prelude::{ActionableExt, BoxExt, WidgetExt};
 use gtk::ListBox;
 use log::{debug, error};
 use puzzle_config::ReadError::FileReadError;
 use puzzle_config::{PuzzleConfigCollection, ReadError};
+use std::str::FromStr;
 
 #[derive(Clone)]
 pub struct CollectionSelectionPresenter {
@@ -55,7 +56,30 @@ impl CollectionSelectionPresenter {
                 move |_, _, _| self_clone.show_load_collection_dialog()
             })
             .build();
-        app.add_action_entries([collection_item_activated, load_collection_action]);
+        let delete_community_collection_action =
+            gio::ActionEntry::builder("delete_community_collection")
+                .parameter_type(Some(VariantTy::STRING))
+                .activate({
+                    let self_clone = self.clone();
+                    move |_, _, v: Option<&Variant>| {
+                        if let Some(v) = v {
+                            let collection_id = v
+                                .get::<String>()
+                                .expect("Expected a string parameter for delete_collection action");
+                            debug!("Delete collection with ID: {}", collection_id);
+                            let mut store = get_puzzle_collection_store();
+                            store.remove_community_collection(&collection_id);
+                            drop(store);
+                            self_clone.update_community_collections();
+                        }
+                    }
+                })
+                .build();
+        app.add_action_entries([
+            collection_item_activated,
+            load_collection_action,
+            delete_community_collection_action,
+        ]);
     }
 
     pub fn setup(&self) {
@@ -89,7 +113,7 @@ impl CollectionSelectionPresenter {
             .iter()
             .enumerate()
         {
-            let row = create_collection_row(CollectionId::Core(i), collection);
+            let row = create_collection_row(CollectionId::Core(i), collection, false);
             self.core_collection_list.append(&row);
         }
     }
@@ -103,7 +127,7 @@ impl CollectionSelectionPresenter {
             .iter()
             .enumerate()
         {
-            let row = create_collection_row(CollectionId::Community(i), collection);
+            let row = create_collection_row(CollectionId::Community(i), collection, true);
             self.community_collection_list.append(&row);
         }
 
@@ -186,7 +210,9 @@ impl CollectionSelectionPresenter {
             Ok((bytes, _etag)) => match std::str::from_utf8(bytes.as_ref()) {
                 Ok(text) => {
                     let content: String = text.to_owned();
-                    add_community_collection_from_string(&content)?;
+                    let mut store = get_puzzle_collection_store();
+                    store.add_community_collection_from_string(&content)?;
+                    drop(store);
                     self.update_community_collections();
                     self.select_last_community_collection();
                     Ok(())
@@ -250,7 +276,11 @@ impl CollectionSelectionPresenter {
     }
 }
 
-fn create_collection_row(id: CollectionId, collection: &PuzzleConfigCollection) -> gtk::ListBoxRow {
+fn create_collection_row(
+    id: CollectionId,
+    collection: &PuzzleConfigCollection,
+    deletable: bool,
+) -> gtk::ListBoxRow {
     const RESOURCE_PATH: &str = "/de/til7701/Puzzled/puzzle-collection-item.ui";
     let builder = gtk::Builder::from_resource(RESOURCE_PATH);
     let row: gtk::ListBoxRow = builder
@@ -281,6 +311,18 @@ fn create_collection_row(id: CollectionId, collection: &PuzzleConfigCollection) 
         version_pill.set_label(version.as_str());
     } else {
         info_box.remove(&version_pill);
+    }
+
+    let delete_button: gtk::Button = builder
+        .object("delete_button")
+        .expect("Missing `delete_button` in resource");
+    if deletable {
+        delete_button.set_action_target_value(Some(&collection.id().to_string().into()));
+    } else {
+        let main_box: gtk::Box = builder
+            .object("main_box")
+            .expect("Missing `main_box` in resource");
+        main_box.remove(&delete_button);
     }
 
     row.set_action_target_value(Some(&id.into()));
