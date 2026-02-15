@@ -158,6 +158,50 @@ pub fn remove_parent(parent: &Array2<bool>, child: &mut Array2<bool>) {
     }
 }
 
+pub fn count_biggest_connected_area_of_cells_matching(
+    array: &Array2<bool>,
+    target_value: bool,
+) -> usize {
+    let mut visited = Array2::from_elem(array.dim(), false);
+    let mut max_area = 0;
+
+    for ((x, y), value) in array.indexed_iter() {
+        if *value == target_value && !visited[[x, y]] {
+            let mut area = 0;
+            let mut stack = vec![(x, y)];
+
+            while let Some((cx, cy)) = stack.pop() {
+                if cx < array.nrows()
+                    && cy < array.ncols()
+                    && !visited[[cx, cy]]
+                    && array[[cx, cy]] == target_value
+                {
+                    visited[[cx, cy]] = true;
+                    area += 1;
+
+                    // Add neighbors to the stack
+                    if cx > 0 {
+                        stack.push((cx - 1, cy));
+                    }
+                    if cx < array.nrows() - 1 {
+                        stack.push((cx + 1, cy));
+                    }
+                    if cy > 0 {
+                        stack.push((cx, cy - 1));
+                    }
+                    if cy < array.ncols() - 1 {
+                        stack.push((cx, cy + 1));
+                    }
+                }
+            }
+
+            max_area = max_area.max(area);
+        }
+    }
+
+    max_area
+}
+
 /// Prints a 2D boolean array to the debug log, using '█' for `true` and '░' for `false`.
 #[allow(dead_code)]
 pub fn debug_print(array: &Array2<bool>) {
@@ -520,5 +564,18 @@ mod test {
         ]);
         let mut child = arr2(&[[true, true], [true, true]]);
         remove_parent(&parent, &mut child);
+    }
+
+    #[test]
+    fn test_count_biggest_connected_area_of_cells_matching() {
+        let array = arr2(&[
+            [true, false, true],
+            [false, true, false],
+            [true, true, true],
+        ]);
+        let count_true = count_biggest_connected_area_of_cells_matching(&array, true);
+        let count_false = count_biggest_connected_area_of_cells_matching(&array, false);
+        assert_eq!(count_true, 4);
+        assert_eq!(count_false, 1);
     }
 }

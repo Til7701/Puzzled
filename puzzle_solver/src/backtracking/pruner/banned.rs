@@ -23,7 +23,7 @@ pub fn create_banned_bitmasks_for_filling(
 ) -> Vec<Vec<BannedBitmask>> {
     let min_tile_size = tiles
         .iter()
-        .map(|tile| tile.base.iter().filter(|&&cell| cell).count())
+        .map(|tile| array_util::count_biggest_connected_area_of_cells_matching(tile.base(), true))
         .min()
         .unwrap_or(0);
 

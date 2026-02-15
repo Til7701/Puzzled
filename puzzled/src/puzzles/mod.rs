@@ -10,11 +10,12 @@ use std::backtrace::Backtrace;
 use std::sync::{Mutex, MutexGuard, TryLockError};
 use std::time::Duration;
 
-const CORE_COLLECTIONS: [&str; 5] = [
+const CORE_COLLECTIONS: [&str; 6] = [
     "puzzle_a_day",
     "trominoes",
     "hexominoes",
     "circles",
+    "chess",
     "puzzled",
 ];
 
