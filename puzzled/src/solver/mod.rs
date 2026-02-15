@@ -4,6 +4,7 @@ use crate::global::state::{get_state_mut, SolverState, State};
 use crate::presenter::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use log::debug;
 use puzzle_solver::board::Board;
+use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
 use std::cmp::PartialEq;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -17,7 +18,7 @@ pub struct SolverCallId(u64);
 
 /// Callback type to be invoked upon solver completion.
 /// It receives the final `SolverState` as an argument.
-pub type OnCompleteCallback = Box<dyn FnOnce(SolverState) + Send>;
+pub type OnCompleteCallback = Box<dyn Fn(Result<Solution, UnsolvableReason>) + Send>;
 
 static SOLVER_CALL_ID_ATOMIC_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -49,14 +50,14 @@ pub fn solve_for_target(
             let result = puzzle_solver::solve_all_filling(board, &tiles, cancel_token).await;
             let end = Instant::now();
             let duration = end.duration_since(now);
-            handle_on_complete(solver_call_id, result.is_ok(), duration, on_complete);
+            handle_on_complete(solver_call_id, result, duration, on_complete);
         }
     });
 }
 
 fn handle_on_complete(
     solver_call_id: SolverCallId,
-    solvable: bool,
+    result: Result<Solution, UnsolvableReason>,
     run_duration: Duration,
     on_complete: OnCompleteCallback,
 ) {
@@ -65,14 +66,11 @@ fn handle_on_complete(
         && *call_id == solver_call_id
     {
         state.solver_state = Done {
-            solvable,
+            solvable: result.is_ok(),
             duration: run_duration,
         };
         drop(state);
-        on_complete(Done {
-            solvable,
-            duration: run_duration,
-        });
+        on_complete(result);
     }
 }
 

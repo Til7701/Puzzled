@@ -6,9 +6,11 @@ use crate::presenter::puzzle_area::puzzle_state::{
     Cell, PuzzleState, TileCellPlacement, UnusedTile,
 };
 use crate::presenter::puzzle_area::tile::TilePresenter;
-use crate::view::tile::DrawingMode;
+use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
 use gtk::prelude::{FixedExt, GtkWindowExt, WidgetExt};
+use puzzle_config::ColorConfig;
+use puzzle_solver::result::TilePlacement;
 use std::cell::RefCell;
 use std::mem::take;
 use std::rc::Rc;
@@ -241,5 +243,39 @@ impl PuzzleAreaPresenter {
             }
             _ => {}
         });
+    }
+
+    pub fn show_hint_tile(&self, placement: &TilePlacement) {
+        let mut data = self.data.borrow_mut();
+        let tile_matching_base = data
+            .tile_views
+            .iter()
+            .find(|t| t.base().eq(placement.base()));
+        if tile_matching_base.is_none() {
+            return;
+        }
+        let tile_matching_base = tile_matching_base.unwrap();
+        let color = tile_matching_base.color().with_alpha(0.5);
+        let color_config = ColorConfig::new(
+            (color.red() * 255.0) as u8,
+            (color.green() * 255.0) as u8,
+            (color.blue() * 255.0) as u8,
+            (color.alpha() * 255.0) as u8,
+        );
+        let tile_view = TileView::new(usize::MAX, placement.rotation().clone(), color_config);
+        tile_view.set_position_cells(Some(
+            data.grid_config.board_offset_cells + placement.position().into(),
+        ));
+        if let Some(tile_matching_base) = &data.hint_tile_view {
+            data.fixed.remove(tile_matching_base);
+        }
+        data.hint_tile_view = Some(tile_view.clone());
+        data.fixed.put(
+            &tile_view,
+            placement.position().0 as f64,
+            placement.position().1 as f64,
+        );
+        drop(data);
+        self.update_layout();
     }
 }

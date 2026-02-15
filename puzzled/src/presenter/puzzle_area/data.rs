@@ -11,6 +11,7 @@ pub struct PuzzleAreaData {
     pub board_view: Option<BoardView>,
     pub tile_views: Vec<TileView>,
     pub grid_config: GridConfig,
+    pub hint_tile_view: Option<TileView>,
 }
 
 impl PuzzleAreaData {

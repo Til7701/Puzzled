@@ -112,6 +112,12 @@ impl From<CellOffset> for (usize, usize) {
     }
 }
 
+impl From<(usize, usize)> for CellOffset {
+    fn from(value: (usize, usize)) -> Self {
+        CellOffset(value.0 as i32, value.1 as i32)
+    }
+}
+
 impl Add for CellOffset {
     type Output = CellOffset;
 

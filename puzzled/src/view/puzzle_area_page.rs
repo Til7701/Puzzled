@@ -18,7 +18,7 @@ mod imp {
         #[template_child]
         pub target_selection_button: TemplateChild<gtk::Button>,
         #[template_child]
-        pub solver_state: TemplateChild<gtk::Button>,
+        pub hint_button: TemplateChild<gtk::Button>,
     }
 
     #[glib::object_subclass]
@@ -71,7 +71,7 @@ impl PuzzleAreaPage {
         self.imp().target_selection_button.clone()
     }
 
-    pub fn solver_state(&self) -> gtk::Button {
-        self.imp().solver_state.clone()
+    pub fn hint_button(&self) -> gtk::Button {
+        self.imp().hint_button.clone()
     }
 }

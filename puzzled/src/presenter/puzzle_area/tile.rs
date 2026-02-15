@@ -204,6 +204,20 @@ impl TilePresenter {
             };
             self.move_to(i, pos);
         }
+        let data = self.data.borrow();
+        if let Some(tile_view) = &data.hint_tile_view {
+            let grid_size = data.grid_config.cell_width_pixel;
+            let dims = tile_view.current_rotation().dim();
+            tile_view.set_width_request(dims.0 as i32 * grid_size as i32);
+            tile_view.set_height_request(dims.1 as i32 * grid_size as i32);
+
+            if let Some(position_cells) = tile_view.position_cells() {
+                let pos: PixelOffset = position_cells.mul_scalar(grid_size as f64).into();
+                let fixed = &data.fixed;
+                fixed.move_(tile_view, pos.0, pos.1);
+                tile_view.set_position_pixels(pos);
+            }
+        }
     }
 
     /// Move the tile to the specified (x, y) position in pixels.

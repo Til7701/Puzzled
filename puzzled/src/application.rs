@@ -18,7 +18,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 use crate::config::VERSION;
-use crate::global::settings::{Preferences, SolverEnabled};
 use crate::global::state::get_state_mut;
 use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::main::MainPresenter;
@@ -149,13 +148,6 @@ impl PuzzledApplication {
         let dialog: adw::PreferencesDialog = builder
             .object("preferences_dialog")
             .expect("Missing `preferences_dialog` in resource");
-
-        let preferences = Preferences::default();
-
-        let enable_solver = builder
-            .object::<adw::SwitchRow>("enable_solver")
-            .expect("Missing `enable_solver` in resource");
-        preferences.bind(SolverEnabled, &enable_solver, "active");
 
         if let Some(window) = self.active_window() {
             dialog.present(Some(&window));
