@@ -6,7 +6,7 @@ use crate::application::PuzzledApplication;
 use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut, SolverState};
 use crate::presenter::puzzle::extension::ExtensionPresenter;
-use crate::presenter::puzzle::hint::HintButtonPresenter;
+use crate::presenter::puzzle::hint::{HintButtonPresenter, HintButtonState};
 use crate::presenter::puzzle::info::PuzzleInfoPresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
 use crate::solver::is_solved;
@@ -111,6 +111,7 @@ impl PuzzlePresenter {
         let puzzle_state = self.puzzle_area_presenter.extract_puzzle_state();
 
         if let Ok(mut puzzle_state) = puzzle_state {
+            self.puzzle_area_presenter.remove_hint_tile();
             self.hint_button_presenter
                 .calculate_hint(&mut puzzle_state, {
                     let self_clone = self.clone();

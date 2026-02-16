@@ -262,10 +262,7 @@ impl PuzzleAreaPresenter {
             (color.blue() * 255.0) as u8,
             (color.alpha() * 255.0) as u8,
         );
-        let tile_view = TileView::new(usize::MAX, placement.rotation().clone(), color_config);
-        tile_view.set_position_cells(Some(
-            data.grid_config.board_offset_cells + placement.position().into(),
-        ));
+        let tile_view = self.create_hint_tile(placement, color_config, &data);
         if let Some(tile_matching_base) = &data.hint_tile_view {
             data.fixed.remove(tile_matching_base);
         }
@@ -277,5 +274,37 @@ impl PuzzleAreaPresenter {
         );
         drop(data);
         self.update_layout();
+    }
+
+    fn create_hint_tile(
+        &self,
+        placement: &TilePlacement,
+        color_config: ColorConfig,
+        data: &PuzzleAreaData,
+    ) -> TileView {
+        let tile_view = TileView::new(usize::MAX, placement.rotation().clone(), color_config);
+
+        tile_view.set_position_cells(Some(
+            data.grid_config.board_offset_cells + placement.position().into(),
+        ));
+
+        let click_gesture = gtk::GestureClick::new();
+        click_gesture.connect_pressed({
+            let self_clone = self.clone();
+            move |_, _, _, _| {
+                self_clone.remove_hint_tile();
+            }
+        });
+        tile_view.add_controller(click_gesture);
+
+        tile_view
+    }
+
+    pub fn remove_hint_tile(&self) {
+        let mut data = self.data.borrow_mut();
+        if let Some(tile_view) = &data.hint_tile_view {
+            data.fixed.remove(tile_view);
+        }
+        data.hint_tile_view = None;
     }
 }

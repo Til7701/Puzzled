@@ -1,17 +1,13 @@
 use crate::application::PuzzledApplication;
-use crate::global::settings::Preferences;
-use crate::global::settings::SolverEnabled;
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
 use crate::offset::CellOffset;
 use crate::presenter::puzzle_area::puzzle_state::PuzzleState;
 use crate::solver;
-use crate::solver::{interrupt_solver_call, OnCompleteCallback};
+use crate::solver::interrupt_solver_call;
 use crate::window::PuzzledWindow;
-use adw::prelude::{ActionMapExtManual, ActionRowExt, AdwDialogExt};
-use adw::{gio, glib};
+use adw::glib;
 use gtk::prelude::{ButtonExt, WidgetExt};
 use gtk::Button;
-use humantime::format_duration;
 use log::debug;
 use ndarray::Array2;
 use puzzle_solver::result::{Solution, UnsolvableReason};
@@ -24,19 +20,17 @@ pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;
 pub struct HintButtonPresenter {
     window: PuzzledWindow,
     hint_button: Button,
-    preferences: Preferences,
 }
 
 impl HintButtonPresenter {
     pub fn new(window: &PuzzledWindow) -> Self {
         HintButtonPresenter {
-            preferences: Preferences::default(),
             window: window.clone(),
             hint_button: window.puzzle_area_nav_page().hint_button().clone(),
         }
     }
 
-    pub fn register_actions(&self, app: &PuzzledApplication) {}
+    pub fn register_actions(&self, _: &PuzzledApplication) {}
 
     pub fn setup(&self) {}
 
@@ -51,7 +45,7 @@ impl HintButtonPresenter {
         if calculate_solvability {
             self.calculate_solvability(puzzle_state, on_complete);
         } else {
-            self.display_solver_state(&SolverState::Initial {});
+            self.display_state(&HintButtonState::Bulb);
         }
     }
 
@@ -69,8 +63,10 @@ impl HintButtonPresenter {
 
         let (tx, rx) = mpsc::channel::<Result<Solution, UnsolvableReason>>();
         glib::idle_add_local({
+            let self_clone = self.clone();
             move || match rx.try_recv() {
                 Ok(result) => {
+                    self_clone.display_state(&HintButtonState::Bulb);
                     on_complete(result);
                     glib::ControlFlow::Break
                 }
@@ -86,7 +82,7 @@ impl HintButtonPresenter {
             call_id: call_id.clone(),
             cancel_token: cancel_token.clone(),
         };
-        self.display_solver_state(&state.solver_state);
+        self.display_state(&HintButtonState::Calculating);
         drop(state);
         solver::solve_for_target(
             &call_id,
@@ -98,40 +94,24 @@ impl HintButtonPresenter {
         );
     }
 
-    fn display_solver_state(&self, status: &SolverState) {
+    pub fn display_state(&self, status: &HintButtonState) {
         match status {
-            SolverState::Initial => {
-                self.hint_button.set_tooltip_text(Some("Solver"));
-                self.hint_button
-                    .set_icon_name("circle-outline-thick-symbolic");
+            HintButtonState::Bulb => {
+                self.hint_button.set_tooltip_text(Some("Hint"));
+                self.hint_button.set_icon_name("lightbulb-symbolic");
             }
-            SolverState::Running { .. } => {
+            HintButtonState::Calculating { .. } => {
                 self.hint_button
-                    .set_tooltip_text(Some("Solver: Running..."));
+                    .set_tooltip_text(Some("Hint: Calculating..."));
                 self.hint_button.set_icon_name("timer-sand-symbolic");
-            }
-            SolverState::Done { solvable, .. } => {
-                if *solvable {
-                    self.hint_button
-                        .set_tooltip_text(Some("Solver: Solvable for current Target!"));
-                    self.hint_button
-                        .set_icon_name("check-round-outline2-symbolic");
-                } else {
-                    self.hint_button
-                        .set_tooltip_text(Some("Solver: Unsolvable for current Target!"));
-                    self.hint_button
-                        .set_icon_name("cross-large-circle-outline-symbolic");
-                }
             }
         }
     }
 }
 
-enum HintButtonState {
+pub enum HintButtonState {
     Bulb,
     Calculating,
-    Solvable,
-    Unsolvable,
 }
 
 pub struct Hint {
