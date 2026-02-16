@@ -36,9 +36,19 @@
                     </object>
                 </child>
                 <property name="content">
-                    <object class="GtkFixed" id="grid">
+                    <object class="AdwToastOverlay" id="toast_overlay">
                         <property name="hexpand">True</property>
+                        <property name="hexpand-set">True</property>
                         <property name="vexpand">True</property>
+                        <property name="vexpand-set">True</property>
+                        <child>
+                            <object class="GtkFixed" id="grid">
+                                <property name="hexpand">True</property>
+                                <property name="hexpand-set">True</property>
+                                <property name="vexpand">True</property>
+                                <property name="vexpand-set">True</property>
+                            </object>
+                        </child>
                     </object>
                 </property>
             </object>

@@ -6,14 +6,15 @@ use crate::application::PuzzledApplication;
 use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut, SolverState};
 use crate::presenter::puzzle::extension::ExtensionPresenter;
-use crate::presenter::puzzle::hint::{HintButtonPresenter, HintButtonState};
+use crate::presenter::puzzle::hint::HintButtonPresenter;
 use crate::presenter::puzzle::info::PuzzleInfoPresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
 use crate::solver::is_solved;
 use crate::view::puzzle_area_page::PuzzleAreaPage;
 use crate::window::PuzzledWindow;
-use adw::gio;
 use adw::prelude::{ActionMapExtManual, NavigationPageExt};
+use adw::{gio, Toast, ToastOverlay};
+use gtk::Label;
 use log::{debug, error};
 use std::rc::Rc;
 use std::time::Duration;
@@ -21,6 +22,7 @@ use std::time::Duration;
 #[derive(Clone)]
 pub struct PuzzlePresenter {
     puzzle_area_nav_page: PuzzleAreaPage,
+    toast_overlay: ToastOverlay,
     puzzle_info_presenter: PuzzleInfoPresenter,
     puzzle_area_presenter: PuzzleAreaPresenter,
     hint_button_presenter: HintButtonPresenter,
@@ -38,6 +40,7 @@ impl PuzzlePresenter {
 
         PuzzlePresenter {
             puzzle_area_nav_page: window.puzzle_area_nav_page(),
+            toast_overlay: window.puzzle_area_nav_page().toast_overlay(),
             puzzle_info_presenter,
             puzzle_area_presenter,
             hint_button_presenter,
@@ -117,12 +120,22 @@ impl PuzzlePresenter {
                     let self_clone = self.clone();
                     Box::new(move |result| match result {
                         Ok(solution) => {
-                            debug!("Hint calculation succeeded: {:?}", solution);
                             let placement = solution.placements().first().unwrap();
                             self_clone.puzzle_area_presenter.show_hint_tile(placement);
                         }
-                        Err(reason) => {
-                            debug!("Hint calculation failed: {:?}", reason);
+                        Err(_) => {
+                            self_clone.toast_overlay.add_toast(
+                                Toast::builder()
+                                    .custom_title(
+                                        &Label::builder()
+                                            .label(
+                                                "Puzzle is not solvable with the current approach",
+                                            )
+                                            .css_classes(vec!["error"])
+                                            .build(),
+                                    )
+                                    .build(),
+                            );
                         }
                     })
                 });

@@ -1,6 +1,5 @@
 use crate::application::PuzzledApplication;
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
-use crate::offset::CellOffset;
 use crate::presenter::puzzle_area::puzzle_state::PuzzleState;
 use crate::solver;
 use crate::solver::interrupt_solver_call;
@@ -9,7 +8,6 @@ use adw::glib;
 use gtk::prelude::{ButtonExt, WidgetExt};
 use gtk::Button;
 use log::debug;
-use ndarray::Array2;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use std::sync::mpsc;
 use tokio_util::sync::CancellationToken;
@@ -18,14 +16,12 @@ pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;
 
 #[derive(Debug, Clone)]
 pub struct HintButtonPresenter {
-    window: PuzzledWindow,
     hint_button: Button,
 }
 
 impl HintButtonPresenter {
     pub fn new(window: &PuzzledWindow) -> Self {
         HintButtonPresenter {
-            window: window.clone(),
             hint_button: window.puzzle_area_nav_page().hint_button().clone(),
         }
     }
@@ -112,9 +108,4 @@ impl HintButtonPresenter {
 pub enum HintButtonState {
     Bulb,
     Calculating,
-}
-
-pub struct Hint {
-    tile_base: Array2<bool>,
-    position: CellOffset,
 }
