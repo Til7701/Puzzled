@@ -4,10 +4,11 @@ use crate::global::state::{get_state_mut, SolverState, State};
 use crate::presenter::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use log::debug;
 use puzzle_solver::board::Board;
+use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
 use std::cmp::PartialEq;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tokio_util::sync::CancellationToken;
 
 /// Unique identifier for a solver call.
@@ -17,7 +18,7 @@ pub struct SolverCallId(u64);
 
 /// Callback type to be invoked upon solver completion.
 /// It receives the final `SolverState` as an argument.
-pub type OnCompleteCallback = Box<dyn FnOnce(SolverState) + Send>;
+pub type OnCompleteCallback = Box<dyn Fn(Result<Solution, UnsolvableReason>) + Send>;
 
 static SOLVER_CALL_ID_ATOMIC_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -49,30 +50,27 @@ pub fn solve_for_target(
             let result = puzzle_solver::solve_all_filling(board, &tiles, cancel_token).await;
             let end = Instant::now();
             let duration = end.duration_since(now);
-            handle_on_complete(solver_call_id, result.is_ok(), duration, on_complete);
+            debug!(
+                "Solver task completed in {}.",
+                humantime::format_duration(duration)
+            );
+            handle_on_complete(solver_call_id, result, on_complete);
         }
     });
 }
 
 fn handle_on_complete(
     solver_call_id: SolverCallId,
-    solvable: bool,
-    run_duration: Duration,
+    result: Result<Solution, UnsolvableReason>,
     on_complete: OnCompleteCallback,
 ) {
     let mut state = get_state_mut();
     if let SolverState::Running { call_id, .. } = &state.solver_state
         && *call_id == solver_call_id
     {
-        state.solver_state = Done {
-            solvable,
-            duration: run_duration,
-        };
+        state.solver_state = Done;
         drop(state);
-        on_complete(Done {
-            solvable,
-            duration: run_duration,
-        });
+        on_complete(result);
     }
 }
 

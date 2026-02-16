@@ -6,17 +6,6 @@
             <object class="AdwPreferencesPage">
                 <child>
                     <object class="AdwPreferencesGroup">
-                        <property name="title">Solver</property>
-                        <child>
-                            <object class="AdwSwitchRow" id="enable_solver">
-                                <property name="title" translatable="yes" context="solver window">Run on Change</property>
-                                <property name="subtitle">Whether to call the solver after changes</property>
-                            </object>
-                        </child>
-                    </object>
-                </child>
-                <child>
-                    <object class="AdwPreferencesGroup">
                         <property name="title">Solutions</property>
                         <child>
                             <object class="AdwButtonRow" id="mark_all_unsolved">

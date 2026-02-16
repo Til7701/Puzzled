@@ -15,6 +15,19 @@ pub(crate) fn rotate_90<T: Clone>(array: &Array2<T>) -> Array2<T> {
     array
 }
 
+/// Represents the number of rows and columns removed from the sides of a 2D array.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct TrimSides {
+    /// The number of rows removed from the lower side of the x-axis.
+    pub lower_x: usize,
+    /// The number of rows removed from the higher side of the x-axis.
+    pub upper_x: usize,
+    /// The number of columns removed from the lower side of the y-axis.
+    pub lower_y: usize,
+    /// The number of columns removed from the higher side of the y-axis.
+    pub upper_y: usize,
+}
+
 /// Removes rows and columns from the sides of a 2D boolean array where all cells are `true`.
 ///
 /// # Arguments
@@ -22,7 +35,8 @@ pub(crate) fn rotate_90<T: Clone>(array: &Array2<T>) -> Array2<T> {
 /// * `array`: The mutable reference to the 2D boolean array to be modified.
 ///
 /// returns: ()
-pub fn remove_true_rows_cols_from_sides(array: &mut Array2<bool>) {
+pub fn remove_true_rows_cols_from_sides(array: &mut Array2<bool>) -> TrimSides {
+    let mut trim_sides = TrimSides::default();
     loop {
         if array.nrows() == 0 || array.ncols() == 0 {
             break;
@@ -31,29 +45,34 @@ pub fn remove_true_rows_cols_from_sides(array: &mut Array2<bool>) {
         let left_col_all_true = array.column(0).iter().all(|&cell| cell);
         if left_col_all_true {
             *array = array.slice(s![.., 1..]).to_owned();
+            trim_sides.lower_y += 1;
             continue;
         }
 
         let right_col_all_true = array.column(array.ncols() - 1).iter().all(|&cell| cell);
         if right_col_all_true {
             *array = array.slice(s![.., ..array.ncols() - 1]).to_owned();
+            trim_sides.upper_y += 1;
             continue;
         }
 
         let top_row_all_true = array.row(0).iter().all(|&cell| cell);
         if top_row_all_true {
             *array = array.slice(s![1.., ..]).to_owned();
+            trim_sides.lower_x += 1;
             continue;
         }
 
         let bottom_row_all_true = array.row(array.nrows() - 1).iter().all(|&cell| cell);
         if bottom_row_all_true {
             *array = array.slice(s![..array.nrows() - 1, ..]).to_owned();
+            trim_sides.upper_x += 1;
             continue;
         }
 
         break;
     }
+    trim_sides
 }
 
 /// Places the `child` array onto the `parent` array at the specified offsets using a logical OR
@@ -254,49 +273,84 @@ mod test {
     #[test]
     fn test_remove_true_rows_cols_from_sides_empty() {
         let mut array: Array2<bool> = Array2::default((0, 0));
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected: Array2<bool> = Array2::default((0, 0));
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
     fn test_remove_true_rows_cols_from_sides_true() {
         let mut array = arr2(&[[true]]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected: Array2<bool> = arr2(&[[]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 1,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
     fn test_remove_true_rows_cols_from_sides_false() {
         let mut array = arr2(&[[false]]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected: Array2<bool> = arr2(&[[false]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
-    fn test_remove_true_rows_cols_from_sides_left_right() {
+    fn test_remove_true_rows_cols_from_sides_lower_y_upper_y() {
         let mut array = arr2(&[
             [true, true, false, true],
             [true, false, false, true],
             [true, true, false, true],
         ]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected = arr2(&[[true, false], [false, false], [true, false]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 1,
+            upper_y: 1,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
-    fn test_remove_true_rows_cols_from_sides_top_bottom() {
+    fn test_remove_true_rows_cols_from_sides_lower_x_upper_x() {
         let mut array = arr2(&[
             [true, true, true, true],
             [false, true, false, false],
             [true, true, true, true],
         ]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected = arr2(&[[false, true, false, false]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 1,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 1,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
@@ -307,49 +361,84 @@ mod test {
             [true, false, true, false, true],
             [true, true, true, true, true],
         ]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected = arr2(&[[true, false, false], [false, true, false]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 1,
+            lower_y: 1,
+            upper_y: 1,
+            upper_x: 1,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
-    fn test_remove_true_rows_cols_from_left() {
+    fn test_remove_true_rows_cols_from_lower_y() {
         let mut array = arr2(&[[true, true, false, false], [true, false, true, false]]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected = arr2(&[[true, false, false], [false, true, false]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 1,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
-    fn test_remove_true_rows_cols_from_right() {
+    fn test_remove_true_rows_cols_from_upper_y() {
         let mut array = arr2(&[[false, false, true, true], [false, true, false, true]]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected = arr2(&[[false, false, true], [false, true, false]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 1,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
-    fn test_remove_true_rows_cols_from_top() {
+    fn test_remove_true_rows_cols_from_lower_x() {
         let mut array = arr2(&[
             [true, true, true],
             [false, true, false],
             [true, false, true],
         ]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected = arr2(&[[false, true, false], [true, false, true]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 1,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
-    fn test_remove_true_rows_cols_from_bottom() {
+    fn test_remove_true_rows_cols_from_upper_x() {
         let mut array = arr2(&[
             [false, true, false],
             [true, false, true],
             [true, true, true],
         ]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected = arr2(&[[false, true, false], [true, false, true]]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 1,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]
@@ -361,7 +450,7 @@ mod test {
             [false, true, false, true],
             [true, true, true, true],
         ]);
-        remove_true_rows_cols_from_sides(&mut array);
+        let trim_sides = remove_true_rows_cols_from_sides(&mut array);
         let expected = arr2(&[
             [false, false, false, false],
             [false, false, false, false],
@@ -369,6 +458,13 @@ mod test {
             [false, true, false, true],
         ]);
         assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 1,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
     }
 
     #[test]

@@ -21,7 +21,7 @@ pub struct State {
 }
 
 impl State {
-   pub fn setup_for_puzzle(&mut self, puzzle_config: PuzzleConfig) {
+    pub fn setup_for_puzzle(&mut self, puzzle_config: PuzzleConfig) {
         match &puzzle_config.board_config() {
             BoardConfig::Simple { .. } => {
                 self.puzzle_type_extension = Some(PuzzleTypeExtension::Simple);
@@ -93,12 +93,7 @@ pub enum SolverState {
         cancel_token: CancellationToken,
     },
     /// Solver has finished.
-    Done {
-        /// Whether the puzzle is solvable.
-        solvable: bool,
-        /// Duration the solver took to complete.
-        duration: Duration,
-    },
+    Done,
 }
 
 #[derive(Debug)]

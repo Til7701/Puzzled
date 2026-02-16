@@ -1,4 +1,5 @@
 use crate::array_util;
+use crate::array_util::TrimSides;
 use log::debug;
 use ndarray::Array2;
 use std::ops::{Index, IndexMut};
@@ -74,8 +75,8 @@ impl Board {
 
     /// Trims the board by removing any rows or columns on the edges that are entirely
     /// true (filled).
-    pub(crate) fn trim(&mut self) {
-        array_util::remove_true_rows_cols_from_sides(&mut self.0);
+    pub(crate) fn trim(&mut self) -> TrimSides {
+        array_util::remove_true_rows_cols_from_sides(&mut self.0)
     }
 }
 

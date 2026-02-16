@@ -10,7 +10,6 @@
         <file preprocess="xml-stripblanks">ui/dialog/mark-unsolved-dialog.ui</file>
         <file preprocess="xml-stripblanks">ui/dialog/solved-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="shortcuts-dialog.ui">ui/dialog/shortcuts-dialog.ui</file>
-        <file preprocess="xml-stripblanks" alias="solver-dialog.ui">ui/dialog/solver-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="preferences-dialog.ui">ui/dialog/preferences-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="how-to-play-dialog.ui">ui/dialog/how-to-play-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="puzzle-collection-item.ui">ui/widget/puzzle-collection-item.ui</file>
@@ -41,6 +40,7 @@
         <file preprocess="xml-stripblanks" alias="brain-symbolic.svg">icons/brain-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="padlock2-symbolic.svg">icons/padlock2-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="user-trash-symbolic.svg">icons/user-trash-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="lightbulb-symbolic.svg">icons/lightbulb-symbolic.svg</file>
     </gresource>
     <!-- @formatter:on -->
 </gresources>

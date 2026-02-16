@@ -1,7 +1,7 @@
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::plausibility::check;
-use crate::result::{Solution, UnsolvableReason};
+use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use log::debug;
 use tokio_util::sync::CancellationToken;
@@ -64,7 +64,7 @@ pub async fn solve_all_filling(
     }
 
     let mut board = board;
-    board.trim();
+    let trim_sides = board.trim();
 
     if board.get_array().iter().filter(|c| !*c).count() > Bitmask::max_bits() {
         debug!("Board too large for bitmask representation.");
@@ -74,14 +74,23 @@ pub async fn solve_all_filling(
     let result = backtracking::solve_all_filling(board, tiles, cancel_token).await;
     match &result {
         Ok(solution) => {
-            for placement in solution.placements() {
-                debug!("Placement at position {:?}", placement.position());
-                array_util::debug_print(&placement.rotation());
-            }
+            let trim_adjusted_placements: Vec<TilePlacement> = solution
+                .placements()
+                .iter()
+                .map(|placement| {
+                    let (x, y) = placement.position();
+                    let (trimmed_x, trimmed_y) = (x + trim_sides.lower_x, y + trim_sides.lower_y);
+                    TilePlacement::new(
+                        placement.base().clone(),
+                        placement.rotation().clone(),
+                        (trimmed_x, trimmed_y),
+                    )
+                })
+                .collect();
+            Ok(Solution::new(trim_adjusted_placements))
         }
-        Err(_) => {}
-    };
-    result
+        Err(_) => result,
+    }
 }
 
 #[cfg(test)]

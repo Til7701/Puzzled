@@ -1,28 +1,30 @@
 mod extension;
+mod hint;
 mod info;
-mod solver;
 
 use crate::application::PuzzledApplication;
 use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut, SolverState};
 use crate::presenter::puzzle::extension::ExtensionPresenter;
+use crate::presenter::puzzle::hint::{HintButtonPresenter, HintButtonState};
 use crate::presenter::puzzle::info::PuzzleInfoPresenter;
-use crate::presenter::puzzle::solver::SolverStatePresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
-use crate::solver::is_solved;
+use crate::solver::{interrupt_solver_call, is_solved};
 use crate::view::puzzle_area_page::PuzzleAreaPage;
 use crate::window::PuzzledWindow;
-use adw::prelude::NavigationPageExt;
-use log::{debug, error};
+use adw::prelude::{ActionMapExtManual, NavigationPageExt};
+use adw::{gio, Toast, ToastOverlay};
+use gtk::Label;
+use log::error;
 use std::rc::Rc;
-use std::time::Duration;
 
 #[derive(Clone)]
 pub struct PuzzlePresenter {
     puzzle_area_nav_page: PuzzleAreaPage,
+    toast_overlay: ToastOverlay,
     puzzle_info_presenter: PuzzleInfoPresenter,
     puzzle_area_presenter: PuzzleAreaPresenter,
-    solver_state_presenter: SolverStatePresenter,
+    hint_button_presenter: HintButtonPresenter,
     extension_presenter: ExtensionPresenter,
     puzzle_meta: PuzzleMeta,
     puzzle_solved_callback: Option<Rc<dyn Fn()>>,
@@ -32,14 +34,15 @@ impl PuzzlePresenter {
     pub fn new(window: &PuzzledWindow) -> Self {
         let puzzle_info_presenter = PuzzleInfoPresenter::new(window);
         let puzzle_area_presenter = PuzzleAreaPresenter::new(window);
-        let solver_state_presenter = SolverStatePresenter::new(window);
+        let hint_button_presenter = HintButtonPresenter::new(window);
         let extension_presenter = ExtensionPresenter::new(window);
 
         PuzzlePresenter {
             puzzle_area_nav_page: window.puzzle_area_nav_page(),
+            toast_overlay: window.puzzle_area_nav_page().toast_overlay(),
             puzzle_info_presenter,
             puzzle_area_presenter,
-            solver_state_presenter,
+            hint_button_presenter,
             extension_presenter,
             puzzle_meta: PuzzleMeta::new(),
             puzzle_solved_callback: None,
@@ -48,14 +51,22 @@ impl PuzzlePresenter {
 
     pub fn register_actions(&self, app: &PuzzledApplication) {
         self.puzzle_info_presenter.register_actions(app);
-        self.solver_state_presenter.register_actions(app);
+        self.hint_button_presenter.register_actions(app);
         self.extension_presenter.register_actions(app);
+
+        let solver_state_action = gio::ActionEntry::builder("hint")
+            .activate({
+                let self_clone = self.clone();
+                move |_, _, _| self_clone.on_hint_requested()
+            })
+            .build();
+        app.add_action_entries([solver_state_action]);
     }
 
     pub fn setup(&mut self, puzzle_solved_callback: Rc<dyn Fn()>) {
         self.puzzle_info_presenter.setup();
         self.puzzle_area_presenter.setup();
-        self.solver_state_presenter.setup();
+        self.hint_button_presenter.setup();
         self.extension_presenter.setup();
         self.puzzle_solved_callback = Some(puzzle_solved_callback);
     }
@@ -68,13 +79,8 @@ impl PuzzlePresenter {
         self.extension_presenter.show_puzzle(Rc::new({
             let self_clone = self.clone();
             move || {
-                debug!("Extension target changed, re-evaluating puzzle solvability");
-                let puzzle_state = self_clone.puzzle_area_presenter.extract_puzzle_state();
-                if let Ok(mut puzzle_state) = puzzle_state {
-                    self_clone.solver_state_presenter.update(&mut puzzle_state);
-                    self_clone.puzzle_area_presenter.update_layout();
-                    self_clone.puzzle_area_presenter.update_highlights();
-                }
+                self_clone.puzzle_area_presenter.update_layout();
+                self_clone.puzzle_area_presenter.update_highlights();
             }
         }));
         self.on_tile_moved();
@@ -90,23 +96,51 @@ impl PuzzlePresenter {
     fn on_tile_moved(&self) {
         let puzzle_state = self.puzzle_area_presenter.extract_puzzle_state();
 
-        if let Ok(mut puzzle_state) = puzzle_state {
+        if let Ok(puzzle_state) = puzzle_state {
+            let mut state = get_state_mut();
+            interrupt_solver_call(&state);
+            state.solver_state = SolverState::Done;
+            self.hint_button_presenter
+                .display_state(&HintButtonState::Bulb);
+            drop(state);
             if is_solved(&puzzle_state) {
-                let mut state = get_state_mut();
-                state.solver_state = SolverState::Done {
-                    solvable: true,
-                    duration: Duration::ZERO,
-                };
-                drop(state);
-                self.solver_state_presenter
-                    .display_solver_state(&SolverState::Done {
-                        solvable: true,
-                        duration: Duration::ZERO,
-                    });
                 self.handle_solved();
-            } else {
-                self.solver_state_presenter.update(&mut puzzle_state);
             }
+        }
+    }
+
+    fn on_hint_requested(&self) {
+        let puzzle_state = self.puzzle_area_presenter.extract_puzzle_state();
+
+        if let Ok(mut puzzle_state) = puzzle_state {
+            self.puzzle_area_presenter.remove_hint_tile();
+            self.hint_button_presenter
+                .calculate_hint(&mut puzzle_state, {
+                    let self_clone = self.clone();
+                    Box::new(move |result| {
+                        self_clone.toast_overlay.dismiss_all();
+                        match result {
+                            Ok(solution) => {
+                                solution.placements().last()
+                                    .map(|placement| self_clone.puzzle_area_presenter.show_hint_tile(placement));
+                            }
+                            Err(_) => {
+                                self_clone.toast_overlay.add_toast(
+                                    Toast::builder()
+                                        .custom_title(
+                                            &Label::builder()
+                                                .label(
+                                                    "Puzzle is not solvable with the current approach",
+                                                )
+                                                .css_classes(vec!["error"])
+                                                .build(),
+                                        )
+                                        .build(),
+                                );
+                            }
+                        }
+                    })
+                });
         }
     }
 

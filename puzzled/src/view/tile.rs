@@ -180,6 +180,10 @@ impl TileView {
         self.imp().base.borrow()
     }
 
+    pub fn color(&self) -> RGBA {
+        self.imp().color.borrow()[&DrawingMode::Normal]
+    }
+
     /// Rotates the tile one step clockwise.
     pub fn rotate_clockwise(&self) {
         let previous = self.current_rotation().clone();

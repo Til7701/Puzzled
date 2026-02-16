@@ -1,6 +1,7 @@
 use ndarray::Array2;
 
 /// Represents a successful solution to the puzzle.
+#[derive(Debug)]
 pub struct Solution {
     placements: Vec<TilePlacement>,
 }
@@ -18,6 +19,7 @@ impl Solution {
 }
 
 /// Represents the placement of a tile at a specific position in the puzzle.
+#[derive(Debug)]
 pub struct TilePlacement {
     /// The base of the tile being placed.
     base: Array2<bool>,
@@ -62,6 +64,7 @@ impl TilePlacement {
 /// Currently, the only reason is `NoFit`, indicating that no tiles can fit in the remaining spaces.
 ///
 /// In the future, more reasons can be added as needed.
+#[derive(Debug)]
 pub enum UnsolvableReason {
     NoFit,
     BoardTooLarge,

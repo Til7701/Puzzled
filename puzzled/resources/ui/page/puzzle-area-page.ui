@@ -16,10 +16,10 @@
                             </object>
                         </child>
                         <child type="start">
-                            <object class="GtkButton" id="solver_state">
-                                <property name="icon-name">circle-outline-thick-symbolic</property>
-                                <property name="tooltip-text" translatable="yes">Solver State</property>
-                                <property name="action-name">app.solver_state</property>
+                            <object class="GtkButton" id="hint_button">
+                                <property name="icon-name">lightbulb-symbolic</property>
+                                <property name="tooltip-text" translatable="yes">Hint</property>
+                                <property name="action-name">app.hint</property>
                             </object>
                         </child>
                         <child type="start">
@@ -36,9 +36,19 @@
                     </object>
                 </child>
                 <property name="content">
-                    <object class="GtkFixed" id="grid">
+                    <object class="AdwToastOverlay" id="toast_overlay">
                         <property name="hexpand">True</property>
+                        <property name="hexpand-set">True</property>
                         <property name="vexpand">True</property>
+                        <property name="vexpand-set">True</property>
+                        <child>
+                            <object class="GtkFixed" id="grid">
+                                <property name="hexpand">True</property>
+                                <property name="hexpand-set">True</property>
+                                <property name="vexpand">True</property>
+                                <property name="vexpand-set">True</property>
+                            </object>
+                        </child>
                     </object>
                 </property>
             </object>

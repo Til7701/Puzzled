@@ -10,6 +10,8 @@ mod imp {
     #[template(resource = "/de/til7701/Puzzled/ui/page/puzzle-area-page.ui")]
     pub struct PuzzleAreaPage {
         #[template_child]
+        pub toast_overlay: TemplateChild<adw::ToastOverlay>,
+        #[template_child]
         pub grid: TemplateChild<gtk::Fixed>,
         #[template_child]
         pub puzzle_info_button: TemplateChild<gtk::Button>,
@@ -18,7 +20,7 @@ mod imp {
         #[template_child]
         pub target_selection_button: TemplateChild<gtk::Button>,
         #[template_child]
-        pub solver_state: TemplateChild<gtk::Button>,
+        pub hint_button: TemplateChild<gtk::Button>,
     }
 
     #[glib::object_subclass]
@@ -55,6 +57,10 @@ impl PuzzleAreaPage {
             .build()
     }
 
+    pub fn toast_overlay(&self) -> adw::ToastOverlay {
+        self.imp().toast_overlay.clone()
+    }
+
     pub fn grid(&self) -> gtk::Fixed {
         self.imp().grid.clone()
     }
@@ -71,7 +77,7 @@ impl PuzzleAreaPage {
         self.imp().target_selection_button.clone()
     }
 
-    pub fn solver_state(&self) -> gtk::Button {
-        self.imp().solver_state.clone()
+    pub fn hint_button(&self) -> gtk::Button {
+        self.imp().hint_button.clone()
     }
 }

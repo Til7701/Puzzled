@@ -14,7 +14,6 @@ use gtk::ListBox;
 use log::{debug, error};
 use puzzle_config::ReadError::FileReadError;
 use puzzle_config::{PuzzleConfigCollection, ReadError};
-use std::str::FromStr;
 
 #[derive(Clone)]
 pub struct CollectionSelectionPresenter {
