@@ -118,24 +118,27 @@ impl PuzzlePresenter {
             self.hint_button_presenter
                 .calculate_hint(&mut puzzle_state, {
                     let self_clone = self.clone();
-                    Box::new(move |result| match result {
-                        Ok(solution) => {
-                            let placement = solution.placements().first().unwrap();
-                            self_clone.puzzle_area_presenter.show_hint_tile(placement);
-                        }
-                        Err(_) => {
-                            self_clone.toast_overlay.add_toast(
-                                Toast::builder()
-                                    .custom_title(
-                                        &Label::builder()
-                                            .label(
-                                                "Puzzle is not solvable with the current approach",
-                                            )
-                                            .css_classes(vec!["error"])
-                                            .build(),
-                                    )
-                                    .build(),
-                            );
+                    Box::new(move |result| {
+                        self_clone.toast_overlay.dismiss_all();
+                        match result {
+                            Ok(solution) => {
+                                let placement = solution.placements().first().unwrap();
+                                self_clone.puzzle_area_presenter.show_hint_tile(placement);
+                            }
+                            Err(_) => {
+                                self_clone.toast_overlay.add_toast(
+                                    Toast::builder()
+                                        .custom_title(
+                                            &Label::builder()
+                                                .label(
+                                                    "Puzzle is not solvable with the current approach",
+                                                )
+                                                .css_classes(vec!["error"])
+                                                .build(),
+                                        )
+                                        .build(),
+                                );
+                            }
                         }
                     })
                 });
