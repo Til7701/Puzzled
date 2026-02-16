@@ -1,4 +1,3 @@
-use crate::array_util::TrimSides;
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::plausibility::check;

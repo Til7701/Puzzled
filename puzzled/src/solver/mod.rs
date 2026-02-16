@@ -8,7 +8,7 @@ use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
 use std::cmp::PartialEq;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tokio_util::sync::CancellationToken;
 
 /// Unique identifier for a solver call.
@@ -50,7 +50,11 @@ pub fn solve_for_target(
             let result = puzzle_solver::solve_all_filling(board, &tiles, cancel_token).await;
             let end = Instant::now();
             let duration = end.duration_since(now);
-            handle_on_complete(solver_call_id, result, duration, on_complete);
+            debug!(
+                "Solver task completed in {}.",
+                humantime::format_duration(duration)
+            );
+            handle_on_complete(solver_call_id, result, on_complete);
         }
     });
 }
@@ -58,17 +62,13 @@ pub fn solve_for_target(
 fn handle_on_complete(
     solver_call_id: SolverCallId,
     result: Result<Solution, UnsolvableReason>,
-    run_duration: Duration,
     on_complete: OnCompleteCallback,
 ) {
     let mut state = get_state_mut();
     if let SolverState::Running { call_id, .. } = &state.solver_state
         && *call_id == solver_call_id
     {
-        state.solver_state = Done {
-            solvable: result.is_ok(),
-            duration: run_duration,
-        };
+        state.solver_state = Done;
         drop(state);
         on_complete(result);
     }

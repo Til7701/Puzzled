@@ -15,9 +15,8 @@ use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, NavigationPageExt};
 use adw::{gio, Toast, ToastOverlay};
 use gtk::Label;
-use log::{debug, error};
+use log::error;
 use std::rc::Rc;
-use std::time::Duration;
 
 #[derive(Clone)]
 pub struct PuzzlePresenter {
@@ -100,10 +99,7 @@ impl PuzzlePresenter {
         if let Ok(puzzle_state) = puzzle_state {
             if is_solved(&puzzle_state) {
                 let mut state = get_state_mut();
-                state.solver_state = SolverState::Done {
-                    solvable: true,
-                    duration: Duration::ZERO,
-                };
+                state.solver_state = SolverState::Done;
                 drop(state);
                 self.handle_solved();
             }
@@ -122,8 +118,8 @@ impl PuzzlePresenter {
                         self_clone.toast_overlay.dismiss_all();
                         match result {
                             Ok(solution) => {
-                                let placement = solution.placements().first().unwrap();
-                                self_clone.puzzle_area_presenter.show_hint_tile(placement);
+                                solution.placements().last()
+                                    .map(|placement| self_clone.puzzle_area_presenter.show_hint_tile(placement));
                             }
                             Err(_) => {
                                 self_clone.toast_overlay.add_toast(
