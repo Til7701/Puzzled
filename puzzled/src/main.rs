@@ -23,6 +23,7 @@ extern crate core;
 mod adw_ext;
 mod application;
 mod config;
+mod drawing;
 mod global;
 mod offset;
 mod presenter;

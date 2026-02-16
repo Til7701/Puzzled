@@ -1,6 +1,6 @@
-use crate::adw_ext;
 use crate::offset::CellOffset;
 use crate::offset::PixelOffset;
+use crate::{adw_ext, drawing};
 use adw::gdk::RGBA;
 use adw::gio;
 use adw::glib;
@@ -30,6 +30,7 @@ pub enum DrawingMode {
 
 mod imp {
     use super::*;
+    use crate::drawing::Contour;
     use std::cell::{Cell, RefCell};
     use std::collections::HashMap;
 
@@ -42,6 +43,7 @@ mod imp {
         pub position_pixels: Cell<PixelOffset>,
         pub color: RefCell<HashMap<DrawingMode, RGBA>>,
         pub drawing_modes: RefCell<Array2<DrawingMode>>,
+        pub contour: RefCell<Contour>,
     }
 
     #[glib::object_subclass]
@@ -102,7 +104,7 @@ impl TileView {
         obj.imp().id.replace(id);
         obj.imp().base.replace(base.clone());
         obj.imp().drawing_modes.replace(Array2::default(base.dim()));
-        obj.imp().current_rotation.replace(base);
+        obj.set_current_rotation(base);
         obj.init_color(color);
 
         obj.set_draw_func({
@@ -131,19 +133,35 @@ impl TileView {
     fn draw(&self, cr: &Context, width: i32, height: i32) {
         let current_rotation = self.imp().current_rotation.borrow();
         let drawing_modes = self.imp().drawing_modes.borrow();
+        let contour = self.imp().contour.borrow();
 
         let color_map = self.imp().color.borrow();
+        let normal_color = color_map[&DrawingMode::Normal];
+
+        let cell_width = width as f64 / current_rotation.dim().0 as f64;
+        let cell_height = height as f64 / current_rotation.dim().1 as f64;
+
+        cr.set_source_color(&normal_color);
+        for vertices_list in contour.vertices_lists() {
+            for vertex in vertices_list.iter() {
+                cr.move_to(vertex.0 as f64 * cell_width, vertex.1 as f64 * cell_height);
+            }
+            cr.close_path();
+            cr.fill().expect("Failed to fill");
+        }
+
         for ((x, y), cell) in current_rotation.indexed_iter() {
             if *cell {
-                let cell_width = width as f64 / current_rotation.dim().0 as f64;
-                let cell_height = height as f64 / current_rotation.dim().1 as f64;
                 let cell_x = x as f64 * cell_width;
                 let cell_y = y as f64 * cell_height;
-
                 let drawing_mode = &drawing_modes[(x, y)];
-                cr.set_source_color(&color_map[drawing_mode]);
-                cr.rectangle(cell_x, cell_y, cell_width, cell_height);
-                cr.fill().expect("Failed to fill");
+
+                if *drawing_mode != DrawingMode::Normal {
+                    let highlight_color = color_map[drawing_mode];
+                    cr.set_source_color(&highlight_color);
+                    cr.rectangle(cell_x, cell_y, cell_width, cell_height);
+                    cr.fill().expect("Failed to fill");
+                }
 
                 // Border
                 let border_color = match drawing_mode {
@@ -203,6 +221,8 @@ impl TileView {
         self.imp()
             .drawing_modes
             .replace(Array2::default(rotation.dim()));
+        let contour = drawing::contours_from_array(&rotation);
+        self.imp().contour.replace(contour);
         self.imp().current_rotation.replace(rotation);
         self.queue_draw();
     }
