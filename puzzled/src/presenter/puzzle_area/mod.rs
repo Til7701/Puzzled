@@ -152,6 +152,7 @@ impl PuzzleAreaPresenter {
                 .position_cells()
                 .ok_or_else(|| "Tile position not set".to_string())?;
             let tile_position = tile_position - board_position + CellOffset(1, 1);
+            let mut any_cell_on_board = false;
             for ((x, y), cell) in tile_view.current_rotation().indexed_iter() {
                 if !*cell {
                     continue;
@@ -173,12 +174,17 @@ impl PuzzleAreaPresenter {
                                 cell_position: CellOffset(x as i32, y as i32),
                             };
                             match old {
-                                Cell::Empty(data) => Cell::One(data, tile_cell_placement),
+                                Cell::Empty(data) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    Cell::One(data, tile_cell_placement)
+                                }
                                 Cell::One(data, existing_widget) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
                                     let widgets = vec![existing_widget, tile_cell_placement];
                                     Cell::Many(data, widgets)
                                 }
                                 Cell::Many(data, mut widgets) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
                                     widgets.push(tile_cell_placement);
                                     Cell::Many(data, widgets)
                                 }
@@ -186,13 +192,14 @@ impl PuzzleAreaPresenter {
                         }
                     };
                     state.grid[idx] = new;
-                } else {
-                    let unused_tile = UnusedTile {
-                        id: i,
-                        base: tile_view.base().clone(),
-                    };
-                    state.unused_tiles.insert(unused_tile);
                 }
+            }
+            if !any_cell_on_board {
+                let unused_tile = UnusedTile {
+                    id: i,
+                    base: tile_view.base().clone(),
+                };
+                state.unused_tiles.insert(unused_tile);
             }
         }
         Ok(state)
