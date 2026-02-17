@@ -79,15 +79,32 @@ impl TilePresenter {
             let self_clone = self.clone();
             move |_, dx, dy| {
                 let new = {
-                    let mut data = self_clone.data.borrow_mut();
+                    let data = self_clone.data.borrow();
                     let tile_view = {
-                        match data.tile_views.get_mut(tile_view_index) {
+                        match data.tile_views.get(tile_view_index) {
                             Some(tv) => tv,
                             None => return,
                         }
                     };
-                    let pos = tile_view.position_pixels();
-                    pos.add_tuple((dx, dy))
+                    let mut pos = tile_view.position_pixels();
+                    pos = pos.add_tuple((dx, dy));
+
+                    if pos.0 < 0.0 {
+                        pos.0 = 0.0;
+                    }
+                    if pos.1 < 0.0 {
+                        pos.1 = 0.0;
+                    }
+
+                    let fixed = &data.fixed;
+                    if pos.0 + tile_view.width() as f64 > fixed.width() as f64 {
+                        pos.0 = fixed.width() as f64 - tile_view.width() as f64;
+                    }
+                    if pos.1 + tile_view.height() as f64 > fixed.height() as f64 {
+                        pos.1 = fixed.height() as f64 - tile_view.height() as f64;
+                    }
+
+                    pos
                 };
                 self_clone.move_to(tile_view_index, new);
             }
