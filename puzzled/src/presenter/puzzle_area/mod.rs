@@ -8,7 +8,9 @@ use crate::presenter::puzzle_area::puzzle_state::{
 use crate::presenter::puzzle_area::tile::TilePresenter;
 use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
-use gtk::prelude::{FixedExt, GtkWindowExt, WidgetExt};
+use adw::glib;
+use gtk::prelude::{FixedExt, WidgetExt, WidgetExtManual};
+use log::debug;
 use puzzle_config::ColorConfig;
 use puzzle_solver::result::TilePlacement;
 use std::cell::RefCell;
@@ -51,18 +53,22 @@ impl PuzzleAreaPresenter {
     }
 
     pub fn setup(&self) {
-        self.window.connect_default_width_notify({
+        self.window.add_tick_callback({
             let self_clone = self.clone();
-            move |_| self_clone.update_layout()
-        });
-        self.window.connect_is_active_notify({
-            let self_clone = self.clone();
-            move |_| self_clone.update_layout()
-        });
-        // Currently, this does not work, since the width is not updated yet when this signal is emitted.
-        self.window.connect_maximized_notify({
-            let self_clone = self.clone();
-            move |_| self_clone.update_layout()
+            let last = Rc::new(std::cell::Cell::new((
+                self.window.width(),
+                self.window.height(),
+            )));
+            move |window, _| {
+                let (w, h) = last.get();
+                let window_width = window.width();
+                let window_height = window.height();
+                if window_width != w || window_height != h {
+                    last.set((window_width, window_height));
+                    self_clone.update_layout();
+                }
+                glib::ControlFlow::Continue
+            }
         });
     }
 
@@ -110,6 +116,7 @@ impl PuzzleAreaPresenter {
     ///
     /// This moves the puzzle area elements according to the current window size.
     pub fn update_layout(&self) {
+        debug!("Updating layout");
         self.update_cell_width();
         self.board_presenter.update_layout();
         self.tile_presenter.update_layout();
