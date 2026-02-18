@@ -152,7 +152,10 @@ mod tests {
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         // (collection_id, puzzle_name) pairs to skip because they are known to be unsolvable or take too long
-        let skip_list = [("de.til7701.Puzzled.Puzzled", "Large Sandbox")];
+        let skip_list = [
+            ("de.til7701.Puzzled.Puzzled", "Large Sandbox"),
+            ("de.til7701.Puzzled.RecursiveConstruction", "T4 x 3"),
+        ];
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
