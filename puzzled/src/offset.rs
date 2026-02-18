@@ -96,6 +96,10 @@ impl CellOffset {
     pub fn max(&self, other: CellOffset) -> CellOffset {
         Self(self.0.max(other.0), self.1.max(other.1))
     }
+
+    pub fn min(&self, other: CellOffset) -> CellOffset {
+        Self(self.0.min(other.0), self.1.min(other.1))
+    }
 }
 
 impl From<(i32, i32)> for CellOffset {

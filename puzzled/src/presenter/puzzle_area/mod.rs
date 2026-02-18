@@ -139,6 +139,8 @@ impl PuzzleAreaPresenter {
         let cell_size_pixel = cell_width_pixel.min(cell_height_pixel);
 
         let grid_h_cell_count = (available_width_pixel / cell_size_pixel as f64).floor() as u32;
+        let min_grid_h_cell_count = board_size_cells_with_margin.0 as u32;
+        let min_grid_v_cell_count = board_size_cells_with_margin.1 as u32;
         let grid_v_cell_count = (available_height_pixel / cell_size_pixel as f64).floor() as u32;
 
         let board_offset_cells = CellOffset(
@@ -149,6 +151,8 @@ impl PuzzleAreaPresenter {
         let grid_config = GridConfig {
             grid_h_cell_count,
             grid_v_cell_count,
+            min_grid_h_cell_count,
+            min_grid_v_cell_count,
             cell_size_pixel,
             board_offset_cells,
         };
@@ -173,12 +177,15 @@ impl PuzzleAreaPresenter {
         let data = self.data.borrow();
         let tile_views = &data.tile_views;
         let mut required_cells = CellOffset(0, 0);
+        let mut lowest_position_cells = CellOffset(0, 0);
         for tile_view in tile_views {
             let tile_size: CellOffset = tile_view.base().dim().into();
             required_cells =
                 required_cells.max(tile_size + tile_view.position_cells().unwrap_or_default());
+            lowest_position_cells = lowest_position_cells
+                .min(tile_view.position_cells().unwrap_or(lowest_position_cells));
         }
-        required_cells
+        required_cells - lowest_position_cells
     }
 
     fn update_grid_config(&self, grid_config: GridConfig) {
@@ -195,12 +202,20 @@ impl PuzzleAreaPresenter {
         }
 
         data.grid_config = grid_config;
+        drop(data);
+        self.set_min_size();
     }
 
     fn move_all_elements_by(&self, data: &PuzzleAreaData, offset_cells: CellOffset) {
         for tile_view in &data.tile_views {
             if let Some(position_cells) = tile_view.position_cells() {
-                let new_position_cells = position_cells + offset_cells;
+                let mut new_position_cells = position_cells + offset_cells;
+                if new_position_cells.0 < 0 {
+                    new_position_cells.0 = 0;
+                }
+                if new_position_cells.1 < 0 {
+                    new_position_cells.1 = 0;
+                }
                 tile_view.set_position_cells(Some(new_position_cells));
             }
         }
@@ -216,10 +231,14 @@ impl PuzzleAreaPresenter {
         let min_board_elements_width = self.board_presenter.get_min_element_width();
         let data = self.data.borrow();
 
-        let fixed_min_width = data.grid_config.grid_h_cell_count as i32 * min_board_elements_width;
-        data.fixed.set_width_request(fixed_min_width);
-        let fixed_min_height = data.grid_config.grid_v_cell_count as i32 * min_board_elements_width;
-        data.fixed.set_height_request(fixed_min_height);
+        let fixed_min_width =
+            data.grid_config.min_grid_h_cell_count as i32 * min_board_elements_width;
+        self.window.set_width_request(fixed_min_width);
+        let fixed_min_height =
+            data.grid_config.min_grid_v_cell_count as i32 * min_board_elements_width;
+        self.window.set_height_request(
+            fixed_min_height + self.window.puzzle_area_nav_page().header_bar().height(),
+        );
     }
 
     fn clear_elements(&self) {
