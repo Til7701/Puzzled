@@ -8,7 +8,6 @@ use crate::view::solved_dialog::SolvedDialog;
 use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt};
 use adw::{gio, NavigationSplitView};
-use gtk::prelude::WidgetExt;
 use log::{debug, error, info};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -75,8 +74,6 @@ impl MainPresenter {
             presenters.puzzle_selection.show_collection();
             self.inner_view.set_show_content(true);
             self.outer_view.set_show_content(false);
-            self.window.set_width_request(MIN_WINDOW_WIDTH);
-            self.window.set_height_request(MIN_WINDOW_HEIGHT);
         }
     }
 

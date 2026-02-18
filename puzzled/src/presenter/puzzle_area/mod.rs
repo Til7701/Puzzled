@@ -113,7 +113,6 @@ impl PuzzleAreaPresenter {
             drop(state);
             self.update_highlights();
             self.update_layout();
-            self.set_min_size();
         }
     }
 
@@ -275,6 +274,10 @@ impl PuzzleAreaPresenter {
     /// that everything is wrapped in, does not work well with changing width requests
     /// if the children.
     fn set_min_size(&self) {
+        if !self.window.outer_view().shows_content() {
+            return;
+        }
+
         let min_board_elements_width = self.board_presenter.get_min_element_width();
         let data = self.data.borrow();
 
