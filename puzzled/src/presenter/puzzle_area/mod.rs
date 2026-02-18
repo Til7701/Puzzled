@@ -1,5 +1,6 @@
 use crate::global::state::get_state;
 use crate::offset::CellOffset;
+use crate::presenter::main::{MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
 use crate::presenter::puzzle_area::board::BoardPresenter;
 use crate::presenter::puzzle_area::data::{GridConfig, PuzzleAreaData};
 use crate::presenter::puzzle_area::puzzle_state::{
@@ -10,7 +11,7 @@ use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
 use adw::glib;
 use gtk::prelude::{FixedExt, WidgetExt, WidgetExtManual};
-use puzzle_config::ColorConfig;
+use puzzle_config::{ColorConfig, PuzzleConfig};
 use puzzle_solver::result::TilePlacement;
 use std::cell::RefCell;
 use std::mem::take;
@@ -24,9 +25,7 @@ mod tile;
 
 const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;
 const MIN_CELLS_TO_THE_SIDES_OF_BOARD: i32 = 6;
-const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 6;
-const MIN_WINDOW_WIDTH: i32 = 320;
-const MIN_WINDOW_HEIGHT: i32 = 240;
+const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 3;
 
 #[derive(Debug, Clone)]
 pub struct PuzzleAreaPresenter {
@@ -84,6 +83,10 @@ impl PuzzleAreaPresenter {
 
         let state = get_state();
         if let Some(puzzle_config) = &state.puzzle_config {
+            let mut data = self.data.borrow_mut();
+            data.grid_config = self.initial_grid_config(puzzle_config);
+            drop(data);
+
             self.board_presenter.setup(puzzle_config);
 
             let start_positions = placement::calculate_tile_start_positions(
@@ -111,6 +114,30 @@ impl PuzzleAreaPresenter {
             self.update_highlights();
             self.update_layout();
             self.set_min_size();
+        }
+    }
+
+    fn initial_grid_config(&self, puzzle_config: &PuzzleConfig) -> GridConfig {
+        let board_cell_width = puzzle_config.board_config().layout().dim().0 as i32;
+        let board_cell_height = puzzle_config.board_config().layout().dim().1 as i32;
+
+        let required_cell_width = board_cell_width + MIN_CELLS_TO_THE_SIDES_OF_BOARD * 2;
+        let required_cell_height =
+            board_cell_height + MIN_CELLS_TO_THE_TOP_OF_BOARD + MIN_CELLS_TO_THE_BOTTOM_OF_BOARD;
+        let initial_cell_size_pixel = (self.window.width() as f64 / required_cell_width as f64)
+            .floor()
+            .min((self.window.height() as f64 / required_cell_height as f64).floor())
+            as u32;
+        GridConfig {
+            grid_h_cell_count: required_cell_width as u32,
+            grid_v_cell_count: required_cell_height as u32,
+            min_grid_h_cell_count: required_cell_width as u32,
+            min_grid_v_cell_count: required_cell_height as u32,
+            cell_size_pixel: initial_cell_size_pixel,
+            board_offset_cells: CellOffset(
+                MIN_CELLS_TO_THE_SIDES_OF_BOARD,
+                MIN_CELLS_TO_THE_TOP_OF_BOARD,
+            ),
         }
     }
 
