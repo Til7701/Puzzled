@@ -25,6 +25,8 @@ mod tile;
 const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;
 const MIN_CELLS_TO_THE_SIDES_OF_BOARD: i32 = 6;
 const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 6;
+const MIN_WINDOW_WIDTH: i32 = 320;
+const MIN_WINDOW_HEIGHT: i32 = 240;
 
 #[derive(Debug, Clone)]
 pub struct PuzzleAreaPresenter {
@@ -233,11 +235,13 @@ impl PuzzleAreaPresenter {
 
         let fixed_min_width =
             data.grid_config.min_grid_h_cell_count as i32 * min_board_elements_width;
-        self.window.set_width_request(fixed_min_width);
+        self.window
+            .set_width_request(fixed_min_width.max(MIN_WINDOW_WIDTH));
         let fixed_min_height =
             data.grid_config.min_grid_v_cell_count as i32 * min_board_elements_width;
         self.window.set_height_request(
-            fixed_min_height + self.window.puzzle_area_nav_page().header_bar().height(),
+            (fixed_min_height + self.window.puzzle_area_nav_page().header_bar().height())
+                .max(MIN_WINDOW_HEIGHT),
         );
     }
 

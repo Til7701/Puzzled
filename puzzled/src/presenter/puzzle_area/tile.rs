@@ -89,20 +89,11 @@ impl TilePresenter {
                     let mut pos = tile_view.position_pixels();
                     pos = pos.add_tuple((dx, dy));
 
-                    if pos.0 < 0.0 {
-                        pos.0 = 0.0;
-                    }
-                    if pos.1 < 0.0 {
-                        pos.1 = 0.0;
-                    }
-
                     let fixed = &data.fixed;
-                    if pos.0 + tile_view.width() as f64 > fixed.width() as f64 {
-                        pos.0 = fixed.width() as f64 - tile_view.width() as f64;
-                    }
-                    if pos.1 + tile_view.height() as f64 > fixed.height() as f64 {
-                        pos.1 = fixed.height() as f64 - tile_view.height() as f64;
-                    }
+                    let max_x = fixed.width() as f64 - tile_view.width() as f64;
+                    let max_y = fixed.height() as f64 - tile_view.height() as f64;
+                    pos.0 = pos.0.clamp(0.0, max_x);
+                    pos.1 = pos.1.clamp(0.0, max_y);
 
                     pos
                 };
@@ -116,6 +107,8 @@ impl TilePresenter {
                 let snapped = {
                     let mut data = self_clone.data.borrow_mut();
                     let grid_size = data.grid_config.cell_size_pixel;
+                    let grid_h_cell_count = data.grid_config.grid_h_cell_count;
+                    let grid_v_cell_count = data.grid_config.grid_v_cell_count;
                     let tile_view = {
                         match data.tile_views.get_mut(tile_view_index) {
                             Some(tv) => tv,
@@ -128,10 +121,17 @@ impl TilePresenter {
                         .round()
                         .mul_scalar(grid_size as f64);
 
-                    let new_position_cells =
+                    let max_h_cell_position =
+                        grid_h_cell_count as i32 - tile_view.current_rotation().dim().0 as i32;
+                    let max_v_cell_position =
+                        grid_v_cell_count as i32 - tile_view.current_rotation().dim().1 as i32;
+                    let mut new_position_cells =
                         self_clone.calculate_cells_from_pixels(&pos, grid_size as f64);
+                    new_position_cells.0 = new_position_cells.0.clamp(0, max_h_cell_position);
+                    new_position_cells.1 = new_position_cells.1.clamp(0, max_v_cell_position);
+
                     tile_view.set_position_cells(Some(new_position_cells));
-                    pos
+                    new_position_cells.mul_scalar(grid_size as f64).into()
                 };
                 self_clone.move_to(tile_view_index, snapped);
                 on_position_changed();
