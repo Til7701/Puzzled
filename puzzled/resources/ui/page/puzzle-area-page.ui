@@ -7,7 +7,7 @@
         <property name="child">
             <object class="AdwToolbarView">
                 <child type="top">
-                    <object class="AdwHeaderBar">
+                    <object class="AdwHeaderBar" id="header_bar">
                         <child type="start">
                             <object class="GtkButton" id="puzzle_info_button">
                                 <property name="icon-name">info-outline-symbolic</property>

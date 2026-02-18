@@ -10,6 +10,8 @@ mod imp {
     #[template(resource = "/de/til7701/Puzzled/ui/page/puzzle-area-page.ui")]
     pub struct PuzzleAreaPage {
         #[template_child]
+        pub header_bar: TemplateChild<adw::HeaderBar>,
+        #[template_child]
         pub toast_overlay: TemplateChild<adw::ToastOverlay>,
         #[template_child]
         pub grid: TemplateChild<gtk::Fixed>,
@@ -55,6 +57,10 @@ impl PuzzleAreaPage {
         glib::Object::builder()
             .property("application", application)
             .build()
+    }
+
+    pub fn header_bar(&self) -> adw::HeaderBar {
+        self.imp().header_bar.clone()
     }
 
     pub fn toast_overlay(&self) -> adw::ToastOverlay {

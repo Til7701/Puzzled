@@ -63,7 +63,7 @@ impl Sub for PixelOffset {
 /// Represents an offset in x and y directions.
 ///
 /// The offset values are in cell units. For pixel-based offsets, use `PixelOffset`.
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
 pub struct CellOffset(pub i32, pub i32);
 
 impl CellOffset {
@@ -91,6 +91,10 @@ impl CellOffset {
             (self.0 as f64 / scalar) as i32,
             (self.1 as f64 / scalar) as i32,
         )
+    }
+
+    pub fn max(&self, other: CellOffset) -> CellOffset {
+        Self(self.0.max(other.0), self.1.max(other.1))
     }
 }
 

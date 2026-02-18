@@ -32,7 +32,7 @@ impl TilePresenter {
         let start_position = {
             let data = self.data.borrow();
             let grid_config = &data.grid_config;
-            start_position_cell.mul_scalar(grid_config.cell_width_pixel as f64)
+            start_position_cell.mul_scalar(grid_config.cell_size_pixel as f64)
         };
         tile_view.set_position_pixels(start_position.into());
         tile_view.set_position_cells(Some(*start_position_cell));
@@ -115,7 +115,7 @@ impl TilePresenter {
             move |_, _, _| {
                 let snapped = {
                     let mut data = self_clone.data.borrow_mut();
-                    let grid_size = data.grid_config.cell_width_pixel;
+                    let grid_size = data.grid_config.cell_size_pixel;
                     let tile_view = {
                         match data.tile_views.get_mut(tile_view_index) {
                             Some(tv) => tv,
@@ -206,7 +206,7 @@ impl TilePresenter {
         for i in 0..len {
             let pos: PixelOffset = {
                 let mut data = self.data.borrow_mut();
-                let grid_size = data.grid_config.cell_width_pixel;
+                let grid_size = data.grid_config.cell_size_pixel;
                 let tile_view = &mut data.tile_views[i];
 
                 let dims = tile_view.current_rotation().dim();
@@ -223,7 +223,7 @@ impl TilePresenter {
         }
         let data = self.data.borrow();
         if let Some(tile_view) = &data.hint_tile_view {
-            let grid_size = data.grid_config.cell_width_pixel;
+            let grid_size = data.grid_config.cell_size_pixel;
             let dims = tile_view.current_rotation().dim();
             tile_view.set_width_request(dims.0 as i32 * grid_size as i32);
             tile_view.set_height_request(dims.1 as i32 * grid_size as i32);

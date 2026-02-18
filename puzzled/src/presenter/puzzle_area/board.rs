@@ -1,8 +1,6 @@
 use crate::global::state::{get_state, PuzzleTypeExtension};
-use crate::offset::{CellOffset, PixelOffset};
-use crate::presenter::puzzle_area::{
-    PuzzleAreaData, MIN_CELLS_TO_THE_SIDES_OF_BOARD, WINDOW_TO_BOARD_RATIO,
-};
+use crate::offset::PixelOffset;
+use crate::presenter::puzzle_area::PuzzleAreaData;
 use crate::view::board::BoardView;
 use adw::prelude::Cast;
 use gtk::prelude::{FixedExt, GridExt, WidgetExt};
@@ -30,21 +28,6 @@ impl BoardPresenter {
         let mut data = self.data.borrow_mut();
         data.add_to_fixed(&widget, &PixelOffset::default());
 
-        let mut cells_to_the_side = (((puzzle_config.board_config().layout().dim().0 as f64
-            * WINDOW_TO_BOARD_RATIO)
-            - puzzle_config.board_config().layout().dim().0 as f64)
-            / 2.0) as u32;
-        if cells_to_the_side < MIN_CELLS_TO_THE_SIDES_OF_BOARD {
-            cells_to_the_side = MIN_CELLS_TO_THE_SIDES_OF_BOARD;
-        }
-        let grid_h_cell_count =
-            puzzle_config.board_config().layout().dim().0 as u32 + (cells_to_the_side * 2);
-        let board_offset_horizontal_cells =
-            ((grid_h_cell_count - puzzle_config.board_config().layout().dim().0 as u32) / 2) as i32;
-
-        let grid_config = &mut data.grid_config;
-        grid_config.grid_h_cell_count = grid_h_cell_count;
-        grid_config.board_offset_cells = CellOffset(board_offset_horizontal_cells, 1);
         data.board_view = Some(board_view);
     }
 
@@ -56,11 +39,11 @@ impl BoardPresenter {
             let grid_config = &data.grid_config;
             let pos = grid_config
                 .board_offset_cells
-                .mul_scalar(grid_config.cell_width_pixel as f64);
+                .mul_scalar(grid_config.cell_size_pixel as f64);
             data.fixed.move_(&widget, pos.0 as f64, pos.1 as f64);
             for widget in board_view.elements.iter() {
-                widget.set_width_request(grid_config.cell_width_pixel as i32);
-                widget.set_height_request(grid_config.cell_width_pixel as i32);
+                widget.set_width_request(grid_config.cell_size_pixel as i32);
+                widget.set_height_request(grid_config.cell_size_pixel as i32);
             }
         }
     }
