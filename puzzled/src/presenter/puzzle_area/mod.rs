@@ -25,7 +25,7 @@ mod tile;
 
 const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;
 const MIN_CELLS_TO_THE_SIDES_OF_BOARD: i32 = 6;
-const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 3;
+const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 6;
 
 #[derive(Debug, Clone)]
 pub struct PuzzleAreaPresenter {

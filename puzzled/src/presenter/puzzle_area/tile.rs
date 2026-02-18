@@ -161,7 +161,7 @@ impl TilePresenter {
         self.setup_tile_updating_gesture(tile_view_index, &gesture, on_position_changed.clone(), {
             move |tile_view| tile_view.rotate_clockwise()
         });
-        draggable.add_controller(gesture.clone().upcast::<EventController>());
+        draggable.add_controller(gesture.upcast::<EventController>());
 
         // Flip
         let gesture = GestureClick::new();
@@ -169,7 +169,7 @@ impl TilePresenter {
         self.setup_tile_updating_gesture(tile_view_index, &gesture, on_position_changed, {
             move |tile_view| tile_view.flip_horizontal()
         });
-        draggable.add_controller(gesture.clone().upcast::<EventController>());
+        draggable.add_controller(gesture.upcast::<EventController>());
     }
 
     fn setup_tile_updating_gesture<F: Fn(&TileView) -> () + 'static>(
