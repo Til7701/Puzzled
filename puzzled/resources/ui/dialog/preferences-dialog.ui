@@ -6,6 +6,16 @@
             <object class="AdwPreferencesPage">
                 <child>
                     <object class="AdwPreferencesGroup">
+                        <property name="title">Appearance</property>
+                        <child>
+                            <object class="AdwSwitchRow" id="show_board_grid_lines">
+                                <property name="title" translatable="yes">Show Board Grid Lines</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwPreferencesGroup">
                         <property name="title">Solutions</property>
                         <child>
                             <object class="AdwButtonRow" id="mark_all_unsolved">

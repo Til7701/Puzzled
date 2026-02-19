@@ -19,6 +19,12 @@
     border-radius: 0;
 }
 
+.show-grid-lines .board-cell:not(.board-cell-outside):not(.target-selection) {
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--border-color);
+}
+
 .board-cell-outside {
     border-style: none;
     border-radius: 0;

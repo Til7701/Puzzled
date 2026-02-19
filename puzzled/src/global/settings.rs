@@ -4,7 +4,6 @@ use adw::prelude::{IsA, SettingsExt, SettingsExtManual};
 
 /// A reusable container for preferences/settings access.
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub struct Preferences {
     settings: Settings,
 }
@@ -19,19 +18,16 @@ impl Default for Preferences {
 
 impl Preferences {
     /// Returns the value of the given setting.
-    #[allow(dead_code)]
     pub fn get<S: SettingKey>(&self, setting: S) -> S::Value {
         setting.get(&self.settings)
     }
 
     /// Binds the given setting to the specified property of the given object.
-    #[allow(dead_code)]
     pub fn bind<S: SettingKey>(&self, setting: S, obj: &impl IsA<glib::Object>, property: &str) {
         setting.bind(&self.settings, obj, property);
     }
 }
 
-#[allow(dead_code)]
 pub trait SettingKey {
     type Value;
 
@@ -48,14 +44,13 @@ pub trait SettingKey {
     }
 }
 
-#[allow(dead_code)]
-pub struct SolverEnabled;
+pub struct ShowBoardGridLines;
 
-impl SettingKey for SolverEnabled {
+impl SettingKey for ShowBoardGridLines {
     type Value = bool;
 
     fn key(&self) -> &'static str {
-        "solver-enabled"
+        "show-board-grid-lines"
     }
 
     fn get(&self, settings: &Settings) -> Self::Value {

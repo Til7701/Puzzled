@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="puzzled">
     <schema id="de.til7701.Puzzled" path="/de/til7701/Puzzled/">
+        <key name="show-board-grid-lines" type="b">
+            <default>false</default>
+        </key>
     </schema>
 
     <schema id="de.til7701.Puzzled.puzzle-meta" path="/de/til7701/Puzzled/puzzle-meta/">

@@ -1,7 +1,10 @@
+use crate::global::settings::{Preferences, ShowBoardGridLines};
 use adw::prelude::Cast;
-use gtk::prelude::{FrameExt, GridExt};
+use gtk::prelude::{FrameExt, GridExt, WidgetExt};
 use gtk::{Frame, Grid, Label, Widget};
 use puzzle_config::BoardConfig;
+
+const SHOW_GRID_LINES_CLASS: &str = "show-grid-lines";
 
 #[derive(Debug, Clone)]
 pub struct BoardView {
@@ -56,10 +59,15 @@ impl BoardView {
             elements.push(cell.upcast::<Widget>());
         }
 
-        Ok(BoardView {
-            parent: grid,
+        let board_view = BoardView {
+            parent: grid.clone(),
             elements,
-        })
+        };
+
+        let preferences = Preferences::default();
+        board_view.show_grid_lines(preferences.get(ShowBoardGridLines));
+
+        Ok(board_view)
     }
 
     pub fn get_min_element_size(&self) -> i32 {
@@ -85,5 +93,13 @@ impl BoardView {
             .max()
             .unwrap_or(0);
         max_elements_width
+    }
+
+    fn show_grid_lines(&self, show_grid_lines: bool) {
+        if show_grid_lines {
+            self.parent.add_css_class(SHOW_GRID_LINES_CLASS);
+        } else {
+            self.parent.remove_css_class(SHOW_GRID_LINES_CLASS);
+        }
     }
 }

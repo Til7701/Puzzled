@@ -18,6 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 use crate::config::VERSION;
+use crate::global::settings::{Preferences, ShowBoardGridLines};
 use crate::global::state::get_state_mut;
 use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::main::MainPresenter;
@@ -148,6 +149,12 @@ impl PuzzledApplication {
         let dialog: adw::PreferencesDialog = builder
             .object("preferences_dialog")
             .expect("Missing `preferences_dialog` in resource");
+
+        let show_board_grid_lines: adw::SwitchRow = builder
+            .object("show_board_grid_lines")
+            .expect("Missing `show_board_grid_lines` in resource");
+        let preferences = Preferences::default();
+        preferences.bind(ShowBoardGridLines, &show_board_grid_lines, "active");
 
         if let Some(window) = self.active_window() {
             dialog.present(Some(&window));
