@@ -298,5 +298,9 @@ impl PuzzledApplication {
         collection_selection_presenter.setup();
 
         main_presenter.setup(&puzzle_selection_presenter, &puzzle_presenter);
+
+        if cfg!(debug_assertions) {
+            window.add_css_class("devel");
+        }
     }
 }
