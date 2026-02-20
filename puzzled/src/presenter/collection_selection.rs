@@ -11,7 +11,7 @@ use adw::glib::{Variant, VariantTy};
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt, Cast, FileExtManual};
 use adw::{gio, AlertDialog, ResponseAppearance};
 use gtk::prelude::{ListBoxRowExt, WidgetExt};
-use gtk::ListBox;
+use gtk::{FileFilter, ListBox};
 use log::{debug, error};
 use puzzle_config::ReadError::FileReadError;
 use puzzle_config::{PuzzleConfigCollection, ReadError};
@@ -166,7 +166,10 @@ impl CollectionSelectionPresenter {
     }
 
     fn show_load_collection_dialog(&self) {
-        let dialog = gtk::FileDialog::builder().build();
+        let filter = FileFilter::new();
+        filter.set_name(Some("Puzzled Collection Files"));
+        filter.add_pattern("*.json");
+        let dialog = gtk::FileDialog::builder().default_filter(&filter).build();
         dialog.open(Some(&self.window), None::<&Cancellable>, {
             let self_clone = self.clone();
             move |result| match result {
