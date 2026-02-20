@@ -5,7 +5,6 @@
     <object class="GtkListBoxRow" id="row">
         <property name="selectable">True</property>
         <property name="activatable">True</property>
-        <property name="action-name">app.collection_item_activated</property>
         <child>
             <object class="GtkBox" id="main_box">
                 <property name="orientation">horizontal</property>

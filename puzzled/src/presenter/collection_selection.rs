@@ -9,7 +9,7 @@ use adw::gio::{Cancellable, File};
 use adw::glib::{Variant, VariantTy};
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt, FileExtManual};
 use adw::{gio, AlertDialog, ButtonRow, ResponseAppearance};
-use gtk::prelude::{ActionableExt, BoxExt, WidgetExt};
+use gtk::prelude::{ActionableExt, BoxExt, ListBoxRowExt, WidgetExt};
 use gtk::ListBox;
 use log::{debug, error};
 use puzzle_config::ReadError::FileReadError;
@@ -37,18 +37,6 @@ impl CollectionSelectionPresenter {
     }
 
     pub fn register_actions(&self, app: &PuzzledApplication) {
-        let collection_item_activated = gio::ActionEntry::builder("collection_item_activated")
-            .parameter_type(Some(VariantTy::INT32))
-            .activate({
-                let self_clone = self.clone();
-                move |_, _, v: Option<&Variant>| {
-                    if let Some(v) = v {
-                        let collection_id = CollectionId::from(v.clone());
-                        self_clone.activate_collection(collection_id);
-                    }
-                }
-            })
-            .build();
         let load_collection_action = gio::ActionEntry::builder("load_collection")
             .activate({
                 let self_clone = self.clone();
@@ -70,15 +58,12 @@ impl CollectionSelectionPresenter {
                             store.remove_community_collection(&collection_id);
                             drop(store);
                             self_clone.update_community_collections();
+                            self_clone.select_community_or_core_collection();
                         }
                     }
                 })
                 .build();
-        app.add_action_entries([
-            collection_item_activated,
-            load_collection_action,
-            delete_community_collection_action,
-        ]);
+        app.add_action_entries([load_collection_action, delete_community_collection_action]);
     }
 
     pub fn setup(&self) {
@@ -88,16 +73,20 @@ impl CollectionSelectionPresenter {
         self.core_collection_list.connect_row_selected({
             let self_clone = self.clone();
             move |_, row| {
-                if row.is_some() {
+                if let Some(row) = row {
                     self_clone.community_collection_list.unselect_all();
+                    let collection_id = CollectionId::Core(row.index() as usize);
+                    self_clone.activate_collection(collection_id);
                 }
             }
         });
         self.community_collection_list.connect_row_selected({
             let self_clone = self.clone();
             move |_, row| {
-                if row.is_some() {
+                if let Some(row) = row {
                     self_clone.core_collection_list.unselect_all();
+                    let collection_id = CollectionId::Community(row.index() as usize);
+                    self_clone.activate_collection(collection_id);
                 }
             }
         });
@@ -107,12 +96,8 @@ impl CollectionSelectionPresenter {
         self.core_collection_list.remove_all();
 
         let collection_store = get_puzzle_collection_store();
-        for (i, collection) in collection_store
-            .core_puzzle_collections()
-            .iter()
-            .enumerate()
-        {
-            let row = create_collection_row(CollectionId::Core(i), collection, false);
+        for collection in collection_store.core_puzzle_collections().iter() {
+            let row = create_collection_row(collection, false);
             self.core_collection_list.append(&row);
         }
     }
@@ -121,12 +106,8 @@ impl CollectionSelectionPresenter {
         self.community_collection_list.remove_all();
 
         let collection_store = get_puzzle_collection_store();
-        for (i, collection) in collection_store
-            .community_puzzle_collections()
-            .iter()
-            .enumerate()
-        {
-            let row = create_collection_row(CollectionId::Community(i), collection, true);
+        for collection in collection_store.community_puzzle_collections().iter() {
+            let row = create_collection_row(collection, true);
             self.community_collection_list.append(&row);
         }
 
@@ -222,6 +203,10 @@ impl CollectionSelectionPresenter {
         }
     }
 
+    /// Selects the last community collection in the list.
+    ///
+    /// The callee has to be sure that there is at least one community collection, otherwise this
+    /// will panic.
     fn select_last_community_collection(&self) {
         let last_index = {
             get_puzzle_collection_store()
@@ -231,9 +216,23 @@ impl CollectionSelectionPresenter {
         };
         self.community_collection_list
             .row_at_index(last_index as i32)
-            .as_ref()
             .unwrap()
             .activate();
+    }
+
+    /// Selects the last community collection if there are any, otherwise selects the first core collection.
+    fn select_community_or_core_collection(&self) {
+        let community_count = get_puzzle_collection_store()
+            .community_puzzle_collections()
+            .len();
+        if community_count > 0 {
+            self.select_last_community_collection();
+        } else {
+            self.core_collection_list
+                .row_at_index(0)
+                .unwrap()
+                .activate();
+        }
     }
 
     fn show_load_collection_error(&self, message: String) {
@@ -275,11 +274,7 @@ impl CollectionSelectionPresenter {
     }
 }
 
-fn create_collection_row(
-    id: CollectionId,
-    collection: &PuzzleConfigCollection,
-    deletable: bool,
-) -> gtk::ListBoxRow {
+fn create_collection_row(collection: &PuzzleConfigCollection, deletable: bool) -> gtk::ListBoxRow {
     const RESOURCE_PATH: &str = "/de/til7701/Puzzled/puzzle-collection-item.ui";
     let builder = gtk::Builder::from_resource(RESOURCE_PATH);
     let row: gtk::ListBoxRow = builder
@@ -323,8 +318,6 @@ fn create_collection_row(
             .expect("Missing `main_box` in resource");
         main_box.remove(&delete_button);
     }
-
-    row.set_action_target_value(Some(&id.into()));
 
     row
 }
