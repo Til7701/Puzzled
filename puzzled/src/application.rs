@@ -297,7 +297,11 @@ impl PuzzledApplication {
         collection_selection_presenter.register_actions(self);
         collection_selection_presenter.setup();
 
-        main_presenter.setup(&puzzle_selection_presenter, &puzzle_presenter);
+        main_presenter.setup(
+            &collection_selection_presenter,
+            &puzzle_selection_presenter,
+            &puzzle_presenter,
+        );
 
         if cfg!(debug_assertions) {
             window.add_css_class("devel");

@@ -22,17 +22,8 @@ pub struct State {
 
 impl State {
     pub fn setup_for_puzzle(&mut self, puzzle_config: PuzzleConfig) {
-        match &puzzle_config.board_config() {
-            BoardConfig::Simple { .. } => {
-                self.puzzle_type_extension = Some(PuzzleTypeExtension::Simple);
-            }
-            BoardConfig::Area { .. } => {
-                let default_target = puzzle_config.board_config().default_target();
-                self.puzzle_type_extension = Some(PuzzleTypeExtension::Area {
-                    target: default_target,
-                });
-            }
-        }
+        let extension = PuzzleTypeExtension::default_for_puzzle(&puzzle_config);
+        self.puzzle_type_extension = Some(extension);
 
         self.puzzle_config = Some(puzzle_config);
     }
@@ -100,4 +91,18 @@ pub enum SolverState {
 pub enum PuzzleTypeExtension {
     Simple,
     Area { target: Option<Target> },
+}
+
+impl PuzzleTypeExtension {
+    pub fn default_for_puzzle(puzzle_config: &PuzzleConfig) -> Self {
+        match &puzzle_config.board_config() {
+            BoardConfig::Simple { .. } => PuzzleTypeExtension::Simple,
+            BoardConfig::Area { .. } => {
+                let default_target = puzzle_config.board_config().default_target();
+                PuzzleTypeExtension::Area {
+                    target: default_target,
+                }
+            }
+        }
+    }
 }

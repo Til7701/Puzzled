@@ -1,4 +1,5 @@
 pub mod board;
+pub mod collection_selection_item;
 pub mod collection_selection_page;
 pub mod info_pill;
 pub mod puzzle_area_page;

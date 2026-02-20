@@ -12,7 +12,7 @@
         <file preprocess="xml-stripblanks" alias="shortcuts-dialog.ui">ui/dialog/shortcuts-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="preferences-dialog.ui">ui/dialog/preferences-dialog.ui</file>
         <file preprocess="xml-stripblanks" alias="how-to-play-dialog.ui">ui/dialog/how-to-play-dialog.ui</file>
-        <file preprocess="xml-stripblanks" alias="puzzle-collection-item.ui">ui/widget/puzzle-collection-item.ui</file>
+        <file preprocess="xml-stripblanks">ui/widget/puzzle-collection-item.ui</file>
         <file preprocess="xml-stripblanks" alias="puzzle-selection-item.ui">ui/widget/puzzle-selection-item.ui</file>
         <file preprocess="xml-stripblanks" alias="puzzle-info-dialog.ui">ui/dialog/puzzle-info-dialog.ui</file>
         <file alias="style.css">css/style.css</file>

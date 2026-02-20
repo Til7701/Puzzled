@@ -2,7 +2,7 @@
 <interface>
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
-    <object class="GtkListBoxRow" id="row">
+    <template class="PuzzledCollectionSelectionItem" parent="GtkListBoxRow">
         <property name="selectable">True</property>
         <property name="activatable">True</property>
         <child>
@@ -36,9 +36,9 @@
                                 <property name="child-spacing">4</property>
                                 <property name="line-spacing">4</property>
                                 <child>
-                                    <object class="PuzzledInfoPill" id="puzzle_count_pill">
-                                        <property name="tooltip-text">Number of puzzles in this collection</property>
-                                        <property name="icon-name">puzzle-piece-symbolic</property>
+                                    <object class="PuzzledInfoPill" id="puzzle_solved_pill">
+                                        <property name="tooltip-text">How many puzzles in this collection are solved and how many there are total</property>
+                                        <property name="icon-name">check-round-outline2-symbolic</property>
                                     </object>
                                 </child>
                                 <child>
@@ -78,5 +78,5 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

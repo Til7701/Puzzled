@@ -1,6 +1,7 @@
 use crate::application::PuzzledApplication;
 use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut};
+use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::solver;
@@ -45,10 +46,12 @@ impl MainPresenter {
 
     pub fn setup(
         &mut self,
+        collection_selection_presenter: &CollectionSelectionPresenter,
         puzzle_selection_presenter: &PuzzleSelectionPresenter,
         puzzle_presenter: &PuzzlePresenter,
     ) {
         *self.presenters.borrow_mut() = Some(Presenters {
+            collection_selection: collection_selection_presenter.clone(),
             puzzle_selection: puzzle_selection_presenter.clone(),
             puzzle_presenter: puzzle_presenter.clone(),
         });
@@ -85,6 +88,9 @@ impl MainPresenter {
     }
 
     pub fn on_solved(&self) {
+        if let Some(presenters) = &self.presenters.borrow().as_ref() {
+            presenters.collection_selection.on_solved();
+        }
         let solved_dialog = SolvedDialog::new();
 
         let state = get_state();
@@ -169,6 +175,7 @@ impl MainPresenter {
 }
 
 struct Presenters {
+    collection_selection: CollectionSelectionPresenter,
     puzzle_selection: PuzzleSelectionPresenter,
     puzzle_presenter: PuzzlePresenter,
 }
