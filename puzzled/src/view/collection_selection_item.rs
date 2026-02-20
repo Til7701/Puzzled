@@ -1,7 +1,7 @@
 use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;
-use gtk::prelude::{BoxExt, WidgetExt};
+use gtk::prelude::{ActionableExt, BoxExt, WidgetExt};
 use gtk::Widget;
 use puzzle_config::PuzzleDifficultyConfig;
 
@@ -127,12 +127,20 @@ impl CollectionSelectionItem {
     }
 
     pub fn show_delete_button(&self, show: bool) {
-        if show && self.imp().delete_button.parent().is_none() {
-            self.imp()
-                .main_box
-                .insert_after(&self.imp().delete_button.get(), None::<&Widget>);
+        if show {
+            if self.imp().delete_button.get().parent().is_none() {
+                self.imp()
+                    .main_box
+                    .insert_after(&self.imp().delete_button.get(), None::<&Widget>);
+            }
         } else {
             self.imp().main_box.remove(&self.imp().delete_button.get());
         }
+    }
+
+    pub fn set_delete_action_target(&self, target_value: Option<&glib::Variant>) {
+        self.imp()
+            .delete_button
+            .set_action_target_value(target_value);
     }
 }

@@ -357,6 +357,9 @@ fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk
     row.set_version(collection.version());
 
     row.show_delete_button(!core);
+    if !core {
+        row.set_delete_action_target(Some(&collection.id().to_string().into()));
+    }
 
     row.upcast()
 }

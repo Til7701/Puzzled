@@ -76,7 +76,7 @@
                                         <child>
                                             <object class="GtkListBox" id="community_collection_list">
                                                 <style>
-                                                    <class name="boxed-list"/>
+                                                    <class name="boxed-list-separate"/>
                                                 </style>
                                             </object>
                                         </child>
