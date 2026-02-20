@@ -165,6 +165,7 @@ impl MainPresenter {
                 let puzzle_meta = PuzzleMeta::new();
                 puzzle_meta.reset_all();
                 if let Some(presenters) = self_clone.presenters.borrow().as_ref() {
+                    presenters.collection_selection.refresh();
                     presenters.puzzle_selection.show_collection();
                 }
             }

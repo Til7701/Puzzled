@@ -123,6 +123,28 @@ impl CollectionSelectionPresenter {
         }
     }
 
+    pub fn refresh(&self) {
+        let current_collection_id = self.current_collection_id();
+        self.load_core_collections();
+        self.update_community_collections();
+        if let Some(collection_id) = current_collection_id {
+            match collection_id {
+                CollectionId::Core(index) => {
+                    let row = self.core_collection_list.row_at_index(index as i32);
+                    if let Some(row) = row {
+                        row.activate();
+                    }
+                }
+                CollectionId::Community(index) => {
+                    let row = self.community_collection_list.row_at_index(index as i32);
+                    if let Some(row) = row {
+                        row.activate();
+                    }
+                }
+            }
+        }
+    }
+
     fn load_core_collections(&self) {
         self.core_collection_list.remove_all();
 
