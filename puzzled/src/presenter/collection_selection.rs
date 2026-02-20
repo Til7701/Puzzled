@@ -288,6 +288,16 @@ fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk
     let puzzle_count_text = format!("{}", collection.puzzles().len());
     puzzle_count_pill.set_label(puzzle_count_text);
 
+    let difficulty_pill: InfoPill = builder
+        .object("difficulty_pill")
+        .expect("Missing `difficulty_pill` in resource");
+    if let Some(difficulty) = collection.average_difficulty() {
+        let label: String = difficulty.into();
+        difficulty_pill.set_label(label);
+    } else {
+        info_box.remove(&difficulty_pill);
+    }
+
     let author_pill: InfoPill = builder
         .object("author_pill")
         .expect("Missing `author_pill` in resource");

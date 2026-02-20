@@ -42,6 +42,12 @@
                                     </object>
                                 </child>
                                 <child>
+                                    <object class="PuzzledInfoPill" id="difficulty_pill">
+                                        <property name="tooltip-text">Average difficulty of puzzles in this collection</property>
+                                        <property name="icon-name">brain-symbolic</property>
+                                    </object>
+                                </child>
+                                <child>
                                     <object class="PuzzledInfoPill" id="author_pill">
                                         <property name="tooltip-text">Author of this puzzle collection</property>
                                         <property name="icon-name">avatar-default</property>

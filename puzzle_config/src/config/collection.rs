@@ -1,6 +1,6 @@
 use crate::config::preview::PreviewConfig;
 use crate::config::progression::ProgressionConfig;
-use crate::PuzzleConfig;
+use crate::{PuzzleConfig, PuzzleDifficultyConfig};
 
 #[derive(Debug, Clone)]
 pub struct PuzzleConfigCollection {
@@ -63,6 +63,27 @@ impl PuzzleConfigCollection {
 
     pub fn preview(&self) -> &PreviewConfig {
         &self.preview
+    }
+
+    pub fn average_difficulty<'a>(&self) -> Option<PuzzleDifficultyConfig> {
+        let puzzles_with_difficulty: Vec<&PuzzleDifficultyConfig> = self
+            .puzzles
+            .iter()
+            .map(|puzzle| puzzle.difficulty())
+            .flatten()
+            .collect();
+
+        if puzzles_with_difficulty.is_empty() {
+            return None;
+        }
+
+        let total_difficulty: u32 = puzzles_with_difficulty
+            .iter()
+            .map(|difficulty| **difficulty as u32)
+            .sum();
+
+        let average_difficulty = total_difficulty as f32 / puzzles_with_difficulty.len() as f32;
+        Some(average_difficulty.into())
     }
 
     pub fn puzzles(&self) -> &Vec<PuzzleConfig> {

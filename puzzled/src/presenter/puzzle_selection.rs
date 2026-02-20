@@ -14,8 +14,7 @@ use gtk::prelude::{ActionableExt, BoxExt, FixedExt, ListBoxRowExt, WidgetExt};
 use gtk::{Align, Fixed, Label, ListBox};
 use log::error;
 use puzzle_config::{
-    BoardConfig, ProgressionConfig, PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig,
-    TileConfig,
+    BoardConfig, ProgressionConfig, PuzzleConfig, PuzzleConfigCollection, TileConfig,
 };
 
 const CELL_SIZE: f64 = 20.0;
@@ -252,13 +251,8 @@ impl PuzzleSelectionPresenter {
             .object("difficulty_pill")
             .expect("Missing `difficulty_pill` in resource");
         if let Some(difficulty) = puzzle.difficulty() {
-            let text = match difficulty {
-                PuzzleDifficultyConfig::Easy => "Easy",
-                PuzzleDifficultyConfig::Medium => "Medium",
-                PuzzleDifficultyConfig::Hard => "Hard",
-                PuzzleDifficultyConfig::Expert => "Expert",
-            };
-            difficulty_pill.set_label(text);
+            let label: String = (*difficulty).into();
+            difficulty_pill.set_label(label);
         } else {
             info_box.remove(&difficulty_pill);
         }
