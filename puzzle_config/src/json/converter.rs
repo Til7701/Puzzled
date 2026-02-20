@@ -424,6 +424,20 @@ impl Convertable<String> for DefaultFactory {
                 let second_digit = year % 10;
                 Ok(second_digit.to_string())
             }
+            DefaultFactory::CurrentYear4FirstDigit => {
+                let date =
+                    OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc());
+                let year = date.year();
+                let first_digit = year / 1000;
+                Ok(first_digit.to_string())
+            }
+            DefaultFactory::CurrentYear4SecondDigit => {
+                let date =
+                    OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc());
+                let year = date.year();
+                let second_digit = (year % 1000) / 100;
+                Ok(second_digit.to_string())
+            }
         }
     }
 }

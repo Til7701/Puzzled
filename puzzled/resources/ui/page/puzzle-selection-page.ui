@@ -40,6 +40,8 @@
                                         </child>
                                         <child>
                                             <object class="GtkLabel" id="puzzle_description_label">
+                                                <property name="halign">start</property>
+                                                <property name="wrap">True</property>
                                                 <style>
                                                     <class name="dimmed"/>
                                                 </style>

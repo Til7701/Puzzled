@@ -1,9 +1,10 @@
 {
   "puzzled": "0.2.0",
   "name": "Puzzle a Day",
-  "author": "Puzzled",
-  "allow_board_rotation": false,
   "id": "de.til7701.Puzzled.PuzzleADay",
+  "author": "Puzzled",
+  "description": "Puzzle a Day is the foremost inspiration for this application. The premise of solving a puzzle every day for a year can be very motivating for some people. This collection contains the original Puzzle a Day puzzle and also some other variations.",
+  "allow_board_rotation": false,
   "custom_tiles": {
     "O6": [
       [1, 1, 1],
@@ -12,18 +13,61 @@
   },
   "puzzles": [
     {
-      "name": "Default",
-      "description": "A puzzle for each day of the month.",
+      "name": "Month",
+      "description": "A puzzle for each day of the month. The board is a calendar for one month.",
       "difficulty": "Medium",
       "tiles": [
-        "Z5",
-        "L5",
-        "U5",
-        "V5",
-        "Y5",
-        "N5",
-        "P5",
-        "O6"
+        "L5", "Y5", "N5", "T4", "L3", "I3", "P5"
+      ],
+      "board": {
+        "area_layout": [
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, -1, -1, -1, -1]
+        ],
+        "values": [
+          ["1", "2", "3", "4", "5", "6", "7"],
+          ["8", "9", "10", "11", "12", "13", "14"],
+          ["15", "16", "17", "18", "19", "20", "21"],
+          ["22", "23", "24", "25", "26", "27", "28"],
+          ["29", "30", "31", "", "", "", ""]
+        ],
+        "value_order": [
+          [1, 2, 3, 4, 5, 6, 7],
+          [8, 9, 10, 11, 12, 13, 14],
+          [15, 16, 17, 18, 19, 20, 21],
+          [22, 23, 24, 25, 26, 27, 28],
+          [29, 30, 31, -1, -1, -1, -1]
+        ],
+        "areas": [
+          {
+            "name": "Day",
+            "formatter": {
+              "type": "Nth"
+            },
+            "default_factory": {
+              "type": "CurrentDay"
+            }
+          }
+        ],
+        "target_template": "{0}"
+      },
+      "additional_info": {
+        "Minimum Solutions per Day": "1",
+        "Maximum Solutions per Day": "53",
+        "Average Solutions per Day": "26.258064516129032",
+        "Mean Solutions per Day": "37",
+        "Total Solutions": "814"
+      }
+    },
+    {
+      "name": "Original",
+      "description": "The original Puzzle a Day puzzle. A puzzle for each day of the year.",
+      "difficulty": "Medium",
+      "tiles": [
+        "Z5", "L5", "U5", "V5", "Y5", "N5", "P5", "O6"
       ],
       "board": {
         "area_layout": [
@@ -86,26 +130,11 @@
       }
     },
     {
-      "name": "Year",
-      "description": "A puzzle for each day of the month for two digit years.",
+      "name": "2-Digit Year",
+      "description": "A puzzle for each day of the year for two digit years.",
       "difficulty": "Hard",
       "tiles": [
-        "Z5",
-        "L5",
-        "U5",
-        "V5",
-        "Y5",
-        "N5",
-        "P5",
-        "O6",
-        [
-          [1, 1, 0],
-          [0, 1, 1],
-          [0, 1, 1]
-        ],
-        "T4",
-        "L4",
-        "Z4"
+        "T4", "L4", "Z4", "Q6", "Z5", "L5", "U5", "V5", "Y5", "N5", "P5", "O6"
       ],
       "board": {
         "area_layout": [
@@ -183,6 +212,102 @@
         "Average Solutions per Day": "37393.1052150538",
         "Mean Solutions per Day": "103348",
         "Total Solutions": "1391023514"
+      }
+    },
+    {
+      "name": "4-Digit Year",
+      "description": "A puzzle for each day of the year for four digit years. I do not know if this puzzle is solvable for all days of the year, but I encourage you to try it out.",
+      "difficulty": "Expert",
+      "tiles": [
+        "T4", "L4", "Z4", "Q6", "Z5", "L5", "U5", "V5", "Y5", "N5", "P5", "O6", "F5", "W5", "X5", "L3"
+      ],
+      "board": {
+        "area_layout": [
+          [1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+          [1, 1, 1, 1, 1, 1, -1, 2, 2, 3, 3, 4, 4, 5, 5],
+          [0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 4, 4, 5, 5],
+          [0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 4, 4, 5, 5],
+          [0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 4, 4, 5, 5],
+          [0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 4, 4, 5, 5],
+          [0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+        ],
+        "values": [
+          ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "", "", "", "", "", "", "", "", ""],
+          ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "", "1", "2", "1", "2", "1", "2", "1", "2"],
+          ["1", "2", "3", "4", "5", "6", "7", "3", "4", "3", "4", "3", "4", "3", "4"],
+          ["8", "9", "10", "11", "12", "13", "14", "5", "6", "5", "6", "5", "6", "5", "6"],
+          ["15", "16", "17", "18", "19", "20", "21", "7", "8", "7", "8", "7", "8", "7", "8"],
+          ["22", "23", "24", "25", "26", "27", "28", "9", "0", "9", "0", "9", "0", "9", "0"],
+          ["29", "30", "31", "", "", "", "", "", "", "", "", "", "", "", ""]
+        ],
+        "value_order": [
+          [1, 2, 3, 4, 5, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+          [7, 8, 9, 10, 11, 12, -1, 1, 2, 1, 2, 1, 2, 1, 2],
+          [1, 2, 3, 4, 5, 6, 7, 3, 4, 3, 4, 3, 4, 3, 4],
+          [8, 9, 10, 11, 12, 13, 14, 5, 6, 5, 6, 5, 6, 5, 6],
+          [15, 16, 17, 18, 19, 20, 21, 7, 8, 7, 8, 7, 8, 7, 8],
+          [22, 23, 24, 25, 26, 27, 28, 9, 0, 9, 0, 9, 0, 9, 0],
+          [29, 30, 31, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+        ],
+        "areas": [
+          {
+            "name": "Day",
+            "formatter": {
+              "type": "Nth"
+            },
+            "default_factory": {
+              "type": "CurrentDay"
+            }
+          },
+          {
+            "name": "Month",
+            "formatter": {
+              "type": "PrefixSuffix",
+              "prefix": "",
+              "suffix": "."
+            },
+            "default_factory": {
+              "type": "CurrentMonthShort"
+            }
+          },
+          {
+            "name": "First Digit of Year",
+            "formatter": {
+              "type": "Plain"
+            },
+            "default_factory": {
+              "type": "CurrentYear4FirstDigit"
+            }
+          },
+          {
+            "name": "Second Digit of Year",
+            "formatter": {
+              "type": "Plain"
+            },
+            "default_factory": {
+              "type": "CurrentYear4SecondDigit"
+            }
+          },
+          {
+            "name": "Third Digit of Year",
+            "formatter": {
+              "type": "Plain"
+            },
+            "default_factory": {
+              "type": "CurrentYear2FirstDigit"
+            }
+          },
+          {
+            "name": "Fourth Digit of Year",
+            "formatter": {
+              "type": "Plain"
+            },
+            "default_factory": {
+              "type": "CurrentYear2SecondDigit"
+            }
+          }
+        ],
+        "target_template": "{0} of {1} {2}{3}{4}{5}"
       }
     }
   ]
