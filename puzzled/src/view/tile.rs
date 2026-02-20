@@ -141,18 +141,23 @@ impl TileView {
                 let cell_y = y as f64 * cell_height;
 
                 let drawing_mode = &drawing_modes[(x, y)];
-                cr.set_source_color(&color_map[drawing_mode]);
+                let color = &color_map[drawing_mode];
+                cr.set_source_color(color);
                 cr.rectangle(cell_x, cell_y, cell_width, cell_height);
                 cr.fill().expect("Failed to fill");
                 // Due to floating point inaccuracies, there might be 2px gaps between cells, so
                 // additional rectangles are drawn to fill those gaps if the adjacent cells are filled.
-                if *current_rotation.get((x + 1, y)).unwrap_or(&false) {
-                    cr.rectangle(cell_x + cell_width - 1.0, cell_y, 2.0, cell_height);
-                    cr.fill().expect("Failed to fill");
-                }
-                if *current_rotation.get((x, y + 1)).unwrap_or(&false) {
-                    cr.rectangle(cell_x, cell_y + cell_height - 1.0, cell_width, 2.0);
-                    cr.fill().expect("Failed to fill");
+                // This only solves the problem, if the color is not transparent, otherwise there
+                // would be visible lines between the cells of the tile.
+                if color.alpha() == 1.0 {
+                    if *current_rotation.get((x + 1, y)).unwrap_or(&false) {
+                        cr.rectangle(cell_x + cell_width - 1.0, cell_y, 2.0, cell_height);
+                        cr.fill().expect("Failed to fill");
+                    }
+                    if *current_rotation.get((x, y + 1)).unwrap_or(&false) {
+                        cr.rectangle(cell_x, cell_y + cell_height - 1.0, cell_width, 2.0);
+                        cr.fill().expect("Failed to fill");
+                    }
                 }
 
                 // Border

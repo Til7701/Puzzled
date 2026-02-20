@@ -86,12 +86,12 @@
         </property>
     </template>
     <menu id="primary_menu">
-        <!--        <section>-->
-        <!--            <item>-->
-        <!--                <attribute name="label" translatable="yes">How to Play</attribute>-->
-        <!--                <attribute name="action">app.how_to_play</attribute>-->
-        <!--            </item>-->
-        <!--        </section>-->
+        <section>
+            <item>
+                <attribute name="label" translatable="yes">How to Play</attribute>
+                <attribute name="action">app.how_to_play</attribute>
+            </item>
+        </section>
         <section>
             <item>
                 <attribute name="label" translatable="yes">_Preferences</attribute>
