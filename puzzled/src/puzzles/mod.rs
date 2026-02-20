@@ -124,9 +124,10 @@ pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStor
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzle_config::BoardConfig;
+    use puzzle_config::{BoardConfig, PuzzleId};
     use puzzle_solver::board::Board;
     use puzzle_solver::tile::Tile;
+    use std::collections::HashSet;
     use std::fs;
     use tokio_util::sync::CancellationToken;
 
@@ -198,6 +199,32 @@ mod tests {
                     }
                     BoardConfig::Area { .. } => {}
                 }
+            }
+        }
+    }
+
+    #[test]
+    fn test_core_collections_ids() {
+        let predefined_json_str =
+            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let json_loader =
+            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+
+        for collection_name in CORE_COLLECTIONS.iter() {
+            let json =
+                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+            let collection = json_loader.load_puzzle_collection(&json).unwrap();
+            assert!(!collection.puzzles().is_empty());
+            let mut set: HashSet<PuzzleId> = HashSet::new();
+            for puzzle in collection.puzzles() {
+                let id = puzzle.id();
+                assert!(
+                    !set.contains(id),
+                    "Duplicate puzzle ID '{}' in collection '{}'",
+                    id,
+                    collection_name
+                );
+                set.insert(id.clone());
             }
         }
     }

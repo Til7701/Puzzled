@@ -35,7 +35,7 @@
       }
     }, {
       "name": "Nearly Rectangular C",
-      "id": "b",
+      "id": "c",
       "difficulty": "Easy",
       "tiles": [
         "I4", "J4", "O4", "S4", "T4"
@@ -49,7 +49,7 @@
       }
     }, {
       "name": "Nearly Rectangular D",
-      "id": "b",
+      "id": "d",
       "difficulty": "Easy",
       "tiles": [
         "I4", "J4", "O4", "S4", "T4"
