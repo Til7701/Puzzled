@@ -97,8 +97,6 @@ impl MainPresenter {
         let has_next = if let Some(collection) = &state.puzzle_collection
             && let Some(puzzle_config) = &state.puzzle_config
         {
-            dbg!(&puzzle_config.index());
-            dbg!(&collection.puzzles().len());
             puzzle_config.index() < collection.puzzles().len() - 1
         } else {
             error!(

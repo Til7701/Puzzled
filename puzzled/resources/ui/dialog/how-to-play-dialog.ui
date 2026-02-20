@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-    <object class="AdwDialog" id="how_to_play_dialog">
+    <object class="AdwWindow" id="how_to_play_dialog">
         <property name="title">How to Play</property>
-        <property name="width-request">400</property>
-        <property name="height-request">400</property>
+        <property name="default-width">200</property>
+        <property name="default-height">600</property>
+        <property name="resizable">False</property>
         <child>
             <object class="AdwToolbarView">
                 <child type="top">
@@ -12,110 +13,118 @@
                 <property name="content">
                     <object class="GtkScrolledWindow">
                         <child>
-                            <object class="GtkBox">
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">12</property>
-                                <property name="halign">center</property>
-                                <property name="margin-start">12</property>
-                                <property name="margin-end">12</property>
-                                <property name="margin-top">12</property>
-                                <property name="margin-bottom">12</property>
+                            <object class="AdwClamp">
+                                <property name="maximum-size">400</property>
                                 <child>
-                                    <object class="GtkLabel">
-                                        <property name="wrap">True</property>
-                                        <property name="max-width-chars">50</property>
-                                        <property name="halign">fill</property>
-                                        <property name="justify">fill</property>
-                                        <!-- @formatter:off -->
-                                        <property name="label">Fill all cells on the board with the tiles that are lying around the board. You can drag and drop tiles onto the board, right-click a tile to rotate it, or use the middle-click to flip it.</property>
-                                        <!-- @formatter:on -->
-                                    </object>
-                                </child>
+                                    <object class="GtkBox">
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">8</property>
+                                        <property name="halign">center</property>
+                                        <property name="margin-start">12</property>
+                                        <property name="margin-end">12</property>
+                                        <property name="margin-top">12</property>
+                                        <property name="margin-bottom">12</property>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="wrap">True</property>
+                                                <property name="max-width-chars">50</property>
+                                                <property name="halign">fill</property>
+                                                <property name="justify">fill</property>
+                                                <!-- @formatter:off -->
+                                                <property name="label">Fill all cells on the board with the tiles that are lying around the board. You can drag and drop tiles onto the board, right-click a tile to rotate it, or use the middle-click to flip it.</property>
+                                                <!-- @formatter:on -->
+                                            </object>
+                                        </child>
 
-                                <child>
-                                    <object class="GtkLabel">
-                                        <property name="wrap">True</property>
-                                        <property name="max-width-chars">50</property>
-                                        <property name="label">Overlapping Tiles</property>
-                                        <style>
-                                            <class name="title-2"/>
-                                        </style>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkLabel">
-                                        <property name="wrap">True</property>
-                                        <property name="max-width-chars">50</property>
-                                        <property name="halign">fill</property>
-                                        <property name="justify">fill</property>
-                                        <!-- @formatter:off -->
-                                        <property name="label">If tiles are overlapping, while laying on the board, the overlapping parts are highlighted as seen below.</property>
-                                        <!-- @formatter:on -->
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkFixed" id="overlapping_fixed">
-                                        <property name="halign">center</property>
-                                    </object>
-                                </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="wrap">True</property>
+                                                <property name="max-width-chars">50</property>
+                                                <property name="label">Overlapping Tiles</property>
+                                                <property name="margin-top">24</property>
+                                                <style>
+                                                    <class name="title-2"/>
+                                                </style>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="wrap">True</property>
+                                                <property name="max-width-chars">50</property>
+                                                <property name="halign">fill</property>
+                                                <property name="justify">fill</property>
+                                                <!-- @formatter:off -->
+                                                <property name="label">If tiles are overlapping, while laying on the board, the overlapping parts are highlighted as seen below.</property>
+                                                <!-- @formatter:on -->
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkFixed" id="overlapping_fixed">
+                                                <property name="halign">center</property>
+                                            </object>
+                                        </child>
 
-                                <child>
-                                    <object class="GtkLabel">
-                                        <property name="wrap">True</property>
-                                        <property name="max-width-chars">50</property>
-                                        <property name="label">Tiles Outside of the Board</property>
-                                        <style>
-                                            <class name="title-2"/>
-                                        </style>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkLabel">
-                                        <property name="wrap">True</property>
-                                        <property name="max-width-chars">50</property>
-                                        <property name="halign">fill</property>
-                                        <property name="justify">fill</property>
-                                        <!-- @formatter:off -->
-                                        <property name="label">If a tile is partially on the board and partially outside the board, the part of the tile that is on the border is highlighted as seen below.</property>
-                                        <!-- @formatter:on -->
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkFixed" id="outside_fixed">
-                                        <property name="halign">center</property>
-                                    </object>
-                                </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="wrap">True</property>
+                                                <property name="max-width-chars">50</property>
+                                                <property name="label">Tiles Outside of the Board</property>
+                                                <property name="margin-top">24</property>
+                                                <style>
+                                                    <class name="title-2"/>
+                                                </style>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="wrap">True</property>
+                                                <property name="max-width-chars">50</property>
+                                                <property name="halign">fill</property>
+                                                <property name="justify">fill</property>
+                                                <!-- @formatter:off -->
+                                                <property name="label">If a tile is partially on the board and partially outside the board, the part of the tile that is on the border is highlighted as seen below.</property>
+                                                <!-- @formatter:on -->
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkFixed" id="outside_fixed">
+                                                <property name="halign">center</property>
+                                            </object>
+                                        </child>
 
-                                <child>
-                                    <object class="GtkLabel">
-                                        <property name="wrap">True</property>
-                                        <property name="max-width-chars">50</property>
-                                        <property name="label">Hints</property>
-                                        <style>
-                                            <class name="title-2"/>
-                                        </style>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkButton">
-                                        <property name="icon-name">lightbulb-symbolic</property>
-                                        <property name="halign">center</property>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkLabel">
-                                        <property name="wrap">True</property>
-                                        <property name="max-width-chars">50</property>
-                                        <property name="halign">fill</property>
-                                        <property name="justify">fill</property>
-                                        <!-- @formatter:off -->
-                                        <property name="label">You may get a hint by clicking the lightbulb button in the top left corner. It will either show you where a tile can be placed (as seen below), or tell you that the puzzle cannot be solved with the current position of tiles on the board. You can remove the tile giving the hint by clicking on it.</property>
-                                        <!-- @formatter:on -->
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkFixed" id="hint_fixed">
-                                        <property name="halign">center</property>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="wrap">True</property>
+                                                <property name="max-width-chars">50</property>
+                                                <property name="label">Hints</property>
+                                                <property name="margin-top">24</property>
+                                                <style>
+                                                    <class name="title-2"/>
+                                                </style>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkButton">
+                                                <property name="icon-name">lightbulb-symbolic</property>
+                                                <property name="halign">center</property>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="wrap">True</property>
+                                                <property name="max-width-chars">50</property>
+                                                <property name="halign">fill</property>
+                                                <property name="justify">fill</property>
+                                                <!-- @formatter:off -->
+                                                <property name="label">You may get a hint by clicking the lightbulb button in the top left corner. It will either show you where a tile can be placed (as seen below), or tell you that the puzzle cannot be solved with the current position of tiles on the board. You can remove the tile giving the hint by clicking on it.</property>
+                                                <!-- @formatter:on -->
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkFixed" id="hint_fixed">
+                                                <property name="halign">center</property>
+                                            </object>
+                                        </child>
                                     </object>
                                 </child>
                             </object>

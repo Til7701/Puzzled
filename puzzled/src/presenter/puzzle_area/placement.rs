@@ -37,7 +37,6 @@ pub fn calculate_tile_start_positions(
         start_y = end;
     }
 
-    dbg!(&positions);
     if tiles.len() != positions.len() {
         panic!("Not enough space to place all tiles around the board");
     }
@@ -72,8 +71,6 @@ fn place_in_row(
     tiles: &[TileConfig],
     positions: &mut Vec<CellOffset>,
 ) -> i32 {
-    dbg!(&start);
-    dbg!(&end);
     let mut highest_tile: i32 = 0;
     if tiles.len() != positions.len() {
         let mut next_pos = start;

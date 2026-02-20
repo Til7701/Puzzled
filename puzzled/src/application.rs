@@ -167,7 +167,7 @@ impl PuzzledApplication {
     fn show_how_to_play(&self) {
         const RESOURCE_PATH: &str = "/de/til7701/Puzzled/how-to-play-dialog.ui";
         let builder = gtk::Builder::from_resource(RESOURCE_PATH);
-        let dialog: adw::Dialog = builder
+        let dialog: adw::Window = builder
             .object("how_to_play_dialog")
             .expect("Missing `how_to_play_dialog` in resource");
 
@@ -226,9 +226,7 @@ impl PuzzledApplication {
 
         hint_fixed.put(&tile, 0.0, 0.0);
 
-        if let Some(window) = self.active_window() {
-            dialog.present(Some(&window));
-        }
+        dialog.present();
     }
 
     fn load_css(&self) {
