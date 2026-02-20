@@ -25,12 +25,15 @@ use crate::presenter::main::MainPresenter;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::puzzles;
+use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
 use adw::gdk::Display;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::{gio, glib, CssProvider, License, Settings, STYLE_PROVIDER_PRIORITY_APPLICATION};
+use ndarray::array;
+use puzzle_config::ColorConfig;
 use std::fmt::Debug;
 use std::rc::Rc;
 
@@ -167,6 +170,62 @@ impl PuzzledApplication {
         let dialog: adw::Dialog = builder
             .object("how_to_play_dialog")
             .expect("Missing `how_to_play_dialog` in resource");
+
+        const CELL_SIZE: i32 = 30;
+
+        let overlapping_fixed: gtk::Fixed = builder
+            .object("overlapping_fixed")
+            .expect("Missing `overlapping_fixed` in resource");
+        let left_tile = TileView::new(
+            0,
+            array![[true, false], [true, true]],
+            ColorConfig::default_with_index(0),
+        );
+        left_tile.set_drawing_mode_at(1, 1, DrawingMode::Overlapping);
+        left_tile.set_width_request(CELL_SIZE * 2);
+        left_tile.set_height_request(CELL_SIZE * 2);
+
+        let right_tile = TileView::new(
+            0,
+            array![[true, true], [false, true]],
+            ColorConfig::default_with_index(5),
+        );
+        right_tile.set_width_request(CELL_SIZE * 2);
+        right_tile.set_height_request(CELL_SIZE * 2);
+        right_tile.set_drawing_mode_at(0, 0, DrawingMode::Overlapping);
+
+        overlapping_fixed.put(&left_tile, 0.0, 0.0);
+        overlapping_fixed.put(&right_tile, CELL_SIZE as f64, CELL_SIZE as f64);
+
+        let outside_fixed: gtk::Fixed = builder
+            .object("outside_fixed")
+            .expect("Missing `outside_fixed` in resource");
+        let tile = TileView::new(
+            0,
+            array![[true, true], [false, true]],
+            ColorConfig::default_with_index(0),
+        );
+        tile.set_drawing_mode_at(1, 1, DrawingMode::OutOfBounds);
+        tile.set_width_request(CELL_SIZE * 2);
+        tile.set_height_request(CELL_SIZE * 2);
+        outside_fixed.put(&tile, 0.0, 0.0);
+
+        let hint_fixed: gtk::Fixed = builder
+            .object("hint_fixed")
+            .expect("Missing `hint_fixed` in resource");
+        let mut color_config = ColorConfig::default_with_index(0);
+        color_config = ColorConfig::new(
+            color_config.red(),
+            color_config.green(),
+            color_config.blue(),
+            128,
+        );
+        let tile = TileView::new(0, array![[true, true], [false, true]], color_config);
+        tile.set_width_request(CELL_SIZE * 2);
+        tile.set_height_request(CELL_SIZE * 2);
+
+        hint_fixed.put(&tile, 0.0, 0.0);
+
         if let Some(window) = self.active_window() {
             dialog.present(Some(&window));
         }
