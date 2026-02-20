@@ -95,7 +95,7 @@ impl CollectionSelectionPresenter {
 
         let collection_store = get_puzzle_collection_store();
         for collection in collection_store.core_puzzle_collections().iter() {
-            let row = create_collection_row(collection, false);
+            let row = create_collection_row(collection, true);
             self.core_collection_list.append(&row);
         }
     }
@@ -105,7 +105,7 @@ impl CollectionSelectionPresenter {
 
         let collection_store = get_puzzle_collection_store();
         for collection in collection_store.community_puzzle_collections().iter() {
-            let row = create_collection_row(collection, true);
+            let row = create_collection_row(collection, false);
             self.community_collection_list.append(&row);
         }
     }
@@ -269,7 +269,7 @@ impl CollectionSelectionPresenter {
     }
 }
 
-fn create_collection_row(collection: &PuzzleConfigCollection, deletable: bool) -> gtk::ListBoxRow {
+fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk::ListBoxRow {
     const RESOURCE_PATH: &str = "/de/til7701/Puzzled/puzzle-collection-item.ui";
     let builder = gtk::Builder::from_resource(RESOURCE_PATH);
     let row: gtk::ListBoxRow = builder
@@ -291,7 +291,11 @@ fn create_collection_row(collection: &PuzzleConfigCollection, deletable: bool) -
     let author_pill: InfoPill = builder
         .object("author_pill")
         .expect("Missing `author_pill` in resource");
-    author_pill.set_label(collection.author());
+    if core {
+        info_box.remove(&author_pill);
+    } else {
+        author_pill.set_label(collection.author());
+    }
 
     let version_pill: InfoPill = builder
         .object("version_pill")
@@ -305,7 +309,7 @@ fn create_collection_row(collection: &PuzzleConfigCollection, deletable: bool) -
     let delete_button: gtk::Button = builder
         .object("delete_button")
         .expect("Missing `delete_button` in resource");
-    if deletable {
+    if !core {
         delete_button.set_action_target_value(Some(&collection.id().to_string().into()));
     } else {
         let main_box: gtk::Box = builder
