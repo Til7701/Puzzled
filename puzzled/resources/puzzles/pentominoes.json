@@ -118,14 +118,6 @@
       ],
       "board": "3x10"
     }, {
-      "name": "3 x 10 G",
-      "id": "3x10G",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "L5", "N5", "P5", "Y5", "V5"
-      ],
-      "board": "3x10"
-    }, {
       "name": "3 x 15 A",
       "id": "3x15A",
       "difficulty": "Medium",

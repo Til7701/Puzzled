@@ -147,7 +147,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
     async fn test_solve_core_collections() {
         let predefined_json_str =
             fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
