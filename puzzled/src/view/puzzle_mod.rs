@@ -15,6 +15,10 @@ mod imp {
         pub icon: TemplateChild<gtk::Image>,
         #[template_child]
         pub label: TemplateChild<gtk::Label>,
+        #[template_child]
+        pub hint_icon: TemplateChild<gtk::Image>,
+        #[template_child]
+        pub hint_count_label: TemplateChild<gtk::Label>,
     }
 
     #[glib::object_subclass]
@@ -56,15 +60,27 @@ impl PuzzleMod {
         let imp = self.imp();
         imp.icon.set_visible(false);
         imp.label.set_visible(false);
+        imp.hint_count_label.set_visible(false);
+        imp.hint_icon.set_visible(false);
     }
 
-    pub fn set_solved(&self) {
+    pub fn set_solved(&self, hint_count: Option<u32>) {
         let imp = self.imp();
         imp.icon
             .set_icon_name(Some("check-round-outline2-symbolic"));
         imp.icon.set_visible(true);
         imp.label.set_text("Solved");
         imp.label.set_visible(true);
+        if let Some(count) = hint_count {
+            imp.hint_count_label.set_text(&format!("{}", count));
+            imp.hint_count_label
+                .set_tooltip_text(Some("Number of hints used to solve this puzzle"));
+            imp.hint_count_label.set_visible(true);
+            imp.hint_icon.set_visible(true);
+        } else {
+            imp.hint_count_label.set_visible(false);
+            imp.hint_icon.set_visible(false);
+        }
     }
 
     pub fn set_locked(&self) {
@@ -73,5 +89,7 @@ impl PuzzleMod {
         imp.icon.set_visible(true);
         imp.label.set_text("Locked");
         imp.label.set_visible(true);
+        imp.hint_count_label.set_visible(false);
+        imp.hint_icon.set_visible(false);
     }
 }

@@ -11,6 +11,11 @@
         <key name="solved" type="a{sv}">
             <default>{}</default>
         </key>
+
+        <!-- Map<CollectionId, Map<PuzzleId, Map<PuzzleExtensionKey, u32>>> -->
+        <key name="hints" type="a{sv}">
+            <default>{}</default>
+        </key>
     </schema>
 </schemalist>
         <!-- The backend is located here: ~/.var/app/de.til7701.Puzzled/config/glib-2.0/settings/keyfile -->

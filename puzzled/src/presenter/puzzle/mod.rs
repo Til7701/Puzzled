@@ -16,6 +16,7 @@ use adw::prelude::{ActionMapExtManual, NavigationPageExt};
 use adw::{gio, Toast, ToastOverlay};
 use gtk::Label;
 use log::error;
+use std::cell::Cell;
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -28,6 +29,7 @@ pub struct PuzzlePresenter {
     extension_presenter: ExtensionPresenter,
     puzzle_meta: PuzzleMeta,
     puzzle_solved_callback: Option<Rc<dyn Fn()>>,
+    hint_count: Rc<Cell<u32>>,
 }
 
 impl PuzzlePresenter {
@@ -46,6 +48,7 @@ impl PuzzlePresenter {
             extension_presenter,
             puzzle_meta: PuzzleMeta::new(),
             puzzle_solved_callback: None,
+            hint_count: Rc::new(Cell::new(0)),
         }
     }
 
@@ -91,6 +94,7 @@ impl PuzzlePresenter {
             let title = format!("{} - {}", collection.name(), puzzle_config.name());
             self.puzzle_area_nav_page.set_title(&title);
         }
+        self.hint_count.replace(0);
     }
 
     fn on_tile_moved(&self) {
@@ -119,6 +123,8 @@ impl PuzzlePresenter {
                     let self_clone = self.clone();
                     Box::new(move |result| {
                         self_clone.toast_overlay.dismiss_all();
+                        let hint_count = self_clone.hint_count.get();
+                        self_clone.hint_count.replace(hint_count + 1);
                         match result {
                             Ok(solution) => {
                                 solution.placements().last()
@@ -155,6 +161,23 @@ impl PuzzlePresenter {
                 puzzle_config.index(),
                 &state.puzzle_type_extension,
             );
+            let hint_count = self.hint_count.get();
+            let previous_hint_count = self
+                .puzzle_meta
+                .hints(
+                    collection,
+                    puzzle_config.index(),
+                    &state.puzzle_type_extension,
+                )
+                .unwrap_or(u32::MAX);
+            if hint_count < previous_hint_count {
+                self.puzzle_meta.set_hints(
+                    hint_count,
+                    collection,
+                    puzzle_config.index(),
+                    &state.puzzle_type_extension,
+                )
+            }
         } else {
             error!("Could not mark puzzle as solved: missing puzzle collection or puzzle config");
         }

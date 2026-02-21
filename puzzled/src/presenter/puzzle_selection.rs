@@ -195,7 +195,11 @@ impl PuzzleSelectionPresenter {
             .expect("Missing `puzzle_mod` in resource");
         match state {
             State::Solved => {
-                puzzle_mod.set_solved();
+                puzzle_mod.set_solved(self.puzzle_meta.hints(
+                    collection,
+                    puzzle.index(),
+                    &get_state().puzzle_type_extension,
+                ));
                 row.set_activatable(true);
                 row.remove_css_class("dimmed");
             }
