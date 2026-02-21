@@ -1,0 +1,188 @@
+{
+  "puzzled": "0.2.0",
+  "name": "Pentominoes",
+  "author": "Puzzled",
+  "id": "de.til7701.Puzzled.Pentominoes",
+  "description": "Fill the board with pentominoes.",
+  "puzzles": [
+    {
+      "name": "3 x 5 A",
+      "id": "3x5A",
+      "difficulty": "Easy",
+      "tiles": [
+        "N5", "P5", "U5"
+      ],
+      "board": "3x5"
+    }, {
+      "name": "3 x 5 B",
+      "id": "3x5B",
+      "difficulty": "Easy",
+      "tiles": [
+        "F5", "P5", "U5"
+      ],
+      "board": "3x5"
+    }, {
+      "name": "3 x 5 C",
+      "id": "3x5C",
+      "difficulty": "Easy",
+      "tiles": [
+        "L5", "N5", "V5"
+      ],
+      "board": "3x5"
+    }, {
+      "name": "3 x 5 D",
+      "id": "3x5D",
+      "difficulty": "Easy",
+      "tiles": [
+        "V5", "L5", "P5"
+      ],
+      "board": "3x5"
+    }, {
+      "name": "3 x 5 E",
+      "id": "3x5E",
+      "difficulty": "Easy",
+      "tiles": [
+        "T5", "L5", "Y5"
+      ],
+      "board": "3x5"
+    }, {
+      "name": "3 x 5 F",
+      "id": "3x5F",
+      "difficulty": "Easy",
+      "tiles": [
+        "U5", "P5", "V5"
+      ],
+      "board": "3x5"
+    }, {
+      "name": "3 x 5 G",
+      "id": "3x5G",
+      "difficulty": "Easy",
+      "tiles": [
+        "U5", "P5", "Y5"
+      ],
+      "board": "3x5"
+    }, {
+      "name": "3 x 10 A",
+      "id": "3x10A",
+      "difficulty": "Easy",
+      "tiles": [
+        "U5", "F5", "P5", "N5", "L5", "Y5"
+      ],
+      "board": "3x10"
+    }, {
+      "name": "3 x 10 B",
+      "id": "3x10B",
+      "difficulty": "Easy",
+      "tiles": [
+        "T5", "V5", "Z5", "Y5", "I5", "N5"
+      ],
+      "board": "3x10"
+    }, {
+      "name": "3 x 10 C",
+      "id": "3x10C",
+      "difficulty": "Easy",
+      "tiles": [
+        "T5", "V5", "W5", "P5", "I5", "N5"
+      ],
+      "board": "3x10"
+    }, {
+      "name": "3 x 10 D",
+      "id": "3x10D",
+      "difficulty": "Easy",
+      "tiles": [
+        "U5", "V5", "X5", "P5", "Y5", "N5"
+      ],
+      "board": "3x10"
+    }, {
+      "name": "3 x 10 E",
+      "id": "3x10E",
+      "difficulty": "Easy",
+      "tiles": [
+        "U5", "I5", "X5", "P5", "Y5", "N5"
+      ],
+      "board": "3x10"
+    }, {
+      "name": "3 x 10 F",
+      "id": "3x10F",
+      "difficulty": "Easy",
+      "tiles": [
+        "T5", "W5", "Z5", "P5", "Y5", "V5"
+      ],
+      "board": "3x10"
+    }, {
+      "name": "3 x 15 A",
+      "id": "3x15A",
+      "difficulty": "Medium",
+      "tiles": [
+        "F5", "I5", "L5", "N5", "P5", "V5", "W5", "Y5", "Z5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "3 x 15 B",
+      "id": "3x15B",
+      "difficulty": "Medium",
+      "tiles": [
+        "F5", "I5", "L5", "N5", "P5", "T5", "W5", "Y5", "Z5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "3 x 15 C",
+      "id": "3x15C",
+      "difficulty": "Medium",
+      "tiles": [
+        "F5", "U5", "L5", "N5", "P5", "V5", "W5", "Y5", "Z5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "All 3 x 20",
+      "id": "3x20",
+      "difficulty": "Hard",
+      "tiles": [
+        "F5", "I5", "L5", "N5", "P5", "T5", "U5", "V5", "W5", "X5", "Y5", "Z5"
+      ],
+      "board": "3x20"
+    },
+    {
+      "name": "All 4 x 15",
+      "id": "4x15",
+      "difficulty": "Hard",
+      "tiles": [
+        "F5", "I5", "L5", "N5", "P5", "T5", "U5", "V5", "W5", "X5", "Y5", "Z5"
+      ],
+      "board": "4x15"
+    }, {
+      "name": "All 5 x 12",
+      "id": "5x12",
+      "difficulty": "Hard",
+      "tiles": [
+        "F5", "I5", "L5", "N5", "P5", "T5", "U5", "V5", "W5", "X5", "Y5", "Z5"
+      ],
+      "board": "5x12"
+    }, {
+      "name": "All 6 x 10",
+      "id": "6x10",
+      "difficulty": "Hard",
+      "tiles": [
+        "F5", "I5", "L5", "N5", "P5", "T5", "U5", "V5", "W5", "X5", "Y5", "Z5"
+      ],
+      "board": "6x10"
+    }, {
+      "name": "All in two 5 x 6",
+      "id": "2x5x6",
+      "difficulty": "Hard",
+      "tiles": [
+        "F5", "I5", "L5", "N5", "P5", "T5", "U5", "V5", "W5", "X5", "Y5", "Z5"
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+        ]
+      }
+    }
+  ]
+}

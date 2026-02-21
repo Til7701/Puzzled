@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::num::NonZeroU32;
 
 #[derive(Deserialize)]
 pub struct PuzzleCollection {
@@ -75,6 +76,7 @@ pub enum Tile {
     Custom {
         layout: TileLayout,
         color: Option<Color>,
+        count: Option<NonZeroU32>,
     },
 }
 
@@ -142,4 +144,8 @@ pub enum DefaultFactory {
     CurrentYear2FirstDigit,
     /// The second digit of the current year when in two-digit format (e.g., "26" -> '6').
     CurrentYear2SecondDigit,
+    /// The first digit of the current year when in four-digit format (e.g., "2026" -> '2').
+    CurrentYear4FirstDigit,
+    /// The second digit of the current year when in four-digit format (e.g., "2026" -> '0').
+    CurrentYear4SecondDigit,
 }

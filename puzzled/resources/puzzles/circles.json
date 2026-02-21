@@ -73,6 +73,7 @@
     },
     {
       "name": "Shiny",
+      "difficulty": "Easy",
       "tiles": [
         "F5", "O4", "W5", "U5", "P5"
       ],
@@ -89,6 +90,7 @@
     },
     {
       "name": "Getting Larger",
+      "difficulty": "Medium",
       "tiles": [
         "W5", "F5", "T5", "Q6", "O4", "Z5", "V5", "P5", "I5"
       ],
@@ -106,6 +108,7 @@
     },
     {
       "name": "Pretty Round",
+      "difficulty": "Medium",
       "tiles": [
         "V5", "L5", "T5", "P5", "T4", "X5", "U5", "M6", "O4", "D6", "N5", "P6"
       ],

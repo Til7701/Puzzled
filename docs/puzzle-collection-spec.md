@@ -211,7 +211,8 @@ This looks like this:
         [0, 1, 0],
         [0, 1, 1]
     ],
-    "color": "#AABBCC"
+    "color": "#AABBCC",
+    "count": 2
 }
 ```
 <!-- @formatter:on -->
@@ -219,10 +220,11 @@ This looks like this:
 The layout must be defined as described in the name or array section above, but additional fields can be added to define
 additional properties of the tile, like its color.
 
-| Field  | Type         | Required | Description                                                                                                                                                                                                                                                                                                                                                                                       | Default   |
-|--------|--------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| layout | `Array2<u8>` | true     | The layout of the tile where `1` indicates a filled cell and `0` indicates an empty cell.                                                                                                                                                                                                                                                                                                         | -         |
-| color  | `String`     | false    | The color of the tile. It must start with a `#` and continues with a hex representation of the color in the order red, green and blue. You may also add the alpha channel. However, this is not recommended, since transparency is reserved for other purposes. You should also keep in mind that people are playing in light or dark mode. So choose colors that can be seen well in both modes. | -         |
+| Field  | Type         | Required | Description                                                                                                                                                                                                                                                                                                                                                                                       | Default   | Version |
+|--------|--------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|---------|
+| layout | `Array2<u8>` | true     | The layout of the tile where `1` indicates a filled cell and `0` indicates an empty cell.                                                                                                                                                                                                                                                                                                         | -         |         |
+| color  | `String`     | false    | The color of the tile. It must start with a `#` and continues with a hex representation of the color in the order red, green and blue. You may also add the alpha channel. However, this is not recommended, since transparency is reserved for other purposes. You should also keep in mind that people are playing in light or dark mode. So choose colors that can be seen well in both modes. | -         |         |
+| count  | `NonZeroU32` | false    | How many of the tiles should be added. MUST not be zero or lower.                                                                                                                                                                                                                                                                                                                                 | -         | 0.4.0   |
 
 ## Board
 

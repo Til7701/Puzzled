@@ -1,0 +1,66 @@
+{
+  "puzzled": "0.2.0",
+  "name": "Tetrominoes",
+  "author": "Puzzled",
+  "id": "de.til7701.Puzzled.Tetrominoes",
+  "description": "Fill the board with tetrominoes.",
+  "puzzles": [
+    {
+      "name": "Nearly Rectangular A",
+      "id": "a",
+      "difficulty": "Easy",
+      "tiles": [
+        "I4", "J4", "O4", "S4", "T4"
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 1],
+          [0, 0, 0, 0, 0, 0, 0]
+        ]
+      }
+    }, {
+      "name": "Nearly Rectangular B",
+      "id": "b",
+      "difficulty": "Easy",
+      "tiles": [
+        "I4", "J4", "O4", "S4", "T4"
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0]
+        ]
+      }
+    }, {
+      "name": "Nearly Rectangular C",
+      "id": "c",
+      "difficulty": "Easy",
+      "tiles": [
+        "I4", "J4", "O4", "S4", "T4"
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 1, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0]
+        ]
+      }
+    }, {
+      "name": "Nearly Rectangular D",
+      "id": "d",
+      "difficulty": "Easy",
+      "tiles": [
+        "I4", "J4", "O4", "S4", "T4"
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 1, 0, 0, 0]
+        ]
+      }
+    }
+  ]
+}

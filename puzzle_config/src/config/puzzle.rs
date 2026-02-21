@@ -2,6 +2,7 @@ use crate::config::board::BoardConfig;
 use crate::config::difficulty::PuzzleDifficultyConfig;
 use crate::TileConfig;
 use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
 
 pub type PuzzleId = String;
 
@@ -95,5 +96,12 @@ impl PuzzleConfig {
 
     pub fn additional_info(&self) -> &Option<HashMap<String, String>> {
         &self.additional_info
+    }
+}
+
+impl Hash for PuzzleConfig {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.board_config.hash(state);
+        TileConfig::hash_slice(&self.tiles, state);
     }
 }

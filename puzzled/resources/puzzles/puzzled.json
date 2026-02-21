@@ -1,5 +1,5 @@
 {
-  "puzzled": "0.2.0",
+  "puzzled": "0.3.0",
   "name": "Puzzled",
   "author": "Puzzled",
   "id": "de.til7701.Puzzled.Puzzled",
@@ -12,27 +12,60 @@
         {
           "layout": "O4",
           "color": "#1C71D8"
-        },
-        {
+        }, {
           "layout": "L3",
           "color": "#2EC27E"
-        },
-        {
+        }, {
           "layout": [[1]],
           "color": "#F5C211"
-        },
-        {
+        }, {
           "layout": "L4",
           "color": "#C01C28"
-        },
-        {
+        }, {
           "layout": "Z4",
           "color": "#813D9C"
         }
       ],
       "board": "4x4"
-    },
-    {
+    }, {
+      "name": "Alpha Icon",
+      "description": "The Puzzled Icon before the first release.",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "L4",
+          "color": "#0F0F0F"
+        }, {
+          "layout": "O4",
+          "color": "#1C71D8"
+        }, {
+          "layout": "V5",
+          "color": "#0F0F0F"
+        }, {
+          "layout": "L3",
+          "color": "#2EC27E"
+        }, {
+          "layout": "I4",
+          "color": "#0F0F0F"
+        }, {
+          "layout": [[1]],
+          "color": "#F5C211"
+        }, {
+          "layout": "I3",
+          "color": "#0F0F0F"
+        }, {
+          "layout": "L4",
+          "color": "#C01C28"
+        }, {
+          "layout": "I4",
+          "color": "#0F0F0F"
+        }, {
+          "layout": "Z4",
+          "color": "#813D9C"
+        }
+      ],
+      "board": "6x6"
+    }, {
       "name": "Large Sandbox",
       "tiles": [
         "1",

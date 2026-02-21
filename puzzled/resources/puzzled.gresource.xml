@@ -21,9 +21,12 @@
         <file preprocess="json-stripblanks">puzzles/puzzle_a_day.json</file>
         <file preprocess="json-stripblanks">puzzles/puzzled.json</file>
         <file preprocess="json-stripblanks">puzzles/trominoes.json</file>
+        <file preprocess="json-stripblanks">puzzles/tetrominoes.json</file>
+        <file preprocess="json-stripblanks">puzzles/pentominoes.json</file>
         <file preprocess="json-stripblanks">puzzles/hexominoes.json</file>
         <file preprocess="json-stripblanks">puzzles/circles.json</file>
         <file preprocess="json-stripblanks">puzzles/chess.json</file>
+        <file preprocess="json-stripblanks">puzzles/recursive_construction.json</file>
     </gresource>
     <!-- @formatter:off -->
     <gresource prefix="/de/til7701/Puzzled/icons/scalable/actions/">

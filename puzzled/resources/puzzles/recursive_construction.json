@@ -1,0 +1,150 @@
+{
+  "puzzled": "0.4.0",
+  "name": "Recursive Construction",
+  "id": "de.til7701.Puzzled.RecursiveConstruction",
+  "author": "Puzzled",
+  "description": "Build tiles out of themselves, but scaled up.",
+  "puzzles": [
+    {
+      "name": "D2 x 2",
+      "id": "D2x2",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "D2",
+          "count": 4
+        }
+      ],
+      "board": "2x4"
+    }, {
+      "name": "I3 x 2",
+      "id": "I3x2",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "I3",
+          "count": 4
+        }
+      ],
+      "board": "2x6"
+    }, {
+      "name": "L3 x 2",
+      "id": "L3x2",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "L3",
+          "count": 4
+        }
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 1, 1],
+          [0, 0, 1, 1],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0]
+        ]
+      }
+    }, {
+      "name": "I4 x 2",
+      "id": "I4x2",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "I4",
+          "count": 4
+        }
+      ],
+      "board": "2x8"
+    }, {
+      "name": "L4 x 2",
+      "id": "L4x2",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "L4",
+          "count": 4
+        }
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 1, 1, 1, 1],
+          [0, 0, 1, 1, 1, 1],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0]
+        ]
+      }
+    }, {
+      "name": "O4 x 2",
+      "id": "O4x2",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "O4",
+          "count": 4
+        }
+      ],
+      "board": "4x4"
+    }, {
+      "name": "T4 x 4",
+      "id": "T4x4",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "T4",
+          "count": 16
+        }
+      ],
+      "board": {
+        "layout": [
+          [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+          [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+          [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+          [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      }
+    }, {
+      "name": "P5 x 2",
+      "id": "P5x2",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "P5",
+          "count": 4
+        }
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 1, 1],
+          [0, 0, 0, 0, 1, 1],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0]
+        ]
+      }
+    }, {
+      "name": "P5 x 3",
+      "id": "P5x3",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "P5",
+          "count": 9
+        }
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 0, 0, 1, 1, 1],
+          [0, 0, 0, 0, 0, 0, 1, 1, 1],
+          [0, 0, 0, 0, 0, 0, 1, 1, 1],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      }
+    }
+  ]
+}

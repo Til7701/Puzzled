@@ -51,6 +51,14 @@
     .board-cell-3 {
         background-color: #666666;
     }
+
+    .board-cell-4 {
+        background-color: #777777;
+    }
+
+    .board-cell-5 {
+        background-color: #888888;
+    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -72,6 +80,14 @@
 
     .board-cell-3 {
         background-color: var(--light-5);
+    }
+
+    .board-cell-4 {
+        background-color: var(--dark-1);
+    }
+
+    .board-cell-5 {
+        background-color: var(--dark-2);
     }
 }
 

@@ -10,10 +10,13 @@ use std::backtrace::Backtrace;
 use std::sync::{Mutex, MutexGuard, TryLockError};
 use std::time::Duration;
 
-const CORE_COLLECTIONS: [&str; 6] = [
+const CORE_COLLECTIONS: [&str; 9] = [
     "puzzle_a_day",
     "trominoes",
+    "tetrominoes",
+    "pentominoes",
     "hexominoes",
+    "recursive_construction",
     "circles",
     "chess",
     "puzzled",
@@ -122,10 +125,12 @@ pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStor
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzle_config::BoardConfig;
+    use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleId};
     use puzzle_solver::board::Board;
     use puzzle_solver::tile::Tile;
+    use std::collections::{HashMap, HashSet};
     use std::fs;
+    use std::hash::{DefaultHasher, Hash, Hasher};
     use tokio_util::sync::CancellationToken;
 
     #[test]
@@ -143,7 +148,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
     async fn test_solve_core_collections() {
         let predefined_json_str =
             fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
@@ -151,7 +156,12 @@ mod tests {
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         // (collection_id, puzzle_name) pairs to skip because they are known to be unsolvable or take too long
-        let skip_list = [("de.til7701.Puzzled.Puzzled", "Large Sandbox")];
+        let skip_list = [
+            ("de.til7701.Puzzled.Puzzled", "Large Sandbox"), // Cannot be solved
+            ("de.til7701.Puzzled.RecursiveConstruction", "T4 x 3"), // Takes too long to solve
+            ("de.til7701.Puzzled.Hexominoes", "Holes"),      // Takes too long to solve
+            ("de.til7701.Puzzled.PuzzleADay", "4-Digit Year"), // Unknown if solvable
+        ];
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
@@ -193,6 +203,60 @@ mod tests {
                     }
                     BoardConfig::Area { .. } => {}
                 }
+            }
+        }
+    }
+
+    #[test]
+    fn test_core_collections_ids() {
+        let predefined_json_str =
+            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let json_loader =
+            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+
+        for collection_name in CORE_COLLECTIONS.iter() {
+            let json =
+                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+            let collection = json_loader.load_puzzle_collection(&json).unwrap();
+            assert!(!collection.puzzles().is_empty());
+            let mut set: HashSet<PuzzleId> = HashSet::new();
+            for puzzle in collection.puzzles() {
+                let id = puzzle.id();
+                assert!(
+                    !set.contains(id),
+                    "Duplicate puzzle ID '{}' in collection '{}'",
+                    id,
+                    collection_name
+                );
+                set.insert(id.clone());
+            }
+        }
+    }
+
+    #[test]
+    fn test_core_collections_unique_puzzles() {
+        let predefined_json_str =
+            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let json_loader =
+            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+
+        let mut set: HashMap<u64, String> = HashMap::new();
+        for collection_name in CORE_COLLECTIONS.iter() {
+            let json =
+                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+            let collection = json_loader.load_puzzle_collection(&json).unwrap();
+            for puzzle in collection.puzzles() {
+                let puzzle_identifier = format!("{}:{}", collection_name, puzzle.id());
+                let mut hasher = DefaultHasher::new();
+                PuzzleConfig::hash(puzzle, &mut hasher);
+                let hash = hasher.finish();
+                assert!(
+                    !set.contains_key(&hash),
+                    "Duplicate puzzle detected: {} and {}",
+                    set.get(&hash).unwrap(),
+                    puzzle_identifier
+                );
+                set.insert(hash, puzzle_identifier);
             }
         }
     }

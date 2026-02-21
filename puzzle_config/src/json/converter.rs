@@ -9,6 +9,7 @@ use crate::{
     TileConfig,
 };
 use ndarray::Array2;
+use std::num::NonZero;
 use time::OffsetDateTime;
 
 /// Trait for converting JSON model types to config types.
@@ -47,9 +48,13 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
             let difficulty_config = puzzle.difficulty.convert(predefined, custom)?;
 
             let mut tiles = Vec::new();
+            let mut index_offset = 0;
             for tile_width_index in puzzle.tiles.into_iter().enumerate() {
-                let converted_tile = tile_width_index.convert(&predefined, custom)?;
-                tiles.push(converted_tile);
+                let tile_index_with_offset =
+                    (index_offset + tile_width_index.0, tile_width_index.1);
+                let converted_tile = tile_index_with_offset.convert(&predefined, custom)?;
+                index_offset += converted_tile.len();
+                tiles.extend(converted_tile);
             }
 
             let mut board_config = puzzle.board.convert(&predefined, custom)?;
@@ -166,12 +171,12 @@ impl Convertable<PreviewConfig> for Option<Preview> {
     }
 }
 
-impl Convertable<TileConfig> for (usize, Tile) {
+impl Convertable<Vec<TileConfig>> for (usize, Tile) {
     fn convert(
         self,
         predefined: &Predefined,
         custom: &mut Custom,
-    ) -> Result<TileConfig, ReadError> {
+    ) -> Result<Vec<TileConfig>, ReadError> {
         match self.1 {
             Tile::Ref(name) => {
                 if let Some(predefined_tile) = predefined.get_tile(&name) {
@@ -185,12 +190,23 @@ impl Convertable<TileConfig> for (usize, Tile) {
             Tile::Layout(layout) => {
                 let base = (self.0, layout).convert(predefined, custom)?;
                 let color = (self.0, None).convert(predefined, custom)?;
-                Ok(TileConfig::new(base, color))
+                Ok(vec![TileConfig::new(base, color)])
             }
-            Tile::Custom { layout, color } => {
+            Tile::Custom {
+                layout,
+                color,
+                count,
+            } => {
                 let base = (self.0, layout).convert(predefined, custom)?;
-                let color = (self.0, color).convert(predefined, custom)?;
-                Ok(TileConfig::new(base, color))
+                let count = count.unwrap_or_else(|| NonZero::new(1).unwrap());
+
+                let mut tiles = Vec::new();
+                for i in 0..count.get() {
+                    let tile_index = self.0 + i as usize;
+                    let color = (tile_index, color.clone()).convert(predefined, custom)?;
+                    tiles.push(TileConfig::new(base.clone(), color));
+                }
+                Ok(tiles)
             }
         }
     }
@@ -207,11 +223,15 @@ impl Convertable<Array2<bool>> for (usize, TileLayout) {
                 if let Some(custom_tile) = custom.get_tile(&name) {
                     Ok((self.0, custom_tile)
                         .convert(predefined, custom)?
+                        .first()
+                        .unwrap()
                         .base()
                         .clone())
                 } else if let Some(predefined_tile) = predefined.get_tile(&name) {
                     Ok((self.0, predefined_tile)
                         .convert(predefined, custom)?
+                        .first()
+                        .unwrap()
                         .base()
                         .clone())
                 } else {
@@ -404,6 +424,20 @@ impl Convertable<String> for DefaultFactory {
                 let second_digit = year % 10;
                 Ok(second_digit.to_string())
             }
+            DefaultFactory::CurrentYear4FirstDigit => {
+                let date =
+                    OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc());
+                let year = date.year();
+                let first_digit = year / 1000;
+                Ok(first_digit.to_string())
+            }
+            DefaultFactory::CurrentYear4SecondDigit => {
+                let date =
+                    OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc());
+                let year = date.year();
+                let second_digit = (year % 1000) / 100;
+                Ok(second_digit.to_string())
+            }
         }
     }
 }
@@ -429,7 +463,7 @@ mod tests {
             arr2(&[[true, false], [true, true]]).reversed_axes(),
             ColorConfig::default_with_index(0),
         );
-        assert_eq!(converted_tile.base(), expected_tile.base());
+        assert_eq!(converted_tile.first().unwrap().base(), expected_tile.base());
     }
 
     #[test]
@@ -455,7 +489,7 @@ mod tests {
             arr2(&[[true, false], [true, true]]).reversed_axes(),
             ColorConfig::default_with_index(0),
         );
-        assert_eq!(converted_tile.base(), expected_tile.base());
+        assert_eq!(converted_tile.first().unwrap().base(), expected_tile.base());
     }
 
     #[test]
