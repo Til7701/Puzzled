@@ -73,8 +73,6 @@ impl PuzzleMod {
         imp.label.set_visible(true);
         if let Some(count) = hint_count {
             imp.hint_count_label.set_text(&format!("{}", count));
-            imp.hint_count_label
-                .set_tooltip_text(Some("Number of hints used to solve this puzzle"));
             imp.hint_count_label.set_visible(true);
             imp.hint_icon.set_visible(true);
         } else {

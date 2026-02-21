@@ -20,6 +20,7 @@
         <child>
             <object class="GtkBox">
                 <property name="spacing">2</property>
+                <property name="tooltip-text">Number of hints used to solve this puzzle</property>
                 <child>
                     <object class="GtkImage" id="hint_icon">
                         <property name="icon-name">lightbulb-symbolic</property>
