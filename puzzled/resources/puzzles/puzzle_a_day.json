@@ -14,6 +14,7 @@
   "puzzles": [
     {
       "name": "Month",
+      "id": "m",
       "description": "A puzzle for each day of the month. The board is a calendar for one month.",
       "difficulty": "Medium",
       "tiles": [
@@ -64,6 +65,7 @@
     },
     {
       "name": "Original",
+      "id": "1",
       "description": "The original Puzzle a Day puzzle. A puzzle for each day of the year.",
       "difficulty": "Medium",
       "tiles": [
@@ -131,6 +133,7 @@
     },
     {
       "name": "2-Digit Year",
+      "id": "2",
       "description": "A puzzle for each day of the year for two digit years.",
       "difficulty": "Hard",
       "tiles": [
@@ -216,6 +219,7 @@
     },
     {
       "name": "4-Digit Year",
+      "id": "3",
       "description": "A puzzle for each day of the year for four digit years. I do not know if this puzzle is solvable for all days of the year, but I encourage you to try it out.",
       "difficulty": "Expert",
       "tiles": [

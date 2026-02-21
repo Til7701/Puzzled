@@ -1,6 +1,7 @@
 use crate::config::area::AreaConfig;
 use crate::{Target, TargetIndex, TargetTemplate};
 use ndarray::Array2;
+use std::hash::{Hash, Hasher};
 
 /// Configuration for the board layout and areas.
 #[derive(Debug, Clone)]
@@ -130,6 +131,24 @@ impl BoardConfig {
                 target_template,
                 ..
             } => target_template.format(target, &display_values, &area_configs),
+        }
+    }
+}
+
+impl Hash for BoardConfig {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            BoardConfig::Simple { layout } => {
+                layout.hash(state);
+            }
+            BoardConfig::Area {
+                layout,
+                area_indices,
+                ..
+            } => {
+                layout.hash(state);
+                area_indices.hash(state);
+            }
         }
     }
 }

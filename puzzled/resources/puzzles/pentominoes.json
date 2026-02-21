@@ -50,20 +50,12 @@
       "id": "3x5F",
       "difficulty": "Easy",
       "tiles": [
-        "V5", "N5", "L5"
+        "U5", "P5", "V5"
       ],
       "board": "3x5"
     }, {
       "name": "3 x 5 G",
       "id": "3x5G",
-      "difficulty": "Easy",
-      "tiles": [
-        "U5", "P5", "V5"
-      ],
-      "board": "3x5"
-    }, {
-      "name": "3 x 5 H",
-      "id": "3x5H",
       "difficulty": "Easy",
       "tiles": [
         "U5", "P5", "Y5"

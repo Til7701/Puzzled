@@ -125,11 +125,12 @@ pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStor
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzle_config::{BoardConfig, PuzzleId};
+    use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleId};
     use puzzle_solver::board::Board;
     use puzzle_solver::tile::Tile;
-    use std::collections::HashSet;
+    use std::collections::{HashMap, HashSet};
     use std::fs;
+    use std::hash::{DefaultHasher, Hash, Hasher};
     use tokio_util::sync::CancellationToken;
 
     #[test]
@@ -228,6 +229,34 @@ mod tests {
                     collection_name
                 );
                 set.insert(id.clone());
+            }
+        }
+    }
+
+    #[test]
+    fn test_core_collections_unique_puzzles() {
+        let predefined_json_str =
+            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let json_loader =
+            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+
+        let mut set: HashMap<u64, String> = HashMap::new();
+        for collection_name in CORE_COLLECTIONS.iter() {
+            let json =
+                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+            let collection = json_loader.load_puzzle_collection(&json).unwrap();
+            for puzzle in collection.puzzles() {
+                let puzzle_identifier = format!("{}:{}", collection_name, puzzle.id());
+                let mut hasher = DefaultHasher::new();
+                PuzzleConfig::hash(puzzle, &mut hasher);
+                let hash = hasher.finish();
+                assert!(
+                    !set.contains_key(&hash),
+                    "Duplicate puzzle detected: {} and {}",
+                    set.get(&hash).unwrap(),
+                    puzzle_identifier
+                );
+                set.insert(hash, puzzle_identifier);
             }
         }
     }
