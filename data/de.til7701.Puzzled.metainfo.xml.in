@@ -52,16 +52,29 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v0.3.1/data/screenshot-start-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v0.4.0/data/screenshot-start-light.png</image>
             <caption>Puzzle Selection</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v0.3.1/data/screenshot-year-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v0.4.0/data/screenshot-year-light.png</image>
             <caption>Solving a Puzzle</caption>
         </screenshot>
     </screenshots>
 
     <releases>
+         <release version="0.4.0" date="2026-02-22">
+            <description translate="no">
+                <ul>
+                    <li>Update collection selection list.</li>
+                    <li>Grid lines can now be shown on the board.</li>
+                    <li>Added a How to Play dialog.</li>
+                    <li>Fix flickering lines on tiles when moving them.</li>
+                    <li>When deleting a community collection, another collection is now selected.</li>
+                    <li>For each collection the average difficulty is now shown.</li>
+                    <li>The amount of cells to fill on the board is now shown for each puzzle.</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.3.1" date="2026-02-18">
             <description translate="no">
                 <ul>
