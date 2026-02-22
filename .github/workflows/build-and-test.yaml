@@ -37,7 +37,7 @@ jobs:
           arch: ${{ matrix.arch }}
           manifest-path: de.til7701.Puzzled.json
           run-tests: true
-          bundle: Puzzled.flatpak
+          bundle: de.til7701.Puzzled_${{ github.ref_name }}_${{ matrix.arch }}.flatpak
       - name: Install Flatpak Builder
         run: |
           flatpak install flathub -y org.flatpak.Builder
