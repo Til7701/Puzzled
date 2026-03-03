@@ -8,7 +8,7 @@ jobs:
     name: Download and Release Artifacts on GitHub
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         name: Download Artifacts
 
       - name: List artifacts
