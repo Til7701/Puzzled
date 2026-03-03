@@ -104,7 +104,7 @@
                 <attribute name="action">app.shortcuts</attribute>
             </item>
             <item>
-                <attribute name="label" translatable="yes">_About Puzzle More Days</attribute>
+                <attribute name="label" translatable="yes">_About Puzzled</attribute>
                 <attribute name="action">app.about</attribute>
             </item>
         </section>
