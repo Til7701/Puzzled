@@ -7,7 +7,7 @@ use std::hash::{Hash, Hasher};
 #[derive(Debug, Clone)]
 pub enum BoardConfig {
     Simple {
-        layout: Box<Array2<bool>>,
+        layout: Array2<bool>,
     },
     Area {
         layout: Box<Array2<bool>>,
@@ -167,10 +167,7 @@ pub fn from_predefined_board(name: &str) -> Option<BoardConfig> {
         .get(0..2)
         .map(|dims| (dims[0], dims[1]));
     dim.map(|(rows, cols)| BoardConfig::Simple {
-        layout: Box::new(Array2::from_shape_fn(
-            (rows as usize, cols as usize),
-            |_| true,
-        )),
+        layout: Array2::from_shape_fn((rows as usize, cols as usize), |_| true),
     })
 }
 

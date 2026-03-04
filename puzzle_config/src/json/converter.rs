@@ -86,10 +86,10 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
     }
 }
 
-fn rotate_board_to_landscape<T>(arr: Box<Array2<T>>) -> Box<Array2<T>> {
+fn rotate_board_to_landscape<T>(arr: Array2<T>) -> Array2<T> {
     let dim = arr.dim();
     if dim.0 < dim.1 {
-        Box::new(arr.reversed_axes())
+        arr.reversed_axes()
     } else {
         arr
     }
@@ -109,10 +109,10 @@ fn rotate_board(board: BoardConfig) -> BoardConfig {
             area_configs,
             target_template,
         } => {
-            let layout = rotate_board_to_landscape(layout);
-            let area_indices = rotate_board_to_landscape(area_indices);
-            let display_values = rotate_board_to_landscape(display_values);
-            let value_order = rotate_board_to_landscape(value_order);
+            let layout = Box::new(rotate_board_to_landscape(*layout));
+            let area_indices = Box::new(rotate_board_to_landscape(*area_indices));
+            let display_values = Box::new(rotate_board_to_landscape(*display_values));
+            let value_order = Box::new(rotate_board_to_landscape(*value_order));
             BoardConfig::Area {
                 layout,
                 area_indices,
@@ -304,9 +304,7 @@ impl Convertable<BoardConfig> for Board {
                     }
                 }
                 let array = array.reversed_axes();
-                Ok(BoardConfig::Simple {
-                    layout: Box::new(array),
-                })
+                Ok(BoardConfig::Simple { layout: array })
             }
             Board::AreaBoard {
                 area_layout,
