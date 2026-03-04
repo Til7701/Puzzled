@@ -25,6 +25,10 @@ const CORE_COLLECTIONS: [&str; 9] = [
 static PUZZLE_COLLECTION_STORE: Lazy<Mutex<PuzzleCollectionStore>> =
     Lazy::new(|| Mutex::new(PuzzleCollectionStore::default()));
 
+/// Provides access to the core and community puzzle collections.
+///
+/// Get the singleton by calling [get_puzzle_collection_store]().
+/// The store is initialized by calling [init]() once at application startup.
 #[derive(Debug, Default)]
 pub struct PuzzleCollectionStore {
     core_puzzle_collections: Vec<PuzzleConfigCollection>,
@@ -59,6 +63,9 @@ impl PuzzleCollectionStore {
     }
 }
 
+/// Must be called once at application startup to load the core and community puzzle collections into the store.
+///
+/// A second call has undefined behavior.
 pub fn init() {
     let mut store = PUZZLE_COLLECTION_STORE.lock().unwrap();
     let json_loader = create_json_loader();
@@ -85,6 +92,16 @@ pub fn init() {
     }
 }
 
+/// Loads a core puzzle collection from a resource file using the provided JsonLoader.
+///
+/// Panics if the resource cannot be found or if loading the collection fails.
+///
+/// # Arguments
+///
+/// * `filename`: The path to the resource file containing the puzzle collection JSON. This must be a valid resource path, e.g., "/de/til7701/Puzzled/puzzles/puzzle_a_day.json".
+/// * `json_loader`: The JsonLoader instance to use.
+///
+/// returns: PuzzleConfigCollection
 fn load_core_from_resource(filename: &str, json_loader: &JsonLoader) -> PuzzleConfigCollection {
     let json_str = read_resource(filename);
     match json_loader.load_puzzle_collection(&json_str) {
@@ -96,16 +113,22 @@ fn load_core_from_resource(filename: &str, json_loader: &JsonLoader) -> PuzzleCo
     }
 }
 
+/// Creates a JsonLoader and adds predefined tiles from the predefined JSON resource.
 fn create_json_loader() -> JsonLoader {
     let predefined_json_str = read_resource("/de/til7701/Puzzled/predefined.json");
     puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap()
 }
 
+/// Convenience function to read a resource file as a string.
+///
+/// Panics if the resource cannot be found or read.
 fn read_resource(filename: &str) -> String {
     let data = resources_lookup_data(filename, ResourceLookupFlags::NONE).unwrap();
     std::str::from_utf8(&*data).unwrap().to_string()
 }
 
+/// Returns a guard to the singleton PuzzleCollectionStore.
+/// Blocks until the mutex can be acquired.
 pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStore> {
     match PUZZLE_COLLECTION_STORE.try_lock() {
         Ok(guard) => guard,

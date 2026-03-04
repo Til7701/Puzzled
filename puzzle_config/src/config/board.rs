@@ -94,16 +94,22 @@ impl BoardConfig {
                 ..
             } => (area_indices, display_values, value_order),
         };
-        let mut unordered_values = Vec::new();
-        for ((x, y), &index) in area_indices.indexed_iter() {
-            if index == area_index {
-                if let Some(value) = display_values.get((x, y))
-                    && let Some(order) = value_order.get((x, y))
-                {
-                    unordered_values.push((order, value.clone(), TargetIndex(x, y)));
+        let mut unordered_values = area_indices
+            .indexed_iter()
+            .filter_map(|((x, y), &index)| {
+                if index == area_index {
+                    if let Some(value) = display_values.get((x, y))
+                        && let Some(order) = value_order.get((x, y))
+                    {
+                        Some((*order, value.clone(), TargetIndex(x, y)))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
                 }
-            }
-        }
+            })
+            .collect::<Vec<(i32, String, TargetIndex)>>();
         unordered_values.sort_by_key(|(order, _, _)| *order);
         unordered_values
             .into_iter()

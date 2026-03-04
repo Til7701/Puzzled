@@ -9,7 +9,7 @@ pub mod solved_dialog;
 pub mod tile;
 
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
-use adw::prelude::{AlertDialogExt, AlertDialogExtManual, PreferencesGroupExt};
+use adw::prelude::{AlertDialogExt, AlertDialogExtManual, Cast, PreferencesGroupExt};
 use adw::prelude::{ComboRowExt, PreferencesPageExt};
 use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppearance};
 use gtk::StringList;
@@ -23,7 +23,7 @@ struct TargetIndexListItem {
 }
 
 pub fn create_target_selection_dialog() -> AlertDialog {
-    let dialog = AlertDialog::builder().heading("Select Target Day").build();
+    let dialog = AlertDialog::builder().heading("Select Target").build();
 
     let content = PreferencesGroup::builder().build();
 
@@ -105,9 +105,7 @@ pub fn create_target_selection_dialog() -> AlertDialog {
         }
     });
 
-    let page = PreferencesPage::builder()
-        .title("Select Target Day")
-        .build();
+    let page = PreferencesPage::builder().build();
     page.add(&content);
 
     drop(state);

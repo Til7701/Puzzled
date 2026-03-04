@@ -3,7 +3,7 @@ use log::{error, info};
 use std::path::PathBuf;
 
 pub fn save_community_collection(collection_id: &str, json_str: &str) {
-    let puzzles_dir = get_dir();
+    let puzzles_dir = get_xdg_data_dir();
     let file_path = puzzles_dir.join(format!("{}.json", collection_id));
     if let Err(e) = std::fs::write(&file_path, json_str) {
         error!("Failed to save community collection to file: {}", e);
@@ -11,7 +11,7 @@ pub fn save_community_collection(collection_id: &str, json_str: &str) {
 }
 
 pub fn load_community_collections() -> Vec<String> {
-    let puzzles_dir = get_dir();
+    let puzzles_dir = get_xdg_data_dir();
     let mut collections = Vec::new();
 
     if let Ok(entries) = std::fs::read_dir(&puzzles_dir) {
@@ -41,14 +41,21 @@ pub fn load_community_collections() -> Vec<String> {
 }
 
 pub fn delete_community_collection(collection_id: &str) {
-    let puzzles_dir = get_dir();
+    let puzzles_dir = get_xdg_data_dir();
     let file_path = puzzles_dir.join(format!("{}.json", collection_id));
+    if !file_path.exists() {
+        info!(
+            "Community collection file does not exist, nothing to delete: {:?}",
+            file_path
+        );
+        return;
+    }
     if let Err(e) = std::fs::remove_file(&file_path) {
-        info!("Failed to delete community collection file: {}", e);
+        error!("Failed to delete community collection file: {}", e);
     }
 }
 
-fn get_dir() -> PathBuf {
+fn get_xdg_data_dir() -> PathBuf {
     let xdg_data_dir = glib::user_data_dir();
     let puzzles_dir = xdg_data_dir.join("puzzled").join("community_puzzles");
     if let Err(e) = std::fs::create_dir_all(&puzzles_dir) {
