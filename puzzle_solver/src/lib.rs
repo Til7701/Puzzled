@@ -16,7 +16,6 @@ pub mod tile;
 
 /// Tries to place all given tiles on the board, filling it completely.
 /// If successful, returns a Solution; otherwise, returns an UnsolvableReason.
-/// TODO the solution currently does not contain the placements.
 /// A successful result is reached, if all tiles were placed on the board without overlapping
 /// and all empty cells on the board are covered.
 ///
@@ -203,5 +202,30 @@ mod tests {
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
         assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_solve_all_filling_too_large_board() {
+        // Increase board size if test fails after increasing the max bits in Bitmask
+        let board = Board::new((100, 10));
+        let mut tiles = Vec::with_capacity(100);
+        for _ in 0..100 {
+            tiles.push(Tile::new(arr2(&[
+                [true, true, true, true, true],
+                [true, true, true, true, true],
+            ])));
+        }
+
+        let result: Result<Solution, UnsolvableReason> = tokio::select! {
+            result = solve_all_filling(board, &tiles, CancellationToken::new()) => result,
+            _ = tokio::time::sleep(std::time::Duration::from_secs(10)) => {
+                panic!("Test timed out, this might be because the bitmask size exceeded the board size in this test. Increase the board size in this test and try again.")
+            }
+        };
+        assert!(result.is_err());
+        assert_eq!(
+            result.expect_err("Expected Error"),
+            UnsolvableReason::BoardTooLarge
+        );
     }
 }

@@ -64,6 +64,7 @@ impl Bitmask {
     /// * `index`: Index of the bit to set.
     ///
     /// returns: ()
+    #[inline]
     pub(crate) const fn set_bit(&mut self, index: usize) {
         let array_index = index / BITS_IN_PRIMITIVE;
         let bit_index = index % BITS_IN_PRIMITIVE;
@@ -78,6 +79,7 @@ impl Bitmask {
     ///
     /// returns: ()
     #[allow(dead_code)]
+    #[inline]
     pub(crate) const fn clear_bit(&mut self, index: usize) {
         let array_index = index / BITS_IN_PRIMITIVE;
         let bit_index = index % BITS_IN_PRIMITIVE;
@@ -91,6 +93,7 @@ impl Bitmask {
     /// * `index`: Index of the bit to get.
     ///
     /// returns: bool
+    #[inline]
     pub(crate) const fn get_bit(&self, index: usize) -> bool {
         let array_index = index / BITS_IN_PRIMITIVE;
         let bit_index = index % BITS_IN_PRIMITIVE;
@@ -102,6 +105,7 @@ impl Bitmask {
     /// # Arguments
     ///
     /// returns: usize
+    #[inline]
     pub(crate) const fn relevant_bits(&self) -> usize {
         self.relevant_bits
     }
@@ -111,6 +115,7 @@ impl Bitmask {
     /// # Arguments
     ///
     /// returns: bool
+    #[inline]
     pub(crate) fn all_relevant_bits_set(&self) -> bool {
         match BITMASK_ARRAY_LENGTH {
             1 => {
@@ -148,6 +153,7 @@ impl Bitmask {
     /// * `b`: Second bitmask.
     ///
     /// returns: ()
+    #[inline]
     pub(crate) const fn or(&mut self, a: &Bitmask, b: &Bitmask) {
         match BITMASK_ARRAY_LENGTH {
             1 => {
@@ -175,6 +181,7 @@ impl Bitmask {
     /// * `b`: Second bitmask.
     ///
     /// returns: ()
+    #[inline]
     pub(crate) const fn xor(&mut self, a: &Bitmask, b: &Bitmask) {
         match BITMASK_ARRAY_LENGTH {
             1 => {
@@ -202,6 +209,7 @@ impl Bitmask {
     /// * `b`: Second bitmask.
     ///
     /// returns: ()
+    #[inline]
     pub(crate) const fn and(&mut self, a: &Bitmask, b: &Bitmask) {
         match BITMASK_ARRAY_LENGTH {
             1 => {
@@ -230,6 +238,7 @@ impl Bitmask {
     /// * `other`: Other bitmask to AND with.
     ///
     /// returns: bool
+    #[inline]
     pub(crate) const fn and_is_zero(&self, other: &Bitmask) -> bool {
         match BITMASK_ARRAY_LENGTH {
             1 => (self.bits[0] & other.bits[0]) == 0,
@@ -253,6 +262,7 @@ impl Bitmask {
     /// * `c`: Bitmask to compare the result against.
     ///
     /// returns: bool
+    #[inline]
     pub(crate) const fn and_equals(a: &Bitmask, b: &Bitmask, c: &Bitmask) -> bool {
         match BITMASK_ARRAY_LENGTH {
             1 => (a.bits[0] & b.bits[0]) == c.bits[0],
@@ -289,6 +299,7 @@ impl Bitmask {
         output
     }
 
+    #[inline]
     pub(crate) const fn max_bits() -> usize {
         TOTAL_BITS
     }
@@ -401,6 +412,12 @@ mod tests {
         for i in 0..10 {
             assert_eq!(bitmask[i], false);
         }
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_new_exceeds_max_bits() {
+        Bitmask::new(TOTAL_BITS + 1);
     }
 
     #[test]

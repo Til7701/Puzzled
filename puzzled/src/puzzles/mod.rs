@@ -179,6 +179,13 @@ mod tests {
                     continue;
                 }
 
+                println!(
+                    "Testing puzzle '{}' in collection '{}'",
+                    puzzle.name(),
+                    collection_name
+                );
+                let start_time = std::time::Instant::now();
+
                 let board_config = &puzzle.board_config();
                 match board_config {
                     BoardConfig::Simple { layout } => {
@@ -203,6 +210,14 @@ mod tests {
                     }
                     BoardConfig::Area { .. } => {}
                 }
+
+                let elapsed = start_time.elapsed();
+                println!(
+                    "Solved puzzle '{}' in collection '{}' in {:.2?}",
+                    puzzle.name(),
+                    collection_name,
+                    elapsed
+                );
             }
         }
     }

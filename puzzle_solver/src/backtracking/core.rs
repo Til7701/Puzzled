@@ -115,7 +115,7 @@ struct AllFillingSolver {
     board_bitmasks: Vec<Bitmask>,
     used_tile_indices: Vec<usize>,
     tmp_bitmask: Bitmask,
-    yield_counter: u32,
+    yield_counter: u8,
 }
 
 impl AllFillingSolver {
@@ -168,8 +168,8 @@ impl AllFillingSolver {
     ///
     /// returns: bool
     async fn solve_recursive(&mut self, tile_index: usize, shared: &AllFillingShared) -> bool {
-        self.yield_counter += 1;
-        if self.yield_counter & 0xff == 0 {
+        self.yield_counter = self.yield_counter.wrapping_add(1);
+        if self.yield_counter == 0 {
             tokio::task::yield_now().await;
             if shared.cancel_token.is_cancelled() {
                 return false;

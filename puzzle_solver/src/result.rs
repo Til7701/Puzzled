@@ -64,7 +64,7 @@ impl TilePlacement {
 /// Currently, the only reason is `NoFit`, indicating that no tiles can fit in the remaining spaces.
 ///
 /// In the future, more reasons can be added as needed.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum UnsolvableReason {
     NoFit,
     BoardTooLarge,
