@@ -763,6 +763,7 @@ name = "puzzle_config"
 version = "0.4.0"
 dependencies = [
  "ndarray",
+ "once_cell",
  "regex",
  "semver",
  "serde",
