@@ -82,16 +82,13 @@ fn handle_on_complete(
 ///
 /// returns: ()
 pub fn interrupt_solver_call(state: &State) {
-    match &state.solver_state {
-        SolverState::Running {
+    if let SolverState::Running {
             call_id,
             cancel_token,
-        } => {
-            debug!("Interrupting solver call: {:?}", call_id);
-            cancel_token.cancel();
-            debug!("Solver call {:?} aborted.", call_id);
-        }
-        _ => (),
+        } = &state.solver_state {
+        debug!("Interrupting solver call: {:?}", call_id);
+        cancel_token.cancel();
+        debug!("Solver call {:?} aborted.", call_id);
     }
 }
 

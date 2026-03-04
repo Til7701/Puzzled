@@ -51,12 +51,11 @@ pub async fn solve_filling(
 async fn await_completion(set: &mut JoinSet<Option<Vec<usize>>>) -> Option<Vec<usize>> {
     let mut result: Option<Vec<usize>> = None;
     while let Some(res) = set.join_next().await {
-        if let Ok(r) = res {
-            if r.is_some() {
+        if let Ok(r) = res
+            && r.is_some() {
                 result = r;
                 break;
             }
-        }
     }
     result
 }
