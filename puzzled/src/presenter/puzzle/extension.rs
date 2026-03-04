@@ -9,12 +9,14 @@ use gtk::{Button, Separator};
 use std::cell::RefCell;
 use std::rc::Rc;
 
+pub type TargetChangedCallback = Rc<dyn Fn()>;
+
 #[derive(Clone)]
 pub struct ExtensionPresenter {
     window: PuzzledWindow,
     separator: Separator,
     target_selection_button: Button,
-    target_changed_callback: Rc<RefCell<Option<Rc<dyn Fn()>>>>,
+    target_changed_callback: Rc<RefCell<Option<TargetChangedCallback>>>,
 }
 
 impl ExtensionPresenter {
@@ -40,7 +42,7 @@ impl ExtensionPresenter {
 
     pub fn setup(&self) {}
 
-    pub fn show_puzzle(&self, on_changed: Rc<dyn Fn()>) {
+    pub fn show_puzzle(&self, on_changed: TargetChangedCallback) {
         self.target_changed_callback.replace(Some(on_changed));
         let state = get_state();
         match &state.puzzle_type_extension {

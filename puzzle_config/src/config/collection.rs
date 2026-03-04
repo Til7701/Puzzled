@@ -15,6 +15,7 @@ pub struct PuzzleConfigCollection {
 }
 
 impl PuzzleConfigCollection {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         name: String,
         description: Option<String>,
@@ -65,7 +66,7 @@ impl PuzzleConfigCollection {
         &self.preview
     }
 
-    pub fn average_difficulty<'a>(&self) -> Option<PuzzleDifficultyConfig> {
+    pub fn average_difficulty(&self) -> Option<PuzzleDifficultyConfig> {
         let puzzles_with_difficulty: Vec<&PuzzleDifficultyConfig> = self
             .puzzles
             .iter()

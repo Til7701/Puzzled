@@ -56,22 +56,22 @@ fn create_banned_bitmasks_for_cell(
     let mut banned_bitmasks = Vec::new();
 
     if min_tile_size > 1 {
-        banned_bitmasks.extend(banned_bitmasks_1(board, x, y));
+        banned_bitmasks_1(board, x, y, &mut banned_bitmasks);
     }
     if min_tile_size > 2 {
-        banned_bitmasks.extend(banned_bitmasks_D2(board, x, y));
+        banned_bitmasks_D2(board, x, y, &mut banned_bitmasks);
     }
     if min_tile_size > 3 {
-        banned_bitmasks.extend(banned_bitmasks_L3(board, x, y));
-        banned_bitmasks.extend(banned_bitmasks_I3(board, x, y));
+        banned_bitmasks_L3(board, x, y, &mut banned_bitmasks);
+        banned_bitmasks_I3(board, x, y, &mut banned_bitmasks);
     }
     if min_tile_size > 4 {
-        banned_bitmasks.extend(banned_bitmasks_O4(board, x, y));
+        banned_bitmasks_O4(board, x, y, &mut banned_bitmasks);
     }
     banned_bitmasks
 }
 
-fn banned_bitmasks_1(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
+fn banned_bitmasks_1(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
     let pattern = arr2(&[
         [false, true, false],
         [true, false, true],
@@ -82,19 +82,17 @@ fn banned_bitmasks_1(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [true, true, true],
         [false, true, false],
     ]);
-    let mut set = Vec::new();
-    set.push(create_banned_bitmask_for_pattern_at(
+    banned_bitmasks.push(create_banned_bitmask_for_pattern_at(
         &pattern,
         &area,
         x as isize - 1,
         y as isize - 1,
         board,
     ));
-    set
 }
 
 #[allow(non_snake_case)]
-fn banned_bitmasks_D2(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
+fn banned_bitmasks_D2(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
     let pattern = arr2(&[
         [false, true, true, false],
         [true, false, false, true],
@@ -105,7 +103,6 @@ fn banned_bitmasks_D2(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [true, true, true, true],
         [false, true, true, false],
     ]);
-    let mut banned_bitmasks = Vec::with_capacity(2);
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
@@ -130,11 +127,10 @@ fn banned_bitmasks_D2(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
     if let Some(banned_bitmask) = opt_banned_bitmask {
         banned_bitmasks.push(banned_bitmask);
     }
-    banned_bitmasks
 }
 
 #[allow(non_snake_case)]
-fn banned_bitmasks_L3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
+fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
     let pattern = arr2(&[
         [false, true, true, false],
         [true, false, false, true],
@@ -147,7 +143,6 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [true, true, true, false],
         [false, true, false, false],
     ]);
-    let mut banned_bitmasks = Vec::with_capacity(4);
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -201,12 +196,10 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
     if let Some(banned_bitmask) = opt_banned_bitmask {
         banned_bitmasks.push(banned_bitmask);
     }
-
-    banned_bitmasks
 }
 
 #[allow(non_snake_case)]
-fn banned_bitmasks_I3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
+fn banned_bitmasks_I3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
     let pattern = arr2(&[
         [false, true, true, true, false],
         [true, false, false, false, true],
@@ -217,7 +210,6 @@ fn banned_bitmasks_I3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [true, true, true, true, true],
         [false, true, true, true, false],
     ]);
-    let mut banned_bitmasks = Vec::with_capacity(2);
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -243,12 +235,10 @@ fn banned_bitmasks_I3(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
     if let Some(banned_bitmask) = opt_banned_bitmask {
         banned_bitmasks.push(banned_bitmask);
     }
-
-    banned_bitmasks
 }
 
 #[allow(non_snake_case)]
-fn banned_bitmasks_O4(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
+fn banned_bitmasks_O4(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
     let pattern = arr2(&[
         [false, true, true, false],
         [true, false, false, true],
@@ -261,7 +251,6 @@ fn banned_bitmasks_O4(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
         [true, true, true, true],
         [false, true, true, false],
     ]);
-    let mut banned_bitmasks = Vec::with_capacity(1);
     let area = array_util::rotate_90(&area);
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -273,7 +262,6 @@ fn banned_bitmasks_O4(board: &Board, x: usize, y: usize) -> Vec<BannedBitmask> {
     if let Some(banned_bitmask) = opt_banned_bitmask {
         banned_bitmasks.push(banned_bitmask);
     }
-    banned_bitmasks
 }
 
 fn create_banned_bitmask_for_pattern_at_if_possible(

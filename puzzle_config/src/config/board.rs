@@ -7,13 +7,13 @@ use std::hash::{Hash, Hasher};
 #[derive(Debug, Clone)]
 pub enum BoardConfig {
     Simple {
-        layout: Array2<bool>,
+        layout: Box<Array2<bool>>,
     },
     Area {
-        layout: Array2<bool>,
-        area_indices: Array2<i32>,
-        display_values: Array2<String>,
-        value_order: Array2<i32>,
+        layout: Box<Array2<bool>>,
+        area_indices: Box<Array2<i32>>,
+        display_values: Box<Array2<String>>,
+        value_order: Box<Array2<i32>>,
         area_configs: Vec<AreaConfig>,
         target_template: TargetTemplate,
     },
@@ -167,7 +167,10 @@ pub fn from_predefined_board(name: &str) -> Option<BoardConfig> {
         .get(0..2)
         .map(|dims| (dims[0], dims[1]));
     dim.map(|(rows, cols)| BoardConfig::Simple {
-        layout: Array2::from_shape_fn((rows as usize, cols as usize), |_| true),
+        layout: Box::new(Array2::from_shape_fn(
+            (rows as usize, cols as usize),
+            |_| true,
+        )),
     })
 }
 
@@ -202,10 +205,10 @@ mod tests {
         ];
 
         let board_config = BoardConfig::Area {
-            layout: board_layout,
-            area_indices,
-            display_values,
-            value_order,
+            layout: Box::new(board_layout),
+            area_indices: Box::new(area_indices),
+            display_values: Box::new(display_values),
+            value_order: Box::new(value_order),
             area_configs,
             target_template: TargetTemplate::new("{0}, {1}, {2}"),
         };

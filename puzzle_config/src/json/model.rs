@@ -96,6 +96,7 @@ pub enum Color {
 
 #[derive(Deserialize, Clone)]
 #[serde(untagged)]
+#[allow(clippy::enum_variant_names)]
 pub enum Board {
     Ref(String),
     SimpleBoard {

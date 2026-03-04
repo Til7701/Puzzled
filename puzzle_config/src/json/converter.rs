@@ -86,10 +86,10 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
     }
 }
 
-fn rotate_board_to_landscape<T>(arr: Array2<T>) -> Array2<T> {
+fn rotate_board_to_landscape<T>(arr: Box<Array2<T>>) -> Box<Array2<T>> {
     let dim = arr.dim();
     if dim.0 < dim.1 {
-        arr.reversed_axes()
+        Box::new(arr.reversed_axes())
     } else {
         arr
     }
@@ -304,7 +304,9 @@ impl Convertable<BoardConfig> for Board {
                     }
                 }
                 let array = array.reversed_axes();
-                Ok(BoardConfig::Simple { layout: array })
+                Ok(BoardConfig::Simple {
+                    layout: Box::new(array),
+                })
             }
             Board::AreaBoard {
                 area_layout,
@@ -340,10 +342,10 @@ impl Convertable<BoardConfig> for Board {
                 };
 
                 Ok(BoardConfig::Area {
-                    layout: board_layout,
-                    area_indices: vec_vec_to_array2(&area_layout).reversed_axes(),
-                    display_values: vec_vec_to_array2(&values).reversed_axes(),
-                    value_order: vec_vec_to_array2(&value_order).reversed_axes(),
+                    layout: Box::new(board_layout),
+                    area_indices: Box::new(vec_vec_to_array2(&area_layout).reversed_axes()),
+                    display_values: Box::new(vec_vec_to_array2(&values).reversed_axes()),
+                    value_order: Box::new(vec_vec_to_array2(&value_order).reversed_axes()),
                     area_configs,
                     target_template: TargetTemplate::new(&target_template),
                 })
@@ -352,7 +354,7 @@ impl Convertable<BoardConfig> for Board {
     }
 }
 
-fn vec_vec_to_array2<T: Clone + Default>(data: &Vec<Vec<T>>) -> Array2<T> {
+fn vec_vec_to_array2<T: Clone + Default>(data: &[Vec<T>]) -> Array2<T> {
     let height = data.len();
     let width = if height > 0 { data[0].len() } else { 0 };
     let mut array = Array2::<T>::default((height, width));

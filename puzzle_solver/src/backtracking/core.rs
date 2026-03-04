@@ -2,6 +2,7 @@ use crate::backtracking::positioned::PositionedTile;
 use crate::backtracking::pruner::Pruner;
 use crate::bitmask::Bitmask;
 use log::debug;
+use std::iter;
 use std::sync::Arc;
 use tokio::task::JoinSet;
 use tokio_util::sync::CancellationToken;
@@ -52,10 +53,11 @@ async fn await_completion(set: &mut JoinSet<Option<Vec<usize>>>) -> Option<Vec<u
     let mut result: Option<Vec<usize>> = None;
     while let Some(res) = set.join_next().await {
         if let Ok(r) = res
-            && r.is_some() {
-                result = r;
-                break;
-            }
+            && r.is_some()
+        {
+            result = r;
+            break;
+        }
     }
     result
 }
@@ -120,9 +122,7 @@ impl AllFillingSolver {
         for used_tile_index in used_tile_indices {
             use_tile_indices_vec.push(*used_tile_index);
         }
-        for _ in used_tile_indices.len()..num_tiles {
-            use_tile_indices_vec.push(0);
-        }
+        use_tile_indices_vec.extend(iter::repeat_n(0, num_tiles - used_tile_indices.len()));
         AllFillingSolver {
             start_tile_index: used_tile_indices.len(),
             board_bitmasks: vec![board_bitmasks.clone(); num_tiles],
