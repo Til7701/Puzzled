@@ -32,18 +32,15 @@ jobs:
         uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64
+      - name: Run Lint on Manifest
+        run: |
+          flatpak-builder-lint manifest de.til7701.Puzzled.json
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           arch: ${{ matrix.arch }}
           manifest-path: de.til7701.Puzzled.json
           run-tests: true
           bundle: de.til7701.Puzzled_${{ github.sha }}_${{ matrix.arch }}.flatpak
-      - name: Test Stuff
-        run: |
-          flatpak-builder --version || true
-      - name: Run Lint on Manifest
-        run: |
-          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest de.til7701.Puzzled.json
       - name: Run Lint on Repo
         run: |
-          flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo || true
+          flatpak-builder-lint repo repo || true
