@@ -9,7 +9,7 @@ pub mod solved_dialog;
 pub mod tile;
 
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
-use adw::prelude::{AlertDialogExt, AlertDialogExtManual, Cast, PreferencesGroupExt};
+use adw::prelude::{AlertDialogExt, AlertDialogExtManual, PreferencesGroupExt};
 use adw::prelude::{ComboRowExt, PreferencesPageExt};
 use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppearance};
 use gtk::StringList;
