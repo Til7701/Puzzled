@@ -38,9 +38,9 @@ jobs:
           manifest-path: de.til7701.Puzzled.json
           run-tests: true
           bundle: de.til7701.Puzzled_${{ github.sha }}_${{ matrix.arch }}.flatpak
-      - name: Install Flatpak Builder
+      - name: Test Stuff
         run: |
-          flatpak install flathub -y org.flatpak.Builder
+          flatpak-builder --version || true
       - name: Run Lint on Manifest
         run: |
           flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest de.til7701.Puzzled.json
