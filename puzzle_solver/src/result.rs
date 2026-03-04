@@ -19,7 +19,7 @@ impl Solution {
 }
 
 /// Represents the placement of a tile at a specific position in the puzzle.
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct TilePlacement {
     /// The base of the tile being placed.
     base: Array2<bool>,
@@ -67,5 +67,6 @@ impl TilePlacement {
 #[derive(Debug, PartialEq, Eq)]
 pub enum UnsolvableReason {
     NoFit,
+    TileCannotBePlaced { base: Array2<bool> },
     BoardTooLarge,
 }
