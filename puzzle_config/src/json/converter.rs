@@ -51,12 +51,12 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
             let mut index_offset = 0;
             for tile_with_index in puzzle.tiles.into_iter().enumerate() {
                 let tile_index_with_offset = (index_offset + tile_with_index.0, tile_with_index.1);
-                let converted_tile = tile_index_with_offset.convert(&predefined, custom)?;
+                let converted_tile = tile_index_with_offset.convert(predefined, custom)?;
                 index_offset += converted_tile.len() - 1;
                 tiles.extend(converted_tile);
             }
 
-            let mut board_config = puzzle.board.convert(&predefined, custom)?;
+            let mut board_config = puzzle.board.convert(predefined, custom)?;
             if self.allow_board_rotation {
                 board_config = rotate_board(board_config);
             }
@@ -271,7 +271,7 @@ impl Convertable<BoardConfig> for Board {
         predefined: &Predefined,
         custom: &mut Custom,
     ) -> Result<BoardConfig, ReadError> {
-        match { self } {
+        match self {
             Board::Ref(name) => {
                 if let Some(custom_board) = custom.get_board(&name) {
                     Ok(custom_board.convert(predefined, custom)?)
@@ -335,8 +335,8 @@ impl Convertable<BoardConfig> for Board {
                             array[(i, j)] = value >= 0;
                         }
                     }
-                    let array = array.reversed_axes();
-                    array
+
+                    array.reversed_axes()
                 };
 
                 Ok(BoardConfig::Area {

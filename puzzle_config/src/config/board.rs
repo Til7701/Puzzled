@@ -136,7 +136,7 @@ impl BoardConfig {
                 area_configs,
                 target_template,
                 ..
-            } => target_template.format(target, &display_values, &area_configs),
+            } => target_template.format(target, display_values, area_configs),
         }
     }
 }
@@ -165,7 +165,7 @@ pub fn from_predefined_board(name: &str) -> Option<BoardConfig> {
         .filter_map(|part| part.parse::<i32>().ok())
         .collect::<Vec<i32>>()
         .get(0..2)
-        .and_then(|dims| Some((dims[0], dims[1])));
+        .map(|dims| (dims[0], dims[1]));
     dim.map(|(rows, cols)| BoardConfig::Simple {
         layout: Array2::from_shape_fn((rows as usize, cols as usize), |_| true),
     })

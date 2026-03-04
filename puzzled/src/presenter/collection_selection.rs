@@ -373,9 +373,9 @@ enum CollectionId {
     Community(usize),
 }
 
-impl Into<Variant> for CollectionId {
-    fn into(self) -> Variant {
-        match self {
+impl From<CollectionId> for Variant {
+    fn from(val: CollectionId) -> Self {
+        match val {
             CollectionId::Core(index) => Variant::from(index as i32),
             CollectionId::Community(index) => Variant::from(-(index as i32) - 1),
         }

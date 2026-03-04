@@ -172,7 +172,7 @@ impl TilePresenter {
         draggable.add_controller(gesture.upcast::<EventController>());
     }
 
-    fn setup_tile_updating_gesture<F: Fn(&TileView) -> () + 'static>(
+    fn setup_tile_updating_gesture<F: Fn(&TileView) + 'static>(
         &self,
         tile_view_index: usize,
         gesture: &GestureClick,
@@ -189,7 +189,7 @@ impl TilePresenter {
                     None => return,
                 };
 
-                tile_update_function(&tile_view);
+                tile_update_function(tile_view);
 
                 drop(data);
                 on_position_changed();

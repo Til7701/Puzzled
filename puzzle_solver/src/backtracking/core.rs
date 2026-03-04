@@ -51,14 +51,11 @@ pub async fn solve_filling(
 async fn await_completion(set: &mut JoinSet<Option<Vec<usize>>>) -> Option<Vec<usize>> {
     let mut result: Option<Vec<usize>> = None;
     while let Some(res) = set.join_next().await {
-        match res {
-            Ok(r) => {
-                if r.is_some() {
-                    result = r;
-                    break;
-                }
+        if let Ok(r) = res {
+            if r.is_some() {
+                result = r;
+                break;
             }
-            Err(_) => {}
         }
     }
     result
@@ -77,7 +74,7 @@ fn prepare_solvers(
 
     for i in 0..first_tile.bitmasks().len() {
         let placement = &first_tile.bitmasks()[i];
-        if board_bitmask.and_is_zero(&placement) {
+        if board_bitmask.and_is_zero(placement) {
             let mut board_with_placements = board_bitmask.clone();
             board_with_placements.xor(board_bitmask, placement);
 
@@ -184,15 +181,15 @@ impl AllFillingSolver {
         let num_placements = shared.positioned_tiles[tile_index].bitmasks().len();
         for i in 0..num_placements {
             let placement = &shared.positioned_tiles[tile_index].bitmasks()[i];
-            if self.board_bitmasks[tile_index - 1].and_is_zero(&placement) {
+            if self.board_bitmasks[tile_index - 1].and_is_zero(placement) {
                 self.tmp_bitmask
-                    .xor(&self.board_bitmasks[tile_index - 1], &placement);
+                    .xor(&self.board_bitmasks[tile_index - 1], placement);
                 if shared.pruner.prune(&self.tmp_bitmask) {
                     continue;
                 }
                 self.used_tile_indices[tile_index] = i;
                 self.board_bitmasks[tile_index] = self.tmp_bitmask.clone();
-                if Box::pin(async { self.solve_recursive(tile_index + 1, &shared).await }).await {
+                if Box::pin(async { self.solve_recursive(tile_index + 1, shared).await }).await {
                     return true;
                 }
             }

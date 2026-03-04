@@ -23,7 +23,7 @@ impl BoardPresenter {
 
     pub fn setup(&self, puzzle_config: &PuzzleConfig) {
         let board_view =
-            BoardView::new(&puzzle_config.board_config()).expect("Failed to initialize board view");
+            BoardView::new(puzzle_config.board_config()).expect("Failed to initialize board view");
         let widget = board_view.clone().upcast::<Widget>();
         let mut data = self.data.borrow_mut();
         data.add_to_fixed(&widget, &PixelOffset::default());
@@ -53,19 +53,17 @@ impl BoardPresenter {
         let state = get_state();
         let puzzle_type_extension = &state.puzzle_type_extension;
         let data = self.data.borrow();
-        match puzzle_type_extension {
-            Some(PuzzleTypeExtension::Area {
-                target: Some(target),
-            }) => {
-                if let Some(board_view) = &data.board_view {
-                    target.indices.iter().for_each(|TargetIndex(x, y)| {
-                        if let Some(widget) = board_view.child_at(*x as i32, *y as i32) {
-                            widget.add_css_class(TARGET_SELECTION_CLASS);
-                        }
-                    })
-                }
+        if let Some(PuzzleTypeExtension::Area {
+            target: Some(target),
+        }) = puzzle_type_extension
+        {
+            if let Some(board_view) = &data.board_view {
+                target.indices.iter().for_each(|TargetIndex(x, y)| {
+                    if let Some(widget) = board_view.child_at(*x as i32, *y as i32) {
+                        widget.add_css_class(TARGET_SELECTION_CLASS);
+                    }
+                })
             }
-            _ => {}
         }
     }
 

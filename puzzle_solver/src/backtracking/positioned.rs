@@ -42,7 +42,7 @@ impl PositionedTile {
 
         let bitmasks: Vec<Bitmask> = all_placements
             .iter()
-            .map(|array| Bitmask::from(array))
+            .map(Bitmask::from)
             .filter(|bitmask| !pruner.prune(bitmask))
             .collect();
 

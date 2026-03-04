@@ -116,8 +116,8 @@ impl PuzzleMeta {
             puzzle_dict.insert(puzzle_key, value);
         }
 
-        collection_dict.insert(collection.id(), &Variant::from(puzzle_dict));
-        let result = self.settings.set(key, &Variant::from(collection_dict));
+        collection_dict.insert(collection.id(), Variant::from(puzzle_dict));
+        let result = self.settings.set(key, Variant::from(collection_dict));
         match result {
             Ok(_) => {
                 debug!(
@@ -177,7 +177,7 @@ fn extension_key(
                 _ => &None,
             };
             if let Some(target) = target {
-                let key = target_key(&target);
+                let key = target_key(target);
                 Some(key)
             } else if let Some(target) = collection.puzzles()[puzzle_index]
                 .board_config()

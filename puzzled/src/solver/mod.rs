@@ -91,8 +91,8 @@ pub fn interrupt_solver_call(state: &State) {
             cancel_token.cancel();
             debug!("Solver call {:?} aborted.", call_id);
         }
-        _ => return,
-    };
+        _ => (),
+    }
 }
 
 /// Checks if the given puzzle state is already solved for the specified target.

@@ -69,8 +69,7 @@ impl PuzzleConfigCollection {
         let puzzles_with_difficulty: Vec<&PuzzleDifficultyConfig> = self
             .puzzles
             .iter()
-            .map(|puzzle| puzzle.difficulty())
-            .flatten()
+            .flat_map(|puzzle| puzzle.difficulty())
             .collect();
 
         if puzzles_with_difficulty.is_empty() {

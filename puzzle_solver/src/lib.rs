@@ -57,7 +57,7 @@ pub async fn solve_all_filling(
     tiles: &[Tile],
     cancel_token: CancellationToken,
 ) -> Result<Solution, UnsolvableReason> {
-    if !check(&board, &tiles) {
+    if !check(&board, tiles) {
         debug!("Plausibility check failed.");
         return Err(UnsolvableReason::NoFit);
     }

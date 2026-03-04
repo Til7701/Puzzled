@@ -75,7 +75,7 @@ impl PuzzleInfoPresenter {
     ) -> Vec<ActionRow> {
         let mut action_rows = Vec::new();
 
-        let name = self.create_row("Puzzle Name", &puzzle_config.name());
+        let name = self.create_row("Puzzle Name", puzzle_config.name());
         action_rows.push(name);
 
         let board_dimensions = self.create_row(
@@ -105,7 +105,7 @@ impl PuzzleInfoPresenter {
 
         if let Some(additional_info) = puzzle_config.additional_info() {
             for (title, value) in additional_info {
-                let row = self.create_row(&title, &value);
+                let row = self.create_row(title, value);
                 action_rows.push(row);
             }
         }

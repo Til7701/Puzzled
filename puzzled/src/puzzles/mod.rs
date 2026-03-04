@@ -124,7 +124,7 @@ fn create_json_loader() -> JsonLoader {
 /// Panics if the resource cannot be found or read.
 fn read_resource(filename: &str) -> String {
     let data = resources_lookup_data(filename, ResourceLookupFlags::NONE).unwrap();
-    std::str::from_utf8(&*data).unwrap().to_string()
+    std::str::from_utf8(&data).unwrap().to_string()
 }
 
 /// Returns a guard to the singleton PuzzleCollectionStore.

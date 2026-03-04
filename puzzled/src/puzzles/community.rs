@@ -16,20 +16,18 @@ pub fn load_community_collections() -> Vec<String> {
 
     if let Ok(entries) = std::fs::read_dir(&puzzles_dir) {
         for entry in entries.flatten() {
-            if let Ok(file_type) = entry.file_type() {
-                if file_type.is_file() {
-                    if let Some(ext) = entry.path().extension() {
-                        if ext == "json" {
-                            if let Ok(json_str) = std::fs::read_to_string(entry.path()) {
-                                collections.push(json_str);
-                            } else {
-                                error!(
-                                    "Failed to read community collection file: {:?}",
-                                    entry.path()
-                                );
-                            }
-                        }
-                    }
+            if let Ok(file_type) = entry.file_type()
+                && file_type.is_file()
+                && let Some(ext) = entry.path().extension()
+                && ext == "json"
+            {
+                if let Ok(json_str) = std::fs::read_to_string(entry.path()) {
+                    collections.push(json_str);
+                } else {
+                    error!(
+                        "Failed to read community collection file: {:?}",
+                        entry.path()
+                    );
                 }
             }
         }
