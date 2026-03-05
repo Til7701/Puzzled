@@ -180,10 +180,9 @@ mod tests {
 
         // (collection_id, puzzle_name) pairs to skip because they are known to be unsolvable or take too long
         let skip_list = [
-            ("de.til7701.Puzzled.Puzzled", "Large Sandbox"), // Cannot be solved
             ("de.til7701.Puzzled.RecursiveConstruction", "T4 x 3"), // Takes too long to solve
-            ("de.til7701.Puzzled.Hexominoes", "Holes"),      // Takes too long to solve
-            ("de.til7701.Puzzled.PuzzleADay", "4-Digit Year"), // Unknown if solvable
+            ("de.til7701.Puzzled.Hexominoes", "Holes"),             // Takes too long to solve
+            ("de.til7701.Puzzled.PuzzleADay", "4-Digit Year"),      // Unknown if solvable
         ];
 
         for collection_name in CORE_COLLECTIONS.iter() {
@@ -192,13 +191,19 @@ mod tests {
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
 
             for puzzle in collection.puzzles() {
-                if skip_list.contains(&(collection.id(), puzzle.name())) {
+                if puzzle.unsolvable() || skip_list.contains(&(collection.id(), puzzle.name())) {
                     // Skip puzzles that are known to be unsolvable or take too long
                     continue;
                 }
 
                 if puzzle.tiles().len() > 12 {
                     // Skip puzzles with too many tiles to avoid long test times
+                    println!(
+                        "Skipping puzzle '{}' in collection '{}' because it has too many tiles ({}).",
+                        puzzle.name(),
+                        collection_name,
+                        puzzle.tiles().len()
+                    );
                     continue;
                 }
 

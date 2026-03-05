@@ -67,6 +67,7 @@
       "board": "6x6"
     }, {
       "name": "Large Sandbox",
+      "unsolvable": true,
       "tiles": [
         "1",
         "D2",

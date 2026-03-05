@@ -66,6 +66,7 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
                 puzzle.name,
                 puzzle.description,
                 difficulty_config,
+                puzzle.unsolvable,
                 tiles,
                 board_config,
                 puzzle.additional_info,

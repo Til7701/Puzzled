@@ -20,6 +20,7 @@ pub struct PuzzleConfig {
     name: String,
     description: Option<String>,
     difficulty: Option<PuzzleDifficultyConfig>,
+    unsolvable: bool,
     /// The tiles that can be placed on the board.
     tiles: Vec<TileConfig>,
     /// Configuration of the board layout and areas.
@@ -51,6 +52,7 @@ impl PuzzleConfig {
         name: String,
         description: Option<String>,
         difficulty: Option<PuzzleDifficultyConfig>,
+        unsolvable: bool,
         tiles: Vec<TileConfig>,
         board_config: BoardConfig,
         additional_info: Option<HashMap<String, String>>,
@@ -61,6 +63,7 @@ impl PuzzleConfig {
             name,
             description,
             difficulty,
+            unsolvable,
             board_config,
             tiles,
             additional_info,
@@ -85,6 +88,10 @@ impl PuzzleConfig {
 
     pub fn difficulty(&self) -> &Option<PuzzleDifficultyConfig> {
         &self.difficulty
+    }
+
+    pub fn unsolvable(&self) -> bool {
+        self.unsolvable
     }
 
     pub fn tiles(&self) -> &Vec<TileConfig> {

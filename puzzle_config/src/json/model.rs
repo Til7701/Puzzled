@@ -50,6 +50,8 @@ pub struct Puzzle {
     pub name: String,
     pub description: Option<String>,
     pub difficulty: Option<PuzzleDifficulty>,
+    #[serde(default)]
+    pub unsolvable: bool,
     /// The tiles to use in this puzzle. Can reference predefined tiles, custom tiles or define
     /// them inline.
     pub tiles: Vec<Tile>,
