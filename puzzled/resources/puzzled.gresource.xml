@@ -46,6 +46,8 @@
         <file preprocess="xml-stripblanks" alias="lightbulb-symbolic.svg">icons/lightbulb-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="plus-symbolic.svg">icons/plus-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="view-grid-symbolic.svg">icons/view-grid-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="star-filled-rounded-symbolic.svg">icons/star-filled-rounded-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="star-outline-rounded-symbolic.svg">icons/star-outline-rounded-symbolic.svg</file>
     </gresource>
     <!-- @formatter:on -->
 </gresources>
