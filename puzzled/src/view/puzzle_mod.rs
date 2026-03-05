@@ -70,6 +70,7 @@ impl PuzzleMod {
             .set_icon_name(Some("check-round-outline2-symbolic"));
         imp.icon.set_visible(true);
         imp.label.set_text("Solved");
+        self.set_tooltip_text(None);
         imp.label.set_visible(true);
         if let Some(count) = hint_count {
             imp.hint_count_label.set_text(&format!("{}", count));
@@ -86,6 +87,19 @@ impl PuzzleMod {
         imp.icon.set_icon_name(Some("padlock2-symbolic"));
         imp.icon.set_visible(true);
         imp.label.set_text("Locked");
+        self.set_tooltip_text(None);
+        imp.label.set_visible(true);
+        imp.hint_count_label.set_visible(false);
+        imp.hint_icon.set_visible(false);
+    }
+
+    pub fn set_unsolvable(&self) {
+        let imp = self.imp();
+        imp.icon
+            .set_icon_name(Some("cross-large-circle-outline-symbolic"));
+        imp.icon.set_visible(true);
+        imp.label.set_text("Unsolvable");
+        self.set_tooltip_text(Some("This puzzle cannot be solved"));
         imp.label.set_visible(true);
         imp.hint_count_label.set_visible(false);
         imp.hint_icon.set_visible(false);

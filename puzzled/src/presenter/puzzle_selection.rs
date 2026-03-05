@@ -159,31 +159,39 @@ impl PuzzleSelectionPresenter {
             Solved,
             Unlocked,
             Locked,
+            Unsolvable,
         }
 
-        let state = match &collection.progression() {
-            ProgressionConfig::Any => {
-                if solved {
-                    State::Solved
-                } else {
-                    State::Unlocked
+        let state = {
+            let state = match &collection.progression() {
+                ProgressionConfig::Any => {
+                    if solved {
+                        State::Solved
+                    } else {
+                        State::Unlocked
+                    }
                 }
-            }
-            ProgressionConfig::Sequential => {
-                let previous_solved = if puzzle.index() == 0 {
-                    true
-                } else {
-                    self.puzzle_meta
-                        .is_solved(collection, puzzle.index() - 1, &None)
-                };
+                ProgressionConfig::Sequential => {
+                    let previous_solved = if puzzle.index() == 0 {
+                        true
+                    } else {
+                        self.puzzle_meta
+                            .is_solved(collection, puzzle.index() - 1, &None)
+                    };
 
-                if solved {
-                    State::Solved
-                } else if previous_solved {
-                    State::Unlocked
-                } else {
-                    State::Locked
+                    if solved {
+                        State::Solved
+                    } else if previous_solved {
+                        State::Unlocked
+                    } else {
+                        State::Locked
+                    }
                 }
+            };
+            if state == State::Unlocked && puzzle.is_unsolvable() {
+                State::Unsolvable
+            } else {
+                state
             }
         };
 
@@ -209,6 +217,11 @@ impl PuzzleSelectionPresenter {
                 puzzle_mod.set_locked();
                 row.set_activatable(false);
                 row.add_css_class("dimmed");
+            }
+            State::Unsolvable => {
+                puzzle_mod.set_unsolvable();
+                row.set_activatable(true);
+                row.remove_css_class("dimmed");
             }
         }
 
