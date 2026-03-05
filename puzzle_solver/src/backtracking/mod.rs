@@ -56,7 +56,7 @@ pub async fn solve_all_filling(
         )),
         None => {
             if cancel_token.is_cancelled() {
-                return Err(UnsolvableReason::Cancelled);
+                Err(UnsolvableReason::Cancelled)
             } else {
                 Err(UnsolvableReason::NoFit)
             }
