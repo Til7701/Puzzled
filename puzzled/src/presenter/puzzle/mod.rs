@@ -11,11 +11,15 @@ use crate::presenter::puzzle::info::PuzzleInfoPresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
 use crate::solver::{interrupt_solver_call, is_solved};
 use crate::view::puzzle_area_page::PuzzleAreaPage;
+use crate::view::tile::TileView;
 use crate::window::PuzzledWindow;
-use adw::prelude::{ActionMapExtManual, NavigationPageExt};
+use adw::prelude::{ActionMapExtManual, Cast, NavigationPageExt};
 use adw::{gio, Toast, ToastOverlay};
-use gtk::Label;
+use gtk::prelude::{BoxExt, WidgetExt};
+use gtk::{Image, Label, Widget};
 use log::error;
+use puzzle_config::ColorConfig;
+use puzzle_solver::result::UnsolvableReason;
 use std::cell::Cell;
 use std::rc::Rc;
 
@@ -127,26 +131,69 @@ impl PuzzlePresenter {
                         self_clone.hint_count.replace(hint_count + 1);
                         match result {
                             Ok(solution) => {
-                                if let Some(placement) = solution.placements().last() { self_clone.puzzle_area_presenter.show_hint_tile(placement) }
+                                if let Some(placement) = solution.placements().last() {
+                                    self_clone.puzzle_area_presenter.show_hint_tile(placement)
+                                }
                             }
-                            Err(_) => {
-                                self_clone.toast_overlay.add_toast(
-                                    Toast::builder()
-                                        .custom_title(
-                                            &Label::builder()
-                                                .label(
-                                                    "Puzzle is not solvable with the current approach",
-                                                )
-                                                .css_classes(vec!["error"])
-                                                .build(),
-                                        )
-                                        .build(),
-                                );
+                            Err(unsolvable_reason) => {
+                                self_clone.show_unsolvable_toast(unsolvable_reason);
                             }
                         }
                     })
                 });
         }
+    }
+
+    fn show_unsolvable_toast(&self, unsolvable_reason: UnsolvableReason) {
+        fn build_label(content: &str) -> Widget {
+            Label::builder().label(content).build().upcast()
+        }
+
+        let icon = Image::builder()
+            .icon_name("cross-large-circle-outline-symbolic")
+            .css_classes(vec!["error"])
+            .build()
+            .upcast();
+
+        let widgets: Vec<Widget> = match unsolvable_reason {
+            UnsolvableReason::NoFit => {
+                vec![
+                    icon,
+                    build_label("The remaining tiles do not fit on the board!"),
+                ]
+            }
+            UnsolvableReason::BoardTooLarge => {
+                vec![
+                    icon,
+                    build_label("The board of this puzzle is too large for the solver!"),
+                ]
+            }
+            UnsolvableReason::TileCannotBePlaced { .. } => {
+                vec![
+                    icon,
+                    build_label(
+                        "At least one of the remaining tiles does not fit in the remaining space!",
+                    ),
+                ]
+            }
+            UnsolvableReason::PlausibilityCheckFailed => {
+                vec![
+                    icon,
+                    build_label("Some tiles are overlapping or are out of bounds!"),
+                ]
+            }
+        };
+
+        let content = gtk::Box::builder()
+            .orientation(gtk::Orientation::Horizontal)
+            .spacing(5)
+            .build();
+        for widget in widgets {
+            content.append(&widget);
+        }
+
+        self.toast_overlay
+            .add_toast(Toast::builder().custom_title(&content).build());
     }
 
     fn handle_solved(&self) {

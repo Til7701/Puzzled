@@ -67,6 +67,7 @@ impl TilePlacement {
 #[derive(Debug, PartialEq, Eq)]
 pub enum UnsolvableReason {
     NoFit,
+    PlausibilityCheckFailed,
     TileCannotBePlaced { base: Array2<bool> },
     BoardTooLarge,
 }
