@@ -28,8 +28,7 @@ pub fn get_runtime() -> MutexGuard<'static, Runtime> {
 /// Takes ownership of the global Tokio runtime, replacing it with a new one.
 /// This can be used to shut down the current runtime.
 pub fn take_runtime() -> Runtime {
-    let runtime = mem::replace(get_runtime().deref_mut(), create_runtime());
-    runtime
+    mem::replace(get_runtime().deref_mut(), create_runtime())
 }
 
 /// Creates a new Tokio runtime instance for the solver tasks.

@@ -44,6 +44,7 @@ impl PuzzleConfig {
     /// * `target_template`: Template for formatting targets to show in the UI.
     ///
     /// returns: PuzzleConfig
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         index: usize,
         id: PuzzleId,

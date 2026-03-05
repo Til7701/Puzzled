@@ -10,10 +10,10 @@ pub enum BoardConfig {
         layout: Array2<bool>,
     },
     Area {
-        layout: Array2<bool>,
-        area_indices: Array2<i32>,
-        display_values: Array2<String>,
-        value_order: Array2<i32>,
+        layout: Box<Array2<bool>>,
+        area_indices: Box<Array2<i32>>,
+        display_values: Box<Array2<String>>,
+        value_order: Box<Array2<i32>>,
         area_configs: Vec<AreaConfig>,
         target_template: TargetTemplate,
     },
@@ -94,16 +94,22 @@ impl BoardConfig {
                 ..
             } => (area_indices, display_values, value_order),
         };
-        let mut unordered_values = Vec::new();
-        for ((x, y), &index) in area_indices.indexed_iter() {
-            if index == area_index {
-                if let Some(value) = display_values.get((x, y))
-                    && let Some(order) = value_order.get((x, y))
-                {
-                    unordered_values.push((order, value.clone(), TargetIndex(x, y)));
+        let mut unordered_values = area_indices
+            .indexed_iter()
+            .filter_map(|((x, y), &index)| {
+                if index == area_index {
+                    if let Some(value) = display_values.get((x, y))
+                        && let Some(order) = value_order.get((x, y))
+                    {
+                        Some((*order, value.clone(), TargetIndex(x, y)))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
                 }
-            }
-        }
+            })
+            .collect::<Vec<(i32, String, TargetIndex)>>();
         unordered_values.sort_by_key(|(order, _, _)| *order);
         unordered_values
             .into_iter()
@@ -130,7 +136,7 @@ impl BoardConfig {
                 area_configs,
                 target_template,
                 ..
-            } => target_template.format(target, &display_values, &area_configs),
+            } => target_template.format(target, display_values, area_configs),
         }
     }
 }
@@ -159,7 +165,7 @@ pub fn from_predefined_board(name: &str) -> Option<BoardConfig> {
         .filter_map(|part| part.parse::<i32>().ok())
         .collect::<Vec<i32>>()
         .get(0..2)
-        .and_then(|dims| Some((dims[0], dims[1])));
+        .map(|dims| (dims[0], dims[1]));
     dim.map(|(rows, cols)| BoardConfig::Simple {
         layout: Array2::from_shape_fn((rows as usize, cols as usize), |_| true),
     })
@@ -196,10 +202,10 @@ mod tests {
         ];
 
         let board_config = BoardConfig::Area {
-            layout: board_layout,
-            area_indices,
-            display_values,
-            value_order,
+            layout: Box::new(board_layout),
+            area_indices: Box::new(area_indices),
+            display_values: Box::new(display_values),
+            value_order: Box::new(value_order),
             area_configs,
             target_template: TargetTemplate::new("{0}, {1}, {2}"),
         };

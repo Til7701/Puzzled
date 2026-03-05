@@ -10,3 +10,4 @@ serde_json = { workspace = true }
 time = { workspace = true }
 semver = { workspace = true }
 regex = { workspace = true }
+once_cell = { workspace = true }

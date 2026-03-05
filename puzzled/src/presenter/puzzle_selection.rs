@@ -88,17 +88,14 @@ impl PuzzleSelectionPresenter {
             let puzzle_count = collection.puzzles().len();
             self.puzzle_count_pill
                 .set_label(format!("{}", puzzle_count));
-            self.author_pill
-                .set_label(format!("{}", collection.author()));
+            self.author_pill.set_label(collection.author().to_string());
             if let Some(version) = collection.version() {
-                self.version_pill.set_label(format!("{}", version));
+                self.version_pill.set_label(version.to_string());
                 if self.version_pill.parent().is_none() {
                     self.collection_info_box.append(&self.version_pill);
                 }
-            } else {
-                if self.version_pill.parent().is_some() {
-                    self.collection_info_box.remove(&self.version_pill);
-                }
+            } else if self.version_pill.parent().is_some() {
+                self.collection_info_box.remove(&self.version_pill);
             }
 
             for puzzle in collection.puzzles().iter() {

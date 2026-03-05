@@ -15,7 +15,7 @@ pub struct Pruner {
 impl Pruner {
     /// Creates a new Pruner for use while filling the board with tiles.
     pub fn new_for_filling(board: &Board, tiles: &[Tile]) -> Self {
-        let banned_bitmasks = banned::create_banned_bitmasks_for_filling(&board, &tiles);
+        let banned_bitmasks = banned::create_banned_bitmasks_for_filling(board, tiles);
 
         Pruner { banned_bitmasks }
     }

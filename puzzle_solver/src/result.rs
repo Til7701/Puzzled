@@ -19,7 +19,7 @@ impl Solution {
 }
 
 /// Represents the placement of a tile at a specific position in the puzzle.
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct TilePlacement {
     /// The base of the tile being placed.
     base: Array2<bool>,
@@ -64,8 +64,9 @@ impl TilePlacement {
 /// Currently, the only reason is `NoFit`, indicating that no tiles can fit in the remaining spaces.
 ///
 /// In the future, more reasons can be added as needed.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum UnsolvableReason {
     NoFit,
+    TileCannotBePlaced { base: Array2<bool> },
     BoardTooLarge,
 }

@@ -5,6 +5,7 @@ use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
+use log::debug;
 use tokio_util::sync::CancellationToken;
 
 pub mod core;
@@ -27,6 +28,15 @@ pub async fn solve_all_filling(
         .iter()
         .map(|tile| PositionedTile::new(tile, &board, &pruner))
         .collect();
+
+    for (i, positioned_tile) in positioned_tiles.iter().enumerate() {
+        if positioned_tile.bitmasks().is_empty() {
+            debug!("Tile cannot be placed on the board in any orientation.");
+            return Err(UnsolvableReason::TileCannotBePlaced {
+                base: tiles[i].base().clone(),
+            });
+        }
+    }
 
     let result = core::solve_filling(
         board.get_array().dim().0 as i32,

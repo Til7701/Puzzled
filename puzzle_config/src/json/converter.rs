@@ -33,13 +33,13 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
     ) -> Result<PuzzleConfigCollection, ReadError> {
         if let Some(tiles) = self.custom_tiles {
             for (name, tile) in tiles {
-                custom.add_tile(name.clone(), tile);
+                custom.add_tile(name, tile);
             }
         }
 
         if let Some(boards) = self.custom_boards {
             for (name, board) in boards {
-                custom.add_board(name.clone(), board);
+                custom.add_board(name, board);
             }
         }
 
@@ -47,16 +47,16 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
         for (i, puzzle) in self.puzzles.into_iter().enumerate() {
             let difficulty_config = puzzle.difficulty.convert(predefined, custom)?;
 
-            let mut tiles = Vec::new();
+            let mut tiles = Vec::with_capacity(puzzle.tiles.len());
             let mut index_offset = 0;
             for tile_with_index in puzzle.tiles.into_iter().enumerate() {
                 let tile_index_with_offset = (index_offset + tile_with_index.0, tile_with_index.1);
-                let converted_tile = tile_index_with_offset.convert(&predefined, custom)?;
+                let converted_tile = tile_index_with_offset.convert(predefined, custom)?;
                 index_offset += converted_tile.len() - 1;
                 tiles.extend(converted_tile);
             }
 
-            let mut board_config = puzzle.board.convert(&predefined, custom)?;
+            let mut board_config = puzzle.board.convert(predefined, custom)?;
             if self.allow_board_rotation {
                 board_config = rotate_board(board_config);
             }
@@ -87,15 +87,9 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
 }
 
 fn rotate_board_to_landscape<T>(arr: Array2<T>) -> Array2<T> {
-    let shape = arr.shape();
-    if shape.len() == 2 {
-        let height = shape[0];
-        let width = shape[1];
-        if height < width {
-            arr.reversed_axes()
-        } else {
-            arr
-        }
+    let dim = arr.dim();
+    if dim.0 < dim.1 {
+        arr.reversed_axes()
     } else {
         arr
     }
@@ -115,10 +109,10 @@ fn rotate_board(board: BoardConfig) -> BoardConfig {
             area_configs,
             target_template,
         } => {
-            let layout = rotate_board_to_landscape(layout);
-            let area_indices = rotate_board_to_landscape(area_indices);
-            let display_values = rotate_board_to_landscape(display_values);
-            let value_order = rotate_board_to_landscape(value_order);
+            let layout = Box::new(rotate_board_to_landscape(*layout));
+            let area_indices = Box::new(rotate_board_to_landscape(*area_indices));
+            let display_values = Box::new(rotate_board_to_landscape(*display_values));
+            let value_order = Box::new(rotate_board_to_landscape(*value_order));
             BoardConfig::Area {
                 layout,
                 area_indices,
@@ -137,22 +131,21 @@ impl Convertable<Option<PuzzleDifficultyConfig>> for Option<PuzzleDifficulty> {
         _: &Predefined,
         _: &mut Custom,
     ) -> Result<Option<PuzzleDifficultyConfig>, ReadError> {
-        match self {
-            Some(PuzzleDifficulty::Easy) => Ok(Some(PuzzleDifficultyConfig::Easy)),
-            Some(PuzzleDifficulty::Medium) => Ok(Some(PuzzleDifficultyConfig::Medium)),
-            Some(PuzzleDifficulty::Hard) => Ok(Some(PuzzleDifficultyConfig::Hard)),
-            Some(PuzzleDifficulty::Expert) => Ok(Some(PuzzleDifficultyConfig::Expert)),
-            None => Ok(None),
-        }
+        Ok(self.map(|difficulty| match difficulty {
+            PuzzleDifficulty::Easy => PuzzleDifficultyConfig::Easy,
+            PuzzleDifficulty::Medium => PuzzleDifficultyConfig::Medium,
+            PuzzleDifficulty::Hard => PuzzleDifficultyConfig::Hard,
+            PuzzleDifficulty::Expert => PuzzleDifficultyConfig::Expert,
+        }))
     }
 }
 
 impl Convertable<ProgressionConfig> for Progression {
     fn convert(self, _: &Predefined, _: &mut Custom) -> Result<ProgressionConfig, ReadError> {
-        match self {
-            Progression::Any => Ok(ProgressionConfig::Any),
-            Progression::Sequential => Ok(ProgressionConfig::Sequential),
-        }
+        Ok(match self {
+            Progression::Any => ProgressionConfig::Any,
+            Progression::Sequential => ProgressionConfig::Sequential,
+        })
     }
 }
 
@@ -199,7 +192,7 @@ impl Convertable<Vec<TileConfig>> for (usize, Tile) {
                 let base = (self.0, layout).convert(predefined, custom)?;
                 let count = count.unwrap_or_else(|| NonZero::new(1).unwrap());
 
-                let mut tiles = Vec::new();
+                let mut tiles = Vec::with_capacity(count.get() as usize);
                 for i in 0..count.get() {
                     let tile_index = self.0 + i as usize;
                     let color = (tile_index, color.clone()).convert(predefined, custom)?;
@@ -278,7 +271,7 @@ impl Convertable<BoardConfig> for Board {
         predefined: &Predefined,
         custom: &mut Custom,
     ) -> Result<BoardConfig, ReadError> {
-        match { self } {
+        match self {
             Board::Ref(name) => {
                 if let Some(custom_board) = custom.get_board(&name) {
                     Ok(custom_board.convert(predefined, custom)?)
@@ -342,15 +335,15 @@ impl Convertable<BoardConfig> for Board {
                             array[(i, j)] = value >= 0;
                         }
                     }
-                    let array = array.reversed_axes();
-                    array
+
+                    array.reversed_axes()
                 };
 
                 Ok(BoardConfig::Area {
-                    layout: board_layout,
-                    area_indices: vec_vec_to_array2(&area_layout).reversed_axes(),
-                    display_values: vec_vec_to_array2(&values).reversed_axes(),
-                    value_order: vec_vec_to_array2(&value_order).reversed_axes(),
+                    layout: Box::new(board_layout),
+                    area_indices: Box::new(vec_vec_to_array2(&area_layout).reversed_axes()),
+                    display_values: Box::new(vec_vec_to_array2(&values).reversed_axes()),
+                    value_order: Box::new(vec_vec_to_array2(&value_order).reversed_axes()),
                     area_configs,
                     target_template: TargetTemplate::new(&target_template),
                 })
@@ -359,7 +352,7 @@ impl Convertable<BoardConfig> for Board {
     }
 }
 
-fn vec_vec_to_array2<T: Clone + Default>(data: &Vec<Vec<T>>) -> Array2<T> {
+fn vec_vec_to_array2<T: Clone + Default>(data: &[Vec<T>]) -> Array2<T> {
     let height = data.len();
     let width = if height > 0 { data[0].len() } else { 0 };
     let mut array = Array2::<T>::default((height, width));
@@ -377,17 +370,16 @@ impl Convertable<AreaConfig> for Area {
         predefined: &Predefined,
         custom: &mut Custom,
     ) -> Result<AreaConfig, ReadError> {
-        let formatter = match &self.formatter {
+        let formatter = match self.formatter {
             AreaFormatter::Plain => AreaValueFormatter::Plain,
             AreaFormatter::Nth => AreaValueFormatter::Nth,
-            AreaFormatter::PrefixSuffix { prefix, suffix } => AreaValueFormatter::PrefixSuffix {
-                prefix: prefix.clone(),
-                suffix: suffix.clone(),
-            },
+            AreaFormatter::PrefixSuffix { prefix, suffix } => {
+                AreaValueFormatter::PrefixSuffix { prefix, suffix }
+            }
         };
 
         Ok(AreaConfig::new(
-            self.name.clone(),
+            self.name,
             formatter,
             self.default_factory.convert(predefined, custom)?,
         ))
@@ -397,7 +389,7 @@ impl Convertable<AreaConfig> for Area {
 impl Convertable<String> for DefaultFactory {
     fn convert(self, _: &Predefined, _: &mut Custom) -> Result<String, ReadError> {
         match self {
-            DefaultFactory::Fixed { value } => Ok(value.to_string()),
+            DefaultFactory::Fixed { value } => Ok(value),
             DefaultFactory::CurrentDay => {
                 let date =
                     OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc());

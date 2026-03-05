@@ -127,8 +127,7 @@ impl PuzzlePresenter {
                         self_clone.hint_count.replace(hint_count + 1);
                         match result {
                             Ok(solution) => {
-                                solution.placements().last()
-                                    .map(|placement| self_clone.puzzle_area_presenter.show_hint_tile(placement));
+                                if let Some(placement) = solution.placements().last() { self_clone.puzzle_area_presenter.show_hint_tile(placement) }
                             }
                             Err(_) => {
                                 self_clone.toast_overlay.add_toast(

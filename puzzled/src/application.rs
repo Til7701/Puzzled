@@ -77,7 +77,7 @@ mod imp {
 
             application.load_css();
             application.setup(
-                &window
+                window
                     .downcast_ref::<PuzzledWindow>()
                     .expect("active window is not a PuzzledWindow"),
             );
@@ -136,7 +136,7 @@ impl PuzzledApplication {
             .version(VERSION)
             .developers(vec!["Tilman Holube", "Jonas Pohl"])
             // Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
-            .translator_credits(&gettext("translator-credits"))
+            .translator_credits(gettext("translator-credits"))
             .copyright("© 2026 Tilman Holube and contributors")
             .license_type(License::Gpl30)
             .website("https://til7701.de/projects/puzzled")
@@ -282,14 +282,14 @@ impl PuzzledApplication {
         }));
 
         let puzzle_selection_presenter = Rc::new(PuzzleSelectionPresenter::new(
-            &window,
+            window,
             main_presenter.clone(),
         ));
         puzzle_selection_presenter.register_actions(self);
         puzzle_selection_presenter.setup();
 
         let collection_selection_presenter = Rc::new(CollectionSelectionPresenter::new(
-            &window,
+            window,
             main_presenter.clone(),
         ));
         collection_selection_presenter.register_actions(self);

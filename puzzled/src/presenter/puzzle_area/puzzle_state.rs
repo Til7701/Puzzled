@@ -103,42 +103,40 @@ impl PuzzleState {
         let this_is_on_board = puzzle_config
             .board_config()
             .layout()
-            .get::<(usize, usize)>((position.0 as usize, position.1 as usize).into())
+            .get::<(usize, usize)>((position.0 as usize, position.1 as usize))
             .unwrap_or(&false);
         for (dr, dc) in DELTAS.iter() {
             let neighbor_pos = ((position.0 + dr) as usize, (position.1 + dc) as usize);
             if let Some(neighbour_on_board) = puzzle_config
                 .board_config()
                 .layout()
-                .get::<(usize, usize)>(neighbor_pos.into())
+                .get::<(usize, usize)>(neighbor_pos)
+                && !this_is_on_board
+                && *neighbour_on_board
             {
-                if !this_is_on_board && *neighbour_on_board {
-                    return true;
-                }
+                return true;
             }
         }
         false
     }
 
     fn handle_extension(&mut self, puzzle_type_extension: &PuzzleTypeExtension) {
-        match puzzle_type_extension {
-            PuzzleTypeExtension::Area {
-                target: Some(target),
-            } => {
-                for index in &target.indices {
-                    let cell = self.grid.get_mut((index.0 + 1, index.1 + 1));
-                    if let Some(cell) = cell {
-                        let data = match cell {
-                            Cell::Empty(data) => data,
-                            Cell::One(data, _) => data,
-                            Cell::Many(data, _) => data,
-                        };
-                        data.allowed = false;
-                        data.is_on_board = false;
-                    }
+        if let PuzzleTypeExtension::Area {
+            target: Some(target),
+        } = puzzle_type_extension
+        {
+            for index in &target.indices {
+                let cell = self.grid.get_mut((index.0 + 1, index.1 + 1));
+                if let Some(cell) = cell {
+                    let data = match cell {
+                        Cell::Empty(data) => data,
+                        Cell::One(data, _) => data,
+                        Cell::Many(data, _) => data,
+                    };
+                    data.allowed = false;
+                    data.is_on_board = false;
                 }
             }
-            _ => {}
         }
     }
 }

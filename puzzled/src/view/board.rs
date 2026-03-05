@@ -66,9 +66,8 @@ impl BoardView {
                     BoardConfig::Simple { .. } => {
                         let css_classes: Vec<String> =
                             vec!["board-cell".to_string(), "board-cell-simple".to_string()];
-                        let cell = Frame::builder().css_classes(css_classes).build();
 
-                        cell
+                        Frame::builder().css_classes(css_classes).build()
                     }
                     BoardConfig::Area {
                         area_indices,
@@ -115,8 +114,7 @@ impl BoardView {
     }
 
     pub fn get_min_element_size(&self) -> i32 {
-        let max_elements_width = self
-            .elements()
+        self.elements()
             .iter()
             .map(|w| {
                 if let Ok(frame) = w.clone().downcast::<Frame>()
@@ -135,8 +133,7 @@ impl BoardView {
             })
             .chain(0..1)
             .max()
-            .unwrap_or(0);
-        max_elements_width
+            .unwrap_or(0)
     }
 
     fn update_grid_lines(&self, show_grid_lines: bool) {

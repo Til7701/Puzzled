@@ -16,14 +16,13 @@ pub mod tile;
 
 /// Tries to place all given tiles on the board, filling it completely.
 /// If successful, returns a Solution; otherwise, returns an UnsolvableReason.
-/// TODO the solution currently does not contain the placements.
 /// A successful result is reached, if all tiles were placed on the board without overlapping
 /// and all empty cells on the board are covered.
 ///
 /// The cancellation token can be used to cancel the operation.
-/// The operation may be cancelled at any time, in which case it will return
+/// The operation may be canceled at any time, in which case it will return
 /// after some time. It may still be successful if it was close to finishing.
-/// It may also return an error if it was cancelled before it could find a solution.
+/// It may also return an error if it was canceled before it could find a solution.
 ///
 /// # Arguments
 ///
@@ -58,7 +57,7 @@ pub async fn solve_all_filling(
     tiles: &[Tile],
     cancel_token: CancellationToken,
 ) -> Result<Solution, UnsolvableReason> {
-    if !check(&board, &tiles) {
+    if !check(&board, tiles) {
         debug!("Plausibility check failed.");
         return Err(UnsolvableReason::NoFit);
     }
@@ -104,12 +103,86 @@ mod tests {
         let mut board = Board::new((3, 4));
         board[[0, 0]] = true;
         let tiles = vec![
-            Tile::new(arr2(&[[true, true, true], [true, true, true]])),
             Tile::new(arr2(&[[true, true, true], [true, true, false]])),
+            Tile::new(arr2(&[[true, true, true], [true, true, true]])),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
         assert!(result.is_ok());
+        let solution = result.unwrap();
+        let placements = solution.placements();
+        assert_eq!(placements.len(), 2);
+        let expected_placement_1 = TilePlacement::new(
+            arr2(&[[true, true, true], [true, true, false]]),
+            arr2(&[[false, true], [true, true], [true, true]]),
+            (0, 0),
+        );
+        assert!(placements.contains(&expected_placement_1));
+        let expected_placement_2 = TilePlacement::new(
+            arr2(&[[true, true, true], [true, true, true]]),
+            arr2(&[[true, true], [true, true], [true, true]]),
+            (0, 2),
+        );
+        assert!(placements.contains(&expected_placement_2));
+    }
+
+    #[tokio::test]
+    async fn test_solve_all_filling_success_board_padding() {
+        let board = arr2(&[
+            [true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true],
+            [true, true, false, false, false, true, true],
+            [true, false, false, false, false, true, true],
+            [true, false, false, false, false, true, true],
+            [true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true],
+        ])
+        .into();
+        let tiles = vec![
+            Tile::new(arr2(&[[true, true, true], [true, true, false]])),
+            Tile::new(arr2(&[[true, true, true], [true, true, true]])),
+        ];
+
+        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        assert!(result.is_ok());
+        let solution = result.unwrap();
+        let placements = solution.placements();
+        dbg!(&placements);
+        assert_eq!(placements.len(), 2);
+        let expected_placement_1 = TilePlacement::new(
+            arr2(&[[true, true, true], [true, true, false]]),
+            arr2(&[[false, true], [true, true], [true, true]]),
+            (3, 1),
+        );
+        assert!(placements.contains(&expected_placement_1));
+        let expected_placement_2 = TilePlacement::new(
+            arr2(&[[true, true, true], [true, true, true]]),
+            arr2(&[[true, true], [true, true], [true, true]]),
+            (3, 3),
+        );
+        assert!(placements.contains(&expected_placement_2));
+    }
+
+    #[tokio::test]
+    async fn test_solve_all_filling_success_one_tile() {
+        let mut board = Board::new((3, 2));
+        board[[1, 0]] = true;
+        let tiles = vec![Tile::new(arr2(&[[true, true, true], [true, false, true]]))];
+
+        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        assert!(result.is_ok());
+        let solution = result.unwrap();
+        let placements = solution.placements();
+        assert_eq!(placements.len(), 1);
+        let expected_placement_1 = TilePlacement::new(
+            arr2(&[[true, true, true], [true, false, true]]),
+            arr2(&[[true, true], [false, true], [true, true]]),
+            (0, 0),
+        );
+        assert!(placements.contains(&expected_placement_1));
     }
 
     #[tokio::test]
@@ -134,7 +207,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_solve_all_filling_one_tile() {
+    async fn test_solve_all_filling_too_few_tiles() {
         let board = Board::new((3, 4));
         let tiles = vec![Tile::new(arr2(&[[true, true, true], [true, true, true]]))];
 
@@ -180,6 +253,8 @@ mod tests {
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
         assert!(result.is_ok());
+        let solution = result.unwrap();
+        assert!(solution.placements().is_empty());
     }
 
     #[tokio::test]
@@ -203,5 +278,102 @@ mod tests {
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
         assert!(result.is_ok());
+        let solution = result.unwrap();
+        let placements = solution.placements();
+        assert_eq!(placements.len(), 2);
+        let expected_placement_1 = TilePlacement::new(
+            arr2(&[[false, true, true], [true, true, true]]),
+            arr2(&[[false, true, true], [true, true, true]]),
+            (3, 0),
+        );
+        assert!(placements.contains(&expected_placement_1));
+        let expected_placement_2 = TilePlacement::new(
+            arr2(&[
+                [true, true, false],
+                [true, true, false],
+                [false, true, true],
+            ]),
+            arr2(&[
+                [true, true, false],
+                [true, true, false],
+                [false, true, true],
+            ]),
+            (0, 2),
+        );
+        assert!(placements.contains(&expected_placement_2));
+    }
+
+    #[tokio::test]
+    async fn test_solve_tile_can_not_be_placed() {
+        let board = arr2(&[[false, false], [false, false]]).into();
+        let tiles = vec![Tile::new(arr2(&[[true, true, true, true]]))];
+
+        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert_eq!(
+            error,
+            UnsolvableReason::TileCannotBePlaced {
+                base: arr2(&[[true, true, true, true]]),
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn test_solve_all_filling_same_tiles() {
+        let board = arr2(&[
+            [true, false, false],
+            [false, true, false],
+            [false, false, true],
+        ])
+        .into();
+        let tiles = vec![
+            Tile::new(arr2(&[[false, true], [true, true]])),
+            Tile::new(arr2(&[[false, true], [true, true]])),
+        ];
+
+        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        assert!(result.is_ok());
+        let solution = result.unwrap();
+        let placements = solution.placements();
+        dbg!(&placements);
+        assert_eq!(placements.len(), 2);
+        let expected_placement_1 = TilePlacement::new(
+            arr2(&[[false, true], [true, true]]),
+            arr2(&[[true, false], [true, true]]),
+            (1, 0),
+        );
+        assert!(placements.contains(&expected_placement_1));
+        let expected_placement_2 = TilePlacement::new(
+            arr2(&[[false, true], [true, true]]),
+            arr2(&[[true, true], [false, true]]),
+            (0, 1),
+        );
+        assert!(placements.contains(&expected_placement_2));
+    }
+
+    #[tokio::test]
+    async fn test_solve_all_filling_too_large_board() {
+        // Increase board size if test fails after increasing the max bits in Bitmask
+        let board = Board::new((100, 10));
+        let mut tiles = Vec::with_capacity(100);
+        for _ in 0..100 {
+            tiles.push(Tile::new(arr2(&[
+                [true, true, true, true, true],
+                [true, true, true, true, true],
+            ])));
+        }
+
+        let result: Result<Solution, UnsolvableReason> = tokio::select! {
+            result = solve_all_filling(board, &tiles, CancellationToken::new()) => result,
+            _ = tokio::time::sleep(std::time::Duration::from_secs(10)) => {
+                panic!("Test timed out, this might be because the bitmask size exceeded the board size in this test. Increase the board size in this test and try again.")
+            }
+        };
+        assert!(result.is_err());
+        assert_eq!(
+            result.expect_err("Expected Error"),
+            UnsolvableReason::BoardTooLarge
+        );
     }
 }

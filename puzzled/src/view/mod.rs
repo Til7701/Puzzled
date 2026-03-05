@@ -23,7 +23,7 @@ struct TargetIndexListItem {
 }
 
 pub fn create_target_selection_dialog() -> AlertDialog {
-    let dialog = AlertDialog::builder().heading("Select Target Day").build();
+    let dialog = AlertDialog::builder().heading("Select Target").build();
 
     let content = PreferencesGroup::builder().build();
 
@@ -105,9 +105,7 @@ pub fn create_target_selection_dialog() -> AlertDialog {
         }
     });
 
-    let page = PreferencesPage::builder()
-        .title("Select Target Day")
-        .build();
+    let page = PreferencesPage::builder().build();
     page.add(&content);
 
     drop(state);

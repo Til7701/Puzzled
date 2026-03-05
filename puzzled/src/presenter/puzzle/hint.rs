@@ -63,12 +63,12 @@ impl HintButtonPresenter {
         let mut state = get_state_mut();
 
         let solver_state = &state.solver_state;
-        match solver_state {
-            SolverState::Running {
-                call_id: _,
-                cancel_token: _,
-            } => interrupt_solver_call(&state),
-            _ => {}
+        if let SolverState::Running {
+            call_id: _,
+            cancel_token: _,
+        } = solver_state
+        {
+            interrupt_solver_call(&state);
         }
 
         let (tx, rx) = mpsc::channel::<Result<Solution, UnsolvableReason>>();
@@ -96,7 +96,7 @@ impl HintButtonPresenter {
         drop(state);
         solver::solve_for_target(
             &call_id,
-            &puzzle_state,
+            puzzle_state,
             Box::new(move |result| {
                 let _ = tx.send(result);
             }),
@@ -110,7 +110,7 @@ impl HintButtonPresenter {
                 self.hint_button.set_tooltip_text(Some("Hint"));
                 self.hint_button.set_icon_name("lightbulb-symbolic");
             }
-            HintButtonState::Calculating { .. } => {
+            HintButtonState::Calculating => {
                 self.hint_button
                     .set_tooltip_text(Some("Hint: Calculating..."));
                 self.hint_button.set_icon_name("timer-sand-symbolic");

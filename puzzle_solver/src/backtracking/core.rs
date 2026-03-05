@@ -2,6 +2,7 @@ use crate::backtracking::positioned::PositionedTile;
 use crate::backtracking::pruner::Pruner;
 use crate::bitmask::Bitmask;
 use log::debug;
+use std::iter;
 use std::sync::Arc;
 use tokio::task::JoinSet;
 use tokio_util::sync::CancellationToken;
@@ -51,14 +52,11 @@ pub async fn solve_filling(
 async fn await_completion(set: &mut JoinSet<Option<Vec<usize>>>) -> Option<Vec<usize>> {
     let mut result: Option<Vec<usize>> = None;
     while let Some(res) = set.join_next().await {
-        match res {
-            Ok(r) => {
-                if r.is_some() {
-                    result = r;
-                    break;
-                }
-            }
-            Err(_) => {}
+        if let Ok(r) = res
+            && r.is_some()
+        {
+            result = r;
+            break;
         }
     }
     result
@@ -77,7 +75,7 @@ fn prepare_solvers(
 
     for i in 0..first_tile.bitmasks().len() {
         let placement = &first_tile.bitmasks()[i];
-        if board_bitmask.and_is_zero(&placement) {
+        if board_bitmask.and_is_zero(placement) {
             let mut board_with_placements = board_bitmask.clone();
             board_with_placements.xor(board_bitmask, placement);
 
@@ -115,7 +113,7 @@ struct AllFillingSolver {
     board_bitmasks: Vec<Bitmask>,
     used_tile_indices: Vec<usize>,
     tmp_bitmask: Bitmask,
-    yield_counter: u32,
+    yield_counter: u8,
 }
 
 impl AllFillingSolver {
@@ -124,9 +122,7 @@ impl AllFillingSolver {
         for used_tile_index in used_tile_indices {
             use_tile_indices_vec.push(*used_tile_index);
         }
-        for _ in used_tile_indices.len()..num_tiles {
-            use_tile_indices_vec.push(0);
-        }
+        use_tile_indices_vec.extend(iter::repeat_n(0, num_tiles - used_tile_indices.len()));
         AllFillingSolver {
             start_tile_index: used_tile_indices.len(),
             board_bitmasks: vec![board_bitmasks.clone(); num_tiles],
@@ -168,8 +164,8 @@ impl AllFillingSolver {
     ///
     /// returns: bool
     async fn solve_recursive(&mut self, tile_index: usize, shared: &AllFillingShared) -> bool {
-        self.yield_counter += 1;
-        if self.yield_counter & 0xff == 0 {
+        self.yield_counter = self.yield_counter.wrapping_add(1);
+        if self.yield_counter == 0 {
             tokio::task::yield_now().await;
             if shared.cancel_token.is_cancelled() {
                 return false;
@@ -184,15 +180,15 @@ impl AllFillingSolver {
         let num_placements = shared.positioned_tiles[tile_index].bitmasks().len();
         for i in 0..num_placements {
             let placement = &shared.positioned_tiles[tile_index].bitmasks()[i];
-            if self.board_bitmasks[tile_index - 1].and_is_zero(&placement) {
+            if self.board_bitmasks[tile_index - 1].and_is_zero(placement) {
                 self.tmp_bitmask
-                    .xor(&self.board_bitmasks[tile_index - 1], &placement);
+                    .xor(&self.board_bitmasks[tile_index - 1], placement);
                 if shared.pruner.prune(&self.tmp_bitmask) {
                     continue;
                 }
                 self.used_tile_indices[tile_index] = i;
                 self.board_bitmasks[tile_index] = self.tmp_bitmask.clone();
-                if Box::pin(async { self.solve_recursive(tile_index + 1, &shared).await }).await {
+                if Box::pin(async { self.solve_recursive(tile_index + 1, shared).await }).await {
                     return true;
                 }
             }

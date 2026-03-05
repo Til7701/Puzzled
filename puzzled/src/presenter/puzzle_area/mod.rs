@@ -90,7 +90,7 @@ impl PuzzleAreaPresenter {
             self.board_presenter.setup(puzzle_config);
 
             let start_positions = placement::calculate_tile_start_positions(
-                &puzzle_config.tiles(),
+                puzzle_config.tiles(),
                 puzzle_config,
                 self.data.borrow().grid_config.board_offset_cells,
             );
@@ -260,11 +260,11 @@ impl PuzzleAreaPresenter {
                 tile_view.set_position_cells(Some(new_position_cells));
             }
         }
-        if let Some(hint_tile_view) = &data.hint_tile_view {
-            if let Some(position_cells) = hint_tile_view.position_cells() {
-                let new_position_cells = position_cells + offset_cells;
-                hint_tile_view.set_position_cells(Some(new_position_cells));
-            }
+        if let Some(hint_tile_view) = &data.hint_tile_view
+            && let Some(position_cells) = hint_tile_view.position_cells()
+        {
+            let new_position_cells = position_cells + offset_cells;
+            hint_tile_view.set_position_cells(Some(new_position_cells));
         }
     }
 
@@ -396,14 +396,14 @@ impl PuzzleAreaPresenter {
 
         puzzle_state.grid.iter().for_each(|cell| match cell {
             Cell::One(data, tile_cell_placement) => {
-                if !data.allowed {
-                    if let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id) {
-                        tile_view.set_drawing_mode_at(
-                            tile_cell_placement.cell_position.0 as usize,
-                            tile_cell_placement.cell_position.1 as usize,
-                            DrawingMode::OutOfBounds,
-                        );
-                    }
+                if !data.allowed
+                    && let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id)
+                {
+                    tile_view.set_drawing_mode_at(
+                        tile_cell_placement.cell_position.0 as usize,
+                        tile_cell_placement.cell_position.1 as usize,
+                        DrawingMode::OutOfBounds,
+                    );
                 }
             }
             Cell::Many(_, tile_cell_placements) => {

@@ -6,9 +6,9 @@ pub enum PuzzleDifficultyConfig {
     Expert = 4,
 }
 
-impl Into<String> for PuzzleDifficultyConfig {
-    fn into(self) -> String {
-        match self {
+impl From<PuzzleDifficultyConfig> for String {
+    fn from(val: PuzzleDifficultyConfig) -> Self {
+        match val {
             PuzzleDifficultyConfig::Easy => "Easy".to_string(),
             PuzzleDifficultyConfig::Medium => "Medium".to_string(),
             PuzzleDifficultyConfig::Hard => "Hard".to_string(),

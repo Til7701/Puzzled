@@ -54,7 +54,7 @@ fn place_in_column(
         let mut next_pos = start;
         let mut next_tile_index = positions.len();
         while end > next_pos.1 {
-            positions.push(next_pos.clone());
+            positions.push(next_pos);
             if tiles.len() == positions.len() {
                 break;
             }
@@ -76,7 +76,7 @@ fn place_in_row(
         let mut next_pos = start;
         let mut next_tile_index = positions.len();
         while end > next_pos.0 + tiles[next_tile_index].base().dim().0 as i32 {
-            positions.push(next_pos.clone());
+            positions.push(next_pos);
             if tiles.len() == positions.len() {
                 break;
             }
