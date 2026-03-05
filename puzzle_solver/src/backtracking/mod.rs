@@ -43,7 +43,7 @@ pub async fn solve_all_filling(
         &board_bitmask,
         &positioned_tiles,
         pruner,
-        cancel_token,
+        cancel_token.clone(),
     )
     .await;
 
@@ -54,7 +54,13 @@ pub async fn solve_all_filling(
             &tiles,
             &board,
         )),
-        None => Err(UnsolvableReason::NoFit),
+        None => {
+            if cancel_token.is_cancelled() {
+                Err(UnsolvableReason::Cancelled)
+            } else {
+                Err(UnsolvableReason::NoFit)
+            }
+        }
     }
 }
 

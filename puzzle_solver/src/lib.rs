@@ -59,7 +59,7 @@ pub async fn solve_all_filling(
 ) -> Result<Solution, UnsolvableReason> {
     if !check(&board, tiles) {
         debug!("Plausibility check failed.");
-        return Err(UnsolvableReason::NoFit);
+        return Err(UnsolvableReason::PlausibilityCheckFailed);
     }
 
     let mut board = board;
