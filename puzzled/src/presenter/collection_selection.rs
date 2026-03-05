@@ -333,7 +333,11 @@ fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk
 
     row.set_name(collection.name());
 
-    let puzzle_count = collection.puzzles().len();
+    let puzzle_count = collection
+        .puzzles()
+        .iter()
+        .filter(|p| !p.is_unsolvable())
+        .count();
     let puzzle_meta = PuzzleMeta::new();
     let solved_count = collection
         .puzzles()

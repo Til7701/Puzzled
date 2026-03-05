@@ -90,7 +90,7 @@ impl PuzzleConfig {
         &self.difficulty
     }
 
-    pub fn unsolvable(&self) -> bool {
+    pub fn is_unsolvable(&self) -> bool {
         self.unsolvable
     }
 

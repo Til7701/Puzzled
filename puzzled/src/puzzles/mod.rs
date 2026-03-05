@@ -191,7 +191,7 @@ mod tests {
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
 
             for puzzle in collection.puzzles() {
-                if puzzle.unsolvable() || skip_list.contains(&(collection.id(), puzzle.name())) {
+                if puzzle.is_unsolvable() || skip_list.contains(&(collection.id(), puzzle.name())) {
                     // Skip puzzles that are known to be unsolvable or take too long
                     continue;
                 }
