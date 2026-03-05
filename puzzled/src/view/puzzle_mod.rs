@@ -64,9 +64,13 @@ impl PuzzleMod {
             self.append(&star_widget);
             imp.star_widgets.borrow_mut().push(star_widget);
         }
-        let tooltip: Option<String> = stars
-            .max_hints_for_next_star()
-            .map(|max| format!("Use at most {} hints to get the next star", max.get()));
+        let tooltip: Option<String> = stars.max_hints_for_next_star().map(|max| {
+            if max == 0 {
+                "Get the next star by solving the puzzle".to_string()
+            } else {
+                format!("Use at most {} hints to get the next star", max)
+            }
+        });
         self.set_tooltip_text(tooltip.as_deref());
     }
 
