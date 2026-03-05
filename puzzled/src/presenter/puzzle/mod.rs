@@ -11,14 +11,12 @@ use crate::presenter::puzzle::info::PuzzleInfoPresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
 use crate::solver::{interrupt_solver_call, is_solved};
 use crate::view::puzzle_area_page::PuzzleAreaPage;
-use crate::view::tile::TileView;
 use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, Cast, NavigationPageExt};
 use adw::{gio, Toast, ToastOverlay};
-use gtk::prelude::{BoxExt, WidgetExt};
+use gtk::prelude::BoxExt;
 use gtk::{Image, Label, Widget};
 use log::error;
-use puzzle_config::ColorConfig;
 use puzzle_solver::result::UnsolvableReason;
 use std::cell::Cell;
 use std::rc::Rc;
@@ -181,6 +179,9 @@ impl PuzzlePresenter {
                     icon,
                     build_label("Some tiles are overlapping or are out of bounds!"),
                 ]
+            }
+            UnsolvableReason::Cancelled => {
+                return;
             }
         };
 
