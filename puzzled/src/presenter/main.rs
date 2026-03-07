@@ -4,6 +4,7 @@ use crate::global::state::{get_state, get_state_mut};
 use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
+use crate::puzzles::stars;
 use crate::solver;
 use crate::view::solved_dialog::SolvedDialog;
 use crate::window::PuzzledWindow;
@@ -94,6 +95,20 @@ impl MainPresenter {
         let solved_dialog = SolvedDialog::new();
 
         let state = get_state();
+
+        if let Some(collection) = &state.puzzle_collection
+            && let Some(puzzle_config) = &state.puzzle_config
+        {
+            let puzzle_meta = PuzzleMeta::new();
+            let hint_count = puzzle_meta.hints(
+                collection,
+                puzzle_config.index(),
+                &state.puzzle_type_extension,
+            );
+            let stars = stars::calculate_stars(true, hint_count, &puzzle_config.difficulty());
+            solved_dialog.set_stars(&stars);
+        };
+
         let has_next = if let Some(collection) = &state.puzzle_collection
             && let Some(puzzle_config) = &state.puzzle_config
         {

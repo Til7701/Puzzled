@@ -1,13 +1,18 @@
+use crate::puzzles::stars::Stars;
 use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;
 
 mod imp {
     use super::*;
+    use crate::view::stars::StarsView;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(resource = "/de/til7701/Puzzled/ui/dialog/solved-dialog.ui")]
-    pub struct PuzzledSolvedDialog {}
+    pub struct PuzzledSolvedDialog {
+        #[template_child]
+        pub stars_view: TemplateChild<StarsView>,
+    }
 
     #[glib::object_subclass]
     impl ObjectSubclass for PuzzledSolvedDialog {
@@ -40,5 +45,10 @@ glib::wrapper! {
 impl SolvedDialog {
     pub fn new() -> Self {
         glib::Object::builder().build()
+    }
+
+    pub fn set_stars(&self, stars: &Stars) {
+        let imp = self.imp();
+        imp.stars_view.set_stars(stars);
     }
 }
