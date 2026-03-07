@@ -35,6 +35,7 @@ pub struct Stars {
     total: u32,
     /// Must be `Some`, if `0 < reached < total`, and `None` otherwise.
     max_hints_for_next_star: Option<u32>,
+    best_hint_count: Option<u32>,
 }
 
 impl Stars {
@@ -64,14 +65,25 @@ impl Stars {
         if self.reached() == self.total() {
             None
         } else if self.reached() == 0 {
-            Some("Get the first star by solving the puzzle".to_string())
+            Some("Get the first star by solving the puzzle.".to_string())
         } else {
             let max = self.max_hints_for_next_star().unwrap_or(u32::MAX);
             if max == 0 {
-                Some("Solve the puzzle without using hints to get the next star".to_string())
+                let message =
+                    "Solve the puzzle without using hints to get the next star.".to_string();
+                Some(self.add_best_hint_count(message))
             } else {
-                Some(format!("Use at most {} hints to get the next star", max))
+                let message = format!("Use at most {} hints to get the next star.", max);
+                Some(self.add_best_hint_count(message))
             }
+        }
+    }
+
+    fn add_best_hint_count(&self, message: String) -> String {
+        if let Some(best) = self.best_hint_count {
+            format!("{} Best: {}", message, best)
+        } else {
+            message
         }
     }
 }
@@ -89,6 +101,7 @@ pub fn calculate_stars(
             reached: 0,
             total,
             max_hints_for_next_star: None,
+            best_hint_count,
         };
     }
 
@@ -109,6 +122,7 @@ pub fn calculate_stars(
         reached,
         total,
         max_hints_for_next_star,
+        best_hint_count: None,
     }
 }
 
