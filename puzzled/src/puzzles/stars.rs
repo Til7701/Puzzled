@@ -19,7 +19,7 @@ const STARS_LOOKUP: [StarsLookup; 5] = [
         max_hints_used_for_stars: &[u32::MAX, 4, 3, 2, 0],
     },
     StarsLookup {
-        max_hints_used_for_stars: &[u32::MAX, 6, 3, 2, 0],
+        max_hints_used_for_stars: &[u32::MAX, 6, 4, 3, 0],
     },
 ];
 
@@ -33,6 +33,7 @@ struct StarsLookup {
 pub struct Stars {
     reached: u32,
     total: u32,
+    /// Must be `Some`, if `0 < reached < total`, and `None` otherwise.
     max_hints_for_next_star: Option<u32>,
 }
 
@@ -53,6 +54,25 @@ impl Stars {
     /// that any solution gives the first star.
     pub fn max_hints_for_next_star(&self) -> Option<u32> {
         self.max_hints_for_next_star
+    }
+
+    /// Returns a message to be shown as a description of the current progress and how to get more
+    /// stars.
+    ///
+    /// This may be none under some conditions.
+    pub fn message(&self) -> Option<String> {
+        if self.reached() == self.total() {
+            None
+        } else if self.reached() == 0 {
+            Some("Get the first star by solving the puzzle".to_string())
+        } else {
+            let max = self.max_hints_for_next_star().unwrap_or(u32::MAX);
+            if max == 0 {
+                Some("Solve the puzzle without using hints to get the next star".to_string())
+            } else {
+                Some(format!("Use at most {} hints to get the next star", max))
+            }
+        }
     }
 }
 

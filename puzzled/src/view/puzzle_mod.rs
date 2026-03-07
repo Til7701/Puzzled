@@ -7,8 +7,8 @@ use gtk::Widget;
 
 mod imp {
     use super::*;
+    use crate::view::stars::StarsView;
     use adw::glib::Properties;
-    use std::cell::RefCell;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, Properties)]
     #[template(resource = "/de/til7701/Puzzled/ui/widget/puzzle-mod.ui")]
@@ -18,7 +18,8 @@ mod imp {
         pub icon: TemplateChild<gtk::Image>,
         #[template_child]
         pub label: TemplateChild<gtk::Label>,
-        pub star_widgets: RefCell<Vec<Widget>>,
+        #[template_child]
+        pub stars: TemplateChild<StarsView>,
     }
 
     #[glib::object_subclass]
@@ -60,66 +61,22 @@ impl PuzzleMod {
         let imp = self.imp();
         imp.icon.set_visible(false);
         imp.label.set_visible(false);
-        for star_widget in Self::construct_stars(stars) {
-            self.append(&star_widget);
-            imp.star_widgets.borrow_mut().push(star_widget);
-        }
-        let tooltip: Option<String> = stars.max_hints_for_next_star().map(|max| {
-            if max == 0 {
-                "Get the next star by solving the puzzle".to_string()
-            } else {
-                format!("Use at most {} hints to get the next star", max)
-            }
-        });
-        self.set_tooltip_text(tooltip.as_deref());
-    }
-
-    fn construct_stars(stars: &Stars) -> Vec<Widget> {
-        let mut widgets = Vec::new();
-        const STAR_ICON_SIZE: i32 = 12;
-        let reached_css_classes = if stars.reached() == stars.total() {
-            vec!["accent"]
-        } else {
-            vec![]
-        };
-        for _ in 0..stars.reached() {
-            let star_icon = gtk::Image::builder()
-                .icon_name("star-filled-rounded-symbolic")
-                .css_classes(reached_css_classes.clone())
-                .build();
-            star_icon.set_pixel_size(STAR_ICON_SIZE);
-            widgets.push(star_icon.upcast());
-        }
-        for _ in stars.reached()..stars.total() {
-            let star_icon = gtk::Image::builder()
-                .icon_name("star-outline-rounded-symbolic")
-                .build();
-            star_icon.set_pixel_size(STAR_ICON_SIZE);
-            widgets.push(star_icon.upcast());
-        }
-
-        widgets
-    }
-
-    fn clear_stars(&self) {
-        let imp = self.imp();
-        for star_widget in imp.star_widgets.borrow_mut().drain(..) {
-            self.remove(&star_widget);
-        }
+        self.set_tooltip_text(None);
+        imp.stars.set_visible(true);
+        imp.stars.set_stars(stars);
     }
 
     fn set_locked(&self) {
-        self.clear_stars();
         let imp = self.imp();
         imp.icon.set_icon_name(Some("padlock2-symbolic"));
         imp.icon.set_visible(true);
         imp.label.set_text("Locked");
         self.set_tooltip_text(Some("Solve the previous puzzles to unlock."));
         imp.label.set_visible(true);
+        imp.stars.set_visible(false);
     }
 
     fn set_unsolvable(&self) {
-        self.clear_stars();
         let imp = self.imp();
         imp.icon
             .set_icon_name(Some("cross-large-circle-outline-symbolic"));
@@ -127,6 +84,7 @@ impl PuzzleMod {
         imp.label.set_text("Unsolvable");
         self.set_tooltip_text(Some("This puzzle cannot be solved"));
         imp.label.set_visible(true);
+        imp.stars.set_visible(false);
     }
 
     pub fn set_state(&self, state: &PuzzleModState) {

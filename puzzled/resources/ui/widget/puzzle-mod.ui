@@ -12,5 +12,8 @@
         <child>
             <object class="GtkLabel" id="label"/>
         </child>
+        <child>
+            <object class="PuzzledStarsView" id="stars"/>
+        </child>
     </template>
 </interface>
