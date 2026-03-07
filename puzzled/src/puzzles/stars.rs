@@ -10,16 +10,16 @@ const STARS_LOOKUP: [StarsLookup; 5] = [
         max_hints_used_for_stars: &[u32::MAX, 0],
     },
     StarsLookup {
-        max_hints_used_for_stars: &[u32::MAX, 0],
-    },
-    StarsLookup {
-        max_hints_used_for_stars: &[u32::MAX, 1, 0],
-    },
-    StarsLookup {
-        max_hints_used_for_stars: &[u32::MAX, 2, 1, 0],
+        max_hints_used_for_stars: &[u32::MAX, 2, 1, 1, 0],
     },
     StarsLookup {
         max_hints_used_for_stars: &[u32::MAX, 3, 2, 1, 0],
+    },
+    StarsLookup {
+        max_hints_used_for_stars: &[u32::MAX, 4, 3, 2, 0],
+    },
+    StarsLookup {
+        max_hints_used_for_stars: &[u32::MAX, 6, 3, 2, 0],
     },
 ];
 
