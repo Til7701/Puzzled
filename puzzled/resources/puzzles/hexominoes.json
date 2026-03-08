@@ -6,14 +6,71 @@
   "description": "Fill the board with hexominoes.",
   "puzzles": [
     {
-      "name": "6 x 18 A",
-      "id": "6x18A",
-      "difficulty": "Hard",
+      "name": "6 x 9 A",
+      "id": "6x9A",
+      "difficulty": "Medium",
       "tiles": [
-        "w6", "V6", "y6", "L6", "N6", "n6", "D6", "T6", "f6", "R6", "H6", "P6", "X6", "G6", "F6", "u6", "K6", "C6"
+        "x6", "t6", "N6", "I6", "X6", "y6", "Y6", "w6", "J6"
       ],
-      "board": "6x18"
+      "board": "6x9"
     }, {
+      "name": "6 x 9 B",
+      "id": "6x9B",
+      "difficulty": "Medium",
+      "tiles": [
+        "U6", "F6", "u6", "z6", "W6", "m6", "p6", "D6", "H6"
+      ],
+      "board": "6x9"
+    }, {
+      "name": "6 x 9 C",
+      "id": "6x9C",
+      "difficulty": "Medium",
+      "tiles": [
+        "M6", "G6", "R6", "n6", "Z6", "f6", "T6", "L6", "K6"
+      ],
+      "board": "6x9"
+    }, {
+      "name": "6 x 9 D",
+      "id": "6x9D",
+      "difficulty": "Medium",
+      "tiles": [
+        "V6", "S6", "X6", "P6", "O6", "Q6", "B6", "A6", "C6"
+      ],
+      "board": "6x9"
+    }, {
+      "name": "6 x 9 E",
+      "id": "6x9E",
+      "difficulty": "Medium",
+      "tiles": [
+        "U6", "W6", "x6", "n6", "K6", "A6", "G6", "H6", "t6"
+      ],
+      "board": "6x9"
+    }, {
+      "name": "6 x 9 F",
+      "id": "6x9F",
+      "difficulty": "Medium",
+      "tiles": [
+        "F6", "y6", "f6", "Y6", "S6", "z6", "u6", "N6", "J6"
+      ],
+      "board": "6x9"
+    }, {
+      "name": "6 x 9 G",
+      "id": "6x9G",
+      "difficulty": "Medium",
+      "tiles": [
+        "P6", "O6", "R6", "T6", "p6", "B6", "X6", "V6", "w6"
+      ],
+      "board": "6x9"
+    }, {
+      "name": "6 x 9 H",
+      "id": "6x9H",
+      "difficulty": "Medium",
+      "tiles": [
+        "M6", "m6", "Q6", "L6", "x6", "C6", "I6", "D6", "Z6"
+      ],
+      "board": "6x9"
+    },
+    {
       "name": "All in Three Almost-Rectangles",
       "id": "ar",
       "difficulty": "Expert",

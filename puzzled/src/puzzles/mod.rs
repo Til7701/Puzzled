@@ -278,6 +278,32 @@ mod tests {
     }
 
     #[test]
+    fn test_core_collections_names() {
+        let predefined_json_str =
+            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let json_loader =
+            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+
+        for collection_name in CORE_COLLECTIONS.iter() {
+            let json =
+                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+            let collection = json_loader.load_puzzle_collection(&json).unwrap();
+            assert!(!collection.puzzles().is_empty());
+            let mut set: HashSet<&str> = HashSet::new();
+            for puzzle in collection.puzzles() {
+                let name = puzzle.name();
+                assert!(
+                    !set.contains(name),
+                    "Duplicate puzzle Name '{}' in collection '{}'",
+                    name,
+                    collection_name
+                );
+                set.insert(name);
+            }
+        }
+    }
+
+    #[test]
     fn test_core_collections_unique_puzzles() {
         let predefined_json_str =
             fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
