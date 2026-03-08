@@ -374,7 +374,7 @@ fn calculate_stars(collection: &PuzzleConfigCollection) -> (u32, u32) {
         .puzzles()
         .iter()
         .enumerate()
-        .filter(|(i, p)| !p.is_unsolvable())
+        .filter(|(_, p)| !p.is_unsolvable())
         .map(|(i, p)| {
             let solved = puzzle_meta.is_solved(
                 collection,

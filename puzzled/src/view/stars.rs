@@ -3,7 +3,7 @@ use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
-use gtk::{IconSize, Image, Widget};
+use gtk::{Image, Widget};
 
 mod imp {
     use super::*;
