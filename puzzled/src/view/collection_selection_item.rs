@@ -22,7 +22,7 @@ mod imp {
         #[template_child]
         pub info_box: TemplateChild<adw::WrapBox>,
         #[template_child]
-        pub puzzle_solved_pill: TemplateChild<InfoPill>,
+        pub puzzle_stars_pill: TemplateChild<InfoPill>,
         pub solved_count: Cell<(usize, usize)>,
         #[template_child]
         pub difficulty_pill: TemplateChild<InfoPill>,
@@ -70,18 +70,12 @@ impl CollectionSelectionItem {
         self.imp().name.set_text(name);
     }
 
-    pub fn set_solved_counts(&self, solved: usize, total: usize) {
+    pub fn set_star_counts(&self, solved: usize, total: usize) {
         self.imp()
-            .puzzle_solved_pill
+            .puzzle_stars_pill
             .set_label(format!("{} / {}", solved, total));
         self.imp().solved_count.set((solved, total));
-        self.imp().puzzle_solved_pill.highlight(solved == total);
-    }
-
-    pub fn increment_solved_count(&self) {
-        let mut counts = self.imp().solved_count.get();
-        counts.0 += 1;
-        self.set_solved_counts(counts.0, counts.1);
+        self.imp().puzzle_stars_pill.highlight(solved == total);
     }
 
     pub fn set_difficulty(&self, difficulty: Option<PuzzleDifficultyConfig>) {

@@ -6,6 +6,7 @@ pub mod puzzle_area_page;
 pub mod puzzle_mod;
 pub mod puzzle_selection_page;
 pub mod solved_dialog;
+pub mod stars;
 pub mod tile;
 
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};

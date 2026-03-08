@@ -2,9 +2,10 @@ use crate::application::PuzzledApplication;
 use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut};
 use crate::presenter::main::{MainPresenter, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
+use crate::puzzles;
 use crate::view::board::BoardView;
 use crate::view::info_pill::InfoPill;
-use crate::view::puzzle_mod::PuzzleMod;
+use crate::view::puzzle_mod::{PuzzleMod, PuzzleModState};
 use crate::view::tile::TileView;
 use crate::window::PuzzledWindow;
 use adw::glib::{Variant, VariantTy};
@@ -153,24 +154,17 @@ impl PuzzleSelectionPresenter {
             puzzle.index(),
             &get_state().puzzle_type_extension,
         );
-
-        #[derive(Debug, PartialEq)]
-        enum State {
-            Solved,
-            Unlocked,
-            Locked,
-            Unsolvable,
-        }
+        let best_hint_count = self.puzzle_meta.hints(
+            collection,
+            puzzle.index(),
+            &get_state().puzzle_type_extension,
+        );
+        let difficulty = puzzle.difficulty();
+        let stars = puzzles::stars::calculate_stars(solved, best_hint_count, difficulty);
 
         let state = {
             let state = match &collection.progression() {
-                ProgressionConfig::Any => {
-                    if solved {
-                        State::Solved
-                    } else {
-                        State::Unlocked
-                    }
-                }
+                ProgressionConfig::Any => PuzzleModState::Stars(stars),
                 ProgressionConfig::Sequential => {
                     let previous_solved = if puzzle.index() == 0 {
                         true
@@ -179,17 +173,17 @@ impl PuzzleSelectionPresenter {
                             .is_solved(collection, puzzle.index() - 1, &None)
                     };
 
-                    if solved {
-                        State::Solved
-                    } else if previous_solved {
-                        State::Unlocked
+                    if solved || previous_solved {
+                        PuzzleModState::Stars(stars)
                     } else {
-                        State::Locked
+                        PuzzleModState::Locked
                     }
                 }
             };
-            if state == State::Unlocked && puzzle.is_unsolvable() {
-                State::Unsolvable
+            if let PuzzleModState::Stars(_) = state
+                && puzzle.is_unsolvable()
+            {
+                PuzzleModState::Unsolvable
             } else {
                 state
             }
@@ -198,28 +192,17 @@ impl PuzzleSelectionPresenter {
         let puzzle_mod: PuzzleMod = builder
             .object("puzzle_mod")
             .expect("Missing `puzzle_mod` in resource");
+        puzzle_mod.set_state(&state);
         match state {
-            State::Solved => {
-                puzzle_mod.set_solved(self.puzzle_meta.hints(
-                    collection,
-                    puzzle.index(),
-                    &get_state().puzzle_type_extension,
-                ));
+            PuzzleModState::Stars(_) => {
                 row.set_activatable(true);
                 row.remove_css_class("dimmed");
             }
-            State::Unlocked => {
-                puzzle_mod.set_off();
-                row.set_activatable(true);
-                row.remove_css_class("dimmed");
-            }
-            State::Locked => {
-                puzzle_mod.set_locked();
+            PuzzleModState::Locked => {
                 row.set_activatable(false);
                 row.add_css_class("dimmed");
             }
-            State::Unsolvable => {
-                puzzle_mod.set_unsolvable();
+            PuzzleModState::Unsolvable => {
                 row.set_activatable(true);
                 row.remove_css_class("dimmed");
             }
@@ -247,7 +230,7 @@ impl PuzzleSelectionPresenter {
         let cell_count_pill: InfoPill = builder
             .object("cell_count_pill")
             .expect("Missing `cell_count_pill` in resource");
-        if state != State::Locked || collection.preview().show_board_size() {
+        if state != PuzzleModState::Locked || collection.preview().show_board_size() {
             let (width, height) = puzzle.board_config().layout().dim();
             board_size_pill.set_label(format!("{} x {}", width, height));
             let cell_count = puzzle
@@ -265,7 +248,7 @@ impl PuzzleSelectionPresenter {
         let tile_count_pill: InfoPill = builder
             .object("tile_count_pill")
             .expect("Missing `tile_count_pill` in resource");
-        if state != State::Locked || collection.preview().show_tile_count() {
+        if state != PuzzleModState::Locked || collection.preview().show_tile_count() {
             let tile_count = puzzle.tiles().len();
             tile_count_pill.set_label(format!("{}", tile_count));
         } else {
@@ -282,14 +265,14 @@ impl PuzzleSelectionPresenter {
             info_box.remove(&difficulty_pill);
         }
 
-        if state != State::Locked || collection.preview().show_tiles() {
+        if state != PuzzleModState::Locked || collection.preview().show_tiles() {
             let fixed: Fixed = builder
                 .object("tile_preview_fixed")
                 .expect("Missing `tile_preview_fixed` in resource");
             create_tiles_preview(puzzle.tiles(), fixed);
         }
 
-        if state != State::Locked || collection.preview().show_board() {
+        if state != PuzzleModState::Locked || collection.preview().show_board() {
             let preview_box: gtk::Box = builder
                 .object("board_preview_box")
                 .expect("Missing `board_preview_box` in resource");

@@ -1,4 +1,5 @@
 mod community;
+pub mod stars;
 
 use crate::config;
 use crate::puzzles::community::save_community_collection;

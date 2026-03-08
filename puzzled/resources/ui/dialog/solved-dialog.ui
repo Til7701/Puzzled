@@ -2,6 +2,12 @@
 <interface>
     <template class="PuzzledSolvedDialog" parent="AdwAlertDialog">
         <property name="heading" translatable="yes">Puzzle Solved!</property>
+        <property name="extra-child">
+            <object class="PuzzledStarsView" id="stars_view">
+                <property name="halign">center</property>
+                <property name="icon-size">large</property>
+            </object>
+        </property>
         <property name="close-response">close</property>
         <property name="default-response">next</property>
         <responses>

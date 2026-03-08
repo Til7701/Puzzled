@@ -36,9 +36,9 @@
                                 <property name="child-spacing">4</property>
                                 <property name="line-spacing">4</property>
                                 <child>
-                                    <object class="PuzzledInfoPill" id="puzzle_solved_pill">
-                                        <property name="tooltip-text">How many puzzles in this collection are solved and how many there are total</property>
-                                        <property name="icon-name">check-round-outline2-symbolic</property>
+                                    <object class="PuzzledInfoPill" id="puzzle_stars_pill">
+                                        <property name="tooltip-text">How many stars in this collection were reached and how many there are total</property>
+                                        <property name="icon-name">star-large-symbolic</property>
                                     </object>
                                 </child>
                                 <child>

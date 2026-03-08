@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PuzzleDifficultyConfig {
     Easy = 1,
     Medium = 2,
