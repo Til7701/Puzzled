@@ -1,5 +1,5 @@
 {
-  "puzzled": "0.2.0",
+  "puzzled": "0.4.0",
   "name": "Trominoes",
   "author": "Puzzled",
   "id": "de.til7701.Puzzled.Trominoes",
@@ -19,37 +19,68 @@
       "id": "a",
       "difficulty": "Easy",
       "tiles": [
-        "I3",
-        "L3",
-        "L3"
+        "I3", "L3", "L3"
       ],
       "board": "3x3"
-    },
-    {
+    }, {
       "name": "Simple",
       "id": "b",
       "difficulty": "Easy",
       "tiles": [
-        "I3",
-        "I3",
-        "L3",
-        "L3"
+        "I3", "I3", "L3", "L3"
       ],
       "board": "4x3"
-    },
-    {
+    }, {
       "name": "Double the Board, Double the Fun",
       "id": "c",
       "difficulty": "Easy",
       "tiles": [
-        "I3",
-        "L3",
-        "L3",
-        "I3",
-        "L3",
-        "L3"
+        "I3", "L3", "L3", "I3", "L3", "L3"
       ],
       "board": "double"
+    }, {
+      "name": "Missing I3s",
+      "id": "d",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "I3",
+          "count": 4
+        }, {
+          "layout": "L3",
+          "count": 4
+        }
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 0, 0],
+          [0, 1, 0, 0, 1, 0],
+          [0, 1, 0, 0, 1, 0],
+          [0, 1, 0, 0, 1, 0],
+          [0, 0, 0, 0, 0, 0]
+        ]
+      }
+    }, {
+      "name": "Missing L3s",
+      "id": "e",
+      "difficulty": "Easy",
+      "tiles": [
+        {
+          "layout": "L3",
+          "count": 4
+        }, {
+          "layout": "I3",
+          "count": 6
+        }
+      ],
+      "board": {
+        "layout": [
+          [0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 1, 0, 0, 0, 0, 1, 1, 0],
+          [0, 1, 1, 0, 0, 0, 0, 1, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+      }
     }
   ]
 }
