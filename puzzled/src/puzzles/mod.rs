@@ -267,12 +267,11 @@ mod tests {
             for puzzle in collection.puzzles() {
                 let id = puzzle.id();
                 assert!(
-                    !set.contains(id),
+                    set.insert(id.clone()),
                     "Duplicate puzzle ID '{}' in collection '{}'",
                     id,
                     collection_name
                 );
-                set.insert(id.clone());
             }
         }
     }
@@ -293,12 +292,11 @@ mod tests {
             for puzzle in collection.puzzles() {
                 let name = puzzle.name();
                 assert!(
-                    !set.contains(name),
+                    set.insert(name),
                     "Duplicate puzzle Name '{}' in collection '{}'",
                     name,
                     collection_name
                 );
-                set.insert(name);
             }
         }
     }
@@ -321,12 +319,11 @@ mod tests {
                 PuzzleConfig::hash(puzzle, &mut hasher);
                 let hash = hasher.finish();
                 assert!(
-                    !set.contains_key(&hash),
+                    set.insert(hash, puzzle_identifier.clone()).is_none(),
                     "Duplicate puzzle detected: {} and {}",
                     set.get(&hash).unwrap(),
                     puzzle_identifier
                 );
-                set.insert(hash, puzzle_identifier);
             }
         }
     }
