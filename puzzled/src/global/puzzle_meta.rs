@@ -20,8 +20,9 @@ impl PuzzleMeta {
         }
     }
 
-    pub fn reset_solved(&self) {
+    pub fn reset(&self) {
         self.settings.reset(SOLVED_KEY);
+        self.settings.reset(HINTS_KEY);
     }
 
     pub fn is_solved(
