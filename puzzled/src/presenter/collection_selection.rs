@@ -3,7 +3,7 @@ use crate::config;
 use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state_mut, PuzzleTypeExtension};
 use crate::presenter::main::MainPresenter;
-use crate::puzzles::get_puzzle_collection_store;
+use crate::puzzles::{get_puzzle_collection_store, stars};
 use crate::view::collection_selection_item::CollectionSelectionItem;
 use crate::window::PuzzledWindow;
 use adw::gio::{Cancellable, File};
@@ -109,14 +109,28 @@ impl CollectionSelectionPresenter {
                     let row = self.core_collection_list.row_at_index(index as i32);
                     if let Some(row) = row {
                         let collection_item: CollectionSelectionItem = row.downcast().unwrap();
-                        collection_item.increment_solved_count();
+                        let (stars_reached, stars_total) = calculate_stars(
+                            get_puzzle_collection_store()
+                                .core_puzzle_collections()
+                                .get(index)
+                                .unwrap(),
+                        );
+                        collection_item
+                            .set_star_counts(stars_reached as usize, stars_total as usize);
                     }
                 }
                 CollectionId::Community(index) => {
                     let row = self.community_collection_list.row_at_index(index as i32);
                     if let Some(row) = row {
                         let collection_item: CollectionSelectionItem = row.downcast().unwrap();
-                        collection_item.increment_solved_count();
+                        let (stars_reached, stars_total) = calculate_stars(
+                            get_puzzle_collection_store()
+                                .community_puzzle_collections()
+                                .get(index)
+                                .unwrap(),
+                        );
+                        collection_item
+                            .set_star_counts(stars_reached as usize, stars_total as usize);
                     }
                 }
             }
@@ -333,25 +347,8 @@ fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk
 
     row.set_name(collection.name());
 
-    let puzzle_count = collection
-        .puzzles()
-        .iter()
-        .filter(|p| !p.is_unsolvable())
-        .count();
-    let puzzle_meta = PuzzleMeta::new();
-    let solved_count = collection
-        .puzzles()
-        .iter()
-        .enumerate()
-        .filter(|(i, p)| {
-            puzzle_meta.is_solved(
-                collection,
-                *i,
-                &Some(PuzzleTypeExtension::default_for_puzzle(p)),
-            )
-        })
-        .count();
-    row.set_solved_counts(solved_count, puzzle_count);
+    let (stars_reached, stars_total) = calculate_stars(collection);
+    row.set_star_counts(stars_reached as usize, stars_total as usize);
 
     row.set_difficulty(collection.average_difficulty());
 
@@ -369,6 +366,32 @@ fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk
     }
 
     row.upcast()
+}
+
+fn calculate_stars(collection: &PuzzleConfigCollection) -> (u32, u32) {
+    let puzzle_meta = PuzzleMeta::new();
+    let (stars_reached, stars_total) = collection
+        .puzzles()
+        .iter()
+        .enumerate()
+        .filter(|(i, p)| !p.is_unsolvable())
+        .map(|(i, p)| {
+            let solved = puzzle_meta.is_solved(
+                collection,
+                i,
+                &Some(PuzzleTypeExtension::default_for_puzzle(p)),
+            );
+            let best_hint_count = puzzle_meta.hints(
+                collection,
+                i,
+                &Some(PuzzleTypeExtension::default_for_puzzle(p)),
+            );
+            stars::calculate_stars(solved, best_hint_count, p.difficulty())
+        })
+        .fold((0, 0), |(reached, total), stars| {
+            (reached + stars.reached(), total + stars.total())
+        });
+    (stars_reached, stars_total)
 }
 
 #[derive(Debug)]

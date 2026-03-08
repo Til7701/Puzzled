@@ -85,7 +85,7 @@ impl StarsView {
         };
         for _ in 0..stars.reached() {
             let star_icon = Image::builder()
-                .icon_name("star-filled-rounded-symbolic")
+                .icon_name("star-large-symbolic")
                 .css_classes(reached_css_classes.clone())
                 .build();
             widgets.push(star_icon);
