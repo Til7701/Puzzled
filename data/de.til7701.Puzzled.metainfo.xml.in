@@ -52,16 +52,27 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v0.4.0/data/screenshot-start-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.0.0-rc.1/data/screenshot-start-light.png</image>
             <caption>Puzzle Selection</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v0.4.0/data/screenshot-year-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.0.0-rc.1/data/screenshot-year-light.png</image>
             <caption>Solving a Puzzle</caption>
         </screenshot>
     </screenshots>
 
     <releases>
+         <release version="1.0.0-rc.1" date="2026-03-09">
+              <description translate="no">
+                  <ul>
+                      <li>Add more puzzles to the Hexomino and Tromino collections.</li>
+                      <li>You now get stars for solving puzzles using less hints.</li>
+                      <li>Improve solver feedback, if no solution is available.</li>
+                      <li>Allow marking puzzles as unsolvable.</li>
+                      <li>Fixed name for menu entry for about dialog.</li>
+                  </ul>
+              </description>
+         </release>
          <release version="0.4.0" date="2026-02-22">
             <description translate="no">
                 <ul>
