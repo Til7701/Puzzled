@@ -140,7 +140,7 @@ impl PuzzledApplication {
             .copyright("© 2026 Tilman Holube and contributors")
             .license_type(License::Gpl30)
             .website("https://til7701.de/projects/puzzled")
-            .issue_url("https://github.com/til7701/til7701.de")
+            .issue_url("https://github.com/Til7701/Puzzled/issues")
             .build();
 
         about.present(Some(&window));
