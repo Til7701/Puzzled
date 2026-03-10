@@ -52,17 +52,17 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.0.0-rc.1/data/screenshot-start-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.0.0/data/screenshot-start-light.png</image>
             <caption>Puzzle Selection</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.0.0-rc.1/data/screenshot-year-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.0.0/data/screenshot-year-light.png</image>
             <caption>Solving a Puzzle</caption>
         </screenshot>
     </screenshots>
 
     <releases>
-         <release version="1.0.0-rc.1" date="2026-03-09">
+         <release version="1.0.0" date="2026-03-10">
               <description translate="no">
                   <ul>
                       <li>Add more puzzles to the Hexomino and Tromino collections.</li>
