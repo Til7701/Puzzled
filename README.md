@@ -1,10 +1,20 @@
-# Puzzled
+# Puzzled <img src="data/icons/hicolor/scalable/apps/de.til7701.Puzzled.svg" alt="icon" width="50" align="right"/>
 
-A Libadwaita application to solve daily puzzles in various formats. It can tell you, if you are on the
+An Adwaita application to solve daily puzzles in various formats. It can tell you, if you are on the
 right track or, whether it is impossible to solve the puzzle with your current approach.
 
 ![Screenshort of the start screen](data/screenshot-start-dark.png)
 ![Screenshot of the puzzle area while solving the puzzle](data/screenshot-year-dark.png)
+
+## Installation
+
+Puzzled is not yet available on Flathub. However, you can download the latest release from the
+[releases page](https://github.com/Til7701/Puzzled/releases). After downloading the Flatpak bundle, you can install it
+using the following command:
+
+```bash
+flatpak install --user path/to/de.til7701.Puzzled_VERSION_ARCH.flatpak
+```
 
 ## Build and Run
 
