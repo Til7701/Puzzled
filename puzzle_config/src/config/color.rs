@@ -36,7 +36,7 @@ const COLORS: [ColorConfig; 35] = [
     ColorConfig::from_rgb_hex(0xf6d32d), // Yellow 3
 ];
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct ColorConfig {
     red: u8,
     green: u8,

@@ -87,7 +87,7 @@ pub enum SolverState {
     Done,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum PuzzleTypeExtension {
     Simple,
     Area { target: Option<Target> },

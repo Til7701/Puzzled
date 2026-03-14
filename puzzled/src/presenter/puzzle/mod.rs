@@ -9,14 +9,16 @@ use crate::presenter::puzzle::extension::ExtensionPresenter;
 use crate::presenter::puzzle::hint::{HintButtonPresenter, HintButtonState};
 use crate::presenter::puzzle::info::PuzzleInfoPresenter;
 use crate::presenter::puzzle_area::PuzzleAreaPresenter;
+use crate::solver;
+use crate::solver::combination_solutions::CombinationsSolver;
 use crate::solver::{interrupt_solver_call, is_solved};
 use crate::view::puzzle_area_page::PuzzleAreaPage;
 use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, Cast, NavigationPageExt};
 use adw::{gio, Toast, ToastOverlay};
-use gtk::prelude::BoxExt;
+use gtk::prelude::{BoxExt, GtkApplicationExt};
 use gtk::{Image, Label, Widget};
-use log::error;
+use log::{debug, error};
 use puzzle_solver::result::UnsolvableReason;
 use std::cell::Cell;
 use std::rc::Rc;
@@ -32,6 +34,7 @@ pub struct PuzzlePresenter {
     puzzle_meta: PuzzleMeta,
     puzzle_solved_callback: Option<Rc<dyn Fn()>>,
     hint_count: Rc<Cell<u32>>,
+    combinations_solver: CombinationsSolver,
 }
 
 impl PuzzlePresenter {
@@ -51,6 +54,7 @@ impl PuzzlePresenter {
             puzzle_meta: PuzzleMeta::new(),
             puzzle_solved_callback: None,
             hint_count: Rc::new(Cell::new(0)),
+            combinations_solver: CombinationsSolver::default(),
         }
     }
 
@@ -65,7 +69,38 @@ impl PuzzlePresenter {
                 move |_, _, _| self_clone.on_hint_requested()
             })
             .build();
-        app.add_action_entries([solver_state_action]);
+        let calculate_tile_combinations_to_solve_action =
+            gio::ActionEntry::builder("calculate-tile-combinations-to-solve")
+                .activate({
+                    let self_clone = self.clone();
+                    move |_, _, _| {
+                        debug!("Calculating tile combinations to solve...");
+                        self_clone.calculate_tile_combinations_to_solve();
+                    }
+                })
+                .build();
+        let stop_calculate_tile_combinations_to_solve_action =
+            gio::ActionEntry::builder("stop-calculate-tile-combinations-to-solve")
+                .activate({
+                    let self_clone = self.clone();
+                    move |_, _, _| {
+                        debug!("Stopping calculation of tile combinations to solve...");
+                        self_clone.stop_calculate_tile_combinations_to_solve();
+                    }
+                })
+                .build();
+
+        app.add_action_entries([
+            solver_state_action,
+            calculate_tile_combinations_to_solve_action,
+            stop_calculate_tile_combinations_to_solve_action,
+        ]);
+
+        app.set_accels_for_action("app.calculate-tile-combinations-to-solve", &["<control>k"]);
+        app.set_accels_for_action(
+            "app.stop-calculate-tile-combinations-to-solve",
+            &["<control>l"],
+        );
     }
 
     pub fn setup(&mut self, puzzle_solved_callback: Rc<dyn Fn()>) {
@@ -105,6 +140,7 @@ impl PuzzlePresenter {
         if let Ok(puzzle_state) = puzzle_state {
             let mut state = get_state_mut();
             interrupt_solver_call(&state);
+            self.stop_calculate_tile_combinations_to_solve();
             state.solver_state = SolverState::Done;
             self.hint_button_presenter
                 .display_state(&HintButtonState::Bulb);
@@ -233,5 +269,22 @@ impl PuzzlePresenter {
         if let Some(callback) = &self.puzzle_solved_callback {
             callback();
         }
+    }
+
+    fn calculate_tile_combinations_to_solve<'a>(&self) {
+        let state = get_state();
+        interrupt_solver_call(&state);
+        drop(state);
+
+        let puzzle_state = self.puzzle_area_presenter.extract_puzzle_state();
+        if let Ok(puzzle_state) = puzzle_state {
+            self.combinations_solver
+                .calculate_tile_combinations_to_solve(puzzle_state)
+        }
+    }
+
+    fn stop_calculate_tile_combinations_to_solve(&self) {
+        self.combinations_solver
+            .stop_calculate_tile_combinations_to_solve();
     }
 }

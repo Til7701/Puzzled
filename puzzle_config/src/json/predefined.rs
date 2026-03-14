@@ -6,7 +6,7 @@ pub type Predefined = ConfigStore;
 pub type Custom = ConfigStore;
 
 /// Store for predefined or custom tiles and boards.
-#[derive(Default, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct ConfigStore {
     tiles: HashMap<String, Tile>,
     boards: HashMap<String, Board>,

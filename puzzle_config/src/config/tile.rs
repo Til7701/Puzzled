@@ -3,10 +3,11 @@ use ndarray::Array2;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 /// Configuration for a tile that can be placed on the board.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TileConfig {
     base: Array2<bool>,
     color: ColorConfig,
+    name: Option<String>,
 }
 
 impl TileConfig {
@@ -17,8 +18,8 @@ impl TileConfig {
     /// * `base`: Base shape of the tile as a 2D boolean array.
     ///
     /// returns: TileConfig
-    pub fn new(base: Array2<bool>, color: ColorConfig) -> TileConfig {
-        TileConfig { base, color }
+    pub fn new(base: Array2<bool>, color: ColorConfig, name: Option<String>) -> TileConfig {
+        TileConfig { base, color, name }
     }
 
     /// Base shape of the tile as a 2D boolean array.
@@ -30,6 +31,11 @@ impl TileConfig {
     /// Color of the tile.
     pub fn color(&self) -> ColorConfig {
         self.color
+    }
+
+    /// The name this tile was referred to with in the config file.
+    pub fn name(&self) -> &Option<String> {
+        &self.name
     }
 }
 
@@ -70,14 +76,17 @@ mod tests {
         let tile1 = TileConfig::new(
             array![[true, false], [false, true]],
             ColorConfig::default_with_index(0),
+            None,
         );
         let tile2 = TileConfig::new(
             array![[true, false], [false, true]],
             ColorConfig::default_with_index(1),
+            None,
         );
         let tile3 = TileConfig::new(
             array![[false, true], [true, false]],
             ColorConfig::default_with_index(1),
+            None,
         );
 
         let mut hasher1 = DefaultHasher::new();
@@ -101,10 +110,12 @@ mod tests {
         let tile1 = TileConfig::new(
             array![[true, false], [false, true]],
             ColorConfig::default_with_index(0),
+            None,
         );
         let tile2 = TileConfig::new(
             array![[false, true], [true, false]],
             ColorConfig::default_with_index(1),
+            None,
         );
 
         let mut hasher1 = DefaultHasher::new();

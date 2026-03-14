@@ -10,7 +10,7 @@ use crate::presenter::puzzle_area::tile::TilePresenter;
 use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
 use adw::glib;
-use gtk::prelude::{FixedExt, WidgetExt, WidgetExtManual};
+use adw::prelude::*;
 use puzzle_config::{ColorConfig, PuzzleConfig};
 use puzzle_solver::result::TilePlacement;
 use std::cell::RefCell;
@@ -367,6 +367,7 @@ impl PuzzleAreaPresenter {
                 let unused_tile = UnusedTile {
                     id: i,
                     base: tile_view.base().clone(),
+                    name: tile_view.name(),
                 };
                 state.unused_tiles.insert(unused_tile);
             }
@@ -455,7 +456,7 @@ impl PuzzleAreaPresenter {
         color_config: ColorConfig,
         data: &PuzzleAreaData,
     ) -> TileView {
-        let tile_view = TileView::new(usize::MAX, placement.rotation().clone(), color_config);
+        let tile_view = TileView::new(usize::MAX, placement.rotation().clone(), color_config, None);
 
         tile_view.set_position_cells(Some(
             data.grid_config.board_offset_cells + placement.position().into() - CellOffset(1, 1), // Plus 1, 1 because the puzzle state has a border of one cell to provide information for highlighting

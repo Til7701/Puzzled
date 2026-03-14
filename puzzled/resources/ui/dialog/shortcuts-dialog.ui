@@ -1,22 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <object class="AdwShortcutsDialog" id="shortcuts_dialog">
-    <child>
-      <object class="AdwShortcutsSection">
-        <property name="title" translatable="yes">Shortcuts</property>
+    <object class="AdwShortcutsDialog" id="shortcuts_dialog">
         <child>
-          <object class="AdwShortcutsItem">
-            <property name="title" translatable="yes" context="shortcut window">Show Shortcuts</property>
-            <property name="action-name">app.shortcuts</property>
-          </object>
+            <object class="AdwShortcutsSection">
+                <property name="title" translatable="yes">Shortcuts</property>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes" context="shortcut window">Show Shortcuts</property>
+                        <property name="action-name">app.shortcuts</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes" context="shortcut window">Quit</property>
+                        <property name="action-name">app.quit</property>
+                    </object>
+                </child>
+            </object>
         </child>
         <child>
-          <object class="AdwShortcutsItem">
-            <property name="title" translatable="yes" context="shortcut window">Quit</property>
-            <property name="action-name">app.quit</property>
-          </object>
+            <object class="AdwShortcutsSection">
+                <property name="title" translatable="yes">Dev Tools</property>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes" context="shortcut window">Calculate tile combinations to solve</property>
+                        <property name="action-name">app.calculate-tile-combinations-to-solve</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes" context="shortcut window">Stop calculating tile combinations to solve</property>
+                        <property name="action-name">app.stop-calculate-tile-combinations-to-solve</property>
+                    </object>
+                </child>
+            </object>
         </child>
-      </object>
-    </child>
-  </object>
+    </object>
 </interface>

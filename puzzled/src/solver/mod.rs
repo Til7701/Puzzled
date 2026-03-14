@@ -1,3 +1,5 @@
+pub mod combination_solutions;
+
 use crate::global::runtime::get_runtime;
 use crate::global::state::SolverState::Done;
 use crate::global::state::{get_state_mut, SolverState, State};
@@ -33,6 +35,22 @@ pub fn solve_for_target(
     on_complete: OnCompleteCallback,
     cancel_token: CancellationToken,
 ) {
+    solver_for_target_maybe_callback(
+        solver_call_id,
+        puzzle_state,
+        on_complete,
+        false,
+        cancel_token,
+    );
+}
+
+pub fn solver_for_target_maybe_callback(
+    solver_call_id: &SolverCallId,
+    puzzle_state: &PuzzleState,
+    on_complete: OnCompleteCallback,
+    always_run_callback: bool,
+    cancel_token: CancellationToken,
+) {
     let board = create_board(puzzle_state);
     let tiles: Vec<Tile> = puzzle_state
         .unused_tiles
@@ -54,7 +72,11 @@ pub fn solve_for_target(
                 "Solver task completed in {}.",
                 humantime::format_duration(duration)
             );
-            handle_on_complete(solver_call_id, result, on_complete);
+            if always_run_callback {
+                on_complete(result);
+            } else {
+                handle_on_complete(solver_call_id, result, on_complete);
+            }
         }
     });
 }
@@ -83,9 +105,10 @@ fn handle_on_complete(
 /// returns: ()
 pub fn interrupt_solver_call(state: &State) {
     if let SolverState::Running {
-            call_id,
-            cancel_token,
-        } = &state.solver_state {
+        call_id,
+        cancel_token,
+    } = &state.solver_state
+    {
         debug!("Interrupting solver call: {:?}", call_id);
         cancel_token.cancel();
         debug!("Solver call {:?} aborted.", call_id);

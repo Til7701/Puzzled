@@ -50,7 +50,8 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
             let mut tiles = Vec::with_capacity(puzzle.tiles.len());
             let mut index_offset = 0;
             for tile_with_index in puzzle.tiles.into_iter().enumerate() {
-                let tile_index_with_offset = (index_offset + tile_with_index.0, tile_with_index.1);
+                let tile_index_with_offset =
+                    (index_offset + tile_with_index.0, tile_with_index.1, None);
                 let converted_tile = tile_index_with_offset.convert(predefined, custom)?;
                 index_offset += converted_tile.len() - 1;
                 tiles.extend(converted_tile);
@@ -164,7 +165,7 @@ impl Convertable<PreviewConfig> for Option<Preview> {
     }
 }
 
-impl Convertable<Vec<TileConfig>> for (usize, Tile) {
+impl Convertable<Vec<TileConfig>> for (usize, Tile, Option<String>) {
     fn convert(
         self,
         predefined: &Predefined,
@@ -173,31 +174,31 @@ impl Convertable<Vec<TileConfig>> for (usize, Tile) {
         match self.1 {
             Tile::Ref(name) => {
                 if let Some(predefined_tile) = predefined.get_tile(&name) {
-                    (self.0, predefined_tile).convert(predefined, custom)
+                    (self.0, predefined_tile, Some(name)).convert(predefined, custom)
                 } else if let Some(custom_tile) = custom.get_tile(&name) {
-                    (self.0, custom_tile).convert(predefined, custom)
+                    (self.0, custom_tile, Some(name)).convert(predefined, custom)
                 } else {
                     Err(ReadError::UnknownPredefinedTile { name })
                 }
             }
             Tile::Layout(layout) => {
-                let base = (self.0, layout).convert(predefined, custom)?;
+                let (base, name) = (self.0, layout).convert(predefined, custom)?;
                 let color = (self.0, None).convert(predefined, custom)?;
-                Ok(vec![TileConfig::new(base, color)])
+                Ok(vec![TileConfig::new(base, color, name.or(self.2))])
             }
             Tile::Custom {
                 layout,
                 color,
                 count,
             } => {
-                let base = (self.0, layout).convert(predefined, custom)?;
+                let (base, name) = (self.0, layout).convert(predefined, custom)?;
                 let count = count.unwrap_or_else(|| NonZero::new(1).unwrap());
 
                 let mut tiles = Vec::with_capacity(count.get() as usize);
                 for i in 0..count.get() {
                     let tile_index = self.0 + i as usize;
                     let color = (tile_index, color.clone()).convert(predefined, custom)?;
-                    tiles.push(TileConfig::new(base.clone(), color));
+                    tiles.push(TileConfig::new(base.clone(), color, name.clone()));
                 }
                 Ok(tiles)
             }
@@ -205,28 +206,34 @@ impl Convertable<Vec<TileConfig>> for (usize, Tile) {
     }
 }
 
-impl Convertable<Array2<bool>> for (usize, TileLayout) {
+impl Convertable<(Array2<bool>, Option<String>)> for (usize, TileLayout) {
     fn convert(
         self,
         predefined: &Predefined,
         custom: &mut Custom,
-    ) -> Result<Array2<bool>, ReadError> {
+    ) -> Result<(Array2<bool>, Option<String>), ReadError> {
         match self.1 {
             TileLayout::Ref(name) => {
                 if let Some(custom_tile) = custom.get_tile(&name) {
-                    Ok((self.0, custom_tile)
-                        .convert(predefined, custom)?
-                        .first()
-                        .unwrap()
-                        .base()
-                        .clone())
+                    Ok((
+                        (self.0, custom_tile, Some(name.clone()))
+                            .convert(predefined, custom)?
+                            .first()
+                            .unwrap()
+                            .base()
+                            .clone(),
+                        Some(name),
+                    ))
                 } else if let Some(predefined_tile) = predefined.get_tile(&name) {
-                    Ok((self.0, predefined_tile)
-                        .convert(predefined, custom)?
-                        .first()
-                        .unwrap()
-                        .base()
-                        .clone())
+                    Ok((
+                        (self.0, predefined_tile, Some(name.clone()))
+                            .convert(predefined, custom)?
+                            .first()
+                            .unwrap()
+                            .base()
+                            .clone(),
+                        Some(name),
+                    ))
                 } else {
                     Err(ReadError::UnknownPredefinedTile { name })
                 }
@@ -249,7 +256,7 @@ impl Convertable<Array2<bool>> for (usize, TileLayout) {
                     }
                 }
                 let base = base.reversed_axes();
-                Ok(base)
+                Ok((base, None))
             }
         }
     }
@@ -448,20 +455,22 @@ mod tests {
         );
 
         let tile = Tile::Ref("L3".to_string());
-        let converted_tile = (0, tile)
+        let converted_tile = (0, tile, Some("L3".to_string()))
             .convert(&predefined, &mut Custom::default())
             .unwrap();
         let expected_tile = TileConfig::new(
             arr2(&[[true, false], [true, true]]).reversed_axes(),
             ColorConfig::default_with_index(0),
+            Some("L3".to_string()),
         );
-        assert_eq!(converted_tile.first().unwrap().base(), expected_tile.base());
+        assert_eq!(*converted_tile.first().unwrap(), expected_tile);
     }
 
     #[test]
     fn test_convert_predefined_tile_unknown() {
         let tile = Tile::Ref("test".to_string());
-        let converted_tile = (0, tile).convert(&Predefined::default(), &mut Custom::default());
+        let converted_tile = (0, tile, Some("L3".to_string()))
+            .convert(&Predefined::default(), &mut Custom::default());
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),
@@ -474,20 +483,22 @@ mod tests {
     #[test]
     fn test_convert_custom_tile() {
         let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![1, 1]]));
-        let converted_tile = (0, tile)
+        let converted_tile = (0, tile, Some("L3".to_string()))
             .convert(&Predefined::default(), &mut Custom::default())
             .unwrap();
         let expected_tile = TileConfig::new(
             arr2(&[[true, false], [true, true]]).reversed_axes(),
             ColorConfig::default_with_index(0),
+            Some("L3".to_string()),
         );
-        assert_eq!(converted_tile.first().unwrap().base(), expected_tile.base());
+        assert_eq!(*converted_tile.first().unwrap(), expected_tile);
     }
 
     #[test]
     fn test_convert_custom_tile_zero_dimension() {
         let tile = Tile::Layout(TileLayout::Custom(vec![]));
-        let converted_tile = (0, tile).convert(&Predefined::default(), &mut Custom::default());
+        let converted_tile = (0, tile, Some("L3".to_string()))
+            .convert(&Predefined::default(), &mut Custom::default());
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),
@@ -495,7 +506,8 @@ mod tests {
         );
 
         let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![]]));
-        let converted_tile = (0, tile).convert(&Predefined::default(), &mut Custom::default());
+        let converted_tile = (0, tile, Some("L3".to_string()))
+            .convert(&Predefined::default(), &mut Custom::default());
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),
