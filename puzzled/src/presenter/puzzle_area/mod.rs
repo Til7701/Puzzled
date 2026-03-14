@@ -1,3 +1,4 @@
+use crate::application::PuzzledApplication;
 use crate::global::state::get_state;
 use crate::offset::CellOffset;
 use crate::presenter::main::{MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
@@ -7,15 +8,21 @@ use crate::presenter::puzzle_area::puzzle_state::{
     Cell, PuzzleState, TileCellPlacement, UnusedTile,
 };
 use crate::presenter::puzzle_area::tile::TilePresenter;
+use crate::solver;
+use crate::solver::combination_solutions::CombinationsSolver;
+use crate::solver::SolverCallId;
 use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
-use adw::glib;
-use gtk::prelude::{FixedExt, WidgetExt, WidgetExtManual};
+use adw::prelude::*;
+use adw::{gio, glib};
+use log::debug;
 use puzzle_config::{ColorConfig, PuzzleConfig};
 use puzzle_solver::result::TilePlacement;
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::mem::take;
 use std::rc::Rc;
+use tokio::sync::Semaphore;
 
 mod board;
 mod data;
@@ -33,6 +40,7 @@ pub struct PuzzleAreaPresenter {
     data: Rc<RefCell<PuzzleAreaData>>,
     board_presenter: BoardPresenter,
     tile_presenter: TilePresenter,
+    combinations_solver: CombinationsSolver,
 }
 
 impl PuzzleAreaPresenter {
@@ -50,7 +58,41 @@ impl PuzzleAreaPresenter {
             data,
             board_presenter,
             tile_presenter,
+            combinations_solver: CombinationsSolver::default(),
         }
+    }
+
+    pub fn register_actions(&self, app: &PuzzledApplication) {
+        let calculate_tile_combinations_to_solve_action =
+            gio::ActionEntry::builder("calculate-tile-combinations-to-solve")
+                .activate({
+                    let self_clone = self.clone();
+                    move |_, _, _| {
+                        debug!("Calculating tile combinations to solve...");
+                        self_clone.calculate_tile_combinations_to_solve();
+                    }
+                })
+                .build();
+        let stop_calculate_tile_combinations_to_solve_action =
+            gio::ActionEntry::builder("stop-calculate-tile-combinations-to-solve")
+                .activate({
+                    let self_clone = self.clone();
+                    move |_, _, _| {
+                        debug!("Stopping calculation of tile combinations to solve...");
+                        self_clone.stop_calculate_tile_combinations_to_solve();
+                    }
+                })
+                .build();
+        app.add_action_entries([
+            calculate_tile_combinations_to_solve_action,
+            stop_calculate_tile_combinations_to_solve_action,
+        ]);
+
+        app.set_accels_for_action("app.calculate-tile-combinations-to-solve", &["<control>k"]);
+        app.set_accels_for_action(
+            "app.stop-calculate-tile-combinations-to-solve",
+            &["<control>l"],
+        );
     }
 
     pub fn setup(&self) {
@@ -480,5 +522,22 @@ impl PuzzleAreaPresenter {
             data.fixed.remove(tile_view);
         }
         data.hint_tile_view = None;
+    }
+
+    fn calculate_tile_combinations_to_solve<'a>(&self) {
+        let state = get_state();
+        solver::interrupt_solver_call(&state);
+        drop(state);
+
+        let puzzle_state = self.extract_puzzle_state();
+        if let Ok(puzzle_state) = puzzle_state {
+            self.combinations_solver
+                .calculate_tile_combinations_to_solve(puzzle_state)
+        }
+    }
+
+    fn stop_calculate_tile_combinations_to_solve(&self) {
+        self.combinations_solver
+            .stop_calculate_tile_combinations_to_solve();
     }
 }

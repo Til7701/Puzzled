@@ -55,6 +55,7 @@ impl PuzzlePresenter {
     }
 
     pub fn register_actions(&self, app: &PuzzledApplication) {
+        self.puzzle_area_presenter.register_actions(app);
         self.puzzle_info_presenter.register_actions(app);
         self.hint_button_presenter.register_actions(app);
         self.extension_presenter.register_actions(app);

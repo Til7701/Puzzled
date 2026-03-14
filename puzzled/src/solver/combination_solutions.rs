@@ -1,0 +1,134 @@
+use crate::global::runtime::get_runtime;
+use crate::presenter::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
+use crate::solver;
+use log::{debug, error, info};
+use std::collections::HashSet;
+use std::sync::{Arc, RwLock};
+use tokio::sync::Semaphore;
+use tokio_util::sync::CancellationToken;
+
+/// The CombinationsSolver can be used to find solutions finding any combination of tiles on the
+/// board. You can start it and cancel it any time. If it is running when it is started,
+/// the previous call is canceled. Any found solutions are logged.
+#[derive(Debug, Clone)]
+pub struct CombinationsSolver {
+    cancellation_token: Arc<RwLock<Option<CancellationToken>>>,
+}
+
+impl CombinationsSolver {
+    /// Start solving with the given state and extension.
+    pub fn calculate_tile_combinations_to_solve<'a>(&self, puzzle_state: PuzzleState) {
+        self.stop_calculate_tile_combinations_to_solve();
+
+        let cancellation_token = CancellationToken::new();
+        self.cancellation_token
+            .write()
+            .unwrap()
+            .replace(cancellation_token.clone());
+
+        get_runtime().spawn(CombinationsSolver::find_solutions(
+            puzzle_state,
+            cancellation_token,
+        ));
+    }
+
+    async fn find_solutions(puzzle_state: PuzzleState, cancellation_token: CancellationToken) {
+        let sem = Arc::new(Semaphore::new(0));
+        let tiles = puzzle_state.unused_tiles;
+        let mut grid = puzzle_state.grid;
+        let mut iter = TileCombinationsIter::new(&tiles);
+        while let Some(tiles) = iter.next()
+            && !cancellation_token.is_cancelled()
+        {
+            let new_puzzle_state = PuzzleState {
+                grid,
+                unused_tiles: tiles,
+            };
+            let solver_call_id = solver::create_solver_call_id();
+            solver::solver_for_target_maybe_callback(
+                &solver_call_id,
+                &new_puzzle_state,
+                Box::new({
+                    let sem = sem.clone();
+                    move |result| {
+                        debug!("Solver call completed");
+                        if let Ok(solution) = result {
+                            let mut message: String = "".to_string();
+                            for placement in solution.placements() {
+                                message = format!(
+                                    "{} {},{}",
+                                    message,
+                                    placement.position().0,
+                                    placement.position().1
+                                );
+                            }
+                            info!("Found solution: {}", message);
+                        }
+                    }
+                }),
+                true,
+                cancellation_token.clone(),
+            );
+            grid = new_puzzle_state.grid;
+        }
+    }
+
+    /// Stop solving.
+    pub fn stop_calculate_tile_combinations_to_solve(&self) {
+        let token = self.cancellation_token.write().unwrap().take();
+        if let Some(token) = token {
+            token.cancel();
+        }
+    }
+}
+
+impl Default for CombinationsSolver {
+    fn default() -> Self {
+        CombinationsSolver {
+            cancellation_token: Arc::new(RwLock::new(None)),
+        }
+    }
+}
+
+struct TileCombinationsIter<'a> {
+    tiles: &'a HashSet<UnusedTile>,
+    iteration: usize,
+}
+
+impl<'a> TileCombinationsIter<'a> {
+    pub fn new(tiles: &'a HashSet<UnusedTile>) -> Self {
+        Self {
+            tiles,
+            iteration: 1,
+        }
+    }
+}
+
+impl<'a> Iterator for TileCombinationsIter<'a> {
+    type Item = HashSet<UnusedTile>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let n = self.tiles.len();
+
+        let max = 1usize.checked_shl(n as u32)?;
+        if self.iteration >= max {
+            debug!(
+                "TileCombinationsIter: Reached end of combinations (iteration={}, max={}).",
+                self.iteration, max
+            );
+            return None;
+        }
+
+        let mask = self.iteration;
+        self.iteration += 1;
+
+        let mut subset = HashSet::with_capacity(mask.count_ones() as usize);
+        for (bit, tile) in self.tiles.iter().enumerate() {
+            if (mask & (1usize << bit)) != 0 {
+                subset.insert(tile.clone());
+            }
+        }
+
+        Some(subset)
+    }
+}
