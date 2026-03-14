@@ -67,7 +67,11 @@ mod imp {
         // tries to launch a "second instance" of the application. When they try
         // to do that, we'll just present any existing window.
         fn activate(&self) {
-            simple_logger::SimpleLogger::new().with_level(log::LevelFilter::Info).env().init().unwrap();
+            simple_logger::SimpleLogger::new()
+                .with_level(log::LevelFilter::Info)
+                .env()
+                .init()
+                .unwrap();
             let application = self.obj();
             // Get the current window or create one if necessary
             let window = application.active_window().unwrap_or_else(|| {
@@ -180,6 +184,7 @@ impl PuzzledApplication {
             0,
             array![[true, false], [true, true]],
             ColorConfig::default_with_index(0),
+            None,
         );
         left_tile.set_drawing_mode_at(1, 1, DrawingMode::Overlapping);
         left_tile.set_width_request(CELL_SIZE * 2);
@@ -189,6 +194,7 @@ impl PuzzledApplication {
             0,
             array![[true, true], [false, true]],
             ColorConfig::default_with_index(5),
+            None,
         );
         right_tile.set_width_request(CELL_SIZE * 2);
         right_tile.set_height_request(CELL_SIZE * 2);
@@ -204,6 +210,7 @@ impl PuzzledApplication {
             0,
             array![[true, true], [false, true]],
             ColorConfig::default_with_index(0),
+            None,
         );
         tile.set_drawing_mode_at(1, 1, DrawingMode::OutOfBounds);
         tile.set_width_request(CELL_SIZE * 2);
@@ -220,7 +227,7 @@ impl PuzzledApplication {
             color_config.blue(),
             128,
         );
-        let tile = TileView::new(0, array![[true, true], [false, true]], color_config);
+        let tile = TileView::new(0, array![[true, true], [false, true]], color_config, None);
         tile.set_width_request(CELL_SIZE * 2);
         tile.set_height_request(CELL_SIZE * 2);
 

@@ -69,7 +69,7 @@ pub enum PuzzleDifficulty {
     Expert,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum Tile {
     /// Can either be predefined in the application or defined in the `custom_tiles` section.
@@ -82,7 +82,7 @@ pub enum Tile {
     },
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum TileLayout {
     /// Can either be predefined in the application or defined in the `custom_tiles` section.
@@ -90,13 +90,13 @@ pub enum TileLayout {
     Custom(Vec<Vec<i8>>),
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum Color {
     Hex(String),
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(untagged)]
 #[allow(clippy::enum_variant_names)]
 pub enum Board {
@@ -113,7 +113,7 @@ pub enum Board {
     },
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Area {
     pub name: String,
     pub formatter: AreaFormatter,
@@ -121,7 +121,7 @@ pub struct Area {
     pub default_factory: DefaultFactory,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type")]
 pub enum AreaFormatter {
     Plain,
@@ -133,7 +133,7 @@ pub enum AreaFormatter {
     },
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type")]
 pub enum DefaultFactory {
     Fixed {

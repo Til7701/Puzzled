@@ -37,6 +37,7 @@ mod imp {
     pub struct PuzzledTileView {
         pub id: Cell<usize>,
         pub base: RefCell<Array2<bool>>,
+        pub name: RefCell<Option<String>>,
         pub current_rotation: RefCell<Array2<bool>>,
         pub position_cells: Cell<Option<CellOffset>>,
         pub position_pixels: Cell<PixelOffset>,
@@ -96,11 +97,14 @@ glib::wrapper! {
 
 impl TileView {
     /// Creates a new TileView with the given id and base layout.
-    pub fn new(id: usize, base: Array2<bool>, color: ColorConfig) -> Self {
+    /// The name is used to refer to the tile layout when calculating possible solutions for given
+    /// tiles.
+    pub fn new(id: usize, base: Array2<bool>, color: ColorConfig, name: Option<String>) -> Self {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
         obj.imp().base.replace(base.clone());
+        obj.imp().name.replace(name);
         obj.imp().drawing_modes.replace(Array2::default(base.dim()));
         obj.imp().current_rotation.replace(base);
         obj.init_color(color);
@@ -193,6 +197,10 @@ impl TileView {
     /// This does not change over the lifetime of the tile.
     pub fn base(&self) -> Ref<'_, Array2<bool>> {
         self.imp().base.borrow()
+    }
+
+    pub fn name(&self) -> Option<String> {
+        self.imp().name.borrow().clone()
     }
 
     pub fn color(&self) -> RGBA {

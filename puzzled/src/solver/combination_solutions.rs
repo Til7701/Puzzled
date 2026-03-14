@@ -26,10 +26,7 @@ impl CombinationsSolver {
             .unwrap()
             .replace(cancellation_token.clone());
 
-        get_runtime().spawn(CombinationsSolver::find_solutions(
-            puzzle_state,
-            cancellation_token,
-        ));
+        get_runtime().spawn(Self::find_solutions(puzzle_state, cancellation_token));
     }
 
     async fn find_solutions(puzzle_state: PuzzleState, cancellation_token: CancellationToken) {
@@ -42,7 +39,7 @@ impl CombinationsSolver {
         {
             let new_puzzle_state = PuzzleState {
                 grid,
-                unused_tiles: tiles,
+                unused_tiles: tiles.clone(),
             };
             let solver_call_id = solver::create_solver_call_id();
             solver::solver_for_target_maybe_callback(
@@ -54,12 +51,13 @@ impl CombinationsSolver {
                         debug!("Solver call completed");
                         if let Ok(solution) = result {
                             let mut message: String = "".to_string();
-                            for placement in solution.placements() {
+                            for (i, placement) in solution.placements().iter().enumerate() {
+                                let tile =
+                                    tiles.iter().find(|t| t.base == placement.base()).unwrap();
                                 message = format!(
-                                    "{} {},{}",
+                                    "{} {},",
                                     message,
-                                    placement.position().0,
-                                    placement.position().1
+                                    Self::create_list_entry_for_tile(tile)
                                 );
                             }
                             info!("Found solution: {}", message);
@@ -70,6 +68,15 @@ impl CombinationsSolver {
                 cancellation_token.clone(),
             );
             grid = new_puzzle_state.grid;
+        }
+    }
+
+    fn create_list_entry_for_tile(unused_tile: &UnusedTile) -> String {
+        let name = &unused_tile.name;
+        if let Some(name) = name {
+            format!("\"{}\"", name.to_string())
+        } else {
+            unused_tile.base.to_string()
         }
     }
 

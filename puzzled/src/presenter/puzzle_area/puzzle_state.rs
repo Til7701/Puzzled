@@ -50,6 +50,7 @@ pub struct UnusedTile {
     /// Used to identify the tile when having multiple identical tiles.
     pub id: usize,
     pub base: Array2<bool>,
+    pub name: Option<String>,
 }
 
 /// Represents the current state of the puzzle.
