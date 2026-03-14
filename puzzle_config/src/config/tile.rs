@@ -19,7 +19,6 @@ impl TileConfig {
     ///
     /// returns: TileConfig
     pub fn new(base: Array2<bool>, color: ColorConfig, name: Option<String>) -> TileConfig {
-        dbg!(&name);
         TileConfig { base, color, name }
     }
 
@@ -34,6 +33,7 @@ impl TileConfig {
         self.color
     }
 
+    /// The name this tile was referred to with in the config file.
     pub fn name(&self) -> &Option<String> {
         &self.name
     }

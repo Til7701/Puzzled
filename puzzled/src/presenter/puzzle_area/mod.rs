@@ -10,7 +10,6 @@ use crate::presenter::puzzle_area::puzzle_state::{
 use crate::presenter::puzzle_area::tile::TilePresenter;
 use crate::solver;
 use crate::solver::combination_solutions::CombinationsSolver;
-use crate::solver::SolverCallId;
 use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
 use adw::prelude::*;
@@ -19,10 +18,8 @@ use log::debug;
 use puzzle_config::{ColorConfig, PuzzleConfig};
 use puzzle_solver::result::TilePlacement;
 use std::cell::RefCell;
-use std::collections::HashSet;
 use std::mem::take;
 use std::rc::Rc;
-use tokio::sync::Semaphore;
 
 mod board;
 mod data;

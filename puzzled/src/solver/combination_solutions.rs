@@ -1,10 +1,9 @@
 use crate::global::runtime::get_runtime;
 use crate::presenter::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
 use crate::solver;
-use log::{debug, error, info};
+use log::{debug, info};
 use std::collections::HashSet;
 use std::sync::{Arc, RwLock};
-use tokio::sync::Semaphore;
 use tokio_util::sync::CancellationToken;
 
 /// The CombinationsSolver can be used to find solutions finding any combination of tiles on the
@@ -30,7 +29,6 @@ impl CombinationsSolver {
     }
 
     async fn find_solutions(puzzle_state: PuzzleState, cancellation_token: CancellationToken) {
-        let sem = Arc::new(Semaphore::new(0));
         let tiles = puzzle_state.unused_tiles;
         let mut grid = puzzle_state.grid;
         let mut iter = TileCombinationsIter::new(&tiles);
@@ -46,7 +44,6 @@ impl CombinationsSolver {
                 &solver_call_id,
                 &new_puzzle_state,
                 Box::new({
-                    let sem = sem.clone();
                     move |result| {
                         debug!("Solver call completed");
                         if let Ok(solution) = result {
@@ -55,10 +52,13 @@ impl CombinationsSolver {
                                 let tile =
                                     tiles.iter().find(|t| t.base == placement.base()).unwrap();
                                 message = format!(
-                                    "{} {},",
+                                    "{} {}",
                                     message,
                                     Self::create_list_entry_for_tile(tile)
                                 );
+                                if i < solution.placements().len() - 1 {
+                                    message = format!("{},", message);
+                                }
                             }
                             info!("Found solution: {}", message);
                         }
