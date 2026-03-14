@@ -3,7 +3,6 @@ mod hint;
 mod info;
 
 use crate::application::PuzzledApplication;
-use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut, SolverState};
 use crate::presenter::puzzle::extension::ExtensionPresenter;
 use crate::presenter::puzzle::hint::{HintButtonPresenter, HintButtonState};
@@ -29,7 +28,6 @@ pub struct PuzzlePresenter {
     puzzle_area_presenter: PuzzleAreaPresenter,
     hint_button_presenter: HintButtonPresenter,
     extension_presenter: ExtensionPresenter,
-    puzzle_meta: PuzzleMeta,
     puzzle_solved_callback: Option<Rc<dyn Fn()>>,
     hint_count: Rc<Cell<u32>>,
 }
@@ -48,7 +46,6 @@ impl PuzzlePresenter {
             puzzle_area_presenter,
             hint_button_presenter,
             extension_presenter,
-            puzzle_meta: PuzzleMeta::new(),
             puzzle_solved_callback: None,
             hint_count: Rc::new(Cell::new(0)),
         }
@@ -199,32 +196,8 @@ impl PuzzlePresenter {
 
     fn handle_solved(&self) {
         let state = get_state();
-        if let Some(collection) = &state.puzzle_collection
-            && let Some(puzzle_config) = &state.puzzle_config
-        {
-            self.puzzle_meta.set_solved(
-                true,
-                collection,
-                puzzle_config.index(),
-                &state.puzzle_type_extension,
-            );
-            let hint_count = self.hint_count.get();
-            let previous_hint_count = self
-                .puzzle_meta
-                .hints(
-                    collection,
-                    puzzle_config.index(),
-                    &state.puzzle_type_extension,
-                )
-                .unwrap_or(u32::MAX);
-            if hint_count < previous_hint_count {
-                self.puzzle_meta.set_hints(
-                    hint_count,
-                    collection,
-                    puzzle_config.index(),
-                    &state.puzzle_type_extension,
-                )
-            }
+        if let Some(puzzle_config) = &state.puzzle_config {
+            puzzle_config.set_solved(self.hint_count.get());
         } else {
             error!("Could not mark puzzle as solved: missing puzzle collection or puzzle config");
         }

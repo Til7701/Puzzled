@@ -1,4 +1,4 @@
-use crate::puzzles::stars::Stars;
+use crate::model::stars::Stars;
 use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;
@@ -71,7 +71,7 @@ impl PuzzleMod {
         imp.icon.set_icon_name(Some("padlock2-symbolic"));
         imp.icon.set_visible(true);
         imp.label.set_text("Locked");
-        self.set_tooltip_text(Some("Solve the previous puzzles to unlock."));
+        self.set_tooltip_text(Some("Solve the previous store to unlock."));
         imp.label.set_visible(true);
         imp.stars.set_visible(false);
     }

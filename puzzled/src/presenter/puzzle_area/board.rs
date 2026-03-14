@@ -1,11 +1,12 @@
 use crate::global::state::{get_state, PuzzleTypeExtension};
+use crate::model::puzzle::PuzzleModel;
 use crate::offset::PixelOffset;
 use crate::presenter::puzzle_area::PuzzleAreaData;
 use crate::view::board::BoardView;
 use adw::prelude::Cast;
 use gtk::prelude::{FixedExt, GridExt, WidgetExt};
 use gtk::Widget;
-use puzzle_config::{PuzzleConfig, TargetIndex};
+use puzzle_config::TargetIndex;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -21,9 +22,9 @@ impl BoardPresenter {
         self.data = data;
     }
 
-    pub fn setup(&self, puzzle_config: &PuzzleConfig) {
+    pub fn setup(&self, puzzle_config: &PuzzleModel) {
         let board_view =
-            BoardView::new(puzzle_config.board_config()).expect("Failed to initialize board view");
+            BoardView::new(&puzzle_config.board_config()).expect("Failed to initialize board view");
         let widget = board_view.clone().upcast::<Widget>();
         let mut data = self.data.borrow_mut();
         data.add_to_fixed(&widget, &PixelOffset::default());
@@ -56,13 +57,14 @@ impl BoardPresenter {
         if let Some(PuzzleTypeExtension::Area {
             target: Some(target),
         }) = puzzle_type_extension
-            && let Some(board_view) = &data.board_view {
-                target.indices.iter().for_each(|TargetIndex(x, y)| {
-                    if let Some(widget) = board_view.child_at(*x as i32, *y as i32) {
-                        widget.add_css_class(TARGET_SELECTION_CLASS);
-                    }
-                })
-            }
+            && let Some(board_view) = &data.board_view
+        {
+            target.indices.iter().for_each(|TargetIndex(x, y)| {
+                if let Some(widget) = board_view.child_at(*x as i32, *y as i32) {
+                    widget.add_css_class(TARGET_SELECTION_CLASS);
+                }
+            })
+        }
     }
 
     fn clear_target_selection(&self) {

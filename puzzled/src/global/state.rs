@@ -1,6 +1,8 @@
+use crate::model::collection::CollectionModel;
+use crate::model::puzzle::PuzzleModel;
 use crate::solver::SolverCallId;
 use once_cell::sync::Lazy;
-use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleConfigCollection, Target};
+use puzzle_config::{BoardConfig, Target};
 use std::backtrace::Backtrace;
 use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard, TryLockError};
 use std::time::Duration;
@@ -12,16 +14,16 @@ static APP_STATE: Lazy<RwLock<State>> = Lazy::new(|| RwLock::new(State::default(
 #[derive(Debug)]
 pub struct State {
     /// The currently selected puzzle collection.
-    pub puzzle_collection: Option<PuzzleConfigCollection>,
+    pub puzzle_collection: Option<CollectionModel>,
     /// The puzzle configuration currently shown on the screen.
-    pub puzzle_config: Option<PuzzleConfig>,
+    pub puzzle_config: Option<PuzzleModel>,
     pub puzzle_type_extension: Option<PuzzleTypeExtension>,
     /// The current state of the puzzle solver.
     pub solver_state: SolverState,
 }
 
 impl State {
-    pub fn setup_for_puzzle(&mut self, puzzle_config: PuzzleConfig) {
+    pub fn setup_for_puzzle(&mut self, puzzle_config: PuzzleModel) {
         let extension = PuzzleTypeExtension::default_for_puzzle(&puzzle_config);
         self.puzzle_type_extension = Some(extension);
 
@@ -94,7 +96,7 @@ pub enum PuzzleTypeExtension {
 }
 
 impl PuzzleTypeExtension {
-    pub fn default_for_puzzle(puzzle_config: &PuzzleConfig) -> Self {
+    pub fn default_for_puzzle(puzzle_config: &PuzzleModel) -> Self {
         match &puzzle_config.board_config() {
             BoardConfig::Simple { .. } => PuzzleTypeExtension::Simple,
             BoardConfig::Area { .. } => {

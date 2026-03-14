@@ -10,12 +10,13 @@ pub mod stars;
 pub mod tile;
 
 use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
+use crate::model::puzzle::PuzzleModel;
 use adw::prelude::{AlertDialogExt, AlertDialogExtManual, PreferencesGroupExt};
 use adw::prelude::{ComboRowExt, PreferencesPageExt};
 use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppearance};
 use gtk::StringList;
 use ndarray::Array2;
-use puzzle_config::{AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
+use puzzle_config::{AreaConfig, BoardConfig, Target, TargetIndex};
 
 #[derive(Debug, Clone, PartialEq)]
 struct TargetIndexListItem {
@@ -34,7 +35,7 @@ pub fn create_target_selection_dialog() -> AlertDialog {
         Some(PuzzleTypeExtension::Area { target }) => target,
         _ => &None,
     };
-    let (area_configs, area_count) = match &puzzle_config.board_config() {
+    let (area_configs, area_count) = match puzzle_config.board_config() {
         BoardConfig::Area { area_configs, .. } => {
             (area_configs, puzzle_config.board_config().area_count())
         }
@@ -116,9 +117,9 @@ pub fn create_target_selection_dialog() -> AlertDialog {
 
 fn create_dropdown_for_area(
     content: &PreferencesGroup,
-    puzzle_config: &PuzzleConfig,
+    puzzle_config: &PuzzleModel,
     current_selection: &Option<Target>,
-    area_configs: &&Vec<AreaConfig>,
+    area_configs: &Vec<AreaConfig>,
     area_index: usize,
 ) -> (Vec<TargetIndexListItem>, ComboRow) {
     let mut items: Vec<TargetIndexListItem> = puzzle_config
@@ -130,11 +131,11 @@ fn create_dropdown_for_area(
             target_index: target_index.clone(),
         })
         .collect();
-    let value_order: &Array2<i32> = match puzzle_config.board_config() {
+    let value_order: Array2<i32> = match puzzle_config.board_config() {
         BoardConfig::Simple { .. } => {
             return (Vec::new(), ComboRow::builder().build());
         }
-        BoardConfig::Area { value_order, .. } => value_order,
+        BoardConfig::Area { value_order, .. } => *value_order,
     };
     items.sort_by(|a, b| {
         let first = value_order

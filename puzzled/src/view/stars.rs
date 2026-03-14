@@ -1,4 +1,4 @@
-use crate::puzzles::stars::Stars;
+use crate::model::stars::Stars;
 use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;

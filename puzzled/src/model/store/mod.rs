@@ -1,13 +1,14 @@
 mod community;
-pub mod stars;
 
 use crate::config;
-use crate::puzzles::community::save_community_collection;
+use crate::model::collection::CollectionModel;
+use crate::model::store::community::save_community_collection;
 use adw::gio::{resources_lookup_data, ResourceLookupFlags};
 use log::error;
 use once_cell::sync::Lazy;
 use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::backtrace::Backtrace;
+use std::cell::RefCell;
 use std::sync::{Mutex, MutexGuard, TryLockError};
 use std::time::Duration;
 
@@ -23,8 +24,10 @@ const CORE_COLLECTIONS: [&str; 9] = [
     "puzzled",
 ];
 
-static PUZZLE_COLLECTION_STORE: Lazy<Mutex<PuzzleCollectionStore>> =
-    Lazy::new(|| Mutex::new(PuzzleCollectionStore::default()));
+thread_local! {
+ static PUZZLE_COLLECTION_STORE: RefCell<PuzzleCollectionStore> =
+ RefCell::new(PuzzleCollectionStore::default());
+}
 
 /// Provides access to the core and community puzzle collections.
 ///
@@ -32,16 +35,16 @@ static PUZZLE_COLLECTION_STORE: Lazy<Mutex<PuzzleCollectionStore>> =
 /// The store is initialized by calling [init]() once at application startup.
 #[derive(Debug, Default)]
 pub struct PuzzleCollectionStore {
-    core_puzzle_collections: Vec<PuzzleConfigCollection>,
-    community_puzzle_collections: Vec<PuzzleConfigCollection>,
+    core_puzzle_collections: Vec<CollectionModel>,
+    community_puzzle_collections: Vec<CollectionModel>,
 }
 
 impl PuzzleCollectionStore {
-    pub fn core_puzzle_collections(&self) -> &[PuzzleConfigCollection] {
+    pub fn core_puzzle_collections(&self) -> &[CollectionModel] {
         &self.core_puzzle_collections
     }
 
-    pub fn community_puzzle_collections(&self) -> &[PuzzleConfigCollection] {
+    pub fn community_puzzle_collections(&self) -> &[CollectionModel] {
         &self.community_puzzle_collections
     }
 
@@ -53,7 +56,7 @@ impl PuzzleCollectionStore {
         let collection = json_loader.load_puzzle_collection(json_str)?;
         self.remove_community_collection(collection.id());
         save_community_collection(collection.id(), json_str);
-        self.community_puzzle_collections.push(collection);
+        self.community_puzzle_collections.push(collection.into());
         Ok(())
     }
 
@@ -68,29 +71,30 @@ impl PuzzleCollectionStore {
 ///
 /// A second call has undefined behavior.
 pub fn init() {
-    let mut store = PUZZLE_COLLECTION_STORE.lock().unwrap();
-    let json_loader = create_json_loader();
+    PUZZLE_COLLECTION_STORE.with_borrow_mut(|store| {
+        let json_loader = create_json_loader();
 
-    for &collection_name in CORE_COLLECTIONS.iter() {
-        let path = format!("/de/til7701/Puzzled/puzzles/{}.json", collection_name);
-        let collection = load_core_from_resource(&path, &json_loader);
-        store.core_puzzle_collections.push(collection);
-    }
+        for &collection_name in CORE_COLLECTIONS.iter() {
+            let path = format!("/de/til7701/Puzzled/puzzles/{}.json", collection_name);
+            let collection = load_core_from_resource(&path, &json_loader);
+            store.core_puzzle_collections.push(collection.into());
+        }
 
-    let community_collections = community::load_community_collections();
-    for json_str in community_collections {
-        let collection = match json_loader.load_puzzle_collection(&json_str) {
-            Ok(collection) => collection,
-            Err(e) => {
-                error!(
-                    "Failed to load community puzzle collection from JSON string: {:?}",
-                    e
-                );
-                continue;
-            }
-        };
-        store.community_puzzle_collections.push(collection);
-    }
+        let community_collections = community::load_community_collections();
+        for json_str in community_collections {
+            let collection = match json_loader.load_puzzle_collection(&json_str) {
+                Ok(collection) => collection,
+                Err(e) => {
+                    error!(
+                        "Failed to load community puzzle collection from JSON string: {:?}",
+                        e
+                    );
+                    continue;
+                }
+            };
+            store.community_puzzle_collections.push(collection.into());
+        }
+    });
 }
 
 /// Loads a core puzzle collection from a resource file using the provided JsonLoader.
@@ -128,22 +132,9 @@ fn read_resource(filename: &str) -> String {
     std::str::from_utf8(&data).unwrap().to_string()
 }
 
-/// Returns a guard to the singleton PuzzleCollectionStore.
-/// Blocks until the mutex can be acquired.
-pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStore> {
-    match PUZZLE_COLLECTION_STORE.try_lock() {
-        Ok(guard) => guard,
-        Err(TryLockError::WouldBlock) => {
-            eprintln!(
-                "get_puzzle_collection_store: mutex busy (possible deadlock). PID={} Backtrace:\n{:?}",
-                std::process::id(),
-                Backtrace::force_capture()
-            );
-            std::thread::sleep(Duration::from_secs(2));
-            PUZZLE_COLLECTION_STORE.lock().unwrap()
-        }
-        Err(TryLockError::Poisoned(_)) => PUZZLE_COLLECTION_STORE.lock().unwrap(),
-    }
+/// Access helper for the thread-local store.
+pub fn with_puzzle_collection_store<R>(f: impl FnOnce(&mut PuzzleCollectionStore) -> R) -> R {
+    PUZZLE_COLLECTION_STORE.with(|store| f(&mut store.borrow_mut()))
 }
 
 #[cfg(test)]
@@ -166,7 +157,7 @@ mod tests {
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(&format!("resources/store/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
             assert!(!collection.puzzles().is_empty());
         }
@@ -188,17 +179,17 @@ mod tests {
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(&format!("resources/store/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
 
             for puzzle in collection.puzzles() {
                 if puzzle.is_unsolvable() || skip_list.contains(&(collection.id(), puzzle.name())) {
-                    // Skip puzzles that are known to be unsolvable or take too long
+                    // Skip store that are known to be unsolvable or take too long
                     continue;
                 }
 
                 if puzzle.tiles().len() > 12 {
-                    // Skip puzzles with too many tiles to avoid long test times
+                    // Skip store with too many tiles to avoid long test times
                     println!(
                         "Skipping puzzle '{}' in collection '{}' because it has too many tiles ({}).",
                         puzzle.name(),
@@ -260,7 +251,7 @@ mod tests {
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(&format!("resources/store/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
             assert!(!collection.puzzles().is_empty());
             let mut set: HashSet<PuzzleId> = HashSet::new();
@@ -285,7 +276,7 @@ mod tests {
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(&format!("resources/store/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
             assert!(!collection.puzzles().is_empty());
             let mut set: HashSet<&str> = HashSet::new();
@@ -311,7 +302,7 @@ mod tests {
         let mut set: HashMap<u64, String> = HashMap::new();
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(&format!("resources/store/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
             for puzzle in collection.puzzles() {
                 let puzzle_identifier = format!("{}:{}", collection_name, puzzle.id());

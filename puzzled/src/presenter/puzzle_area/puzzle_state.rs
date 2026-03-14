@@ -1,7 +1,7 @@
 use crate::global::state::PuzzleTypeExtension;
+use crate::model::puzzle::PuzzleModel;
 use crate::offset::CellOffset;
 use ndarray::Array2;
-use puzzle_config::PuzzleConfig;
 use std::collections::HashSet;
 
 /// Represents data associated with a cell in the puzzle grid.
@@ -64,7 +64,7 @@ pub struct PuzzleState {
 
 impl PuzzleState {
     pub fn new(
-        puzzle_config: &PuzzleConfig,
+        puzzle_config: &PuzzleModel,
         puzzle_type_extension: &Option<PuzzleTypeExtension>,
     ) -> Self {
         let board_config = &puzzle_config.board_config();
@@ -98,10 +98,10 @@ impl PuzzleState {
         puzzle_state
     }
 
-    fn is_adjacent_to_board(position: (i32, i32), puzzle_config: &PuzzleConfig) -> bool {
+    fn is_adjacent_to_board(position: (i32, i32), puzzle_config: &PuzzleModel) -> bool {
         const DELTAS: [(i32, i32); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
-        let this_is_on_board = puzzle_config
-            .board_config()
+        let board_config = puzzle_config.board_config();
+        let this_is_on_board = board_config
             .layout()
             .get::<(usize, usize)>((position.0 as usize, position.1 as usize))
             .unwrap_or(&false);

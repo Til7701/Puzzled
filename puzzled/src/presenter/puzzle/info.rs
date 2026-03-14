@@ -1,10 +1,10 @@
 use crate::application::PuzzledApplication;
 use crate::global::state::get_state;
+use crate::model::puzzle::PuzzleModel;
 use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, Cast, PreferencesGroupExt};
 use adw::{gio, ActionRow, Dialog};
 use gtk::prelude::WidgetExt;
-use puzzle_config::PuzzleConfig;
 
 #[derive(Debug, Clone)]
 pub struct PuzzleInfoPresenter {
@@ -39,7 +39,7 @@ impl PuzzleInfoPresenter {
         }
     }
 
-    fn create_puzzle_info(&self, puzzle_config: &PuzzleConfig) -> Dialog {
+    fn create_puzzle_info(&self, puzzle_config: &PuzzleModel) -> Dialog {
         const RESOURCE_PATH: &str = "/de/til7701/Puzzled/puzzle-info-dialog.ui";
         let builder = gtk::Builder::from_resource(RESOURCE_PATH);
         let dialog: adw::PreferencesDialog = builder
@@ -71,11 +71,11 @@ impl PuzzleInfoPresenter {
 
     fn create_general_content_for_puzzle_info(
         &self,
-        puzzle_config: &PuzzleConfig,
+        puzzle_config: &PuzzleModel,
     ) -> Vec<ActionRow> {
         let mut action_rows = Vec::new();
 
-        let name = self.create_row("Puzzle Name", puzzle_config.name());
+        let name = self.create_row("Puzzle Name", &puzzle_config.name());
         action_rows.push(name);
 
         let board_dimensions = self.create_row(
@@ -99,13 +99,13 @@ impl PuzzleInfoPresenter {
 
     fn create_additional_content_for_puzzle_info(
         &self,
-        puzzle_config: &PuzzleConfig,
+        puzzle_config: &PuzzleModel,
     ) -> Vec<ActionRow> {
         let mut action_rows = Vec::new();
 
         if let Some(additional_info) = puzzle_config.additional_info() {
             for (title, value) in additional_info {
-                let row = self.create_row(title, value);
+                let row = self.create_row(&title, &value);
                 action_rows.push(row);
             }
         }

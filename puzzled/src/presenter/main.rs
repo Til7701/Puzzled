@@ -1,13 +1,12 @@
 use crate::application::PuzzledApplication;
-use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut};
+use crate::model::stars;
 use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
-use crate::puzzles::stars;
-use crate::solver;
 use crate::view::solved_dialog::SolvedDialog;
 use crate::window::PuzzledWindow;
+use crate::{model, solver};
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt};
 use adw::{gio, NavigationSplitView};
 use log::{debug, error, info};
@@ -96,16 +95,8 @@ impl MainPresenter {
 
         let state = get_state();
 
-        if let Some(collection) = &state.puzzle_collection
-            && let Some(puzzle_config) = &state.puzzle_config
-        {
-            let puzzle_meta = PuzzleMeta::new();
-            let hint_count = puzzle_meta.hints(
-                collection,
-                puzzle_config.index(),
-                &state.puzzle_type_extension,
-            );
-            let stars = stars::calculate_stars(true, hint_count, &puzzle_config.difficulty());
+        if let Some(puzzle_config) = &state.puzzle_config {
+            let stars = puzzle_config.stars();
             solved_dialog.set_stars(&stars);
         };
 
@@ -174,9 +165,8 @@ impl MainPresenter {
         dialog.connect_response(Some("mark"), {
             let self_clone = self.clone();
             move |_, _| {
-                info!("Marking all puzzles as unsolved");
-                let puzzle_meta = PuzzleMeta::new();
-                puzzle_meta.reset();
+                info!("Marking all store as unsolved");
+                model::reset_metadata();
                 if let Some(presenters) = self_clone.presenters.borrow().as_ref() {
                     presenters.collection_selection.refresh();
                     presenters.puzzle_selection.show_collection();

@@ -1,9 +1,9 @@
 use crate::application::PuzzledApplication;
 use crate::config;
-use crate::global::puzzle_meta::PuzzleMeta;
-use crate::global::state::{get_state_mut, PuzzleTypeExtension};
+use crate::global::state::get_state_mut;
+use crate::model::collection::CollectionModel;
+use crate::model::store::with_puzzle_collection_store;
 use crate::presenter::main::MainPresenter;
-use crate::puzzles::{get_puzzle_collection_store, stars};
 use crate::view::collection_selection_item::CollectionSelectionItem;
 use crate::window::PuzzledWindow;
 use adw::gio::{Cancellable, File};
@@ -13,8 +13,8 @@ use adw::{gio, AlertDialog, ResponseAppearance};
 use gtk::prelude::{ListBoxRowExt, WidgetExt};
 use gtk::{FileFilter, ListBox};
 use log::{debug, error};
+use puzzle_config::ReadError;
 use puzzle_config::ReadError::FileReadError;
-use puzzle_config::{PuzzleConfigCollection, ReadError};
 
 #[derive(Clone)]
 pub struct CollectionSelectionPresenter {
@@ -53,9 +53,9 @@ impl CollectionSelectionPresenter {
                                 .get::<String>()
                                 .expect("Expected a string parameter for delete_collection action");
                             debug!("Delete collection with ID: {}", collection_id);
-                            let mut store = get_puzzle_collection_store();
-                            store.remove_community_collection(&collection_id);
-                            drop(store);
+                            with_puzzle_collection_store(|store| {
+                                store.remove_community_collection(&collection_id);
+                            });
                             self_clone.update_community_collections();
                             self_clone.select_community_or_core_collection();
                         }
@@ -109,12 +109,9 @@ impl CollectionSelectionPresenter {
                     let row = self.core_collection_list.row_at_index(index as i32);
                     if let Some(row) = row {
                         let collection_item: CollectionSelectionItem = row.downcast().unwrap();
-                        let (stars_reached, stars_total) = calculate_stars(
-                            get_puzzle_collection_store()
-                                .core_puzzle_collections()
-                                .get(index)
-                                .unwrap(),
-                        );
+                        let (stars_reached, stars_total) = with_puzzle_collection_store(|store| {
+                            store.core_puzzle_collections().get(index).unwrap().stars()
+                        });
                         collection_item
                             .set_star_counts(stars_reached as usize, stars_total as usize);
                     }
@@ -123,12 +120,13 @@ impl CollectionSelectionPresenter {
                     let row = self.community_collection_list.row_at_index(index as i32);
                     if let Some(row) = row {
                         let collection_item: CollectionSelectionItem = row.downcast().unwrap();
-                        let (stars_reached, stars_total) = calculate_stars(
-                            get_puzzle_collection_store()
+                        let (stars_reached, stars_total) = with_puzzle_collection_store(|store| {
+                            store
                                 .community_puzzle_collections()
                                 .get(index)
-                                .unwrap(),
-                        );
+                                .unwrap()
+                                .stars()
+                        });
                         collection_item
                             .set_star_counts(stars_reached as usize, stars_total as usize);
                     }
@@ -162,21 +160,23 @@ impl CollectionSelectionPresenter {
     fn load_core_collections(&self) {
         self.core_collection_list.remove_all();
 
-        let collection_store = get_puzzle_collection_store();
-        for collection in collection_store.core_puzzle_collections().iter() {
-            let row = create_collection_row(collection, true);
-            self.core_collection_list.append(&row);
-        }
+        with_puzzle_collection_store(|collection_store| {
+            for collection in collection_store.core_puzzle_collections().iter() {
+                let row = create_collection_row(collection, true);
+                self.core_collection_list.append(&row);
+            }
+        });
     }
 
     fn update_community_collections(&self) {
         self.community_collection_list.remove_all();
 
-        let collection_store = get_puzzle_collection_store();
-        for collection in collection_store.community_puzzle_collections().iter() {
-            let row = create_collection_row(collection, false);
-            self.community_collection_list.append(&row);
-        }
+        with_puzzle_collection_store(|collection_store| {
+            for collection in collection_store.community_puzzle_collections().iter() {
+                let row = create_collection_row(collection, false);
+                self.community_collection_list.append(&row);
+            }
+        });
     }
 
     fn show_load_collection_dialog(&self) {
@@ -257,9 +257,9 @@ impl CollectionSelectionPresenter {
             Ok((bytes, _etag)) => match std::str::from_utf8(bytes.as_ref()) {
                 Ok(text) => {
                     let content: String = text.to_owned();
-                    let mut store = get_puzzle_collection_store();
-                    store.add_community_collection_from_string(&content)?;
-                    drop(store);
+                    with_puzzle_collection_store(|store| {
+                        store.add_community_collection_from_string(&content)
+                    })?;
                     self.update_community_collections();
                     self.select_last_community_collection();
                     Ok(())
@@ -275,12 +275,8 @@ impl CollectionSelectionPresenter {
     /// The callee has to be sure that there is at least one community collection, otherwise this
     /// will panic.
     fn select_last_community_collection(&self) {
-        let last_index = {
-            get_puzzle_collection_store()
-                .community_puzzle_collections()
-                .len()
-                - 1
-        };
+        let last_index =
+            with_puzzle_collection_store(|store| store.community_puzzle_collections().len()) - 1;
         self.community_collection_list
             .row_at_index(last_index as i32)
             .unwrap()
@@ -289,9 +285,8 @@ impl CollectionSelectionPresenter {
 
     /// Selects the last community collection if there are any, otherwise selects the first core collection.
     fn select_community_or_core_collection(&self) {
-        let community_count = get_puzzle_collection_store()
-            .community_puzzle_collections()
-            .len();
+        let community_count =
+            with_puzzle_collection_store(|store| store.community_puzzle_collections().len());
         if community_count > 0 {
             self.select_last_community_collection();
         } else {
@@ -317,13 +312,13 @@ impl CollectionSelectionPresenter {
     }
 
     fn activate_collection(&self, collection_id: CollectionId) {
-        let collection_store = get_puzzle_collection_store();
-        let collection = match collection_id {
-            CollectionId::Core(index) => collection_store.core_puzzle_collections().get(index),
-            CollectionId::Community(index) => {
-                collection_store.community_puzzle_collections().get(index)
-            }
-        };
+        let collection: Option<CollectionModel> =
+            with_puzzle_collection_store(|store| match collection_id {
+                CollectionId::Core(index) => store.core_puzzle_collections().get(index).cloned(),
+                CollectionId::Community(index) => {
+                    store.community_puzzle_collections().get(index).cloned()
+                }
+            });
         match collection {
             None => {
                 error!(
@@ -333,21 +328,20 @@ impl CollectionSelectionPresenter {
             }
             Some(c) => {
                 let mut state = get_state_mut();
-                state.puzzle_collection = Some(c.clone());
+                state.puzzle_collection = Some(c);
                 drop(state);
-                drop(collection_store);
                 self.main_presenter.show_puzzle_selection();
             }
         };
     }
 }
 
-fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk::ListBoxRow {
+fn create_collection_row(collection: &CollectionModel, core: bool) -> gtk::ListBoxRow {
     let row = CollectionSelectionItem::new();
 
-    row.set_name(collection.name());
+    row.set_name(&collection.name());
 
-    let (stars_reached, stars_total) = calculate_stars(collection);
+    let (stars_reached, stars_total) = collection.stars();
     row.set_star_counts(stars_reached as usize, stars_total as usize);
 
     row.set_difficulty(collection.average_difficulty());
@@ -355,10 +349,10 @@ fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk
     if core {
         row.set_author(None);
     } else {
-        row.set_author(Some(collection.author()));
+        row.set_author(Some(&collection.author()));
     }
 
-    row.set_version(collection.version());
+    row.set_version(&collection.version());
 
     row.show_delete_button(!core);
     if !core {
@@ -366,32 +360,6 @@ fn create_collection_row(collection: &PuzzleConfigCollection, core: bool) -> gtk
     }
 
     row.upcast()
-}
-
-fn calculate_stars(collection: &PuzzleConfigCollection) -> (u32, u32) {
-    let puzzle_meta = PuzzleMeta::new();
-    let (stars_reached, stars_total) = collection
-        .puzzles()
-        .iter()
-        .enumerate()
-        .filter(|(_, p)| !p.is_unsolvable())
-        .map(|(i, p)| {
-            let solved = puzzle_meta.is_solved(
-                collection,
-                i,
-                &Some(PuzzleTypeExtension::default_for_puzzle(p)),
-            );
-            let best_hint_count = puzzle_meta.hints(
-                collection,
-                i,
-                &Some(PuzzleTypeExtension::default_for_puzzle(p)),
-            );
-            stars::calculate_stars(solved, best_hint_count, p.difficulty())
-        })
-        .fold((0, 0), |(reached, total), stars| {
-            (reached + stars.reached(), total + stars.total())
-        });
-    (stars_reached, stars_total)
 }
 
 #[derive(Debug)]

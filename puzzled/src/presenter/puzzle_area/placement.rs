@@ -1,9 +1,10 @@
+use crate::model::puzzle::PuzzleModel;
 use crate::offset::CellOffset;
-use puzzle_config::{PuzzleConfig, TileConfig};
+use puzzle_config::TileConfig;
 
 pub fn calculate_tile_start_positions(
     tiles: &[TileConfig],
-    puzzle_config: &PuzzleConfig,
+    puzzle_config: &PuzzleModel,
     board_offset_cells: CellOffset,
 ) -> Vec<CellOffset> {
     let mut positions: Vec<CellOffset> = Vec::new();

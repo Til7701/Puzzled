@@ -1,4 +1,5 @@
 use crate::global::state::get_state;
+use crate::model::puzzle::PuzzleModel;
 use crate::offset::CellOffset;
 use crate::presenter::main::{MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
 use crate::presenter::puzzle_area::board::BoardPresenter;
@@ -11,7 +12,7 @@ use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
 use adw::glib;
 use gtk::prelude::{FixedExt, WidgetExt, WidgetExtManual};
-use puzzle_config::{ColorConfig, PuzzleConfig};
+use puzzle_config::ColorConfig;
 use puzzle_solver::result::TilePlacement;
 use std::cell::RefCell;
 use std::mem::take;
@@ -90,7 +91,7 @@ impl PuzzleAreaPresenter {
             self.board_presenter.setup(puzzle_config);
 
             let start_positions = placement::calculate_tile_start_positions(
-                puzzle_config.tiles(),
+                &puzzle_config.tiles(),
                 puzzle_config,
                 self.data.borrow().grid_config.board_offset_cells,
             );
@@ -116,7 +117,7 @@ impl PuzzleAreaPresenter {
         }
     }
 
-    fn initial_grid_config(&self, puzzle_config: &PuzzleConfig) -> GridConfig {
+    fn initial_grid_config(&self, puzzle_config: &PuzzleModel) -> GridConfig {
         let board_cell_width = puzzle_config.board_config().layout().dim().0 as i32;
         let board_cell_height = puzzle_config.board_config().layout().dim().1 as i32;
 

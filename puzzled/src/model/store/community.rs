@@ -32,7 +32,7 @@ pub fn load_community_collections() -> Vec<String> {
             }
         }
     } else {
-        error!("Failed to read puzzles directory: {:?}", puzzles_dir);
+        error!("Failed to read store directory: {:?}", puzzles_dir);
     }
 
     collections
@@ -55,9 +55,9 @@ pub fn delete_community_collection(collection_id: &str) {
 
 fn get_xdg_data_dir() -> PathBuf {
     let xdg_data_dir = glib::user_data_dir();
-    let puzzles_dir = xdg_data_dir.join("puzzled").join("community_puzzles");
+    let puzzles_dir = xdg_data_dir.join("../../..").join("community_puzzles");
     if let Err(e) = std::fs::create_dir_all(&puzzles_dir) {
-        error!("Failed to create puzzles directory: {}", e);
+        error!("Failed to create store directory: {}", e);
     }
     puzzles_dir
 }

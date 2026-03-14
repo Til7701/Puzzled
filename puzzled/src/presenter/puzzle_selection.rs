@@ -1,8 +1,9 @@
 use crate::application::PuzzledApplication;
-use crate::global::puzzle_meta::PuzzleMeta;
 use crate::global::state::{get_state, get_state_mut};
+use crate::model;
+use crate::model::collection::CollectionModel;
+use crate::model::puzzle::PuzzleModel;
 use crate::presenter::main::{MainPresenter, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
-use crate::puzzles;
 use crate::view::board::BoardView;
 use crate::view::info_pill::InfoPill;
 use crate::view::puzzle_mod::{PuzzleMod, PuzzleModState};
@@ -14,9 +15,7 @@ use adw::{gio, WrapBox};
 use gtk::prelude::{ActionableExt, BoxExt, FixedExt, ListBoxRowExt, WidgetExt};
 use gtk::{Align, Fixed, Label, ListBox};
 use log::error;
-use puzzle_config::{
-    BoardConfig, ProgressionConfig, PuzzleConfig, PuzzleConfigCollection, TileConfig,
-};
+use puzzle_config::{BoardConfig, ProgressionConfig, PuzzleConfigCollection, TileConfig};
 
 const CELL_SIZE: f64 = 20.0;
 
@@ -31,7 +30,6 @@ pub struct PuzzleSelectionPresenter {
     author_pill: InfoPill,
     version_pill: InfoPill,
     puzzle_list: ListBox,
-    puzzle_meta: PuzzleMeta,
 }
 
 impl PuzzleSelectionPresenter {
@@ -47,7 +45,6 @@ impl PuzzleSelectionPresenter {
             author_pill: page.author_pill(),
             version_pill: page.version_pill(),
             puzzle_list: page.puzzle_list(),
-            puzzle_meta: PuzzleMeta::new(),
         }
     }
 
@@ -78,9 +75,9 @@ impl PuzzleSelectionPresenter {
 
         let state = get_state();
         if let Some(collection) = &state.puzzle_collection {
-            self.puzzle_name_label.set_label(collection.name());
+            self.puzzle_name_label.set_label(&collection.name());
             if let Some(description) = collection.description() {
-                self.puzzle_description_label.set_label(description);
+                self.puzzle_description_label.set_label(&description);
                 self.puzzle_description_label.set_visible(true);
             } else {
                 self.puzzle_description_label.set_visible(false);
@@ -135,8 +132,8 @@ impl PuzzleSelectionPresenter {
 
     fn create_puzzle_row(
         &self,
-        puzzle: &PuzzleConfig,
-        collection: &PuzzleConfigCollection,
+        puzzle: &PuzzleModel,
+        collection: &CollectionModel,
     ) -> gtk::ListBoxRow {
         PuzzleMod::static_type();
         const RESOURCE_PATH: &str = "/de/til7701/Puzzled/puzzle-selection-item.ui";
@@ -147,20 +144,12 @@ impl PuzzleSelectionPresenter {
         row.set_action_target_value(Some(&Variant::from(puzzle.index() as u32)));
 
         let name_label: Label = builder.object("name").expect("Missing `name` in resource");
-        name_label.set_label(puzzle.name());
+        name_label.set_label(&puzzle.name());
 
-        let solved = self.puzzle_meta.is_solved(
-            collection,
-            puzzle.index(),
-            &get_state().puzzle_type_extension,
-        );
-        let best_hint_count = self.puzzle_meta.hints(
-            collection,
-            puzzle.index(),
-            &get_state().puzzle_type_extension,
-        );
+        let solved = puzzle.is_solved();
+        let best_hint_count = puzzle.best_hint_count();
         let difficulty = puzzle.difficulty();
-        let stars = puzzles::stars::calculate_stars(solved, best_hint_count, difficulty);
+        let stars = model::stars::calculate_stars(solved, best_hint_count, &difficulty);
 
         let state = {
             let state = match &collection.progression() {
@@ -169,8 +158,8 @@ impl PuzzleSelectionPresenter {
                     let previous_solved = if puzzle.index() == 0 {
                         true
                     } else {
-                        self.puzzle_meta
-                            .is_solved(collection, puzzle.index() - 1, &None)
+                        let previous_puzzle = &collection.puzzles()[puzzle.index() - 1];
+                        previous_puzzle.is_solved()
                     };
 
                     if solved || previous_solved {
@@ -212,7 +201,7 @@ impl PuzzleSelectionPresenter {
             .object("description")
             .expect("Missing `description` in resource");
         if let Some(description) = puzzle.description() {
-            description_label.set_label(description);
+            description_label.set_label(&description);
         } else {
             let outer_box: gtk::Box = builder
                 .object("outer_box")
@@ -259,7 +248,7 @@ impl PuzzleSelectionPresenter {
             .object("difficulty_pill")
             .expect("Missing `difficulty_pill` in resource");
         if let Some(difficulty) = puzzle.difficulty() {
-            let label: String = (*difficulty).into();
+            let label: String = (difficulty).into();
             difficulty_pill.set_label(label);
         } else {
             info_box.remove(&difficulty_pill);
@@ -269,14 +258,14 @@ impl PuzzleSelectionPresenter {
             let fixed: Fixed = builder
                 .object("tile_preview_fixed")
                 .expect("Missing `tile_preview_fixed` in resource");
-            create_tiles_preview(puzzle.tiles(), fixed);
+            create_tiles_preview(&puzzle.tiles(), fixed);
         }
 
         if state != PuzzleModState::Locked || collection.preview().show_board() {
             let preview_box: gtk::Box = builder
                 .object("board_preview_box")
                 .expect("Missing `board_preview_box` in resource");
-            create_board_preview(puzzle.board_config(), preview_box);
+            create_board_preview(&puzzle.board_config(), preview_box);
         }
 
         row

@@ -20,11 +20,12 @@
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
 use crate::global::state::get_state_mut;
+use crate::model::store;
+use crate::model::store::with_puzzle_collection_store;
 use crate::presenter::collection_selection::CollectionSelectionPresenter;
 use crate::presenter::main::MainPresenter;
 use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
-use crate::puzzles;
 use crate::view::tile::{DrawingMode, TileView};
 use crate::window::PuzzledWindow;
 use adw::gdk::Display;
@@ -256,18 +257,12 @@ impl PuzzledApplication {
     }
 
     fn setup(&self, window: &PuzzledWindow) {
-        puzzles::init();
-        let collection_store = puzzles::get_puzzle_collection_store();
-        let mut state = get_state_mut();
-        state.puzzle_collection = Some(
-            collection_store
-                .core_puzzle_collections()
-                .first()
-                .unwrap()
-                .clone(),
-        );
-        drop(collection_store);
-        drop(state);
+        store::init();
+        with_puzzle_collection_store(|store| {
+            let mut state = get_state_mut();
+            state.puzzle_collection =
+                Some(store.core_puzzle_collections().first().unwrap().clone());
+        });
 
         let mut main_presenter = MainPresenter::new(window);
         main_presenter.register_actions(self);
