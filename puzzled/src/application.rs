@@ -67,7 +67,7 @@ mod imp {
         // tries to launch a "second instance" of the application. When they try
         // to do that, we'll just present any existing window.
         fn activate(&self) {
-            simple_logger::init_with_env().unwrap();
+            simple_logger::SimpleLogger::new().with_level(log::LevelFilter::Info).env().init().unwrap();
             let application = self.obj();
             // Get the current window or create one if necessary
             let window = application.active_window().unwrap_or_else(|| {
