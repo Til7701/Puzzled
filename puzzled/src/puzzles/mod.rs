@@ -319,11 +319,12 @@ mod tests {
                 PuzzleConfig::hash(puzzle, &mut hasher);
                 let hash = hasher.finish();
                 assert!(
-                    set.insert(hash, puzzle_identifier.clone()).is_none(),
+                    !set.contains_key(&hash),
                     "Duplicate puzzle detected: {} and {}",
                     set.get(&hash).unwrap(),
                     puzzle_identifier
                 );
+                set.insert(hash, puzzle_identifier);
             }
         }
     }
