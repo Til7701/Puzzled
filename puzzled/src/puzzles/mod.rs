@@ -172,6 +172,7 @@ mod tests {
         }
     }
 
+    /// Ensures solvability of puzzles in core collections that are not known to be unsolvable or take too long to solve.
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
     async fn test_solve_core_collections() {
         let predefined_json_str =
@@ -251,6 +252,7 @@ mod tests {
         }
     }
 
+    /// Ensures unique collection ids
     #[test]
     fn test_core_collections_ids() {
         let predefined_json_str =
@@ -276,6 +278,7 @@ mod tests {
         }
     }
 
+    /// Ensures unique puzzle names in collections
     #[test]
     fn test_core_collections_names() {
         let predefined_json_str =
@@ -301,6 +304,7 @@ mod tests {
         }
     }
 
+    /// Ensures unique puzzle ids in collections
     #[test]
     fn test_core_collections_unique_puzzles() {
         let predefined_json_str =
