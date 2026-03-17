@@ -58,6 +58,45 @@
                                                     </object>
                                                 </child>
                                                 <child>
+                                                    <object class="GtkMenuButton">
+                                                        <property name="icon-name">info-outline-symbolic</property>
+                                                        <style>
+                                                            <class name="flat"/>
+                                                        </style>
+                                                        <property name="popover">
+                                                            <object class="GtkPopover">
+                                                                <child>
+                                                                    <object class="GtkBox">
+                                                                        <property name="orientation">vertical</property>
+                                                                        <property name="spacing">4</property>
+                                                                        <property name="margin-top">8</property>
+                                                                        <property name="margin-bottom">8</property>
+                                                                        <property name="margin-start">8</property>
+                                                                        <property name="margin-end">8</property>
+                                                                        <property name="width-request">100</property>
+                                                                        <child>
+                                                                            <object class="GtkLabel">
+                                                                                <property name="wrap">True</property>
+                                                                                <property name="max-width-chars">50</property>
+                                                                                <!-- @formatter:off -->
+                                                                                <property name="label" translatable="yes">Puzzles created by the community can be loaded as Community Collections. If you want to create your own puzzles, refer to the specification. Once a Community Collection is loaded, it is stored internally and can be removed by clicking the trash can icon.</property>
+                                                                                <!-- @formatter:on -->
+                                                                            </object>
+                                                                        </child>
+                                                                        <child>
+                                                                            <object class="GtkLinkButton">
+                                                                                <property name="uri">https://github.com/Til7701/Puzzled/blob/main/docs/puzzle-collection-spec.md</property>
+                                                                                <property name="label" translatable="yes">Open puzzle collection specification</property>
+                                                                                <property name="halign">start</property>
+                                                                            </object>
+                                                                        </child>
+                                                                    </object>
+                                                                </child>
+                                                            </object>
+                                                        </property>
+                                                    </object>
+                                                </child>
+                                                <child>
                                                     <object class="GtkButton">
                                                         <property name="action-name">app.load_collection</property>
                                                         <style>
