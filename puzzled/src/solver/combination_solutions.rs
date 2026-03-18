@@ -1,5 +1,5 @@
+use crate::app::puzzle_area::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
 use crate::global::runtime::get_runtime;
-use crate::presenter::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
 use crate::solver;
 use log::{debug, info};
 use std::collections::HashSet;

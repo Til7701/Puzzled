@@ -90,13 +90,13 @@ impl TargetTemplate {
 ///
 /// It consists of a list of target indices, each representing a cell on the board.
 /// It should have one index per area defined in the puzzle.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct Target {
     pub indices: Vec<TargetIndex>,
 }
 
 /// Represents the index of a target cell on the board.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct TargetIndex(pub usize, pub usize);
 
 impl PartialEq<(i32, i32)> for TargetIndex {

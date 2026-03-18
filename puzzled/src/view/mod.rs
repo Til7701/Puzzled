@@ -1,16 +1,5 @@
-pub mod board;
-pub mod collection_selection_item;
-pub mod collection_selection_page;
-pub mod info_pill;
-pub mod puzzle_area_page;
-pub mod puzzle_mod;
-pub mod puzzle_selection_page;
-pub mod random_puzzle_page;
-pub mod solved_dialog;
-pub mod stars;
-pub mod tile;
-
-use crate::global::state::{get_state, get_state_mut, PuzzleTypeExtension, SolverState};
+use crate::global::state::{get_state, get_state_mut, SolverState};
+use crate::model::extension::PuzzleTypeExtension;
 use adw::prelude::{AlertDialogExt, AlertDialogExtManual, PreferencesGroupExt};
 use adw::prelude::{ComboRowExt, PreferencesPageExt};
 use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppearance};

@@ -1,9 +1,9 @@
 pub mod combination_solutions;
 
+use crate::app::puzzle_area::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use crate::global::runtime::get_runtime;
 use crate::global::state::SolverState::Done;
 use crate::global::state::{get_state_mut, SolverState, State};
-use crate::presenter::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use log::debug;
 use puzzle_solver::board::Board;
 use puzzle_solver::result::{Solution, UnsolvableReason};

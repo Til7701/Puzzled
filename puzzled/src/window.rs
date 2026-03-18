@@ -17,8 +17,8 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-use crate::view::collection_selection_page::CollectionSelectionPage;
-use crate::view::puzzle_area_page::PuzzleAreaPage;
+use crate::app::collection_selection::collection_selection_page::CollectionSelectionPage;
+use crate::app::puzzle_area::puzzle_area_page::PuzzleAreaPage;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{gio, glib};
