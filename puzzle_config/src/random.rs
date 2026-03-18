@@ -1,9 +1,11 @@
 use crate::{
-    BoardConfig, PreviewConfig, ProgressionConfig, PuzzleConfig, PuzzleConfigCollection, TileConfig,
+    BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig,
+    PuzzleConfigCollection, TileConfig,
 };
+use log::debug;
 use ndarray::Array2;
 use puzzled_common::array_util;
-use rand::prelude::IndexedRandom;
+use rand::prelude::{IndexedRandom, SliceRandom};
 use rand::rngs::Xoshiro256PlusPlus;
 use rand::{Rng, RngExt, SeedableRng};
 
@@ -15,6 +17,10 @@ pub struct RandomPuzzleSettings<'a> {
 
 /// Returns a collection containing exactly one puzzle which was generated.
 pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection {
+    debug!(
+        "Generating random puzzle with seed {} and {} tiles",
+        settings.seed, settings.tile_count
+    );
     let mut rng = Xoshiro256PlusPlus::seed_from_u64(settings.seed);
     let (board_layout, tiles) = create_puzzle(settings, &mut rng);
     let board = BoardConfig::Simple {
@@ -47,52 +53,92 @@ fn create_puzzle(
     settings: &RandomPuzzleSettings,
     rng: &mut dyn Rng,
 ) -> (Array2<bool>, Vec<TileConfig>) {
-    let mut board = Array2::default((5, 5));
+    let mut current_tiles = Vec::new();
     let mut tiles = Vec::with_capacity(settings.tile_count);
+    let mut blocked_positions = Vec::new();
 
-    for _ in 0..settings.tile_count {
-        let (tile, new_board) = place_any_tile(&mut board, settings.tiles, rng);
-        board = new_board;
-        tiles.push(tile);
+    for i in 0..settings.tile_count {
+        let tile_placement = place_any_tile(&blocked_positions, settings.tiles, rng);
+
+        tile_placement
+            .base
+            .indexed_iter()
+            .for_each(|((x, y), value)| {
+                if *value {
+                    blocked_positions.push((tile_placement.x + x, tile_placement.y + y));
+                }
+            });
+
+        tiles.push(TileConfig::new(
+            tile_placement.base.clone(),
+            ColorConfig::default_with_index(i),
+            None,
+        ));
+        current_tiles.push(tile_placement);
+    }
+
+    let dim = bounding_box_for_tiles(&blocked_positions);
+    let mut board = Array2::from_elem(dim, false);
+    for tile in current_tiles {
+        for ((x, y), value) in tile.base.indexed_iter() {
+            if *value {
+                board[[tile.x + x, tile.y + y]] = true;
+            }
+        }
     }
 
     (board, tiles)
 }
 
+struct TilePlacement {
+    base: Array2<bool>,
+    x: usize,
+    y: usize,
+}
+
 fn place_any_tile(
-    board: &Array2<bool>,
+    blocked_positions: &[(usize, usize)],
     tiles: &[TileConfig],
     rng: &mut dyn Rng,
-) -> (TileConfig, Array2<bool>) {
+) -> TilePlacement {
     loop {
-        let dim = board.dim();
-        let x = rng.random_range(0..dim.0);
-        let y = rng.random_range(0..dim.1);
+        let dim = bounding_box_for_tiles(blocked_positions);
+        let x = rng.random_range(0..(dim.0 + 1));
+        let y = rng.random_range(0..(dim.1 + 1));
 
-        if board[[x, y]] == true {
+        if blocked_positions.contains(&(x, y)) {
+            debug!(
+                "Cannot place at ({}, {}) because it's already occupied",
+                x, y
+            );
             continue;
         }
 
-        if let Some((tile, rotated_base)) = try_place_any_tile_at(board, tiles, x, y, rng) {
-            let board = array_util::or_arrays_at(board, &rotated_base, x as isize, y as isize);
-            return (tile, board);
+        if let Some(rotated_base) = try_place_any_tile_at(blocked_positions, tiles, x, y, rng) {
+            return TilePlacement {
+                base: rotated_base,
+                x,
+                y,
+            };
         }
     }
 }
 
 fn try_place_any_tile_at(
-    board: &Array2<bool>,
+    blocked_positions: &[(usize, usize)],
     tiles: &[TileConfig],
     x: usize,
     y: usize,
     rng: &mut dyn Rng,
-) -> Option<(TileConfig, Array2<bool>)> {
+) -> Option<Array2<bool>> {
     for _ in 0..tiles.len() {
         let tile = tiles.choose(rng).unwrap();
-        let rotation_iter = TileRotationIterator::new(tile.base().clone());
-        for rotated in rotation_iter {
-            if can_tile_be_placed(board, &rotated, x as isize, y as isize) {
-                return Some((tile.clone(), rotated));
+        let mut rotations: Vec<Array2<bool>> =
+            TileRotationIterator::new(tile.base().clone()).collect();
+        rotations.shuffle(rng);
+        for rotated in rotations {
+            if can_tile_be_placed(blocked_positions, &rotated, x, y) {
+                return Some(rotated);
             }
         }
     }
@@ -100,30 +146,26 @@ fn try_place_any_tile_at(
 }
 
 fn can_tile_be_placed(
-    board: &Array2<bool>,
-    tile: &Array2<bool>,
-    x_offset: isize,
-    y_offset: isize,
+    blocked_positions: &[(usize, usize)],
+    new_tile: &Array2<bool>,
+    x_offset: usize,
+    y_offset: usize,
 ) -> bool {
-    let child_xs = tile.nrows();
-    let child_ys = tile.ncols();
-
-    for x in 0..child_xs {
-        for y in 0..child_ys {
-            let parent_x = x as isize + x_offset;
-            let parent_y = y as isize + y_offset;
-            if parent_x >= 0
-                && parent_x < board.nrows() as isize
-                && parent_y >= 0
-                && parent_y < board.ncols() as isize
-                && board[[parent_x as usize, parent_y as usize]] == true
-                && tile[[x, y]] == true
-            {
-                return false;
-            }
+    !new_tile.indexed_iter().any(|((new_x, new_y), value)| {
+        if !value {
+            return false;
         }
-    }
-    true
+        let new_tile_board_x = x_offset + new_x;
+        let new_tile_board_y = y_offset + new_y;
+        blocked_positions.contains(&(new_tile_board_x, new_tile_board_y))
+    })
+}
+
+fn bounding_box_for_tiles(blocked_positions: &[(usize, usize)]) -> (usize, usize) {
+    let max_x = blocked_positions.iter().map(|(x, _)| *x).max().unwrap_or(0);
+    let max_y = blocked_positions.iter().map(|(_, y)| *y).max().unwrap_or(0);
+
+    (max_x + 1, max_y + 1)
 }
 
 struct TileRotationIterator {

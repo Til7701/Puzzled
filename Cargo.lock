@@ -847,6 +847,7 @@ dependencies = [
 name = "puzzle_config"
 version = "1.0.1"
 dependencies = [
+ "log",
  "ndarray",
  "once_cell",
  "puzzled_common",

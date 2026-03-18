@@ -84,7 +84,7 @@ impl RandomPuzzlePage {
         let predefined = puzzles::get_predefined();
         let settings = RandomPuzzleSettings {
             seed: self.get_seed(),
-            tile_count: 5,
+            tile_count: 10,
             tiles: predefined.tiles(),
         };
         let collection = random::random_puzzle(&settings);
