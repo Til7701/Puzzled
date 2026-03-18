@@ -1,10 +1,10 @@
-use crate::array_util;
 use crate::backtracking::pruner::Pruner;
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
 use log::debug;
 use ndarray::Array2;
+use puzzled_common::array_util;
 
 /// A tile with all its possible placements on the board represented as bitmasks.
 ///

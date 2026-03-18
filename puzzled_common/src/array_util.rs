@@ -9,7 +9,7 @@ use ndarray::{s, Array2, Axis};
 /// * `array`: The rotated 2D boolean array.
 ///
 /// returns: ArrayBase<OwnedRepr<bool>, Dim<[usize; 2]>, <OwnedRepr<bool> as RawData>::Elem>
-pub(crate) fn rotate_90<T: Clone>(array: &Array2<T>) -> Array2<T> {
+pub fn rotate_90<T: Clone>(array: &Array2<T>) -> Array2<T> {
     let mut array = array.clone().reversed_axes();
     array.invert_axis(Axis(1));
     array
@@ -17,7 +17,7 @@ pub(crate) fn rotate_90<T: Clone>(array: &Array2<T>) -> Array2<T> {
 
 /// Represents the number of rows and columns removed from the sides of a 2D array.
 #[derive(Debug, Default, PartialEq, Eq)]
-pub(crate) struct TrimSides {
+pub struct TrimSides {
     /// The number of rows removed from the lower side of the x-axis.
     pub lower_x: usize,
     /// The number of rows removed from the higher side of the x-axis.
@@ -35,7 +35,7 @@ pub(crate) struct TrimSides {
 /// * `array`: The mutable reference to the 2D boolean array to be modified.
 ///
 /// returns: ()
-pub(crate) fn remove_true_rows_cols_from_sides(array: &mut Array2<bool>) -> TrimSides {
+pub fn remove_true_rows_cols_from_sides(array: &mut Array2<bool>) -> TrimSides {
     let mut trim_sides = TrimSides::default();
     loop {
         if array.nrows() == 0 || array.ncols() == 0 {
@@ -87,7 +87,7 @@ pub(crate) fn remove_true_rows_cols_from_sides(array: &mut Array2<bool>) -> Trim
 /// * `y_offset`: The y-axis offset for placing the child array.
 ///
 /// returns: Array2<bool>
-pub(crate) fn or_arrays_at(
+pub fn or_arrays_at(
     parent: &Array2<bool>,
     child: &Array2<bool>,
     x_offset: isize,
@@ -123,10 +123,7 @@ pub(crate) fn or_arrays_at(
 /// * `child`: The child 2D boolean array to be placed onto the parent.
 ///
 /// returns: Vec<Array2<bool>>
-pub(crate) fn place_on_all_positions(
-    parent: &Array2<bool>,
-    child: &Array2<bool>,
-) -> Vec<Array2<bool>> {
+pub fn place_on_all_positions(parent: &Array2<bool>, child: &Array2<bool>) -> Vec<Array2<bool>> {
     let mut placements = Vec::new();
     let parent_rows = parent.nrows();
     let parent_cols = parent.ncols();
@@ -170,7 +167,7 @@ pub(crate) fn place_on_all_positions(
 /// * `child`: The mutable reference to the child 2D boolean array to be modified.
 ///
 /// returns: ()
-pub(crate) fn remove_parent(parent: &Array2<bool>, child: &mut Array2<bool>) {
+pub fn remove_parent(parent: &Array2<bool>, child: &mut Array2<bool>) {
     for row in 0..parent.nrows() {
         for col in 0..parent.ncols() {
             if parent[[row, col]] {
@@ -180,7 +177,7 @@ pub(crate) fn remove_parent(parent: &Array2<bool>, child: &mut Array2<bool>) {
     }
 }
 
-pub(crate) fn count_biggest_connected_area_of_cells_matching(
+pub fn count_biggest_connected_area_of_cells_matching(
     array: &Array2<bool>,
     target_value: bool,
 ) -> usize {
@@ -226,7 +223,7 @@ pub(crate) fn count_biggest_connected_area_of_cells_matching(
 
 /// Prints a 2D boolean array to the debug log, using '█' for `true` and '░' for `false`.
 #[allow(dead_code)]
-pub(crate) fn debug_print(array: &Array2<bool>) {
+pub fn debug_print(array: &Array2<bool>) {
     for row in array.rows() {
         let row_str: String = row
             .iter()

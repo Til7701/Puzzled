@@ -84,6 +84,7 @@ impl RandomPuzzlePage {
         let predefined = puzzles::get_predefined();
         let settings = RandomPuzzleSettings {
             seed: self.get_seed(),
+            tile_count: 5,
             tiles: predefined.tiles(),
         };
         let collection = random::random_puzzle(&settings);
@@ -98,8 +99,7 @@ impl RandomPuzzlePage {
     fn get_seed(&self) -> u64 {
         let text = self.imp().seed_entry.text();
         if text.is_empty() {
-            // TODO make random
-            return 0;
+            return rand::random();
         }
         let mut hasher = DefaultHasher::new();
         text.hash(&mut hasher);

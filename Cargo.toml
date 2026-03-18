@@ -1,12 +1,13 @@
 [workspace]
 resolver = "3"
-members = ["puzzle_solver", "puzzle_config", "puzzled"]
+members = ["puzzle_solver", "puzzle_config", "puzzled", "puzzled_common"]
 
 [workspace.package]
 version = "1.0.1"
 edition = "2024"
 
 [workspace.dependencies]
+puzzled_common = { path = "./puzzled_common" }
 puzzle_solver = { path = "./puzzle_solver" }
 puzzle_config = { path = "./puzzle_config" }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
@@ -24,3 +25,4 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149" }
 semver = "1.0.27"
 regex = "1.12.3"
+rand = "0.10.0"

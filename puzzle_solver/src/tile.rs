@@ -1,6 +1,6 @@
-use crate::array_util::{debug_print, rotate_90};
 use log::debug;
 use ndarray::Array2;
+use puzzled_common::array_util::{debug_print, rotate_90};
 use std::collections::HashSet;
 
 /// Represents a tile to place on a board.
