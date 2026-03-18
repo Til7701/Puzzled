@@ -69,6 +69,10 @@ impl CombinationsSolver {
             );
             grid = new_puzzle_state.grid;
         }
+        info!(
+            "Finished finding combinations of tiles to solve. Cancellation status: {}.",
+            cancellation_token.is_cancelled()
+        );
     }
 
     fn create_list_entry_for_tile(unused_tile: &UnusedTile) -> String {
