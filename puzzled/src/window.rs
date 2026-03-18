@@ -19,7 +19,6 @@
  */
 use crate::view::collection_selection_page::CollectionSelectionPage;
 use crate::view::puzzle_area_page::PuzzleAreaPage;
-use crate::view::puzzle_selection_page::PuzzleSelectionPage;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{gio, glib};
@@ -36,8 +35,6 @@ mod imp {
         pub inner_view: TemplateChild<adw::NavigationSplitView>,
         #[template_child]
         pub collection_selection_nav_page: TemplateChild<CollectionSelectionPage>,
-        #[template_child]
-        pub puzzle_selection_nav_page: TemplateChild<PuzzleSelectionPage>,
         #[template_child]
         pub puzzle_area_nav_page: TemplateChild<PuzzleAreaPage>,
     }
@@ -88,10 +85,6 @@ impl PuzzledWindow {
 
     pub fn collection_selection_nav_page(&self) -> CollectionSelectionPage {
         self.imp().collection_selection_nav_page.clone()
-    }
-
-    pub fn puzzle_selection_nav_page(&self) -> PuzzleSelectionPage {
-        self.imp().puzzle_selection_nav_page.clone()
     }
 
     pub fn puzzle_area_nav_page(&self) -> PuzzleAreaPage {

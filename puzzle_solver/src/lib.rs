@@ -6,7 +6,6 @@ use crate::tile::Tile;
 use log::debug;
 use tokio_util::sync::CancellationToken;
 
-mod array_util;
 mod backtracking;
 mod bitmask;
 pub mod board;

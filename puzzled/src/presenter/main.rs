@@ -6,6 +6,7 @@ use crate::presenter::puzzle::PuzzlePresenter;
 use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
 use crate::puzzles::stars;
 use crate::solver;
+use crate::view::random_puzzle_page::RandomPuzzlePage;
 use crate::view::solved_dialog::SolvedDialog;
 use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt};
@@ -22,6 +23,7 @@ pub struct MainPresenter {
     window: PuzzledWindow,
     outer_view: NavigationSplitView,
     inner_view: NavigationSplitView,
+    random_puzzle_page: RandomPuzzlePage,
     presenters: Rc<RefCell<Option<Presenters>>>,
 }
 
@@ -31,6 +33,7 @@ impl MainPresenter {
             window: window.clone(),
             outer_view: window.outer_view(),
             inner_view: window.inner_view(),
+            random_puzzle_page: RandomPuzzlePage::new(),
             presenters: Rc::new(RefCell::new(None)),
         }
     }
@@ -42,7 +45,13 @@ impl MainPresenter {
                 move |_, _, _| self_clone.handle_mark_all_puzzles_unsolved()
             })
             .build();
-        app.add_action_entries([mark_all_puzzles_unsolved]);
+        let random_puzzle = gio::ActionEntry::builder("random_puzzle")
+            .activate({
+                let self_clone = self.clone();
+                move |_, _, _| self_clone.show_random_puzzle_page()
+            })
+            .build();
+        app.add_action_entries([mark_all_puzzles_unsolved, random_puzzle]);
     }
 
     pub fn setup(
@@ -71,11 +80,30 @@ impl MainPresenter {
                 }
             }
         });
+        self.random_puzzle_page.connect_create_random_puzzle({
+            let self_clone = self.clone();
+            move |_| {
+                self_clone.show_puzzle_area();
+            }
+        })
     }
 
     pub fn show_puzzle_selection(&self) {
         if let Some(presenters) = &self.presenters.borrow().as_ref() {
             presenters.puzzle_selection.show_collection();
+            debug!("Showing puzzle selection");
+            self.inner_view
+                .set_content(Some(presenters.puzzle_selection.page()));
+            self.inner_view.set_show_content(true);
+            self.outer_view.set_show_content(false);
+        }
+    }
+
+    fn show_random_puzzle_page(&self) {
+        if let Some(presenters) = self.presenters.borrow().as_ref() {
+            debug!("Showing random puzzle page");
+            presenters.collection_selection.select_none();
+            self.inner_view.set_content(Some(&self.random_puzzle_page));
             self.inner_view.set_show_content(true);
             self.outer_view.set_show_content(false);
         }

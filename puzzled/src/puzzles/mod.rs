@@ -5,8 +5,8 @@ use crate::config;
 use crate::puzzles::community::save_community_collection;
 use adw::gio::{resources_lookup_data, ResourceLookupFlags};
 use log::error;
-use once_cell::sync::Lazy;
-use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
+use once_cell::sync::{Lazy, OnceCell};
+use puzzle_config::{JsonLoader, Predefined, PuzzleConfigCollection, ReadError};
 use std::backtrace::Backtrace;
 use std::sync::{Mutex, MutexGuard, TryLockError};
 use std::time::Duration;
@@ -144,6 +144,15 @@ pub fn get_puzzle_collection_store() -> MutexGuard<'static, PuzzleCollectionStor
         }
         Err(TryLockError::Poisoned(_)) => PUZZLE_COLLECTION_STORE.lock().unwrap(),
     }
+}
+
+static PREDEFINED: OnceCell<Predefined> = OnceCell::new();
+
+pub fn get_predefined<'a>() -> &'a Predefined {
+    PREDEFINED.get_or_init(|| {
+        let predefined_json_str = read_resource("/de/til7701/Puzzled/predefined.json");
+        puzzle_config::get_predefined(&predefined_json_str, config::VERSION)
+    })
 }
 
 #[cfg(test)]

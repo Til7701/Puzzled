@@ -72,3 +72,12 @@ impl JsonLoader {
         }
     }
 }
+
+pub fn read_predefined(json_data: &str, _: &str) -> crate::Predefined {
+    let mut predefined: Predefined =
+        serde_json::from_str(json_data).expect("Failed to parse predefined JSON");
+    crate::Predefined {
+        tiles: predefined.take_tiles(),
+        boards: predefined.take_boards(),
+    }
+}

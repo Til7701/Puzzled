@@ -16,3 +16,4 @@ simple_logger = { workspace = true }
 humantime = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }
+rand = { workspace = true }

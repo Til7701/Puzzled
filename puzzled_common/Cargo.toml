@@ -1,0 +1,7 @@
+[package]
+name = "puzzled_common"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+ndarray = { workspace = true }

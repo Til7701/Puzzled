@@ -1,8 +1,8 @@
-use crate::array_util;
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
 use ndarray::{arr2, Array2};
+use puzzled_common::array_util;
 use std::hash::Hash;
 
 #[derive(Hash, Eq, PartialEq, Debug)]

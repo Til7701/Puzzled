@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="PuzzledRandomPuzzlePage" parent="AdwNavigationPage">
+        <property name="title" translatable="yes">Random Puzzle Generation</property>
+        <property name="tag">random-puzzle</property>
+        <property name="child">
+            <object class="AdwToolbarView">
+                <child type="top">
+                    <object class="AdwHeaderBar">
+                        <child type="end">
+                            <object class="GtkMenuButton">
+                                <property name="primary">True</property>
+                                <property name="icon-name">open-menu-symbolic</property>
+                                <property name="tooltip-text" translatable="yes">Main Menu</property>
+                                <property name="menu-model">primary_menu</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <property name="content">
+                    <object class="AdwClamp">
+                        <child>
+                            <object class="AdwPreferencesGroup">
+                                <property name="title" translatable="yes">Random Puzzle Settings</property>
+                                <property name="separate-rows">True</property>
+                                <child>
+                                    <object class="AdwEntryRow" id="seed_entry">
+                                        <property name="title" translatable="yes">Seed</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="AdwButtonRow">
+                                        <property name="title" translatable="yes">Create</property>
+                                        <property name="action-name">app.create_random_puzzle</property>
+                                        <style>
+                                            <class name="suggested-action"/>
+                                        </style>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </property>
+            </object>
+        </property>
+    </template>
+    <menu id="primary_menu">
+        <section>
+            <item>
+                <attribute name="label" translatable="yes">How to Play</attribute>
+                <attribute name="action">app.how_to_play</attribute>
+            </item>
+        </section>
+        <section>
+            <item>
+                <attribute name="label" translatable="yes">_Preferences</attribute>
+                <attribute name="action">app.preferences</attribute>
+            </item>
+            <item>
+                <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
+                <attribute name="action">app.shortcuts</attribute>
+            </item>
+            <item>
+                <attribute name="label" translatable="yes">_About Puzzled</attribute>
+                <attribute name="action">app.about</attribute>
+            </item>
+        </section>
+    </menu>
+</interface>

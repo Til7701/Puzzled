@@ -5,6 +5,7 @@ pub mod info_pill;
 pub mod puzzle_area_page;
 pub mod puzzle_mod;
 pub mod puzzle_selection_page;
+pub mod random_puzzle_page;
 pub mod solved_dialog;
 pub mod stars;
 pub mod tile;

@@ -1,4 +1,3 @@
-use crate::array_util;
 use crate::backtracking::positioned::PositionedTile;
 use crate::backtracking::pruner::Pruner;
 use crate::bitmask::Bitmask;
@@ -6,6 +5,7 @@ use crate::board::Board;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use log::debug;
+use puzzled_common::array_util;
 use tokio_util::sync::CancellationToken;
 
 pub mod core;

@@ -1,7 +1,7 @@
-use crate::array_util;
-use crate::array_util::TrimSides;
 use log::debug;
 use ndarray::Array2;
+use puzzled_common::array_util;
+use puzzled_common::array_util::TrimSides;
 use std::ops::{Index, IndexMut};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).

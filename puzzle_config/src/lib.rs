@@ -1,6 +1,7 @@
 mod config;
 mod error;
 mod json;
+pub mod random;
 mod validation;
 
 pub use config::area::AreaConfig;
@@ -31,6 +32,25 @@ pub fn create_json_loader(
 ) -> Result<JsonLoader, ReadError> {
     let json_loader = JsonLoader::new(predefined_json_str, puzzled_version.to_string());
     Ok(json_loader)
+}
+
+pub fn get_predefined(predefined_json_str: &str, puzzled_version: &str) -> Predefined {
+    json::read_predefined(predefined_json_str, puzzled_version)
+}
+
+pub struct Predefined {
+    tiles: Vec<TileConfig>,
+    boards: Vec<BoardConfig>,
+}
+
+impl Predefined {
+    pub fn tiles(&self) -> &[TileConfig] {
+        &self.tiles
+    }
+
+    pub fn boards(&self) -> &[BoardConfig] {
+        &self.boards
+    }
 }
 
 #[cfg(test)]

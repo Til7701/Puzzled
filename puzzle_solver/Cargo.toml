@@ -4,6 +4,7 @@ edition = "2024"
 version.workspace = true
 
 [dependencies]
+puzzled_common = { workspace = true }
 ndarray = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true }
