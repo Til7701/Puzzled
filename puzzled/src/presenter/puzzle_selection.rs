@@ -6,6 +6,7 @@ use crate::puzzles;
 use crate::view::board::BoardView;
 use crate::view::info_pill::InfoPill;
 use crate::view::puzzle_mod::{PuzzleMod, PuzzleModState};
+use crate::view::puzzle_selection_page::PuzzleSelectionPage;
 use crate::view::tile::TileView;
 use crate::window::PuzzledWindow;
 use adw::glib::{Variant, VariantTy};
@@ -23,6 +24,7 @@ const CELL_SIZE: f64 = 20.0;
 #[derive(Clone)]
 pub struct PuzzleSelectionPresenter {
     window: PuzzledWindow,
+    page: PuzzleSelectionPage,
     navigation: MainPresenter,
     puzzle_name_label: Label,
     puzzle_description_label: Label,
@@ -36,9 +38,10 @@ pub struct PuzzleSelectionPresenter {
 
 impl PuzzleSelectionPresenter {
     pub fn new(window: &PuzzledWindow, navigation: MainPresenter) -> Self {
-        let page = window.puzzle_selection_nav_page();
+        let page = PuzzleSelectionPage::new();
         PuzzleSelectionPresenter {
             window: window.clone(),
+            page: page.clone(),
             navigation,
             puzzle_name_label: page.puzzle_name_label(),
             puzzle_description_label: page.puzzle_description_label(),
@@ -49,6 +52,10 @@ impl PuzzleSelectionPresenter {
             puzzle_list: page.puzzle_list(),
             puzzle_meta: PuzzleMeta::new(),
         }
+    }
+
+    pub fn page(&self) -> &PuzzleSelectionPage {
+        &self.page
     }
 
     pub fn register_actions(&self, app: &PuzzledApplication) {

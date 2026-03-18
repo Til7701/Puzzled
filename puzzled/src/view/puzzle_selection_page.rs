@@ -55,10 +55,8 @@ glib::wrapper! {
 }
 
 impl PuzzleSelectionPage {
-    pub fn new<P: IsA<gtk::Application>>(application: &P) -> Self {
-        glib::Object::builder()
-            .property("application", application)
-            .build()
+    pub fn new() -> Self {
+        glib::Object::builder().build()
     }
 
     pub fn puzzle_name_label(&self) -> gtk::Label {

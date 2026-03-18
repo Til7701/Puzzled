@@ -11,7 +11,7 @@ use adw::glib::{Variant, VariantTy};
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, AlertDialogExt, Cast, FileExtManual};
 use adw::{gio, AlertDialog, ResponseAppearance};
 use gtk::prelude::{ListBoxRowExt, WidgetExt};
-use gtk::{FileFilter, ListBox};
+use gtk::{FileFilter, ListBox, ListBoxRow};
 use log::{debug, error};
 use puzzle_config::ReadError::FileReadError;
 use puzzle_config::{PuzzleConfigCollection, ReadError};
@@ -75,6 +75,7 @@ impl CollectionSelectionPresenter {
                 if let Some(row) = row {
                     self_clone.community_collection_list.unselect_all();
                     let collection_id = CollectionId::Core(row.index() as usize);
+                    debug!("Selected core collection with index: {}", row.index());
                     self_clone.activate_collection(collection_id);
                 }
             }
@@ -85,10 +86,14 @@ impl CollectionSelectionPresenter {
                 if let Some(row) = row {
                     self_clone.core_collection_list.unselect_all();
                     let collection_id = CollectionId::Community(row.index() as usize);
+                    debug!("Selected core collection with index: {}", row.index());
                     self_clone.activate_collection(collection_id);
                 }
             }
         });
+
+        self.core_collection_list
+            .select_row(self.core_collection_list.row_at_index(0).as_ref());
     }
 
     fn current_collection_id(&self) -> Option<CollectionId> {
@@ -270,6 +275,12 @@ impl CollectionSelectionPresenter {
         }
     }
 
+    pub fn select_none(&self) {
+        self.core_collection_list.select_row(None::<&ListBoxRow>);
+        self.community_collection_list
+            .select_row(None::<&ListBoxRow>);
+    }
+
     /// Selects the last community collection in the list.
     ///
     /// The callee has to be sure that there is at least one community collection, otherwise this
@@ -332,6 +343,7 @@ impl CollectionSelectionPresenter {
                 );
             }
             Some(c) => {
+                debug!("Showing collection: {}", c.id());
                 let mut state = get_state_mut();
                 state.puzzle_collection = Some(c.clone());
                 drop(state);

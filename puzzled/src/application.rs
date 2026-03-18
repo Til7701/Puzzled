@@ -277,9 +277,23 @@ impl PuzzledApplication {
         drop(state);
 
         let mut main_presenter = MainPresenter::new(window);
-        main_presenter.register_actions(self);
-
         let mut puzzle_presenter = PuzzlePresenter::new(window);
+        let puzzle_selection_presenter = Rc::new(PuzzleSelectionPresenter::new(
+            window,
+            main_presenter.clone(),
+        ));
+        let collection_selection_presenter = Rc::new(CollectionSelectionPresenter::new(
+            window,
+            main_presenter.clone(),
+        ));
+
+        main_presenter.register_actions(self);
+        main_presenter.setup(
+            &collection_selection_presenter,
+            &puzzle_selection_presenter,
+            &puzzle_presenter,
+        );
+
         puzzle_presenter.register_actions(self);
         puzzle_presenter.setup(Rc::new({
             let main_presenter = main_presenter.clone();
@@ -288,25 +302,11 @@ impl PuzzledApplication {
             }
         }));
 
-        let puzzle_selection_presenter = Rc::new(PuzzleSelectionPresenter::new(
-            window,
-            main_presenter.clone(),
-        ));
         puzzle_selection_presenter.register_actions(self);
         puzzle_selection_presenter.setup();
 
-        let collection_selection_presenter = Rc::new(CollectionSelectionPresenter::new(
-            window,
-            main_presenter.clone(),
-        ));
         collection_selection_presenter.register_actions(self);
         collection_selection_presenter.setup();
-
-        main_presenter.setup(
-            &collection_selection_presenter,
-            &puzzle_selection_presenter,
-            &puzzle_presenter,
-        );
 
         if cfg!(debug_assertions) {
             window.add_css_class("devel");

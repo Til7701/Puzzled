@@ -1,6 +1,9 @@
+use crate::json::converter::Convertable;
 use crate::json::model::{Board, Tile};
+use crate::{BoardConfig, TileConfig};
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::mem::take;
 
 pub type Predefined = ConfigStore;
 pub type Custom = ConfigStore;
@@ -27,5 +30,30 @@ impl ConfigStore {
 
     pub fn get_board(&self, name: &str) -> Option<Board> {
         self.boards.get(name).cloned()
+    }
+
+    pub(crate) fn take_tiles(&mut self) -> Vec<TileConfig> {
+        let tiles: HashMap<String, Tile> = take(&mut self.tiles);
+        tiles
+            .into_iter()
+            .map(|(name, tile)| {
+                (0, tile, Some(name))
+                    .convert(&mut Predefined::default(), &mut Custom::default())
+                    .unwrap()
+            })
+            .flatten()
+            .collect()
+    }
+
+    pub(crate) fn take_boards(&mut self) -> Vec<BoardConfig> {
+        let boards: HashMap<String, Board> = take(&mut self.boards);
+        boards
+            .into_iter()
+            .map(|(_, board)| {
+                board
+                    .convert(&mut Predefined::default(), &mut Custom::default())
+                    .unwrap()
+            })
+            .collect()
     }
 }
