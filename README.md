@@ -1,4 +1,4 @@
-# Puzzled <img src="data/icons/hicolor/scalable/apps/de.til7701.Puzzled.svg" alt="icon" width="50" align="right"/>
+# Puzzled <img src="data/icons/hicolor/scalable/apps/de.til7701.Puzzled.svg" alt="icon" width="55" align="right"/>
 
 An Adwaita application to solve daily puzzles in various formats. It can tell you, if you are on the
 right track or, whether it is impossible to solve the puzzle with your current approach.
@@ -8,11 +8,21 @@ right track or, whether it is impossible to solve the puzzle with your current a
 
 ## Installation
 
+### Install via Flathub
+
 <a href='https://flathub.org/apps/de.til7701.Puzzled'>
     <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
 </a>
 
-Puzzled is available on Flathub. Alternatively, you can install it manually by downloading the latest release from the
+Or run the following:
+
+```bash
+flatpak install flathub de.til7701.Puzzled
+```
+
+### Manual Installation
+
+You can install it manually by downloading the latest release from the
 [releases page](https://github.com/Til7701/Puzzled/releases). After downloading the Flatpak bundle, you can install it
 using the following command:
 
