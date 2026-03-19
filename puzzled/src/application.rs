@@ -17,7 +17,6 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-use crate::app::collection_selection::collection_selection::CollectionSelectionPresenter;
 use crate::app::puzzle_area::puzzle::PuzzlePresenter;
 use crate::app::puzzle_selection::puzzle_selection::PuzzleSelectionPresenter;
 use crate::app::window::main::MainPresenter;

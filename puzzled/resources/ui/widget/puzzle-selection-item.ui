@@ -2,10 +2,10 @@
 <interface>
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
-    <object class="GtkListBoxRow" id="row">
+    <template class="PuzzledPuzzleSelectionItem" parent="GtkListBoxRow">
         <property name="selectable">False</property>
         <property name="activatable">True</property>
-        <property name="action-name">app.puzzle_activated</property>
+        <property name="action-name">app.puzzle_selected</property>
         <child>
             <object class="GtkBox" id="outer_box">
                 <property name="orientation">vertical</property>
@@ -106,5 +106,5 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

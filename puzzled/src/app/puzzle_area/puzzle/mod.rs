@@ -1,10 +1,8 @@
 mod extension;
-mod hint;
-mod info;
 
+use crate::app::puzzle_area::hint::{HintButtonPresenter, HintButtonState};
+use crate::app::puzzle_area::info::PuzzleInfoPresenter;
 use crate::app::puzzle_area::puzzle::extension::ExtensionPresenter;
-use crate::app::puzzle_area::puzzle::hint::{HintButtonPresenter, HintButtonState};
-use crate::app::puzzle_area::puzzle::info::PuzzleInfoPresenter;
 use crate::app::puzzle_area::puzzle_area::PuzzleAreaPresenter;
 use crate::app::puzzle_area::puzzle_area_page::PuzzleAreaPage;
 use crate::application::PuzzledApplication;

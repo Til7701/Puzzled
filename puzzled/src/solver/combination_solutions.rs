@@ -1,6 +1,6 @@
 use crate::app::puzzle_area::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
 use crate::global::runtime::get_runtime;
-use crate::solver;
+use crate::solver::Solver;
 use log::{debug, info};
 use std::collections::HashSet;
 use std::sync::{Arc, RwLock};
@@ -11,6 +11,7 @@ use tokio_util::sync::CancellationToken;
 /// the previous call is canceled. Any found solutions are logged.
 #[derive(Debug, Clone)]
 pub struct CombinationsSolver {
+    solver: Solver,
     cancellation_token: Arc<RwLock<Option<CancellationToken>>>,
 }
 
@@ -25,10 +26,21 @@ impl CombinationsSolver {
             .unwrap()
             .replace(cancellation_token.clone());
 
-        get_runtime().spawn(Self::find_solutions(puzzle_state, cancellation_token));
+        get_runtime().spawn({
+            let self_clone = self.clone();
+            async move {
+                self_clone
+                    .find_solutions(puzzle_state, cancellation_token)
+                    .await;
+            }
+        });
     }
 
-    async fn find_solutions(puzzle_state: PuzzleState, cancellation_token: CancellationToken) {
+    async fn find_solutions(
+        &self,
+        puzzle_state: PuzzleState,
+        cancellation_token: CancellationToken,
+    ) {
         let tiles = puzzle_state.unused_tiles;
         let mut grid = puzzle_state.grid;
         let mut iter = TileCombinationsIter::new(&tiles);
@@ -39,9 +51,7 @@ impl CombinationsSolver {
                 grid,
                 unused_tiles: tiles.clone(),
             };
-            let solver_call_id = solver::create_solver_call_id();
-            solver::solver_for_target_maybe_callback(
-                &solver_call_id,
+            self.solver.solver_for_target_maybe_callback(
                 &new_puzzle_state,
                 Box::new({
                     move |result| {
@@ -96,6 +106,7 @@ impl CombinationsSolver {
 impl Default for CombinationsSolver {
     fn default() -> Self {
         CombinationsSolver {
+            solver: Solver::default(),
             cancellation_token: Arc::new(RwLock::new(None)),
         }
     }

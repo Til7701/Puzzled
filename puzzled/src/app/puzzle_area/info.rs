@@ -1,23 +1,13 @@
+use crate::app::puzzle_area::puzzle_area_page::PuzzleAreaPage;
 use crate::application::PuzzledApplication;
-use crate::global::state::get_state;
-use crate::window::PuzzledWindow;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, Cast, PreferencesGroupExt};
+use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{gio, ActionRow, Dialog};
 use gtk::prelude::WidgetExt;
 use puzzle_config::PuzzleConfig;
+use std::ops::Deref;
 
-#[derive(Debug, Clone)]
-pub struct PuzzleInfoPresenter {
-    window: PuzzledWindow,
-}
-
-impl PuzzleInfoPresenter {
-    pub fn new(window: &PuzzledWindow) -> Self {
-        PuzzleInfoPresenter {
-            window: window.clone(),
-        }
-    }
-
+impl PuzzleAreaPage {
     pub fn register_actions(&self, app: &PuzzledApplication) {
         let collection_item_activated = gio::ActionEntry::builder("puzzle_info")
             .activate({
@@ -28,14 +18,10 @@ impl PuzzleInfoPresenter {
         app.add_action_entries([collection_item_activated]);
     }
 
-    pub fn setup(&self) {}
-
-    fn show_puzzle_info(&self) {
-        let state = get_state();
-        let puzzle_config = &state.puzzle_config;
-        if let Some(puzzle_config) = puzzle_config {
-            let dialog = self.create_puzzle_info(puzzle_config);
-            dialog.present(Some(&self.window));
+    pub(super) fn show_puzzle_info(&self) {
+        if let Some(puzzle) = self.imp().puzzle.borrow().deref() {
+            let dialog = self.create_puzzle_info(puzzle.config());
+            dialog.present();
         }
     }
 

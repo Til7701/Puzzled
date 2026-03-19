@@ -11,6 +11,7 @@ use puzzle_config::ReadError::FileReadError;
 
 impl CollectionSelectionPage {
     pub(super) fn show_load_collection_dialog(&self) {
+        debug!("Showing load collection dialog.");
         let filter = FileFilter::new();
         filter.set_name(Some("Puzzled Collection Files"));
         filter.add_pattern("*.json");
@@ -91,7 +92,7 @@ impl CollectionSelectionPage {
                     with_puzzle_collection_store(|store| {
                         store.add_community_collection_from_string(&content)
                     })?;
-                    self.update_community_collections();
+                    self.load_community_collections(); // TODO only update necessary rows instead of reloading everything
                     self.select_last_community_collection();
                     Ok(())
                 }

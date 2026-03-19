@@ -10,15 +10,14 @@ use std::ops::Deref;
 mod imp {
     use super::*;
     use adw::glib::Properties;
-    use puzzle_config::PuzzleConfigCollection;
     use std::cell::{OnceCell, RefCell};
     use std::collections::HashMap;
 
     #[derive(Debug, Default, Properties)]
     #[properties(wrapper_type = super::PuzzleModel)]
     pub struct PuzzledPuzzleModel {
+        pub(super) collection: OnceCell<CollectionModel>,
         pub(super) config: OnceCell<PuzzleConfig>,
-        pub(super) collection: OnceCell<PuzzleConfigCollection>,
         pub(super) default_extension: OnceCell<PuzzleTypeExtension>,
         pub(super) solved: RefCell<HashMap<Option<PuzzleTypeExtension>, bool>>,
         pub(super) hints_used: RefCell<HashMap<Option<PuzzleTypeExtension>, Option<u32>>>,
@@ -61,8 +60,8 @@ impl PuzzleModel {
             .set(config)
             .expect("Failed to set config for PuzzleModel");
         imp.collection
-            .set(collection.config().clone())
-            .expect("Failed to set collection_id for PuzzleModel");
+            .set(collection.clone())
+            .expect("Failed to set collection for PuzzleModel");
 
         let solved = puzzle_meta.is_solved(
             &collection.config(),
@@ -102,6 +101,19 @@ impl PuzzleModel {
             .unwrap_or(&false)
     }
 
+    pub fn is_previous_solved_default(&self) -> Option<bool> {
+        let imp = self.imp();
+        let config = imp.config.get().unwrap();
+
+        let this_index = config.index();
+        if this_index == 0 {
+            return None;
+        }
+
+        let collection = imp.collection.get().unwrap();
+        Some(collection.puzzles()[this_index - 1].is_solved_default())
+    }
+
     pub fn set_solved(&self, hints: u32, extension: &Option<PuzzleTypeExtension>) {
         let imp = self.imp();
         imp.solved.borrow_mut().insert(extension.clone(), true);
@@ -112,13 +124,13 @@ impl PuzzleModel {
         let puzzle_meta = PuzzleMeta::new();
         puzzle_meta.set_solved(
             true,
-            self.imp().collection.get().unwrap(),
+            self.imp().collection.get().unwrap().config(),
             self.config().index(),
             extension,
         );
         puzzle_meta.set_hints(
             hints,
-            self.imp().collection.get().unwrap(),
+            self.imp().collection.get().unwrap().config(),
             self.config().index(),
             extension,
         );

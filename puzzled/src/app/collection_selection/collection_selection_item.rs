@@ -96,18 +96,18 @@ impl CollectionSelectionItem {
         obj
     }
 
-    pub fn set_name(&self, name: &str) {
+    fn set_name(&self, name: &str) {
         self.imp().name.set_text(name);
     }
 
-    pub fn set_star_counts(&self, solved: usize, total: usize) {
+    fn set_star_counts(&self, solved: usize, total: usize) {
         self.imp()
             .puzzle_stars_pill
             .set_label(format!("{} / {}", solved, total));
         self.imp().puzzle_stars_pill.highlight(solved == total);
     }
 
-    pub fn set_difficulty(&self, difficulty: Option<PuzzleDifficultyConfig>) {
+    fn set_difficulty(&self, difficulty: Option<PuzzleDifficultyConfig>) {
         if let Some(difficulty) = difficulty {
             let text: String = difficulty.into();
             self.imp().difficulty_pill.set_label(text);
@@ -123,7 +123,7 @@ impl CollectionSelectionItem {
         }
     }
 
-    pub fn set_author(&self, author: Option<&str>) {
+    fn set_author(&self, author: Option<&str>) {
         if let Some(author) = author {
             self.imp().author_pill.set_label(author);
             if self.imp().author_pill.parent().is_none() {
@@ -136,7 +136,7 @@ impl CollectionSelectionItem {
         }
     }
 
-    pub fn set_version(&self, version: &Option<String>) {
+    fn set_version(&self, version: &Option<String>) {
         if let Some(version) = version {
             self.imp().version_pill.set_label(version.as_str());
             if self.imp().version_pill.parent().is_none() {
@@ -149,7 +149,7 @@ impl CollectionSelectionItem {
         }
     }
 
-    pub fn show_delete_button(&self, show: bool) {
+    fn show_delete_button(&self, show: bool) {
         if show {
             if self.imp().delete_button.get().parent().is_none() {
                 self.imp()
@@ -161,9 +161,16 @@ impl CollectionSelectionItem {
         }
     }
 
-    pub fn set_delete_action_target(&self, target_value: Option<&glib::Variant>) {
+    fn set_delete_action_target(&self, target_value: Option<&glib::Variant>) {
         self.imp()
             .delete_button
             .set_action_target_value(target_value);
+    }
+
+    pub fn collection(&self) -> &CollectionModel {
+        self.imp()
+            .collection
+            .get()
+            .expect("Collection should be set for CollectionSelectionItem")
     }
 }

@@ -15,9 +15,6 @@ use log::{debug, error, info};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub const MIN_WINDOW_WIDTH: i32 = 320;
-pub const MIN_WINDOW_HEIGHT: i32 = 240;
-
 #[derive(Clone)]
 pub struct MainPresenter {
     window: PuzzledWindow,
