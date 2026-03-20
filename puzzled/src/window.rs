@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 use crate::app::collection_selection::collection_selection_page::CollectionSelectionPage;
-use crate::app::puzzle_area::puzzle_area_page::PuzzleAreaPage;
+use crate::app::puzzle_area::puzzle_page::PuzzlePage;
 use crate::app::puzzle_selection::puzzle_selection_page::PuzzleSelectionPage;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
@@ -39,7 +39,7 @@ mod imp {
         #[template_child]
         pub puzzle_selection_nav_page: TemplateChild<PuzzleSelectionPage>,
         #[template_child]
-        pub puzzle_area_nav_page: TemplateChild<PuzzleAreaPage>,
+        pub puzzle_area_nav_page: TemplateChild<PuzzlePage>,
     }
 
     #[glib::object_subclass]

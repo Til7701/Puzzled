@@ -1,4 +1,4 @@
-use crate::app::puzzle_area::puzzle_area_page::PuzzleAreaPage;
+use crate::app::puzzle_area::puzzle_page::PuzzlePage;
 use crate::application::PuzzledApplication;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, Cast, PreferencesGroupExt};
 use adw::subclass::prelude::ObjectSubclassIsExt;
@@ -7,7 +7,7 @@ use gtk::prelude::WidgetExt;
 use puzzle_config::PuzzleConfig;
 use std::ops::Deref;
 
-impl PuzzleAreaPage {
+impl PuzzlePage {
     pub fn register_actions(&self, app: &PuzzledApplication) {
         let collection_item_activated = gio::ActionEntry::builder("puzzle_info")
             .activate({

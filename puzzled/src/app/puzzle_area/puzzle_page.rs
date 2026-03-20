@@ -6,18 +6,19 @@ use gtk::prelude::*;
 
 mod imp {
     use super::*;
+    use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
     use crate::model::extension::PuzzleTypeExtension;
     use std::cell::RefCell;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/de/til7701/Puzzled/ui/page/puzzle-area-page.ui")]
-    pub struct PuzzledPuzzleAreaPage {
+    #[template(resource = "/de/til7701/Puzzled/ui/page/puzzle-page.ui")]
+    pub struct PuzzledPuzzlePage {
         #[template_child]
         pub header_bar: TemplateChild<adw::HeaderBar>,
         #[template_child]
         pub toast_overlay: TemplateChild<adw::ToastOverlay>,
         #[template_child]
-        pub grid: TemplateChild<gtk::Fixed>,
+        pub grid: TemplateChild<PuzzleArea>,
         #[template_child]
         pub puzzle_info_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -32,9 +33,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for PuzzledPuzzleAreaPage {
+    impl ObjectSubclass for PuzzledPuzzlePage {
         const NAME: &'static str = "PuzzledPuzzleAreaPage";
-        type Type = PuzzleAreaPage;
+        type Type = PuzzlePage;
         type ParentType = adw::NavigationPage;
 
         fn class_init(klass: &mut Self::Class) {
@@ -49,18 +50,21 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for PuzzledPuzzleAreaPage {}
-    impl WidgetImpl for PuzzledPuzzleAreaPage {}
-    impl NavigationPageImpl for PuzzledPuzzleAreaPage {}
+    impl ObjectImpl for PuzzledPuzzlePage {}
+    impl WidgetImpl for PuzzledPuzzlePage {}
+    impl NavigationPageImpl for PuzzledPuzzlePage {}
 }
 
 glib::wrapper! {
-    pub struct PuzzleAreaPage(ObjectSubclass<imp::PuzzledPuzzleAreaPage>)
+    pub struct PuzzlePage(ObjectSubclass<imp::PuzzledPuzzlePage>)
         @extends gtk::Widget, adw::NavigationPage,
          @implements gtk::Buildable, gtk::Accessible, gtk::ConstraintTarget,
                   gtk::Native, gio::ActionGroup, gio::ActionMap;
 }
 
-impl PuzzleAreaPage {
-    pub fn show_puzzle(&self, puzzle: &PuzzleModel) {}
+impl PuzzlePage {
+    pub fn show_puzzle(&self, puzzle: &PuzzleModel) {
+        self.imp().puzzle.replace(Some(puzzle.clone()));
+        self.imp().grid.show_puzzle(puzzle);
+    }
 }

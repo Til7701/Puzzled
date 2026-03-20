@@ -1,4 +1,4 @@
-use crate::app::puzzle_area::puzzle_area::PuzzleAreaData;
+use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
 use crate::components::tile::TileView;
 use crate::offset::{CellOffset, PixelOffset};
 use adw::gdk::{BUTTON_MIDDLE, BUTTON_SECONDARY};
@@ -7,20 +7,10 @@ use gtk::prelude::{
 };
 use gtk::{EventController, GestureClick, GestureDrag, PropagationPhase, Widget};
 use puzzle_config::TileConfig;
-use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(Debug, Default, Clone)]
-pub struct TilePresenter {
-    data: Rc<RefCell<PuzzleAreaData>>,
-}
-
-impl TilePresenter {
-    pub fn set_data(&mut self, data: Rc<RefCell<PuzzleAreaData>>) {
-        self.data = data;
-    }
-
-    pub fn setup(
+impl PuzzleArea {
+    pub fn setup_tile(
         &self,
         tile: &TileConfig,
         tile_id: usize,
@@ -198,12 +188,12 @@ impl TilePresenter {
 
                 drop(data);
                 on_position_changed();
-                self_clone.update_layout();
+                self_clone.update_tile_layout();
             }
         });
     }
 
-    pub fn update_layout(&self) {
+    pub fn update_tile_layout(&self) {
         let len = {
             let data = self.data.borrow();
             data.tile_views.len()

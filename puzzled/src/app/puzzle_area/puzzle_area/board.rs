@@ -1,28 +1,16 @@
-use crate::app::puzzle_area::puzzle_area::PuzzleAreaData;
+use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
 use crate::components::board::BoardView;
-use crate::global::state::get_state;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::offset::PixelOffset;
 use adw::prelude::Cast;
 use gtk::prelude::{FixedExt, GridExt, WidgetExt};
 use gtk::Widget;
 use puzzle_config::{PuzzleConfig, TargetIndex};
-use std::cell::RefCell;
-use std::rc::Rc;
 
 const TARGET_SELECTION_CLASS: &str = "target-selection";
 
-#[derive(Debug, Default, Clone)]
-pub struct BoardPresenter {
-    data: Rc<RefCell<PuzzleAreaData>>,
-}
-
-impl BoardPresenter {
-    pub fn set_data(&mut self, data: Rc<RefCell<PuzzleAreaData>>) {
-        self.data = data;
-    }
-
-    pub fn setup(&self, puzzle_config: &PuzzleConfig) {
+impl PuzzleArea {
+    pub fn setup_board(&self, puzzle_config: &PuzzleConfig) {
         let board_view =
             BoardView::new(puzzle_config.board_config()).expect("Failed to initialize board view");
         let widget = board_view.clone().upcast::<Widget>();
@@ -32,7 +20,7 @@ impl BoardPresenter {
         data.board_view = Some(board_view);
     }
 
-    pub fn update_layout(&self) {
+    pub fn update_board_layout(&self) {
         self.update_target_selection();
         let data = self.data.borrow();
         if let Some(board_view) = &data.board_view {

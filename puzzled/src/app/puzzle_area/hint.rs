@@ -1,5 +1,5 @@
 use crate::app::puzzle_area::puzzle_area::puzzle_state::PuzzleState;
-use crate::app::puzzle_area::puzzle_area_page::PuzzleAreaPage;
+use crate::app::puzzle_area::puzzle_page::PuzzlePage;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::solver::Solver;
 use adw::glib;
@@ -11,7 +11,7 @@ use tokio_util::sync::CancellationToken;
 
 pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;
 
-impl PuzzleAreaPage {
+impl PuzzlePage {
     /// Calls the solver and updates the hint button state.
     ///
     /// When the solver is finished, the `on_complete` callback will be called with the result of

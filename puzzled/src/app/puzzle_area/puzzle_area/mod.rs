@@ -20,6 +20,7 @@ use std::rc::Rc;
 mod board;
 mod data;
 mod placement;
+pub mod puzzle_area;
 pub mod puzzle_state;
 mod tile;
 

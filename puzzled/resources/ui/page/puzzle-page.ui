@@ -42,7 +42,7 @@
                         <property name="vexpand">True</property>
                         <property name="vexpand-set">True</property>
                         <child>
-                            <object class="GtkFixed" id="grid">
+                            <object class="PuzzledPuzzleArea" id="grid">
                                 <property name="hexpand">True</property>
                                 <property name="hexpand-set">True</property>
                                 <property name="vexpand">True</property>

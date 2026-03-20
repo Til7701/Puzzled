@@ -4,7 +4,7 @@ use crate::app::puzzle_area::hint::{HintButtonPresenter, HintButtonState};
 use crate::app::puzzle_area::info::PuzzleInfoPresenter;
 use crate::app::puzzle_area::puzzle::extension::ExtensionPresenter;
 use crate::app::puzzle_area::puzzle_area::PuzzleAreaPresenter;
-use crate::app::puzzle_area::puzzle_area_page::PuzzleAreaPage;
+use crate::app::puzzle_area::puzzle_page::PuzzlePage;
 use crate::application::PuzzledApplication;
 use crate::global::state::{get_state, get_state_mut, SolverState};
 use crate::model::puzzle_meta::PuzzleMeta;
@@ -23,7 +23,7 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct PuzzlePresenter {
-    puzzle_area_nav_page: PuzzleAreaPage,
+    puzzle_area_nav_page: PuzzlePage,
     toast_overlay: ToastOverlay,
     puzzle_info_presenter: PuzzleInfoPresenter,
     puzzle_area_presenter: PuzzleAreaPresenter,
