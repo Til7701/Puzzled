@@ -1,6 +1,7 @@
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::puzzle::PuzzleModel;
 use crate::solver::Solver;
+use crate::window::PuzzledWindow;
 use adw::gio;
 use adw::prelude::NavigationPageExt;
 use adw::subclass::prelude::*;
@@ -12,7 +13,8 @@ mod imp {
     use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
     use crate::model::extension::PuzzleTypeExtension;
     use crate::solver::combination_solutions::CombinationsSolver;
-    use std::cell::{Cell, RefCell};
+    use crate::window::PuzzledWindow;
+    use std::cell::{Cell, OnceCell, RefCell};
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(resource = "/de/til7701/Puzzled/ui/page/puzzle-page.ui")]
@@ -31,6 +33,8 @@ mod imp {
         pub target_selection_button: TemplateChild<gtk::Button>,
         #[template_child]
         pub hint_button: TemplateChild<gtk::Button>,
+
+        pub window: OnceCell<PuzzledWindow>,
 
         pub puzzle: RefCell<Option<PuzzleModel>>,
         pub extension: RefCell<Option<PuzzleTypeExtension>>,
@@ -88,6 +92,14 @@ glib::wrapper! {
 }
 
 impl PuzzlePage {
+    pub fn set_window(&self, window: &PuzzledWindow) {
+        self.imp()
+            .window
+            .set(window.clone())
+            .expect("Failed to set window for PuzzlePage");
+        self.imp().grid.set_window(window.clone());
+    }
+
     pub fn post_construct_setup(&self) {
         let solver = Solver::default();
         self.imp().grid.connect_tile_moved({
@@ -111,6 +123,7 @@ impl PuzzlePage {
             .replace(Some(PuzzleTypeExtension::default_for_puzzle(
                 puzzle.config(),
             )));
+        self.imp().hint_count.replace(0);
         self.imp().grid.show_puzzle(puzzle);
         self.show_puzzle_extension();
 
@@ -126,5 +139,9 @@ impl PuzzlePage {
         self.imp().extension.replace(extension.clone());
         self.imp().grid.set_puzzle_type_extension(extension.clone());
         self.update_target_selection_button();
+    }
+
+    pub fn header_bar(&self) -> adw::HeaderBar {
+        self.imp().header_bar.clone()
     }
 }

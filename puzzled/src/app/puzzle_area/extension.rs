@@ -39,7 +39,7 @@ impl PuzzlePage {
 
     pub(crate) fn show_target_selection_dialog(&self) {
         let dialog = self.create_target_selection_dialog();
-        dialog.present(Some(&self.window));
+        dialog.present(self.imp().window.get());
     }
 
     pub(crate) fn update_target_selection_button(&self) {

@@ -68,6 +68,7 @@ impl CollectionModel {
     }
 
     pub fn stars(&self) -> (u32, u32) {
+        // TODO cache
         let (stars_reached, stars_total) = self
             .puzzles()
             .iter()
@@ -81,5 +82,11 @@ impl CollectionModel {
                 (reached + stars.reached(), total + stars.total())
             });
         (stars_reached, stars_total)
+    }
+
+    pub fn mark_all_as_unsolved(&self) {
+        for puzzle in self.puzzles() {
+            puzzle.mark_as_unsolved();
+        }
     }
 }

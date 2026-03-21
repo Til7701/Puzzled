@@ -1,6 +1,7 @@
 use crate::app::collection_selection::collection_selection_item::CollectionSelectionItem;
 use crate::model::collection::CollectionModel;
 use crate::model::store::with_puzzle_collection_store;
+use crate::window::PuzzledWindow;
 use adw::gio;
 use adw::prelude::{Cast, ObjectExt};
 use adw::subclass::prelude::*;
@@ -13,10 +14,12 @@ const COLLECTION_SELECTED_SIGNAL_NAME: &str = "collection-selected";
 mod imp {
     use super::COLLECTION_SELECTED_SIGNAL_NAME;
     use crate::model::collection::CollectionModel;
+    use crate::window::PuzzledWindow;
     use adw::glib::subclass::Signal;
     use adw::prelude::{ObjectExt, StaticType};
     use adw::subclass::prelude::*;
     use gtk::glib;
+    use std::cell::OnceCell;
     use std::sync::OnceLock;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
@@ -26,6 +29,8 @@ mod imp {
         pub core_collection_list: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub community_collection_list: TemplateChild<gtk::ListBox>,
+
+        pub window: OnceCell<PuzzledWindow>,
     }
 
     #[glib::object_subclass]
@@ -75,6 +80,13 @@ glib::wrapper! {
 }
 
 impl CollectionSelectionPage {
+    pub fn set_window(&self, window: &PuzzledWindow) {
+        self.imp()
+            .window
+            .set(window.clone())
+            .expect("Failed to set window for CollectionSelectionPage");
+    }
+
     pub(super) fn setup(&self) {
         self.load_core_collections();
         self.load_community_collections();

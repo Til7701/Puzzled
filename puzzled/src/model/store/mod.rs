@@ -70,6 +70,7 @@ impl PuzzleCollectionStore {
     }
 
     pub fn mark_all_as_unsolved(&self) {
+        PuzzleMeta::new().reset();
         for collection in &self.core_puzzle_collections {
             collection.mark_all_as_unsolved();
         }

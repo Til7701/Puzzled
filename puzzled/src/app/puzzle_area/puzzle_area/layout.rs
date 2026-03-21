@@ -1,6 +1,7 @@
 use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
 
 use crate::offset::CellOffset;
+use crate::window::{MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
 use adw::glib;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{WidgetExt, WidgetExtManual};
@@ -92,13 +93,20 @@ impl PuzzleArea {
     /// [Self::update_grid_config()] is called if the grid layout needs to be updated based on the
     /// new calculations.
     fn update_grid_layout(&self) {
-        let available_width_pixel = self.window.width() as f64;
+        let available_width_pixel = self.imp().window.get().unwrap().width() as f64;
         let available_height_pixel = {
-            let mut header_height = self.window.puzzle_area_nav_page().header_bar().height() as f64;
+            let mut header_height = self
+                .imp()
+                .window
+                .get()
+                .unwrap()
+                .puzzle_area_nav_page()
+                .header_bar()
+                .height() as f64;
             if header_height == 0.0 {
                 header_height = 40.0;
             }
-            self.window.height() as f64 - header_height
+            self.imp().window.get().unwrap().height() as f64 - header_height
         };
 
         let board_size_cells = self.board_size_cells();
@@ -211,7 +219,14 @@ impl PuzzleArea {
     /// that everything is wrapped in, does not work well with changing width requests
     /// if the children.
     fn set_min_size(&self) {
-        if !self.window.outer_view().shows_content() {
+        if !self
+            .imp()
+            .window
+            .get()
+            .unwrap()
+            .outer_view()
+            .shows_content()
+        {
             return;
         }
 
@@ -219,12 +234,23 @@ impl PuzzleArea {
         let grid_config = self.imp().grid_config.borrow();
 
         let fixed_min_width = grid_config.min_grid_h_cell_count as i32 * min_board_elements_width;
-        self.window
+        self.imp()
+            .window
+            .get()
+            .unwrap()
             .set_width_request(fixed_min_width.max(MIN_WINDOW_WIDTH));
         let fixed_min_height = grid_config.min_grid_v_cell_count as i32 * min_board_elements_width;
-        self.window.set_height_request(
-            (fixed_min_height + self.window.puzzle_area_nav_page().header_bar().height())
-                .max(MIN_WINDOW_HEIGHT),
+        self.imp().window.get().unwrap().set_height_request(
+            (fixed_min_height
+                + self
+                    .imp()
+                    .window
+                    .get()
+                    .unwrap()
+                    .puzzle_area_nav_page()
+                    .header_bar()
+                    .height())
+            .max(MIN_WINDOW_HEIGHT),
         );
     }
 }

@@ -45,7 +45,7 @@ impl PuzzlePage {
             });
         }
         solved_dialog.connect_response(Some("back"), { move |_, _| todo!() });
-        solved_dialog.present(Some(&self.window));
+        solved_dialog.present(self.imp().window.get());
     }
 
     fn show_next_puzzle(&self) {

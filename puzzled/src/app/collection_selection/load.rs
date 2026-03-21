@@ -3,6 +3,7 @@ use crate::config;
 use crate::model::store::with_puzzle_collection_store;
 use adw::gio::{Cancellable, File};
 use adw::prelude::{AdwDialogExt, AlertDialogExt, FileExtManual};
+use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{AlertDialog, ResponseAppearance};
 use gtk::FileFilter;
 use log::debug;
@@ -16,7 +17,7 @@ impl CollectionSelectionPage {
         filter.set_name(Some("Puzzled Collection Files"));
         filter.add_pattern("*.json");
         let dialog = gtk::FileDialog::builder().default_filter(&filter).build();
-        dialog.open(Some(&self.window), None::<&Cancellable>, {
+        dialog.open(self.imp().window.get(), None::<&Cancellable>, {
             let self_clone = self.clone();
             move |result| match result {
                 Ok(file) => self_clone.load_collection(file),
@@ -113,6 +114,6 @@ impl CollectionSelectionPage {
         dialog.set_default_response(Some(ok_id));
         dialog.set_close_response(ok_id);
         dialog.set_response_appearance(ok_id, ResponseAppearance::Suggested);
-        dialog.present(Some(&self.window));
+        dialog.present(self.imp().window.get());
     }
 }

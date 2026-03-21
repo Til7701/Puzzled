@@ -5,6 +5,7 @@ use crate::app::puzzle_area::puzzle_area::puzzle_state::{
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::puzzle::PuzzleModel;
 use crate::offset::{CellOffset, PixelOffset};
+use crate::window::PuzzledWindow;
 use adw::gio;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
@@ -22,7 +23,7 @@ mod imp {
     use crate::components::tile::TileView;
     use crate::model::extension::PuzzleTypeExtension;
     use adw::glib::subclass::Signal;
-    use std::cell::RefCell;
+    use std::cell::{OnceCell, RefCell};
     use std::sync::OnceLock;
 
     #[derive(Debug, Default)]
@@ -30,6 +31,8 @@ mod imp {
         pub board: RefCell<Option<BoardView>>,
         pub tiles: RefCell<Vec<TileView>>,
         pub hint_tile: RefCell<Option<TileView>>,
+
+        pub window: OnceCell<PuzzledWindow>,
 
         pub grid_config: RefCell<GridConfig>,
         pub elements_in_fixed: RefCell<Vec<Widget>>,
@@ -72,6 +75,13 @@ glib::wrapper! {
 }
 
 impl PuzzleArea {
+    pub fn set_window(&self, window: PuzzledWindow) {
+        self.imp()
+            .window
+            .set(window)
+            .expect("Failed to set window for PuzzlePage");
+    }
+
     pub(super) fn add(&self, widget: &Widget, pos: &PixelOffset) {
         self.put(widget, pos.0, pos.1);
         self.imp()

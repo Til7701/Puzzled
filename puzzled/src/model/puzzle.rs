@@ -5,7 +5,6 @@ use crate::model::stars::Stars;
 use adw::glib;
 use adw::subclass::prelude::*;
 use puzzle_config::PuzzleConfig;
-use std::ops::Deref;
 
 mod imp {
     use super::*;
@@ -161,6 +160,13 @@ impl PuzzleModel {
 
     pub fn stars_default(&self) -> Stars {
         todo!()
+    }
+
+    pub fn mark_as_unsolved(&self) {
+        let imp = self.imp();
+        imp.solved.borrow_mut().clear();
+        imp.hints_used.borrow_mut().clear();
+        imp.stars.borrow_mut().clear();
     }
 
     pub fn has_next_puzzle(&self) -> bool {

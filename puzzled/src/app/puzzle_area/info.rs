@@ -21,7 +21,7 @@ impl PuzzlePage {
     pub(super) fn show_puzzle_info(&self) {
         if let Some(puzzle) = self.imp().puzzle.borrow().deref() {
             let dialog = self.create_puzzle_info(puzzle.config());
-            dialog.present();
+            dialog.present(self.imp().window.get());
         }
     }
 

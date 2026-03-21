@@ -24,6 +24,9 @@ use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{gio, glib};
 
+pub const MIN_WINDOW_WIDTH: i32 = 320;
+pub const MIN_WINDOW_HEIGHT: i32 = 240;
+
 mod imp {
     use super::*;
 
@@ -76,6 +79,8 @@ impl PuzzledWindow {
         let obj: PuzzledWindow = glib::Object::builder()
             .property("application", application)
             .build();
+        obj.imp().puzzle_area_nav_page.set_window(&obj);
+        obj.imp().collection_selection_nav_page.set_window(&obj);
         obj.setup_nav_signals();
         obj
     }
@@ -103,5 +108,13 @@ impl PuzzledWindow {
                     self_clone.imp().outer_view.set_show_content(true);
                 }
             })
+    }
+
+    pub fn puzzle_area_nav_page(&self) -> &PuzzlePage {
+        &self.imp().puzzle_area_nav_page
+    }
+
+    pub fn outer_view(&self) -> &TemplateChild<adw::NavigationSplitView> {
+        &self.imp().outer_view
     }
 }
