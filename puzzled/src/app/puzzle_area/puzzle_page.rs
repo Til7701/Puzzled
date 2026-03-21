@@ -44,7 +44,7 @@ mod imp {
 
     #[glib::object_subclass]
     impl ObjectSubclass for PuzzledPuzzlePage {
-        const NAME: &'static str = "PuzzledPuzzleAreaPage";
+        const NAME: &'static str = "PuzzledPuzzlePage";
         type Type = PuzzlePage;
         type ParentType = adw::NavigationPage;
 

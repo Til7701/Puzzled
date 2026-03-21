@@ -2,7 +2,7 @@
 <interface>
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
-    <template class="PuzzleAreaPage" parent="AdwNavigationPage">
+    <template class="PuzzledPuzzlePage" parent="AdwNavigationPage">
         <property name="tag">puzzle-area</property>
         <property name="child">
             <object class="AdwToolbarView">

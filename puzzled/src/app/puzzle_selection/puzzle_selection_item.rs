@@ -31,9 +31,9 @@ mod imp {
         #[template_child]
         pub puzzle_mod: TemplateChild<PuzzleMod>,
         #[template_child]
-        pub description: TemplateChild<InfoPill>,
+        pub description: TemplateChild<gtk::Label>,
         #[template_child]
-        pub info_box: TemplateChild<gtk::Box>,
+        pub info_box: TemplateChild<adw::WrapBox>,
         #[template_child]
         pub board_size_pill: TemplateChild<InfoPill>,
         #[template_child]
@@ -124,7 +124,7 @@ impl PuzzleSelectionItem {
         }
 
         if let Some(description) = puzzle.config().description() {
-            imp.description.set_label(description.to_string());
+            imp.description.set_text(description);
         } else {
             imp.outer_box.remove(&imp.description.get());
         }
