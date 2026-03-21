@@ -10,7 +10,7 @@ use log::debug;
 
 mod imp {
     use super::*;
-    use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
+    use crate::app::puzzle::puzzle_area::puzzle_area::PuzzleArea;
     use crate::model::extension::PuzzleTypeExtension;
     use crate::solver::combination_solutions::CombinationsSolver;
     use crate::window::PuzzledWindow;

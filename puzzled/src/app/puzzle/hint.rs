@@ -1,5 +1,5 @@
-use crate::app::puzzle_area::puzzle_area::puzzle_state::PuzzleState;
-use crate::app::puzzle_area::puzzle_page::PuzzlePage;
+use crate::app::puzzle::puzzle_area::puzzle_state::PuzzleState;
+use crate::app::puzzle::puzzle_page::PuzzlePage;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::solver::Solver;
 use adw::prelude::Cast;
@@ -17,9 +17,9 @@ impl PuzzlePage {
     pub fn on_hint_requested(&self) {
         let puzzle_state = self.imp().grid.extract_puzzle_state();
 
-        if let Ok(mut puzzle_state) = puzzle_state {
+        if let Ok(puzzle_state) = puzzle_state {
             self.imp().grid.remove_hint_tile();
-            self.calculate_hint(&mut puzzle_state, {
+            self.calculate_hint(&puzzle_state, {
                 let self_clone = self.clone();
                 Box::new(move |result| {
                     self_clone.imp().toast_overlay.dismiss_all();
@@ -51,7 +51,7 @@ impl PuzzlePage {
     /// * `on_complete`: Callback to be called when the solver has finished.
     ///
     /// returns: ()
-    fn calculate_hint(&self, puzzle_state: &mut PuzzleState, on_complete: OnComplete) {
+    fn calculate_hint(&self, puzzle_state: &PuzzleState, on_complete: OnComplete) {
         let extension = self.imp().extension.borrow();
         let calculate_solvability = match extension.as_ref() {
             None => true,
@@ -66,7 +66,7 @@ impl PuzzlePage {
         }
     }
 
-    fn calculate_solvability(&self, puzzle_state: &mut PuzzleState, on_complete: OnComplete) {
+    fn calculate_solvability(&self, puzzle_state: &PuzzleState, on_complete: OnComplete) {
         let (tx, rx) = mpsc::channel::<Result<Solution, UnsolvableReason>>();
         glib::idle_add_local({
             let self_clone = self.clone();

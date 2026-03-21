@@ -1,4 +1,4 @@
-use crate::app::puzzle_area::puzzle_page::PuzzlePage;
+use crate::app::puzzle::puzzle_page::PuzzlePage;
 use crate::model::extension::PuzzleTypeExtension;
 use adw::prelude::{
     AdwDialogExt, AlertDialogExt, AlertDialogExtManual, ComboRowExt, PreferencesGroupExt,

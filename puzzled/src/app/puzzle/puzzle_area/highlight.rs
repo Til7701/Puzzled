@@ -1,5 +1,5 @@
-use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
-use crate::app::puzzle_area::puzzle_area::puzzle_state::{Cell, PuzzleState};
+use crate::app::puzzle::puzzle_area::puzzle_area::PuzzleArea;
+use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use crate::components::tile::DrawingMode;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 

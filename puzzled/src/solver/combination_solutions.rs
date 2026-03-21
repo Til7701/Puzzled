@@ -1,4 +1,4 @@
-use crate::app::puzzle_area::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
+use crate::app::puzzle::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
 use crate::global::runtime::get_runtime;
 use crate::solver::Solver;
 use log::{debug, info};

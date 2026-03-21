@@ -1,5 +1,5 @@
-use crate::app::puzzle_area::puzzle_area::placement;
-use crate::app::puzzle_area::puzzle_area::puzzle_state::{
+use crate::app::puzzle::puzzle_area::placement;
+use crate::app::puzzle::puzzle_area::puzzle_state::{
     Cell, PuzzleState, TileCellPlacement, UnusedTile,
 };
 use crate::model::extension::PuzzleTypeExtension;
@@ -17,7 +17,7 @@ const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 
 mod imp {
     use super::*;
-    use crate::app::puzzle_area::puzzle_area::layout::GridConfig;
+    use crate::app::puzzle::puzzle_area::layout::GridConfig;
     use crate::components::board::BoardView;
     use crate::components::tile::TileView;
     use crate::model::extension::PuzzleTypeExtension;

@@ -1,4 +1,4 @@
-use crate::app::puzzle_area::puzzle_page::PuzzlePage;
+use crate::app::puzzle::puzzle_page::PuzzlePage;
 use crate::application::PuzzledApplication;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, Cast, PreferencesGroupExt};
 use adw::subclass::prelude::ObjectSubclassIsExt;

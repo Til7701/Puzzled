@@ -1,4 +1,4 @@
-use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
+use crate::app::puzzle::puzzle_area::puzzle_area::PuzzleArea;
 
 use crate::offset::CellOffset;
 use crate::window::{MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};

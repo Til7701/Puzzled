@@ -1,6 +1,6 @@
 pub mod combination_solutions;
 
-use crate::app::puzzle_area::puzzle_area::puzzle_state::{Cell, PuzzleState};
+use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use crate::global::runtime::get_runtime;
 use log::debug;
 use puzzle_solver::board::Board;
