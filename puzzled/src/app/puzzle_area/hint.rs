@@ -51,7 +51,7 @@ impl PuzzlePage {
     /// * `on_complete`: Callback to be called when the solver has finished.
     ///
     /// returns: ()
-    pub(self) fn calculate_hint(&self, puzzle_state: &mut PuzzleState, on_complete: OnComplete) {
+    fn calculate_hint(&self, puzzle_state: &mut PuzzleState, on_complete: OnComplete) {
         let extension = self.imp().extension.borrow();
         let calculate_solvability = match extension.as_ref() {
             None => true,
@@ -93,7 +93,7 @@ impl PuzzlePage {
         );
     }
 
-    pub fn display_state(&self, status: &HintButtonState) {
+    fn display_state(&self, status: &HintButtonState) {
         match status {
             HintButtonState::Bulb => {
                 self.imp().hint_button.set_tooltip_text(Some("Hint"));

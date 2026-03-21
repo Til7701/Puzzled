@@ -18,15 +18,13 @@ use tokio_util::sync::CancellationToken;
 enum SolverState {
     /// Solver did not run yet. This is the state at application start.
     #[default]
-    Initial,
+    Idle,
     /// Solver is currently running.
     /// It can be canceled using the provided cancellation token.
     Running {
         call_id: SolverCallId,
         cancel_token: CancellationToken,
     },
-    /// Solver has finished.
-    Done,
 }
 
 /// Unique identifier for a solver call.

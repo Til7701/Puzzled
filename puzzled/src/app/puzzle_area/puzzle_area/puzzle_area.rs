@@ -12,7 +12,6 @@ use gtk::prelude::*;
 use gtk::{glib, Widget};
 use log::debug;
 use std::mem::take;
-use std::rc::Rc;
 
 const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 

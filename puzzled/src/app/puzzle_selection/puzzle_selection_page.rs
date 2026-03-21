@@ -1,5 +1,4 @@
 use crate::app::puzzle_selection::puzzle_selection_item::PuzzleSelectionItem;
-use crate::components::info_pill::InfoPill;
 use crate::model::collection::CollectionModel;
 use crate::model::puzzle::PuzzleModel;
 use adw::gio;

@@ -6,7 +6,6 @@ use adw::gio;
 use adw::prelude::NavigationPageExt;
 use adw::subclass::prelude::*;
 use gtk::glib;
-use gtk::prelude::*;
 use log::debug;
 
 mod imp {

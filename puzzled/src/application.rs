@@ -20,7 +20,6 @@
 use crate::components::tile::{DrawingMode, TileView};
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
-use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::store;
 use crate::model::store::with_puzzle_collection_store;
 use crate::window::PuzzledWindow;
