@@ -82,6 +82,10 @@ impl PuzzleSelectionItem {
     pub fn new(collection: &CollectionModel, puzzle: &PuzzleModel) -> Self {
         let obj: PuzzleSelectionItem = glib::Object::builder().build();
         let imp = obj.imp();
+        obj.imp()
+            .puzzle
+            .set(puzzle.clone())
+            .expect("Failed to set puzzle");
         let stars = puzzle.stars_default();
         let solved = puzzle.is_solved_default();
 
@@ -110,15 +114,15 @@ impl PuzzleSelectionItem {
         imp.puzzle_mod.set_state(&state);
         match state {
             PuzzleModState::Stars(_) => {
-                obj.set_activatable(true);
+                obj.set_selectable(true);
                 obj.remove_css_class("dimmed");
             }
             PuzzleModState::Locked => {
-                obj.set_activatable(false);
+                obj.set_selectable(false);
                 obj.add_css_class("dimmed");
             }
             PuzzleModState::Unsolvable => {
-                obj.set_activatable(true);
+                obj.set_selectable(true);
                 obj.remove_css_class("dimmed");
             }
         }

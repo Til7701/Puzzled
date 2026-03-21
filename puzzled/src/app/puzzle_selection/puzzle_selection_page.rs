@@ -99,7 +99,7 @@ impl PuzzleSelectionPage {
 
     pub fn connect_puzzle_selected<F: Fn(&PuzzleModel) + 'static>(&self, callback: F) {
         self.connect_local(PUZZLE_SELECTED_SIGNAL_NAME, false, move |values| {
-            let model = values[0]
+            let model = values[1]
                 .get::<PuzzleModel>()
                 .expect("Failed to get RandomPuzzlePage from signal");
             callback(&model);

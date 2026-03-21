@@ -16,7 +16,7 @@ mod imp {
     use crate::model::collection::CollectionModel;
     use crate::window::PuzzledWindow;
     use adw::glib::subclass::Signal;
-    use adw::prelude::{ObjectExt, StaticType};
+    use adw::prelude::StaticType;
     use adw::subclass::prelude::*;
     use gtk::glib;
     use std::cell::OnceCell;
@@ -195,6 +195,23 @@ impl CollectionSelectionPage {
                 .row_at_index(0)
                 .unwrap()
                 .activate();
+        }
+    }
+
+    pub(super) fn delete_community_collection(&self, index: i32) {
+        let row = self.imp().community_collection_list.row_at_index(index);
+        if let Some(row) = row {
+            self.imp().community_collection_list.remove(&row);
+            with_puzzle_collection_store(|store| {
+                store.remove_community_collection(
+                    row.downcast::<CollectionSelectionItem>()
+                        .unwrap()
+                        .collection()
+                        .config()
+                        .id(),
+                );
+            });
+            self.select_community_or_core_collection();
         }
     }
 }

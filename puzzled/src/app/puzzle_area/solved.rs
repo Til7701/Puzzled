@@ -49,8 +49,8 @@ impl PuzzlePage {
     }
 
     fn show_next_puzzle(&self) {
-        let puzzle = self.imp().puzzle.borrow();
-        let puzzle = match puzzle.as_ref() {
+        let opt_puzzle = self.imp().puzzle.borrow();
+        let puzzle = match opt_puzzle.as_ref() {
             Some(p) => p,
             None => {
                 error!("No current puzzle found when trying to show next puzzle");
@@ -58,6 +58,8 @@ impl PuzzlePage {
             }
         };
         if let Some(next_puzzle) = puzzle.next_puzzle() {
+            let next_puzzle = next_puzzle.clone();
+            drop(opt_puzzle);
             self.show_puzzle(&next_puzzle);
         }
     }

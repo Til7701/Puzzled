@@ -10,6 +10,7 @@ mod imp {
     use super::*;
     use crate::components::info_pill::InfoPill;
     use crate::model::collection::CollectionModel;
+    use log::debug;
     use std::cell::OnceCell;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
@@ -45,6 +46,12 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
+            klass.install_action("app.delete_community_collection", None, |page, _, _| {
+                debug!(
+                    "Delete collection action activated for collection '{}'",
+                    page.collection().config().name()
+                );
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
