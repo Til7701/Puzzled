@@ -37,9 +37,12 @@ mod imp {
     use super::*;
     use crate::global::runtime::take_runtime;
     use crate::window::PuzzledWindow;
+    use std::cell::OnceCell;
 
     #[derive(Debug, Default)]
-    pub struct PuzzledApplication {}
+    pub struct PuzzledApplication {
+        pub window: OnceCell<PuzzledWindow>,
+    }
 
     #[glib::object_subclass]
     impl ObjectSubclass for PuzzledApplication {
@@ -74,6 +77,11 @@ mod imp {
             // Get the current window or create one if necessary
             let window = application.active_window().unwrap_or_else(|| {
                 let window = PuzzledWindow::new(&*application);
+                application
+                    .imp()
+                    .window
+                    .set(window.clone())
+                    .expect("Failed to set window in application");
                 window.upcast()
             });
 
@@ -129,6 +137,28 @@ impl PuzzledApplication {
         let mark_all_puzzles_unsolved = gio::ActionEntry::builder("mark_all_puzzles_unsolved")
             .activate(move |app: &Self, _, _| app.show_mark_all_puzzles_unsolved_dialog())
             .build();
+        let calculate_tile_combinations_to_solve =
+            gio::ActionEntry::builder("calculate_tile_combinations_to_solve")
+                .activate(move |app: &Self, _, _| {
+                    app.imp()
+                        .window
+                        .get()
+                        .unwrap()
+                        .puzzle_area_nav_page()
+                        .calculate_tile_combinations_to_solve()
+                })
+                .build();
+        let stop_calculate_tile_combinations_to_solve =
+            gio::ActionEntry::builder("stop_calculate_tile_combinations_to_solve")
+                .activate(move |app: &Self, _, _| {
+                    app.imp()
+                        .window
+                        .get()
+                        .unwrap()
+                        .puzzle_area_nav_page()
+                        .stop_calculate_tile_combinations_to_solve()
+                })
+                .build();
 
         self.add_action_entries([
             quit_action,
@@ -136,12 +166,13 @@ impl PuzzledApplication {
             how_to_play_action,
             preferences,
             mark_all_puzzles_unsolved,
+            calculate_tile_combinations_to_solve,
+            stop_calculate_tile_combinations_to_solve,
         ]);
 
-        // TODO move somewhere else
-        self.set_accels_for_action("app.calculate-tile-combinations-to-solve", &["<control>k"]);
+        self.set_accels_for_action("app.calculate_tile_combinations_to_solve", &["<control>k"]);
         self.set_accels_for_action(
-            "app.stop-calculate-tile-combinations-to-solve",
+            "app.stop_calculate_tile_combinations_to_solve",
             &["<control>l"],
         );
     }

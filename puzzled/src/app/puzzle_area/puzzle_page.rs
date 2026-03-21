@@ -57,16 +57,6 @@ mod imp {
                 page.show_target_selection_dialog()
             });
             klass.install_action("app.hint", None, |page, _, _| page.on_hint_requested());
-            klass.install_action(
-                "app.calculate-tile-combinations-to-solve",
-                None,
-                |page, _, _| page.calculate_tile_combinations_to_solve(),
-            );
-            klass.install_action(
-                "app.stop-calculate-tile-combinations-to-solve",
-                None,
-                |page, _, _| page.stop_calculate_tile_combinations_to_solve(),
-            );
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -112,6 +102,11 @@ impl PuzzlePage {
                         self_clone.on_solved();
                     }
                 }
+            }
+        });
+        self.connect_hiding({
+            move |_| {
+                Solver::default().interrupt_solver_call();
             }
         });
     }
