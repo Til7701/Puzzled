@@ -144,7 +144,7 @@ impl CollectionSelectionPage {
 
     pub fn connect_collection_selected<F: Fn(&CollectionModel) + 'static>(&self, callback: F) {
         self.connect_local(COLLECTION_SELECTED_SIGNAL_NAME, false, move |values| {
-            let model = values[0]
+            let model = values[1]
                 .get::<CollectionModel>()
                 .expect("Failed to get RandomPuzzlePage from signal");
             callback(&model);

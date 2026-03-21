@@ -69,6 +69,8 @@ mod imp {
                 .env()
                 .init()
                 .unwrap();
+            store::init();
+
             let application = self.obj();
             // Get the current window or create one if necessary
             let window = application.active_window().unwrap_or_else(|| {
@@ -294,7 +296,6 @@ impl PuzzledApplication {
     }
 
     fn setup(&self, window: &PuzzledWindow) {
-        store::init();
         with_puzzle_collection_store(|store| {
             window
                 .imp()
