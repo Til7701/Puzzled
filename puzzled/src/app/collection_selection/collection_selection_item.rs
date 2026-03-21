@@ -2,7 +2,7 @@ use crate::model::collection::CollectionModel;
 use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;
-use gtk::prelude::{ActionableExt, BoxExt, WidgetExt};
+use gtk::prelude::{BoxExt, WidgetExt};
 use gtk::Widget;
 use puzzle_config::PuzzleDifficultyConfig;
 
@@ -10,7 +10,6 @@ mod imp {
     use super::*;
     use crate::components::info_pill::InfoPill;
     use crate::model::collection::CollectionModel;
-    use log::debug;
     use std::cell::OnceCell;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
@@ -46,11 +45,8 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
-            klass.install_action("app.delete_community_collection", None, |page, _, _| {
-                debug!(
-                    "Delete collection action activated for collection '{}'",
-                    page.collection().config().name()
-                );
+            klass.install_action("app.delete_community_collection", None, |item, _, _| {
+                item.collection().delete();
             });
         }
 
@@ -95,9 +91,6 @@ impl CollectionSelectionItem {
         obj.set_version(model.config().version());
 
         obj.show_delete_button(!core);
-        if !core {
-            obj.set_delete_action_target(Some(&model.config().id().to_string().into()));
-        }
 
         model.connect_progress_changed({
             let obj = obj.clone();
@@ -177,12 +170,6 @@ impl CollectionSelectionItem {
         } else {
             self.imp().main_box.remove(&self.imp().delete_button.get());
         }
-    }
-
-    fn set_delete_action_target(&self, target_value: Option<&glib::Variant>) {
-        self.imp()
-            .delete_button
-            .set_action_target_value(target_value);
     }
 
     pub fn collection(&self) -> &CollectionModel {

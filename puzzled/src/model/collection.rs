@@ -1,12 +1,14 @@
 use crate::model::puzzle::PuzzleModel;
 use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::stars;
+use crate::model::store::with_puzzle_collection_store;
 use adw::glib;
 use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use puzzle_config::PuzzleConfigCollection;
 
 const PROGRESS_CHANGED_SIGNAL_NAME: &str = "progress-changed";
+const DELETED_SIGNAL_NAME: &str = "deleted";
 
 mod imp {
     use super::*;
@@ -38,7 +40,12 @@ mod imp {
     impl ObjectImpl for PuzzledCollectionModel {
         fn signals() -> &'static [Signal] {
             static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
-            SIGNALS.get_or_init(|| vec![Signal::builder(PROGRESS_CHANGED_SIGNAL_NAME).build()])
+            SIGNALS.get_or_init(|| {
+                vec![
+                    Signal::builder(PROGRESS_CHANGED_SIGNAL_NAME).build(),
+                    Signal::builder(DELETED_SIGNAL_NAME).build(),
+                ]
+            })
         }
     }
 }
@@ -121,5 +128,23 @@ impl CollectionModel {
 
     fn emit_progress_changed(&self) {
         self.emit_by_name::<()>(PROGRESS_CHANGED_SIGNAL_NAME, &[]);
+    }
+
+    pub fn delete(&self) {
+        with_puzzle_collection_store(|store| {
+            store.remove_community_collection(self.config().id());
+        });
+        self.emit_deleted();
+    }
+
+    pub fn connect_deleted<F: Fn() + 'static>(&self, callback: F) {
+        self.connect_local(DELETED_SIGNAL_NAME, false, move |_| {
+            callback();
+            None
+        });
+    }
+
+    fn emit_deleted(&self) {
+        self.emit_by_name::<()>(DELETED_SIGNAL_NAME, &[]);
     }
 }

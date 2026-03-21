@@ -44,10 +44,6 @@ mod imp {
         const NAME: &'static str = "PuzzledPuzzleArea";
         type Type = PuzzleArea;
         type ParentType = gtk::Fixed;
-
-        fn class_init(klass: &mut Self::Class) {}
-
-        fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {}
     }
 
     impl ObjectImpl for PuzzledPuzzleArea {

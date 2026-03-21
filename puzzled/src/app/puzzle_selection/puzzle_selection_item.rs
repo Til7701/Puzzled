@@ -1,7 +1,6 @@
 use crate::app::puzzle_selection::puzzle_mod::PuzzleModState;
 use crate::components::board::BoardView;
 use crate::components::tile::TileView;
-use crate::model::collection::CollectionModel;
 use crate::model::puzzle::PuzzleModel;
 use adw::gio;
 use adw::glib;
@@ -9,7 +8,7 @@ use adw::prelude::{ObjectExt, ToVariant};
 use adw::subclass::prelude::*;
 use gtk::prelude::{ActionableExt, BoxExt, FixedExt, ListBoxRowExt, WidgetExt};
 use gtk::{Align, Fixed, Widget};
-use log::{debug, error};
+use log::error;
 use puzzle_config::{BoardConfig, ProgressionConfig, TileConfig};
 
 const PREVIEW_CELL_SIZE: f64 = 20.0;

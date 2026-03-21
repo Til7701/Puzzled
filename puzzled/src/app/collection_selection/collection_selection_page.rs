@@ -137,7 +137,14 @@ impl CollectionSelectionPage {
             for collection in store.community_puzzle_collections().iter() {
                 let row = CollectionSelectionItem::new(collection, false);
                 self.imp().community_collection_list.append(&row);
-                // TODO connect to deleted signal to remove row
+                collection.connect_deleted({
+                    let self_clone = self.clone();
+                    let row = row.clone();
+                    move || {
+                        self_clone.imp().community_collection_list.remove(&row);
+                        self_clone.select_community_or_core_collection();
+                    }
+                });
             }
         });
     }
@@ -174,6 +181,9 @@ impl CollectionSelectionPage {
             .activate();
     }
 
+    /// Unselects all collections. Used when a special view should be opened like the random puzzle
+    /// generator.
+    #[allow(dead_code)]
     fn select_none(&self) {
         self.imp()
             .core_collection_list
@@ -195,23 +205,6 @@ impl CollectionSelectionPage {
                 .row_at_index(0)
                 .unwrap()
                 .activate();
-        }
-    }
-
-    pub(super) fn delete_community_collection(&self, index: i32) {
-        let row = self.imp().community_collection_list.row_at_index(index);
-        if let Some(row) = row {
-            self.imp().community_collection_list.remove(&row);
-            with_puzzle_collection_store(|store| {
-                store.remove_community_collection(
-                    row.downcast::<CollectionSelectionItem>()
-                        .unwrap()
-                        .collection()
-                        .config()
-                        .id(),
-                );
-            });
-            self.select_community_or_core_collection();
         }
     }
 }
