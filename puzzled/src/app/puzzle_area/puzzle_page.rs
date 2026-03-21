@@ -7,6 +7,7 @@ use adw::prelude::NavigationPageExt;
 use adw::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::*;
+use log::debug;
 
 mod imp {
     use super::*;
@@ -118,11 +119,9 @@ impl PuzzlePage {
 
     pub fn show_puzzle(&self, puzzle: &PuzzleModel) {
         self.imp().puzzle.replace(Some(puzzle.clone()));
-        self.imp()
-            .extension
-            .replace(Some(PuzzleTypeExtension::default_for_puzzle(
-                puzzle.config(),
-            )));
+        self.update_extension(&Some(PuzzleTypeExtension::default_for_puzzle(
+            puzzle.config(),
+        )));
         self.imp().hint_count.replace(0);
         self.imp().grid.show_puzzle(puzzle);
         self.show_puzzle_extension();
@@ -136,6 +135,7 @@ impl PuzzlePage {
     }
 
     pub fn update_extension(&self, extension: &Option<PuzzleTypeExtension>) {
+        debug!("Updating puzzle type extension to: {:?}", extension);
         self.imp().extension.replace(extension.clone());
         self.imp().grid.set_puzzle_type_extension(extension.clone());
         self.update_target_selection_button();

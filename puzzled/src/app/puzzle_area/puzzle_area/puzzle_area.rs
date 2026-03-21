@@ -124,6 +124,7 @@ impl PuzzleArea {
             .puzzle_type_extension
             .replace(puzzle_type_extension);
         self.update_highlights();
+        self.update_layout();
     }
 
     pub fn run_on_tile_moved(&self) {
