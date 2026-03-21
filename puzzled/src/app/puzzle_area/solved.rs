@@ -2,6 +2,7 @@ use crate::app::puzzle_area::puzzle_page::PuzzlePage;
 use crate::components::solved_dialog::SolvedDialog;
 use adw::prelude::{AdwDialogExt, AlertDialogExt};
 use adw::subclass::prelude::ObjectSubclassIsExt;
+use gtk::prelude::WidgetExt;
 use log::{debug, error};
 
 impl PuzzlePage {
@@ -44,7 +45,19 @@ impl PuzzlePage {
                 move |_, _| self_clone.show_next_puzzle()
             });
         }
-        solved_dialog.connect_response(Some("back"), { move |_, _| todo!() });
+        solved_dialog.connect_response(Some("back"), {
+            let self_clone = self.clone();
+            move |_, _| {
+                self_clone
+                    .imp()
+                    .window
+                    .get()
+                    .unwrap()
+                    .outer_view()
+                    .get()
+                    .set_show_content(false);
+            }
+        });
         solved_dialog.present(self.imp().window.get());
     }
 
