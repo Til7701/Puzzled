@@ -2,6 +2,7 @@ use crate::model::extension::PuzzleTypeExtension;
 use crate::offset::CellOffset;
 use ndarray::Array2;
 use puzzle_config::PuzzleConfig;
+use std::cell::Ref;
 use std::collections::HashSet;
 
 /// Represents data associated with a cell in the puzzle grid.
@@ -66,7 +67,7 @@ pub struct PuzzleState {
 impl PuzzleState {
     pub fn new(
         puzzle_config: &PuzzleConfig,
-        puzzle_type_extension: &Option<PuzzleTypeExtension>,
+        puzzle_type_extension: Ref<Option<PuzzleTypeExtension>>,
     ) -> Self {
         let board_config = &puzzle_config.board_config();
         let layout = &board_config.layout();
@@ -93,7 +94,7 @@ impl PuzzleState {
             grid,
             unused_tiles: HashSet::new(),
         };
-        if let Some(extension) = puzzle_type_extension {
+        if let Some(extension) = puzzle_type_extension.as_ref() {
             puzzle_state.handle_extension(extension);
         }
         puzzle_state

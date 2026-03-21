@@ -1,3 +1,4 @@
+mod extension;
 mod hint;
 mod info;
 pub mod puzzle;

@@ -17,13 +17,9 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-use crate::app::puzzle_area::puzzle::PuzzlePresenter;
-use crate::app::puzzle_selection::puzzle_selection::PuzzleSelectionPresenter;
-use crate::app::window::main::MainPresenter;
 use crate::components::tile::{DrawingMode, TileView};
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
-use crate::global::state::get_state_mut;
 use crate::model::store;
 use crate::model::store::with_puzzle_collection_store;
 use crate::window::PuzzledWindow;
@@ -35,7 +31,6 @@ use gtk::{gio, glib, CssProvider, License, Settings, STYLE_PROVIDER_PRIORITY_APP
 use ndarray::array;
 use puzzle_config::ColorConfig;
 use std::fmt::Debug;
-use std::rc::Rc;
 
 mod imp {
     use super::*;
@@ -265,42 +260,11 @@ impl PuzzledApplication {
     fn setup(&self, window: &PuzzledWindow) {
         store::init();
         with_puzzle_collection_store(|store| {
-            let mut state = get_state_mut();
-            state.puzzle_collection =
-                Some(store.core_puzzle_collections().first().unwrap().clone());
+            window
+                .imp()
+                .puzzle_selection_nav_page
+                .show_collection(store.core_puzzle_collections().first().unwrap());
         });
-
-        let mut main_presenter = MainPresenter::new(window);
-        let mut puzzle_presenter = PuzzlePresenter::new(window);
-        let puzzle_selection_presenter = Rc::new(PuzzleSelectionPresenter::new(
-            window,
-            main_presenter.clone(),
-        ));
-        let collection_selection_presenter = Rc::new(CollectionSelectionPresenter::new(
-            window,
-            main_presenter.clone(),
-        ));
-
-        main_presenter.register_actions(self);
-        main_presenter.setup(
-            &collection_selection_presenter,
-            &puzzle_selection_presenter,
-            &puzzle_presenter,
-        );
-
-        puzzle_presenter.register_actions(self);
-        puzzle_presenter.setup(Rc::new({
-            let main_presenter = main_presenter.clone();
-            move || {
-                main_presenter.on_solved();
-            }
-        }));
-
-        puzzle_selection_presenter.register_actions(self);
-        puzzle_selection_presenter.setup();
-
-        collection_selection_presenter.register_actions(self);
-        collection_selection_presenter.setup();
 
         if cfg!(debug_assertions) {
             window.add_css_class("devel");

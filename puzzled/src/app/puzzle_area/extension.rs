@@ -1,5 +1,4 @@
 use crate::application::PuzzledApplication;
-use crate::global::state::get_state;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::view::create_target_selection_dialog;
 use crate::window::PuzzledWindow;
