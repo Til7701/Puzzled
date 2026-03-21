@@ -1,6 +1,7 @@
 use crate::model::collection::CollectionModel;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::puzzle_meta::PuzzleMeta;
+use crate::model::stars;
 use crate::model::stars::Stars;
 use adw::glib;
 use adw::subclass::prelude::*;
@@ -148,18 +149,22 @@ impl PuzzleModel {
         let imp = self.imp();
         *imp.hints_used
             .borrow()
-            .get(&Some(PuzzleTypeExtension::default_for_puzzle(
-                self.config(),
-            )))
+            .get(&Some(imp.default_extension.get().unwrap().clone()))
             .unwrap_or(&None)
     }
 
     pub fn stars(&self, extension: &Option<PuzzleTypeExtension>) -> Stars {
-        todo!() // Some other functions here are also likely incomplete
+        let solved = self.is_solved(extension);
+        let best_hint_count = self.best_hint_count(extension);
+        let difficulty = self.config().difficulty();
+        stars::calculate_stars(solved, best_hint_count, &difficulty)
     }
 
     pub fn stars_default(&self) -> Stars {
-        todo!()
+        let solved = self.is_solved_default();
+        let best_hint_count = self.best_hint_count_default();
+        let difficulty = self.config().difficulty();
+        stars::calculate_stars(solved, best_hint_count, &difficulty)
     }
 
     pub fn mark_as_unsolved(&self) {
