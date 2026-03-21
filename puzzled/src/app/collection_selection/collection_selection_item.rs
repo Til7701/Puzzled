@@ -82,8 +82,7 @@ impl CollectionSelectionItem {
 
         obj.set_name(model.config().name());
 
-        let (stars_reached, stars_total) = model.stars();
-        obj.set_star_counts(stars_reached as usize, stars_total as usize);
+        obj.update_data();
 
         obj.set_difficulty(model.config().average_difficulty());
 
@@ -100,7 +99,19 @@ impl CollectionSelectionItem {
             obj.set_delete_action_target(Some(&model.config().id().to_string().into()));
         }
 
+        model.connect_progress_changed({
+            let obj = obj.clone();
+            move || {
+                obj.update_data();
+            }
+        });
+
         obj
+    }
+
+    fn update_data(&self) {
+        let (stars_reached, stars_total) = self.imp().collection.get().unwrap().stars();
+        self.set_star_counts(stars_reached as usize, stars_total as usize);
     }
 
     fn set_name(&self, name: &str) {

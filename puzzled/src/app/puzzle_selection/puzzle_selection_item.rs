@@ -9,7 +9,7 @@ use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use gtk::prelude::{BoxExt, FixedExt, ListBoxRowExt, WidgetExt};
 use gtk::{Align, Fixed, Widget};
-use log::error;
+use log::{debug, error};
 use puzzle_config::{BoardConfig, ProgressionConfig, TileConfig};
 
 const PREVIEW_CELL_SIZE: f64 = 20.0;
@@ -44,7 +44,11 @@ mod imp {
         pub difficulty_pill: TemplateChild<InfoPill>,
 
         #[template_child]
+        pub tile_preview_parent: TemplateChild<gtk::ScrolledWindow>,
+        #[template_child]
         pub tile_preview_fixed: TemplateChild<Fixed>,
+        #[template_child]
+        pub board_preview_parent: TemplateChild<gtk::Box>,
         #[template_child]
         pub board_preview_box: TemplateChild<gtk::Box>,
 
@@ -79,17 +83,56 @@ glib::wrapper! {
 }
 
 impl PuzzleSelectionItem {
-    pub fn new(collection: &CollectionModel, puzzle: &PuzzleModel) -> Self {
+    pub fn new(puzzle: &PuzzleModel) -> Self {
         let obj: PuzzleSelectionItem = glib::Object::builder().build();
         let imp = obj.imp();
         obj.imp()
             .puzzle
             .set(puzzle.clone())
             .expect("Failed to set puzzle");
-        let stars = puzzle.stars_default();
-        let solved = puzzle.is_solved_default();
 
         imp.name.set_text(puzzle.config().name());
+
+        obj.update_data();
+
+        if let Some(description) = puzzle.config().description() {
+            imp.description.set_text(description);
+        } else {
+            imp.outer_box.remove(&imp.description.get());
+        }
+
+        if let Some(difficulty) = puzzle.config().difficulty() {
+            let label: String = (*difficulty).into();
+            imp.difficulty_pill.set_label(label);
+        } else {
+            imp.info_box.remove(&imp.difficulty_pill.get());
+        }
+
+        Self::create_tiles_preview(puzzle.config().tiles(), &imp.tile_preview_fixed.get());
+        Self::create_board_preview(puzzle.config().board_config(), &imp.board_preview_box.get());
+
+        puzzle.connect_progress_improved({
+            let obj = obj.clone();
+            move || {
+                obj.update_data();
+            }
+        });
+        puzzle.connect_marked_unsolved({
+            let obj = obj.clone();
+            move || {
+                obj.update_data();
+            }
+        });
+
+        obj
+    }
+
+    fn update_data(&self) {
+        let imp = self.imp();
+        let puzzle = imp.puzzle.get().unwrap();
+        let collection = imp.puzzle.get().unwrap().collection();
+        let stars = puzzle.stars_default();
+        let solved = puzzle.is_solved_default();
 
         let state = {
             let state = match &collection.config().progression() {
@@ -114,23 +157,20 @@ impl PuzzleSelectionItem {
         imp.puzzle_mod.set_state(&state);
         match state {
             PuzzleModState::Stars(_) => {
-                obj.set_selectable(true);
-                obj.remove_css_class("dimmed");
+                self.set_selectable(true);
+                self.set_activatable(true);
+                self.remove_css_class("dimmed");
             }
             PuzzleModState::Locked => {
-                obj.set_selectable(false);
-                obj.add_css_class("dimmed");
+                self.set_selectable(false);
+                self.set_activatable(false);
+                self.add_css_class("dimmed");
             }
             PuzzleModState::Unsolvable => {
-                obj.set_selectable(true);
-                obj.remove_css_class("dimmed");
+                self.set_selectable(true);
+                self.set_activatable(true);
+                self.remove_css_class("dimmed");
             }
-        }
-
-        if let Some(description) = puzzle.config().description() {
-            imp.description.set_text(description);
-        } else {
-            imp.outer_box.remove(&imp.description.get());
         }
 
         if state != PuzzleModState::Locked || collection.config().preview().show_board_size() {
@@ -157,25 +197,32 @@ impl PuzzleSelectionItem {
             imp.info_box.remove(&imp.tile_count_pill.get());
         }
 
-        if let Some(difficulty) = puzzle.config().difficulty() {
-            let label: String = (*difficulty).into();
-            imp.difficulty_pill.set_label(label);
-        } else {
-            imp.info_box.remove(&imp.difficulty_pill.get());
-        }
-
         if state != PuzzleModState::Locked || collection.config().preview().show_tiles() {
-            Self::create_tiles_preview(puzzle.config().tiles(), &imp.tile_preview_fixed.get());
+            debug!("Adding tile preview for puzzle: {}", puzzle.config().id());
+            if imp.tile_preview_parent.get().parent().is_none() {
+                imp.outer_box.get().append(&imp.tile_preview_parent.get());
+            }
+        } else {
+            debug!("Removing tile preview for puzzle: {}", puzzle.config().id());
+            if imp.tile_preview_parent.get().parent().is_some() {
+                imp.outer_box.get().remove(&imp.tile_preview_parent.get());
+            }
         }
 
         if state != PuzzleModState::Locked || collection.config().preview().show_board() {
-            Self::create_board_preview(
-                puzzle.config().board_config(),
-                &imp.board_preview_box.get(),
+            debug!("Adding board preview for puzzle: {}", puzzle.config().id());
+            if imp.board_preview_parent.get().parent().is_none() {
+                imp.outer_box.get().append(&imp.board_preview_parent.get());
+            }
+        } else {
+            debug!(
+                "Removing board preview for puzzle: {}",
+                puzzle.config().id()
             );
+            if imp.board_preview_parent.get().parent().is_some() {
+                imp.outer_box.get().remove(&imp.board_preview_parent.get());
+            }
         }
-
-        obj
     }
 
     fn create_tiles_preview(tiles: &[TileConfig], fixed: &Fixed) {

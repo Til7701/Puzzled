@@ -75,7 +75,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkScrolledWindow">
+                    <object class="GtkScrolledWindow" id="tile_preview_parent">
                         <property name="vscrollbar-policy">never</property>
                         <child>
                             <object class="GtkFixed" id="tile_preview_fixed">
@@ -84,7 +84,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkBox">
+                    <object class="GtkBox" id="board_preview_parent">
                         <property name="halign">fill</property>
                         <property name="hexpand">True</property>
                         <property name="hexpand-set">True</property>

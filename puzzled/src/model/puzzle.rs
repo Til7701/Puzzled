@@ -4,14 +4,20 @@ use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::stars;
 use crate::model::stars::Stars;
 use adw::glib;
+use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use puzzle_config::PuzzleConfig;
 
+const PROGRESS_IMPROVED_SIGNAL_NAME: &str = "progress-improved";
+const MARKED_UNSOLVED_SIGNAL_NAME: &str = "marked-unsolved";
+
 mod imp {
     use super::*;
+    use adw::glib::subclass::Signal;
     use adw::glib::Properties;
     use std::cell::{OnceCell, RefCell};
     use std::collections::HashMap;
+    use std::sync::OnceLock;
 
     #[derive(Debug, Default, Properties)]
     #[properties(wrapper_type = super::PuzzleModel)]
@@ -36,7 +42,17 @@ mod imp {
     }
 
     #[glib::derived_properties]
-    impl ObjectImpl for PuzzledPuzzleModel {}
+    impl ObjectImpl for PuzzledPuzzleModel {
+        fn signals() -> &'static [Signal] {
+            static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
+            SIGNALS.get_or_init(|| {
+                vec![
+                    Signal::builder(PROGRESS_IMPROVED_SIGNAL_NAME).build(),
+                    Signal::builder(MARKED_UNSOLVED_SIGNAL_NAME).build(),
+                ]
+            })
+        }
+    }
 }
 
 glib::wrapper! {
@@ -138,6 +154,7 @@ impl PuzzleModel {
             self.config().index(),
             extension,
         );
+        self.emit_progress_improved();
     }
 
     pub fn best_hint_count(&self, extension: &Option<PuzzleTypeExtension>) -> Option<u32> {
@@ -172,6 +189,32 @@ impl PuzzleModel {
         imp.solved.borrow_mut().clear();
         imp.hints_used.borrow_mut().clear();
         imp.stars.borrow_mut().clear();
+        self.emit_marked_unsolved();
+    }
+
+    pub fn connect_progress_improved<F: Fn() + 'static>(&self, callback: F) {
+        self.connect_local(PROGRESS_IMPROVED_SIGNAL_NAME, false, move |_| {
+            callback();
+            None
+        });
+    }
+
+    fn emit_progress_improved(&self) {
+        self.emit_by_name::<()>(PROGRESS_IMPROVED_SIGNAL_NAME, &[]);
+        self.next_puzzle()
+            .iter()
+            .for_each(|p| p.emit_progress_improved());
+    }
+
+    pub fn connect_marked_unsolved<F: Fn() + 'static>(&self, callback: F) {
+        self.connect_local(MARKED_UNSOLVED_SIGNAL_NAME, false, move |_| {
+            callback();
+            None
+        });
+    }
+
+    fn emit_marked_unsolved(&self) {
+        self.emit_by_name::<()>(MARKED_UNSOLVED_SIGNAL_NAME, &[]);
     }
 
     pub fn has_next_puzzle(&self) -> bool {

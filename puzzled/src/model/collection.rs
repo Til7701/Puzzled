@@ -2,14 +2,19 @@ use crate::model::puzzle::PuzzleModel;
 use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::stars;
 use adw::glib;
+use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use puzzle_config::PuzzleConfigCollection;
+
+const PROGRESS_CHANGED_SIGNAL_NAME: &str = "progress-changed";
 
 mod imp {
     use super::*;
     use crate::model::puzzle::PuzzleModel;
+    use adw::glib::subclass::Signal;
     use adw::glib::Properties;
     use std::cell::OnceCell;
+    use std::sync::OnceLock;
 
     #[derive(Debug, Default, Properties)]
     #[properties(wrapper_type = super::CollectionModel)]
@@ -30,7 +35,12 @@ mod imp {
     }
 
     #[glib::derived_properties]
-    impl ObjectImpl for PuzzledCollectionModel {}
+    impl ObjectImpl for PuzzledCollectionModel {
+        fn signals() -> &'static [Signal] {
+            static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
+            SIGNALS.get_or_init(|| vec![Signal::builder(PROGRESS_CHANGED_SIGNAL_NAME).build()])
+        }
+    }
 }
 
 glib::wrapper! {
@@ -50,7 +60,18 @@ impl CollectionModel {
 
         let puzzles: Vec<PuzzleModel> = puzzle_configs
             .into_iter()
-            .map(|puzzle_config| PuzzleModel::new(&obj, puzzle_config, puzzle_meta.clone()))
+            .map(|puzzle_config| {
+                let puzzle = PuzzleModel::new(&obj, puzzle_config, puzzle_meta.clone());
+
+                puzzle.connect_progress_improved({
+                    let collection = obj.clone();
+                    move || {
+                        collection.emit_progress_changed();
+                    }
+                });
+
+                puzzle
+            })
             .collect();
         imp.puzzles
             .set(puzzles)
@@ -88,5 +109,17 @@ impl CollectionModel {
         for puzzle in self.puzzles() {
             puzzle.mark_as_unsolved();
         }
+        self.emit_progress_changed();
+    }
+
+    pub fn connect_progress_changed<F: Fn() + 'static>(&self, callback: F) {
+        self.connect_local(PROGRESS_CHANGED_SIGNAL_NAME, false, move |_| {
+            callback();
+            None
+        });
+    }
+
+    fn emit_progress_changed(&self) {
+        self.emit_by_name::<()>(PROGRESS_CHANGED_SIGNAL_NAME, &[]);
     }
 }

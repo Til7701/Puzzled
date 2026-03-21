@@ -148,7 +148,7 @@ impl PuzzleSelectionPage {
         }
 
         for puzzle in collection.puzzles().iter() {
-            let row = PuzzleSelectionItem::new(collection, puzzle);
+            let row = PuzzleSelectionItem::new(puzzle);
             self.imp().puzzle_list.append(&row);
         }
 
