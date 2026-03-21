@@ -141,7 +141,7 @@ impl PuzzlePage {
             let self_clone = self.clone();
             move |_, _| {
                 dbg!("Cleared target selection");
-                self_clone.update_extension(&None);
+                self_clone.update_extension(&Some(PuzzleTypeExtension::Area { target: None }));
             }
         });
 
