@@ -20,6 +20,7 @@
 use crate::components::tile::{DrawingMode, TileView};
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
+use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::store;
 use crate::model::store::with_puzzle_collection_store;
 use crate::window::PuzzledWindow;
@@ -28,6 +29,7 @@ use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::{gio, glib, CssProvider, License, Settings, STYLE_PROVIDER_PRIORITY_APPLICATION};
+use log::info;
 use ndarray::array;
 use puzzle_config::ColorConfig;
 use std::fmt::Debug;
@@ -123,7 +125,17 @@ impl PuzzledApplication {
         let preferences = gio::ActionEntry::builder("preferences")
             .activate(move |app: &Self, _, _| app.show_preferences())
             .build();
-        self.add_action_entries([quit_action, about_action, how_to_play_action, preferences]);
+        let mark_all_puzzles_unsolved = gio::ActionEntry::builder("mark_all_puzzles_unsolved")
+            .activate(move |app: &Self, _, _| app.show_mark_all_puzzles_unsolved_dialog())
+            .build();
+
+        self.add_action_entries([
+            quit_action,
+            about_action,
+            how_to_play_action,
+            preferences,
+            mark_all_puzzles_unsolved,
+        ]);
     }
 
     fn show_about(&self) {
@@ -161,6 +173,23 @@ impl PuzzledApplication {
         if let Some(window) = self.active_window() {
             dialog.present(Some(&window));
         }
+    }
+
+    fn show_mark_all_puzzles_unsolved_dialog(&self) {
+        const RESOURCE_PATH: &str = "/de/til7701/Puzzled/ui/dialog/mark-unsolved-dialog.ui";
+        let builder = gtk::Builder::from_resource(RESOURCE_PATH);
+        let dialog: adw::AlertDialog = builder
+            .object("dialog")
+            .expect("Missing `dialog` in resource");
+
+        dialog.connect_response(Some("mark"), {
+            move |_, _| {
+                info!("Marking all puzzles as unsolved");
+                with_puzzle_collection_store(|store| store.mark_all_as_unsolved());
+            }
+        });
+
+        dialog.present(self.active_window().as_ref());
     }
 
     fn show_how_to_play(&self) {

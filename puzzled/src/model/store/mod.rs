@@ -68,6 +68,15 @@ impl PuzzleCollectionStore {
             .retain(|collection| collection.config().id() != collection_id);
         community::delete_community_collection(collection_id);
     }
+
+    pub fn mark_all_as_unsolved(&self) {
+        for collection in &self.core_puzzle_collections {
+            collection.mark_all_as_unsolved();
+        }
+        for collection in &self.community_puzzle_collections {
+            collection.mark_all_as_unsolved();
+        }
+    }
 }
 
 /// Must be called once at application startup to load the core and community puzzle collections into the store.

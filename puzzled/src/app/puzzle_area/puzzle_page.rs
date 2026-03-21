@@ -1,3 +1,4 @@
+use crate::model::extension::PuzzleTypeExtension;
 use crate::model::puzzle::PuzzleModel;
 use adw::gio;
 use adw::subclass::prelude::*;
@@ -43,6 +44,9 @@ mod imp {
             klass.install_action("app.puzzle_info", None, |page, _, _| {
                 page.show_puzzle_info()
             });
+            klass.install_action("app.select_target", None, |page, _, _| {
+                page.show_target_selection_dialog()
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -65,6 +69,18 @@ glib::wrapper! {
 impl PuzzlePage {
     pub fn show_puzzle(&self, puzzle: &PuzzleModel) {
         self.imp().puzzle.replace(Some(puzzle.clone()));
+        self.imp()
+            .extension
+            .replace(Some(PuzzleTypeExtension::default_for_puzzle(
+                puzzle.config(),
+            )));
         self.imp().grid.show_puzzle(puzzle);
+        self.show_puzzle_extension();
+    }
+
+    pub fn update_extension(&self, extension: &Option<PuzzleTypeExtension>) {
+        self.imp().extension.replace(extension.clone());
+        self.imp().grid.set_puzzle_type_extension(extension.clone());
+        self.update_target_selection_button();
     }
 }

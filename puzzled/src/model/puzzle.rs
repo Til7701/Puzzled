@@ -151,7 +151,26 @@ impl PuzzleModel {
             .unwrap_or(&None)
     }
 
-    pub fn stars(&self) -> Stars {
+    pub fn stars(&self, extension: &Option<PuzzleTypeExtension>) -> Stars {
         todo!() // Some other functions here are also likely incomplete
+    }
+
+    pub fn stars_default(&self) -> Stars {
+        todo!()
+    }
+
+    pub fn has_next_puzzle(&self) -> bool {
+        let imp = self.imp();
+        let self_index = imp.config.get().unwrap().index();
+        let collection = imp.collection.get().unwrap();
+
+        collection.puzzles().get(self_index + 1).is_some()
+    }
+
+    pub fn next_puzzle(&self) -> Option<&PuzzleModel> {
+        let imp = self.imp();
+        let self_index = imp.config.get().unwrap().index();
+        let collection = imp.collection.get().unwrap();
+        collection.puzzles().get(self_index + 1)
     }
 }
