@@ -15,6 +15,7 @@ mod imp {
     use crate::components::info_pill::InfoPill;
     use crate::model::puzzle::PuzzleModel;
     use adw::glib::subclass::Signal;
+    use adw::glib::VariantTy;
     use std::cell::RefCell;
     use std::sync::OnceLock;
 
@@ -47,6 +48,26 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
+            klass.install_action(
+                "app.puzzle_activated",
+                Some(VariantTy::INT32),
+                |page, _, v| {
+                    if let Some(variant) = v {
+                        let index = variant
+                            .get::<i32>()
+                            .expect("Failed to get index from variant")
+                            as usize;
+                        let collection = page.imp().collection.borrow();
+                        let puzzle = collection
+                            .as_ref()
+                            .expect("No collection set in PuzzleSelectionPage")
+                            .puzzles()
+                            .get(index)
+                            .expect("Index out of bounds in puzzle list");
+                        page.emit_puzzle_selected(&puzzle);
+                    }
+                },
+            );
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -65,11 +86,6 @@ mod imp {
                 ]
             })
         }
-
-        fn constructed(&self) {
-            self.parent_constructed();
-            self.obj().setup();
-        }
     }
     impl WidgetImpl for PuzzleSelectionPage {}
     impl NavigationPageImpl for PuzzleSelectionPage {}
@@ -83,19 +99,6 @@ glib::wrapper! {
 }
 
 impl PuzzleSelectionPage {
-    pub(super) fn setup(&self) {
-        self.imp().puzzle_list.connect_row_selected({
-            let self_clone = self.clone();
-            move |_, row| {
-                if let Some(row) = row {
-                    let row = row.clone().downcast::<PuzzleSelectionItem>().unwrap();
-                    let puzzle = row.puzzle();
-                    self_clone.emit_puzzle_selected(&puzzle);
-                }
-            }
-        });
-    }
-
     pub fn connect_puzzle_selected<F: Fn(&PuzzleModel) + 'static>(&self, callback: F) {
         self.connect_local(PUZZLE_SELECTED_SIGNAL_NAME, false, move |values| {
             let model = values[1]
@@ -115,6 +118,7 @@ impl PuzzleSelectionPage {
     }
 
     pub fn show_collection(&self, collection: &CollectionModel) {
+        self.imp().collection.replace(Some(collection.clone()));
         self.imp().puzzle_list.remove_all();
 
         self.imp()

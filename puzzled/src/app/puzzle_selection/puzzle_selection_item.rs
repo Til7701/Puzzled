@@ -5,9 +5,9 @@ use crate::model::collection::CollectionModel;
 use crate::model::puzzle::PuzzleModel;
 use adw::gio;
 use adw::glib;
-use adw::prelude::ObjectExt;
+use adw::prelude::{ObjectExt, ToVariant};
 use adw::subclass::prelude::*;
-use gtk::prelude::{BoxExt, FixedExt, ListBoxRowExt, WidgetExt};
+use gtk::prelude::{ActionableExt, BoxExt, FixedExt, ListBoxRowExt, WidgetExt};
 use gtk::{Align, Fixed, Widget};
 use log::{debug, error};
 use puzzle_config::{BoardConfig, ProgressionConfig, TileConfig};
@@ -124,6 +124,8 @@ impl PuzzleSelectionItem {
             }
         });
 
+        obj.set_action_target_value(Some(&(puzzle.config().index() as i32).to_variant()));
+
         obj
     }
 
@@ -157,17 +159,14 @@ impl PuzzleSelectionItem {
         imp.puzzle_mod.set_state(&state);
         match state {
             PuzzleModState::Stars(_) => {
-                self.set_selectable(true);
                 self.set_activatable(true);
                 self.remove_css_class("dimmed");
             }
             PuzzleModState::Locked => {
-                self.set_selectable(false);
                 self.set_activatable(false);
                 self.add_css_class("dimmed");
             }
             PuzzleModState::Unsolvable => {
-                self.set_selectable(true);
                 self.set_activatable(true);
                 self.remove_css_class("dimmed");
             }
@@ -198,27 +197,20 @@ impl PuzzleSelectionItem {
         }
 
         if state != PuzzleModState::Locked || collection.config().preview().show_tiles() {
-            debug!("Adding tile preview for puzzle: {}", puzzle.config().id());
             if imp.tile_preview_parent.get().parent().is_none() {
                 imp.outer_box.get().append(&imp.tile_preview_parent.get());
             }
         } else {
-            debug!("Removing tile preview for puzzle: {}", puzzle.config().id());
             if imp.tile_preview_parent.get().parent().is_some() {
                 imp.outer_box.get().remove(&imp.tile_preview_parent.get());
             }
         }
 
         if state != PuzzleModState::Locked || collection.config().preview().show_board() {
-            debug!("Adding board preview for puzzle: {}", puzzle.config().id());
             if imp.board_preview_parent.get().parent().is_none() {
                 imp.outer_box.get().append(&imp.board_preview_parent.get());
             }
         } else {
-            debug!(
-                "Removing board preview for puzzle: {}",
-                puzzle.config().id()
-            );
             if imp.board_preview_parent.get().parent().is_some() {
                 imp.outer_box.get().remove(&imp.board_preview_parent.get());
             }

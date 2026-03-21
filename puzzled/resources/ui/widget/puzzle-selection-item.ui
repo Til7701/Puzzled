@@ -3,6 +3,9 @@
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
     <template class="PuzzledPuzzleSelectionItem" parent="GtkListBoxRow">
+        <property name="selectable">False</property>
+        <property name="activatable">True</property>
+        <property name="action-name">app.puzzle_activated</property>
         <child>
             <object class="GtkBox" id="outer_box">
                 <property name="orientation">vertical</property>
