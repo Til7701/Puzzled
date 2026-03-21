@@ -44,7 +44,7 @@ mod imp {
         pub difficulty_pill: TemplateChild<InfoPill>,
 
         #[template_child]
-        pub tile_preview_fixed: TemplateChild<gtk::Fixed>,
+        pub tile_preview_fixed: TemplateChild<Fixed>,
         #[template_child]
         pub board_preview_box: TemplateChild<gtk::Box>,
 
@@ -82,9 +82,8 @@ impl PuzzleSelectionItem {
     pub fn new(collection: &CollectionModel, puzzle: &PuzzleModel) -> Self {
         let obj: PuzzleSelectionItem = glib::Object::builder().build();
         let imp = obj.imp();
-        let stars = puzzle.stars();
+        let stars = puzzle.stars_default();
         let solved = puzzle.is_solved_default();
-        let best_hint_count = puzzle.best_hint_count_default();
 
         imp.name.set_text(puzzle.config().name());
 

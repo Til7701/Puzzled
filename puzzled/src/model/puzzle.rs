@@ -88,6 +88,10 @@ impl PuzzleModel {
         self.imp().config.get().unwrap()
     }
 
+    pub fn collection(&self) -> &CollectionModel {
+        self.imp().collection.get().unwrap()
+    }
+
     pub fn is_solved(&self, extension: &Option<PuzzleTypeExtension>) -> bool {
         let imp = self.imp();
         *imp.solved.borrow().get(extension).unwrap_or(&false)

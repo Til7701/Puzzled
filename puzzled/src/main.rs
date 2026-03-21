@@ -29,7 +29,6 @@ mod global;
 mod model;
 mod offset;
 mod solver;
-mod view;
 mod window;
 
 use self::application::PuzzledApplication;

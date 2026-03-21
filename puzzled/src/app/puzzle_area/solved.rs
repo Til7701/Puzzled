@@ -5,7 +5,21 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use log::{debug, error};
 
 impl PuzzlePage {
+    fn handle_solved(&self) {
+        let puzzle = self.imp().puzzle.borrow();
+        if let Some(puzzle) = puzzle.as_ref() {
+            let hint_count = self.imp().hint_count.get();
+            let previous_hint_count = puzzle.best_hint_count(&*self.imp().extension.borrow());
+            let best_hint_count = hint_count.min(previous_hint_count.unwrap_or(u32::MAX));
+
+            puzzle.set_solved(best_hint_count, &*self.imp().extension.borrow());
+        } else {
+            error!("Could not mark puzzle as solved: missing puzzle collection or puzzle config");
+        }
+    }
+
     pub fn on_solved(&self) {
+        self.handle_solved();
         let solved_dialog = SolvedDialog::new();
         let extension = self.imp().extension.borrow();
         let puzzle = self.imp().puzzle.borrow();

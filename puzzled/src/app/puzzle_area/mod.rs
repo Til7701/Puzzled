@@ -1,3 +1,4 @@
+mod combinations;
 mod extension;
 mod hint;
 mod info;

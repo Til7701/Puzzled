@@ -136,6 +136,13 @@ impl PuzzledApplication {
             preferences,
             mark_all_puzzles_unsolved,
         ]);
+
+        // TODO move somewhere else
+        self.set_accels_for_action("app.calculate-tile-combinations-to-solve", &["<control>k"]);
+        self.set_accels_for_action(
+            "app.stop-calculate-tile-combinations-to-solve",
+            &["<control>l"],
+        );
     }
 
     fn show_about(&self) {

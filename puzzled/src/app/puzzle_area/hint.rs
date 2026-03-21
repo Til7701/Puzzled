@@ -2,9 +2,11 @@ use crate::app::puzzle_area::puzzle_area::puzzle_state::PuzzleState;
 use crate::app::puzzle_area::puzzle_page::PuzzlePage;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::solver::Solver;
-use adw::glib;
+use adw::prelude::Cast;
 use adw::subclass::prelude::ObjectSubclassIsExt;
-use gtk::prelude::{ButtonExt, WidgetExt};
+use adw::{glib, Toast};
+use gtk::prelude::{BoxExt, ButtonExt, WidgetExt};
+use gtk::{Image, Label, Widget};
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use std::sync::mpsc;
 use tokio_util::sync::CancellationToken;
@@ -12,6 +14,32 @@ use tokio_util::sync::CancellationToken;
 pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;
 
 impl PuzzlePage {
+    pub fn on_hint_requested(&self) {
+        let puzzle_state = self.imp().grid.extract_puzzle_state();
+
+        if let Ok(mut puzzle_state) = puzzle_state {
+            self.imp().grid.remove_hint_tile();
+            self.calculate_hint(&mut puzzle_state, {
+                let self_clone = self.clone();
+                Box::new(move |result| {
+                    self_clone.imp().toast_overlay.dismiss_all();
+                    let hint_count = self_clone.imp().hint_count.get();
+                    self_clone.imp().hint_count.replace(hint_count + 1);
+                    match result {
+                        Ok(solution) => {
+                            if let Some(placement) = solution.placements().last() {
+                                self_clone.imp().grid.show_hint_tile(placement)
+                            }
+                        }
+                        Err(unsolvable_reason) => {
+                            self_clone.show_unsolvable_toast(unsolvable_reason);
+                        }
+                    }
+                })
+            });
+        }
+    }
+
     /// Calls the solver and updates the hint button state.
     ///
     /// When the solver is finished, the `on_complete` callback will be called with the result of
@@ -78,6 +106,62 @@ impl PuzzlePage {
                 self.imp().hint_button.set_icon_name("timer-sand-symbolic");
             }
         }
+    }
+
+    fn show_unsolvable_toast(&self, unsolvable_reason: UnsolvableReason) {
+        fn build_label(content: &str) -> Widget {
+            Label::builder().label(content).build().upcast()
+        }
+
+        let icon = Image::builder()
+            .icon_name("cross-large-circle-outline-symbolic")
+            .css_classes(vec!["error"])
+            .build()
+            .upcast();
+
+        let widgets: Vec<Widget> = match unsolvable_reason {
+            UnsolvableReason::NoFit => {
+                vec![
+                    icon,
+                    build_label("The remaining tiles do not fit on the board!"),
+                ]
+            }
+            UnsolvableReason::BoardTooLarge => {
+                vec![
+                    icon,
+                    build_label("The board of this puzzle is too large for the solver!"),
+                ]
+            }
+            UnsolvableReason::TileCannotBePlaced { .. } => {
+                vec![
+                    icon,
+                    build_label(
+                        "At least one of the remaining tiles does not fit in the remaining space!",
+                    ),
+                ]
+            }
+            UnsolvableReason::PlausibilityCheckFailed => {
+                vec![
+                    icon,
+                    build_label("Some tiles are overlapping or are out of bounds!"),
+                ]
+            }
+            UnsolvableReason::Cancelled => {
+                return;
+            }
+        };
+
+        let content = gtk::Box::builder()
+            .orientation(gtk::Orientation::Horizontal)
+            .spacing(5)
+            .build();
+        for widget in widgets {
+            content.append(&widget);
+        }
+
+        self.imp()
+            .toast_overlay
+            .add_toast(Toast::builder().custom_title(&content).build());
     }
 }
 

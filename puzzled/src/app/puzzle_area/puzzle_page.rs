@@ -1,6 +1,8 @@
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::puzzle::PuzzleModel;
+use crate::solver::Solver;
 use adw::gio;
+use adw::prelude::NavigationPageExt;
 use adw::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::*;
@@ -9,7 +11,8 @@ mod imp {
     use super::*;
     use crate::app::puzzle_area::puzzle_area::puzzle_area::PuzzleArea;
     use crate::model::extension::PuzzleTypeExtension;
-    use std::cell::RefCell;
+    use crate::solver::combination_solutions::CombinationsSolver;
+    use std::cell::{Cell, RefCell};
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(resource = "/de/til7701/Puzzled/ui/page/puzzle-page.ui")]
@@ -31,6 +34,8 @@ mod imp {
 
         pub puzzle: RefCell<Option<PuzzleModel>>,
         pub extension: RefCell<Option<PuzzleTypeExtension>>,
+        pub hint_count: Cell<u32>,
+        pub combinations_solver: RefCell<CombinationsSolver>,
     }
 
     #[glib::object_subclass]
@@ -47,6 +52,17 @@ mod imp {
             klass.install_action("app.select_target", None, |page, _, _| {
                 page.show_target_selection_dialog()
             });
+            klass.install_action("app.hint", None, |page, _, _| page.on_hint_requested());
+            klass.install_action(
+                "app.calculate-tile-combinations-to-solve",
+                None,
+                |page, _, _| page.calculate_tile_combinations_to_solve(),
+            );
+            klass.install_action(
+                "app.stop-calculate-tile-combinations-to-solve",
+                None,
+                |page, _, _| page.stop_calculate_tile_combinations_to_solve(),
+            );
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -54,7 +70,12 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for PuzzledPuzzlePage {}
+    impl ObjectImpl for PuzzledPuzzlePage {
+        fn constructed(&self) {
+            self.parent_constructed();
+            self.obj().post_construct_setup();
+        }
+    }
     impl WidgetImpl for PuzzledPuzzlePage {}
     impl NavigationPageImpl for PuzzledPuzzlePage {}
 }
@@ -67,6 +88,22 @@ glib::wrapper! {
 }
 
 impl PuzzlePage {
+    pub fn post_construct_setup(&self) {
+        let solver = Solver::default();
+        self.imp().grid.connect_tile_moved({
+            let self_clone = self.clone();
+            move || {
+                solver.interrupt_solver_call();
+                let puzzle_state = self_clone.imp().grid.extract_puzzle_state();
+                if let Ok(puzzle_state) = puzzle_state {
+                    if solver.is_solved(&puzzle_state) {
+                        self_clone.on_solved();
+                    }
+                }
+            }
+        });
+    }
+
     pub fn show_puzzle(&self, puzzle: &PuzzleModel) {
         self.imp().puzzle.replace(Some(puzzle.clone()));
         self.imp()
@@ -76,6 +113,13 @@ impl PuzzlePage {
             )));
         self.imp().grid.show_puzzle(puzzle);
         self.show_puzzle_extension();
+
+        let title = format!(
+            "{} - {}",
+            puzzle.collection().config().name(),
+            puzzle.config().name()
+        );
+        self.set_title(&title);
     }
 
     pub fn update_extension(&self, extension: &Option<PuzzleTypeExtension>) {

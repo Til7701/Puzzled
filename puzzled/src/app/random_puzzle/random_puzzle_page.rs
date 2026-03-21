@@ -1,4 +1,5 @@
-use crate::global::state::get_state_mut;
+use crate::model::collection::CollectionModel;
+use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::store;
 use adw::gio;
 use adw::subclass::prelude::*;
@@ -13,6 +14,7 @@ const CREATE_RANDOM_PUZZLE_SIGNAL_NAME: &str = "random-puzzle-created";
 
 mod imp {
     use super::*;
+    use crate::model::collection::CollectionModel;
     use adw::glib::subclass::Signal;
     use std::sync::OnceLock;
 
@@ -47,7 +49,7 @@ mod imp {
             SIGNALS.get_or_init(|| {
                 vec![
                     Signal::builder(CREATE_RANDOM_PUZZLE_SIGNAL_NAME)
-                        .param_types([RandomPuzzlePage::static_type()])
+                        .param_types([CollectionModel::static_type()])
                         .build(),
                 ]
             })
@@ -88,12 +90,9 @@ impl RandomPuzzlePage {
             tiles: predefined.tiles(),
         };
         let collection = random::random_puzzle(&settings);
+        let collection = CollectionModel::new(collection, &PuzzleMeta::new());
         debug!("Generated random puzzle collection");
-        let mut state = get_state_mut();
-        state.setup_for_puzzle(collection.puzzles().first().unwrap().clone());
-        state.puzzle_collection = Some(collection);
-        drop(state);
-        self.emit_by_name::<()>(CREATE_RANDOM_PUZZLE_SIGNAL_NAME, &[self]);
+        self.emit_by_name::<()>(CREATE_RANDOM_PUZZLE_SIGNAL_NAME, &[&collection]);
     }
 
     fn get_seed(&self) -> u64 {
