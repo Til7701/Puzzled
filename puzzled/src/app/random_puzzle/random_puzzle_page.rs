@@ -6,8 +6,7 @@ use adw::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::*;
 use log::debug;
-use puzzle_config::random;
-use puzzle_config::random::RandomPuzzleSettings;
+use puzzle_config::random::{random_puzzle, Algorithm, RandomPuzzleSettings};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 const CREATE_RANDOM_PUZZLE_SIGNAL_NAME: &str = "random-puzzle-created";
@@ -67,10 +66,6 @@ glib::wrapper! {
 }
 
 impl RandomPuzzlePage {
-    pub fn new() -> Self {
-        glib::Object::builder().build()
-    }
-
     pub fn connect_create_random_puzzle<F: Fn(&CollectionModel) + 'static>(&self, callback: F) {
         self.connect_local(CREATE_RANDOM_PUZZLE_SIGNAL_NAME, false, move |values| {
             let page = values[1]
@@ -88,8 +83,9 @@ impl RandomPuzzlePage {
             seed: self.get_seed(),
             tile_count: 10,
             tiles: predefined.tiles(),
+            algorithm: Algorithm::Growing,
         };
-        let collection = random::random_puzzle(&settings);
+        let collection = random_puzzle(&settings);
         let collection = CollectionModel::new(collection, &PuzzleMeta::new());
         debug!("Generated random puzzle collection");
         self.emit_by_name::<()>(CREATE_RANDOM_PUZZLE_SIGNAL_NAME, &[&collection]);

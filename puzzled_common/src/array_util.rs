@@ -221,6 +221,38 @@ pub fn count_biggest_connected_area_of_cells_matching(
     max_area
 }
 
+pub struct TileRotationIterator {
+    current: Array2<bool>,
+    iteration: u8,
+}
+
+impl TileRotationIterator {
+    pub fn new(tile: Array2<bool>) -> Self {
+        Self {
+            current: tile,
+            iteration: 0,
+        }
+    }
+}
+
+impl Iterator for TileRotationIterator {
+    type Item = Array2<bool>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.iteration >= 8 {
+            return None;
+        }
+        if self.iteration == 4 {
+            self.current = self.current.clone().reversed_axes();
+        }
+        let current = self.current.clone();
+        let rotated = rotate_90(&self.current);
+        self.current = rotated;
+        self.iteration += 1;
+        Some(current)
+    }
+}
+
 /// Prints a 2D boolean array to the debug log, using '█' for `true` and '░' for `false`.
 #[allow(dead_code)]
 pub fn debug_print(array: &Array2<bool>) {
@@ -673,5 +705,22 @@ mod test {
         let count_false = count_biggest_connected_area_of_cells_matching(&array, false);
         assert_eq!(count_true, 4);
         assert_eq!(count_false, 1);
+    }
+
+    #[test]
+    fn test_tile_rotation_iterator() {
+        let base = arr2(&[[true, false], [false, false]]);
+        let mut iter = TileRotationIterator::new(base);
+
+        assert_eq!(iter.next(), Some(arr2(&[[true, false], [false, false]])));
+        assert_eq!(iter.next(), Some(arr2(&[[false, true], [false, false]])));
+        assert_eq!(iter.next(), Some(arr2(&[[false, false], [false, true]])));
+        assert_eq!(iter.next(), Some(arr2(&[[false, false], [true, false]])));
+
+        assert_eq!(iter.next(), Some(arr2(&[[true, false], [false, false]])));
+        assert_eq!(iter.next(), Some(arr2(&[[false, true], [false, false]])));
+        assert_eq!(iter.next(), Some(arr2(&[[false, false], [false, true]])));
+        assert_eq!(iter.next(), Some(arr2(&[[false, false], [true, false]])));
+        assert_eq!(iter.next(), None);
     }
 }
