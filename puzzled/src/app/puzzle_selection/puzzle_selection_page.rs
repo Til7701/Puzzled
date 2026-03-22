@@ -12,7 +12,7 @@ const PUZZLE_SELECTED_SIGNAL_NAME: &str = "puzzle-selected";
 
 mod imp {
     use super::*;
-    use crate::components::info_pill::InfoPill;
+    use crate::app::components::info_pill::InfoPill;
     use crate::model::puzzle::PuzzleModel;
     use adw::glib::subclass::Signal;
     use adw::glib::VariantTy;
@@ -99,6 +99,9 @@ glib::wrapper! {
 }
 
 impl PuzzleSelectionPage {
+    /// Connects to the `puzzle_selected` signal.
+    /// This signal is emitted, when the user selects a puzzle.
+    /// The puzzle area should be shown when this happens.
     pub fn connect_puzzle_selected<F: Fn(&PuzzleModel) + 'static>(&self, callback: F) {
         self.connect_local(PUZZLE_SELECTED_SIGNAL_NAME, false, move |values| {
             let model = values[1]
@@ -117,6 +120,15 @@ impl PuzzleSelectionPage {
         self.emit_by_name::<()>(PUZZLE_SELECTED_SIGNAL_NAME, &[puzzle]);
     }
 
+    /// Shows the given collection in the view. This means, it shows all puzzles of the collection
+    /// and displays the collection information and the puzzles which the user can select.
+    /// If that is the case, the `puzzle_selected` signal is emitted.
+    ///
+    /// # Arguments
+    ///
+    /// * `collection`: the collection to show
+    ///
+    /// returns: ()
     pub fn show_collection(&self, collection: &CollectionModel) {
         self.imp().collection.replace(Some(collection.clone()));
         self.imp().puzzle_list.remove_all();

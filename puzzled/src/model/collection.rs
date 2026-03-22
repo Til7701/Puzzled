@@ -30,10 +30,6 @@ mod imp {
         const NAME: &'static str = "PuzzledCollectionModel";
         type Type = CollectionModel;
         type ParentType = glib::Object;
-
-        fn class_init(_: &mut Self::Class) {}
-
-        fn instance_init(_: &glib::subclass::InitializingObject<Self>) {}
     }
 
     #[glib::derived_properties]
@@ -55,6 +51,20 @@ glib::wrapper! {
 }
 
 impl CollectionModel {
+    /// Creates a new CollectionModel from the given config.
+    /// It provides access to metadata and caches it to reduce calls to the backend.
+    /// This constructor also creates models for the puzzles which can be accessed
+    /// using the [Self::puzzles()] method.
+    ///
+    /// The [PuzzleMeta] instance is used to get the initial data from the backend.
+    /// This should be reused when creating multiple models at once.
+    ///
+    /// # Arguments
+    ///
+    /// * `config`: the config describing the collection
+    /// * `puzzle_meta`: used to get metadata
+    ///
+    /// returns: CollectionModel
     pub fn new(config: PuzzleConfigCollection, puzzle_meta: &PuzzleMeta) -> Self {
         let obj: CollectionModel = glib::Object::builder().build();
         let imp = obj.imp();
@@ -87,16 +97,21 @@ impl CollectionModel {
         obj
     }
 
+    /// Returns the config defining the puzzles and metadata of the collection.
     pub fn config(&self) -> &PuzzleConfigCollection {
         self.imp().config.get().unwrap()
     }
 
+    /// Returns the puzzle models of the collection.
     pub fn puzzles(&self) -> &Vec<PuzzleModel> {
         self.imp().puzzles.get().unwrap()
     }
 
+    /// Calculates the stars reached for the puzzles in this collection and how many
+    /// can be reached in total.
+    ///
+    /// returns: (reached_stars, total_stars)
     pub fn stars(&self) -> (u32, u32) {
-        // TODO cache
         let (stars_reached, stars_total) = self
             .puzzles()
             .iter()
@@ -112,6 +127,8 @@ impl CollectionModel {
         (stars_reached, stars_total)
     }
 
+    /// Marks all puzzles as unsolved and emits the `progress_changed` signal for UIs to
+    /// update.
     pub fn mark_all_as_unsolved(&self) {
         for puzzle in self.puzzles() {
             puzzle.mark_as_unsolved();
@@ -119,6 +136,15 @@ impl CollectionModel {
         self.emit_progress_changed();
     }
 
+    /// Connects to the `progress_changes` signal.
+    /// This is emitted, when the solved status of a puzzle changes or
+    /// all puzzles are marked as unsolved.
+    ///
+    /// # Arguments
+    ///
+    /// * `callback`: the callback to call, when the signal is emitted
+    ///
+    /// returns: ()
     pub fn connect_progress_changed<F: Fn() + 'static>(&self, callback: F) {
         self.connect_local(PROGRESS_CHANGED_SIGNAL_NAME, false, move |_| {
             callback();
@@ -130,6 +156,7 @@ impl CollectionModel {
         self.emit_by_name::<()>(PROGRESS_CHANGED_SIGNAL_NAME, &[]);
     }
 
+    /// Deletes the collection from the collection store and emits the `deleted` signal.
     pub fn delete(&self) {
         with_puzzle_collection_store(|store| {
             store.remove_community_collection(self.config().id());
@@ -137,6 +164,14 @@ impl CollectionModel {
         self.emit_deleted();
     }
 
+    /// Connects to the `deleted` signal.
+    /// This is emitted, when the collection is deleted.
+    ///
+    /// # Arguments
+    ///
+    /// * `callback`: the callback to call, when the signal is emitted
+    ///
+    /// returns: ()
     pub fn connect_deleted<F: Fn() + 'static>(&self, callback: F) {
         self.connect_local(DELETED_SIGNAL_NAME, false, move |_| {
             callback();

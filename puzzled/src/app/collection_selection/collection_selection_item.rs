@@ -8,7 +8,7 @@ use puzzle_config::PuzzleDifficultyConfig;
 
 mod imp {
     use super::*;
-    use crate::components::info_pill::InfoPill;
+    use crate::app::components::info_pill::InfoPill;
     use crate::model::collection::CollectionModel;
     use std::cell::OnceCell;
 
@@ -68,6 +68,19 @@ glib::wrapper! {
 }
 
 impl CollectionSelectionItem {
+    /// Creates a new CollectionSelectionItem.
+    ///
+    /// It automatically updates, if the collection changes using its signals.
+    ///
+    /// If the collection is not a core collection, the delete button is shown and can be
+    /// used to call delete on the collection.
+    ///
+    /// # Arguments
+    ///
+    /// * `model`: the collection model to show
+    /// * `core`: true, if the collection is a core collection. False otherwise.
+    ///
+    /// returns: CollectionSelectionItem
     pub fn new(model: &CollectionModel, core: bool) -> Self {
         let obj: CollectionSelectionItem = glib::Object::builder().build();
         let imp = obj.imp();
@@ -102,6 +115,8 @@ impl CollectionSelectionItem {
         obj
     }
 
+    /// Updates dynamic data from the collection model. Should be called, when the corresponding
+    /// signals are emitted by the collection.
     fn update_data(&self) {
         let (stars_reached, stars_total) = self.imp().collection.get().unwrap().stars();
         self.set_star_counts(stars_reached as usize, stars_total as usize);
@@ -172,6 +187,7 @@ impl CollectionSelectionItem {
         }
     }
 
+    /// Returns the collection model shown by this item.
     pub fn collection(&self) -> &CollectionModel {
         self.imp()
             .collection

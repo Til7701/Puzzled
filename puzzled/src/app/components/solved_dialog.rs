@@ -5,7 +5,7 @@ use adw::subclass::prelude::*;
 
 mod imp {
     use super::*;
-    use crate::components::stars::StarsView;
+    use crate::app::components::stars::StarsView;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(resource = "/de/til7701/Puzzled/ui/dialog/solved-dialog.ui")]

@@ -1,6 +1,6 @@
+use crate::app::components::board::BoardView;
+use crate::app::components::tile::TileView;
 use crate::app::puzzle_selection::puzzle_mod::PuzzleModState;
-use crate::components::board::BoardView;
-use crate::components::tile::TileView;
 use crate::model::puzzle::PuzzleModel;
 use adw::gio;
 use adw::glib;
@@ -11,12 +11,14 @@ use gtk::{Align, Fixed, Widget};
 use log::error;
 use puzzle_config::{BoardConfig, ProgressionConfig, TileConfig};
 
+/// How many pixels a cell should have in the preview of tiles and boards.
+/// This is NOT the total size of the preview.
 const PREVIEW_CELL_SIZE: f64 = 20.0;
 
 mod imp {
     use super::*;
+    use crate::app::components::info_pill::InfoPill;
     use crate::app::puzzle_selection::puzzle_mod::PuzzleMod;
-    use crate::components::info_pill::InfoPill;
     use std::cell::OnceCell;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
@@ -82,6 +84,19 @@ glib::wrapper! {
 }
 
 impl PuzzleSelectionItem {
+    /// Creates a new PuzzleSelectionItem.
+    ///
+    /// It displays information about the puzzle and can be activated to trigger showing
+    /// the puzzle area.
+    ///
+    /// If the state of the puzzles changes e.g. by solving it, this view updates automatically
+    /// using the signals of the puzzle model.
+    ///
+    /// # Arguments
+    ///
+    /// * `puzzle`: the puzzle to display
+    ///
+    /// returns: PuzzleSelectionItem
     pub fn new(puzzle: &PuzzleModel) -> Self {
         let obj: PuzzleSelectionItem = glib::Object::builder().build();
         let imp = obj.imp();
@@ -128,6 +143,8 @@ impl PuzzleSelectionItem {
         obj
     }
 
+    /// Updates dynamic data of the puzzle.
+    /// This should be called, if the puzzle emits signals for relevant changes.
     fn update_data(&self) {
         let imp = self.imp();
         let puzzle = imp.puzzle.get().unwrap();
@@ -251,6 +268,7 @@ impl PuzzleSelectionItem {
         }
     }
 
+    /// Returns the puzzle shown by this item.
     pub fn puzzle(&self) -> &PuzzleModel {
         self.imp().puzzle.get().unwrap()
     }

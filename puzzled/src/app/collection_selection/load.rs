@@ -90,10 +90,11 @@ impl CollectionSelectionPage {
             Ok((bytes, _etag)) => match std::str::from_utf8(bytes.as_ref()) {
                 Ok(text) => {
                     let content: String = text.to_owned();
-                    with_puzzle_collection_store(|store| {
-                        store.add_community_collection_from_string(&content)
+                    let new_collection = with_puzzle_collection_store(|store| {
+                        store.add_community_collection_from_string(&content)?;
+                        Ok(store.community_puzzle_collections().last().cloned())
                     })?;
-                    self.load_community_collections(); // TODO only update necessary rows instead of reloading everything
+                    self.add_community_collection(&new_collection.unwrap());
                     self.select_last_community_collection();
                     Ok(())
                 }

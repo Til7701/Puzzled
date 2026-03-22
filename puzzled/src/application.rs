@@ -17,7 +17,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-use crate::components::tile::{DrawingMode, TileView};
+use crate::app::components::tile::{DrawingMode, TileView};
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
 use crate::model::store;

@@ -17,9 +17,9 @@ const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 
 mod imp {
     use super::*;
+    use crate::app::components::board::BoardView;
+    use crate::app::components::tile::TileView;
     use crate::app::puzzle::puzzle_area::layout::GridConfig;
-    use crate::components::board::BoardView;
-    use crate::components::tile::TileView;
     use crate::model::extension::PuzzleTypeExtension;
     use adw::glib::subclass::Signal;
     use std::cell::{OnceCell, RefCell};

@@ -23,7 +23,6 @@ extern crate core;
 mod adw_ext;
 mod app;
 mod application;
-pub mod components;
 mod config;
 mod global;
 mod model;

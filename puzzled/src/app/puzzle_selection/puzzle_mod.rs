@@ -7,7 +7,7 @@ use gtk::Widget;
 
 mod imp {
     use super::*;
-    use crate::components::stars::StarsView;
+    use crate::app::components::stars::StarsView;
     use adw::glib::Properties;
 
     #[derive(Debug, Default, gtk::CompositeTemplate, Properties)]
@@ -51,10 +51,13 @@ glib::wrapper! {
 }
 
 impl PuzzleMod {
-    pub fn new<P: IsA<gtk::Application>>(application: &P) -> Self {
-        glib::Object::builder()
-            .property("application", application)
-            .build()
+    /// Set the state to display.
+    pub fn set_state(&self, state: &PuzzleModState) {
+        match state {
+            PuzzleModState::Stars(stars) => self.set_stars(stars),
+            PuzzleModState::Locked => self.set_locked(),
+            PuzzleModState::Unsolvable => self.set_unsolvable(),
+        }
     }
 
     fn set_stars(&self, stars: &Stars) {
@@ -86,19 +89,15 @@ impl PuzzleMod {
         imp.label.set_visible(true);
         imp.stars.set_visible(false);
     }
-
-    pub fn set_state(&self, state: &PuzzleModState) {
-        match state {
-            PuzzleModState::Stars(stars) => self.set_stars(stars),
-            PuzzleModState::Locked => self.set_locked(),
-            PuzzleModState::Unsolvable => self.set_unsolvable(),
-        }
-    }
 }
 
+/// Used to set what the [PuzzleMod] should display.
 #[derive(Debug, PartialEq, Eq)]
 pub enum PuzzleModState {
+    /// Displays only the stars using [StarsView].
     Stars(Stars),
+    /// Displays a lock and shows the text `Locked`.
     Locked,
+    /// Displays a cross and the test `Unsolvable`.
     Unsolvable,
 }

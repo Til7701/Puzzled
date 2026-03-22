@@ -80,6 +80,8 @@ glib::wrapper! {
 }
 
 impl CollectionSelectionPage {
+    /// Must be called to set the main application window this page is shown in.
+    /// It is used to set it as the parent of dialogs.
     pub fn set_window(&self, window: &PuzzledWindow) {
         self.imp()
             .window
@@ -87,6 +89,8 @@ impl CollectionSelectionPage {
             .expect("Failed to set window for CollectionSelectionPage");
     }
 
+    /// Must be called once on initialization to load the collections and connect to changes
+    /// in the selection.
     pub(super) fn setup(&self) {
         self.load_core_collections();
         self.load_community_collections();
@@ -130,25 +134,36 @@ impl CollectionSelectionPage {
         });
     }
 
-    pub(super) fn load_community_collections(&self) {
+    fn load_community_collections(&self) {
         self.imp().community_collection_list.remove_all();
 
         with_puzzle_collection_store(|store| {
             for collection in store.community_puzzle_collections().iter() {
-                let row = CollectionSelectionItem::new(collection, false);
-                self.imp().community_collection_list.append(&row);
-                collection.connect_deleted({
-                    let self_clone = self.clone();
-                    let row = row.clone();
-                    move || {
-                        self_clone.imp().community_collection_list.remove(&row);
-                        self_clone.select_community_or_core_collection();
-                    }
-                });
+                self.add_community_collection(collection);
             }
         });
     }
 
+    /// Add a community collection.
+    ///
+    /// The collection is not selected automatically.
+    /// You should use [Self::select_last_community_collection()] after this call, if
+    /// necessary.
+    pub(super) fn add_community_collection(&self, collection: &CollectionModel) {
+        let row = CollectionSelectionItem::new(collection, false);
+        self.imp().community_collection_list.append(&row);
+        collection.connect_deleted({
+            let self_clone = self.clone();
+            let row = row.clone();
+            move || {
+                self_clone.imp().community_collection_list.remove(&row);
+                self_clone.select_community_or_core_collection();
+            }
+        });
+    }
+
+    /// The `collection_selected` signal is emitted, if the user selects a collection to see
+    /// the puzzles. The [PuzzleSelectionPage] should be shown.
     pub fn connect_collection_selected<F: Fn(&CollectionModel) + 'static>(&self, callback: F) {
         self.connect_local(COLLECTION_SELECTED_SIGNAL_NAME, false, move |values| {
             let model = values[1]

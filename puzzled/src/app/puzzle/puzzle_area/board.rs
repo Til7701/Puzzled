@@ -1,5 +1,5 @@
+use crate::app::components::board::BoardView;
 use crate::app::puzzle::puzzle_area::puzzle_area::PuzzleArea;
-use crate::components::board::BoardView;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::offset::PixelOffset;
 use adw::prelude::Cast;

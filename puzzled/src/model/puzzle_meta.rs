@@ -8,6 +8,8 @@ use puzzle_config::{BoardConfig, PuzzleConfigCollection, Target};
 const SOLVED_KEY: &str = "solved";
 const HINTS_KEY: &str = "hints";
 
+/// A struct to access the solved state and hints used for a given puzzle.
+/// Instances should be reused if possible.
 #[derive(Debug, Clone)]
 pub struct PuzzleMeta {
     settings: Settings,

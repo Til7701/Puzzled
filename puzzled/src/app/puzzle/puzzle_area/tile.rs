@@ -1,5 +1,5 @@
+use crate::app::components::tile::TileView;
 use crate::app::puzzle::puzzle_area::puzzle_area::PuzzleArea;
-use crate::components::tile::TileView;
 use crate::offset::{CellOffset, PixelOffset};
 use adw::gdk::{BUTTON_MIDDLE, BUTTON_SECONDARY};
 use adw::subclass::prelude::ObjectSubclassIsExt;

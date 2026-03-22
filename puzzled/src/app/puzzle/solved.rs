@@ -1,8 +1,7 @@
+use crate::app::components::solved_dialog::SolvedDialog;
 use crate::app::puzzle::puzzle_page::PuzzlePage;
-use crate::components::solved_dialog::SolvedDialog;
 use adw::prelude::{AdwDialogExt, AlertDialogExt};
 use adw::subclass::prelude::ObjectSubclassIsExt;
-use gtk::prelude::WidgetExt;
 use log::{debug, error};
 
 impl PuzzlePage {

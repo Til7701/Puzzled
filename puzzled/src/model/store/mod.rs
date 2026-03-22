@@ -24,9 +24,17 @@ const CORE_COLLECTIONS: [&str; 9] = [
 
 thread_local! {
     static PUZZLE_COLLECTION_STORE: RefCell<PuzzleCollectionStore> =
-    RefCell::new(PuzzleCollectionStore::default());
+        RefCell::new(PuzzleCollectionStore::default());
 }
 
+/// Provides access to the singleton PuzzleCollectionStore instance, which holds the core and
+/// community puzzle collections.
+///
+/// # Arguments
+///
+/// * `f`: A closure that takes a mutable reference to the PuzzleCollectionStore and returns a value of type R. The closure will be executed with access to the store, allowing you to read or modify the puzzle collections as needed.
+///
+/// returns: R
 pub fn with_puzzle_collection_store<R>(f: impl FnOnce(&mut PuzzleCollectionStore) -> R) -> R {
     PUZZLE_COLLECTION_STORE.with(|store| f(&mut store.borrow_mut()))
 }
@@ -50,6 +58,14 @@ impl PuzzleCollectionStore {
         &self.community_puzzle_collections
     }
 
+    /// Adds a community collection from the provided JSON string.
+    /// Predefined tiles and boards are available.
+    ///
+    /// # Arguments
+    ///
+    /// * `json_str`: the JSON specifying the collection
+    ///
+    /// returns: Result<(), ReadError>
     pub fn add_community_collection_from_string(
         &mut self,
         json_str: &str,
@@ -63,12 +79,26 @@ impl PuzzleCollectionStore {
         Ok(())
     }
 
+    /// Removes all community collections with the given ID.
+    /// This removes all references to the collection and deletes the file from the data
+    /// directory.
+    ///
+    /// This method should now be called directly, it should be called via the collection model
+    /// to allow the UI to connect to the signal and update.
+    ///
+    /// # Arguments
+    ///
+    /// * `collection_id`: the ID of the collection to remove
+    ///
+    /// returns: ()
     pub fn remove_community_collection(&mut self, collection_id: &str) {
         self.community_puzzle_collections
             .retain(|collection| collection.config().id() != collection_id);
         community::delete_community_collection(collection_id);
     }
 
+    /// Triggers all collections to mark themselves as unsolved.
+    /// This updates the backend using [PuzzleMeta] and informs the collection models.
     pub fn mark_all_as_unsolved(&self) {
         PuzzleMeta::new().reset();
         for collection in &self.core_puzzle_collections {
