@@ -1,5 +1,5 @@
 use crate::app::components::tile::TileView;
-use crate::app::puzzle::puzzle_area::puzzle_area::PuzzleArea;
+use crate::app::puzzle::puzzle_area::PuzzleArea;
 use crate::offset::CellOffset;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{FixedExt, WidgetExt};

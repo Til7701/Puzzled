@@ -10,7 +10,7 @@ use log::debug;
 
 mod imp {
     use super::*;
-    use crate::app::puzzle::puzzle_area::puzzle_area::PuzzleArea;
+    use crate::app::puzzle::puzzle_area::PuzzleArea;
     use crate::model::extension::PuzzleTypeExtension;
     use crate::solver::combination_solutions::CombinationsSolver;
     use crate::window::PuzzledWindow;
@@ -98,9 +98,10 @@ impl PuzzlePage {
                 solver.interrupt_solver_call();
                 let puzzle_state = self_clone.imp().grid.extract_puzzle_state();
                 if let Ok(puzzle_state) = puzzle_state
-                    && solver.is_solved(&puzzle_state) {
-                        self_clone.on_solved();
-                    }
+                    && solver.is_solved(&puzzle_state)
+                {
+                    self_clone.on_solved();
+                }
             }
         });
         self.connect_hiding({
