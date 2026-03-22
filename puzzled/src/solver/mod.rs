@@ -94,7 +94,6 @@ impl Solver {
         let now = Instant::now();
         runtime.spawn({
             let self_clone = self.clone();
-            let solver_call_id = solver_call_id;
             let cancel_token = cancel_token.clone();
             async move {
                 debug!("Starting Solver task.");

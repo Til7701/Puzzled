@@ -4,7 +4,7 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use log::debug;
 
 impl PuzzlePage {
-    pub fn calculate_tile_combinations_to_solve<'a>(&self) {
+    pub fn calculate_tile_combinations_to_solve(&self) {
         debug!("Starting to calculate tile combinations to solve");
         let solver = Solver::default();
         solver.interrupt_solver_call();

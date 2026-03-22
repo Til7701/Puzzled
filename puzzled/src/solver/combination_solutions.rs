@@ -17,7 +17,7 @@ pub struct CombinationsSolver {
 
 impl CombinationsSolver {
     /// Start solving with the given state and extension.
-    pub fn calculate_tile_combinations_to_solve<'a>(&self, puzzle_state: PuzzleState) {
+    pub fn calculate_tile_combinations_to_solve(&self, puzzle_state: PuzzleState) {
         self.stop_calculate_tile_combinations_to_solve();
 
         let cancellation_token = CancellationToken::new();

@@ -173,7 +173,7 @@ struct TileRotationIterator {
     iteration: u8,
 }
 
-impl<'a> TileRotationIterator {
+impl TileRotationIterator {
     pub fn new(tile: Array2<bool>) -> Self {
         Self {
             current: tile,
