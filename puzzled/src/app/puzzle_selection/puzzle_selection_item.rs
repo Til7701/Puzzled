@@ -195,25 +195,13 @@ impl PuzzleSelectionItem {
             imp.info_box.remove(&imp.tile_count_pill.get());
         }
 
-        if state != PuzzleModState::Locked || collection.config().preview().show_tiles() {
-            if imp.tile_preview_parent.get().parent().is_none() {
-                imp.outer_box.get().append(&imp.tile_preview_parent.get());
-            }
-        } else {
-            if imp.tile_preview_parent.get().parent().is_some() {
-                imp.outer_box.get().remove(&imp.tile_preview_parent.get());
-            }
-        }
+        let show_tile_preview =
+            state != PuzzleModState::Locked || collection.config().preview().show_tiles();
+        let show_board_preview =
+            state != PuzzleModState::Locked || collection.config().preview().show_board();
 
-        if state != PuzzleModState::Locked || collection.config().preview().show_board() {
-            if imp.board_preview_parent.get().parent().is_none() {
-                imp.outer_box.get().append(&imp.board_preview_parent.get());
-            }
-        } else {
-            if imp.board_preview_parent.get().parent().is_some() {
-                imp.outer_box.get().remove(&imp.board_preview_parent.get());
-            }
-        }
+        imp.tile_preview_parent.set_visible(show_tile_preview);
+        imp.board_preview_parent.set_visible(show_board_preview);
     }
 
     fn create_tiles_preview(tiles: &[TileConfig], fixed: &Fixed) {
