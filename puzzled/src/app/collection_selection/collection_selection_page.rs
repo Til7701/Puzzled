@@ -3,16 +3,17 @@ use crate::model::collection::CollectionModel;
 use crate::model::store::with_puzzle_collection_store;
 use crate::window::PuzzledWindow;
 use adw::gio;
-use adw::prelude::{Cast, ObjectExt};
+use adw::prelude::{Cast, NavigationPageExt, ObjectExt};
 use adw::subclass::prelude::*;
+use gtk::glib;
 use gtk::prelude::WidgetExt;
-use gtk::{glib, ListBoxRow};
 use log::debug;
 
 const COLLECTION_SELECTED_SIGNAL_NAME: &str = "collection-selected";
+const RANDOM_SELECTED_SIGNAL_NAME: &str = "random-selected";
 
 mod imp {
-    use super::COLLECTION_SELECTED_SIGNAL_NAME;
+    use super::{COLLECTION_SELECTED_SIGNAL_NAME, RANDOM_SELECTED_SIGNAL_NAME};
     use crate::model::collection::CollectionModel;
     use crate::window::PuzzledWindow;
     use adw::glib::subclass::Signal;
@@ -25,6 +26,8 @@ mod imp {
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(resource = "/de/til7701/Puzzled/ui/page/collection-selection-page.ui")]
     pub struct PuzzledCollectionSelectionPage {
+        #[template_child]
+        pub extra_options_list: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub core_collection_list: TemplateChild<gtk::ListBox>,
         #[template_child]
@@ -44,6 +47,9 @@ mod imp {
             klass.install_action("app.load_collection", None, |page, _, _| {
                 page.show_load_collection_dialog()
             });
+            klass.install_action("app.random_puzzle", None, |page, _, _| {
+                page.emit_random_selected();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -59,6 +65,7 @@ mod imp {
                     Signal::builder(COLLECTION_SELECTED_SIGNAL_NAME)
                         .param_types([CollectionModel::static_type()])
                         .build(),
+                    Signal::builder(RANDOM_SELECTED_SIGNAL_NAME).build(),
                 ]
             })
         }
@@ -95,10 +102,20 @@ impl CollectionSelectionPage {
         self.load_core_collections();
         self.load_community_collections();
 
+        self.imp().extra_options_list.connect_row_selected({
+            let self_clone = self.clone();
+            move |_, row| {
+                if let Some(_) = row {
+                    self_clone.imp().core_collection_list.unselect_all();
+                    self_clone.imp().community_collection_list.unselect_all();
+                }
+            }
+        });
         self.imp().core_collection_list.connect_row_selected({
             let self_clone = self.clone();
             move |_, row| {
                 if let Some(row) = row {
+                    self_clone.imp().extra_options_list.unselect_all();
                     self_clone.imp().community_collection_list.unselect_all();
                     let row = row.clone().downcast::<CollectionSelectionItem>().unwrap();
                     let collection = row.collection();
@@ -110,6 +127,7 @@ impl CollectionSelectionPage {
             let self_clone = self.clone();
             move |_, row| {
                 if let Some(row) = row {
+                    self_clone.imp().extra_options_list.unselect_all();
                     self_clone.imp().core_collection_list.unselect_all();
                     let row = row.clone().downcast::<CollectionSelectionItem>().unwrap();
                     let collection = row.collection();
@@ -117,7 +135,9 @@ impl CollectionSelectionPage {
                 }
             }
         });
+    }
 
+    pub fn select_first_collection(&self) {
         self.imp()
             .core_collection_list
             .select_row(self.imp().core_collection_list.row_at_index(0).as_ref());
@@ -162,7 +182,7 @@ impl CollectionSelectionPage {
         });
     }
 
-    /// The `collection_selected` signal is emitted, if the user selects a collection to see
+    /// The `collection-selected` signal is emitted, if the user selects a collection to see
     /// the puzzles. The [PuzzleSelectionPage] should be shown.
     pub fn connect_collection_selected<F: Fn(&CollectionModel) + 'static>(&self, callback: F) {
         self.connect_local(COLLECTION_SELECTED_SIGNAL_NAME, false, move |values| {
@@ -182,6 +202,20 @@ impl CollectionSelectionPage {
         self.emit_by_name::<()>(COLLECTION_SELECTED_SIGNAL_NAME, &[collection]);
     }
 
+    /// The `random-selected` signal is emitted, if the user selects the random button to
+    /// generate random puzzles. The [RandomPuzzlePage] should be shown.
+    pub fn connect_random_selected<F: Fn() + 'static>(&self, callback: F) {
+        self.connect_local(RANDOM_SELECTED_SIGNAL_NAME, false, move |_| {
+            callback();
+            None
+        });
+    }
+
+    fn emit_random_selected(&self) {
+        debug!("Emitting random selected signal");
+        self.emit_by_name::<()>(RANDOM_SELECTED_SIGNAL_NAME, &[]);
+    }
+
     /// Selects the last community collection in the list.
     ///
     /// The callee has to be sure that there is at least one community collection, otherwise this
@@ -194,18 +228,6 @@ impl CollectionSelectionPage {
             .row_at_index(last_index as i32)
             .unwrap()
             .activate();
-    }
-
-    /// Unselects all collections. Used when a special view should be opened like the random puzzle
-    /// generator.
-    #[allow(dead_code)]
-    fn select_none(&self) {
-        self.imp()
-            .core_collection_list
-            .select_row(None::<&ListBoxRow>);
-        self.imp()
-            .community_collection_list
-            .select_row(None::<&ListBoxRow>);
     }
 
     /// Selects the last community collection if there are any, otherwise selects the first core collection.

@@ -29,6 +29,7 @@ pub const MIN_WINDOW_HEIGHT: i32 = 240;
 
 mod imp {
     use super::*;
+    use crate::app::random_puzzle::random_puzzle_page::RandomPuzzlePage;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(resource = "/de/til7701/Puzzled/window.ui")]
@@ -42,7 +43,11 @@ mod imp {
         #[template_child]
         pub puzzle_selection_nav_page: TemplateChild<PuzzleSelectionPage>,
         #[template_child]
+        pub content_page: TemplateChild<adw::NavigationView>,
+        #[template_child]
         pub puzzle_area_nav_page: TemplateChild<PuzzlePage>,
+        #[template_child]
+        pub random_puzzle_page: TemplateChild<RandomPuzzlePage>,
     }
 
     #[glib::object_subclass]
@@ -97,6 +102,25 @@ impl PuzzledWindow {
                         .show_collection(collection);
                     self_clone.imp().outer_view.set_show_content(false);
                     self_clone.imp().inner_view.set_show_content(true);
+                    self_clone.imp().content_page.replace(&[self_clone
+                        .imp()
+                        .puzzle_selection_nav_page
+                        .clone()
+                        .upcast()]);
+                }
+            });
+        self.imp()
+            .collection_selection_nav_page
+            .connect_random_selected({
+                let self_clone = self.clone();
+                move || {
+                    self_clone.imp().outer_view.set_show_content(false);
+                    self_clone.imp().inner_view.set_show_content(true);
+                    self_clone.imp().content_page.replace(&[self_clone
+                        .imp()
+                        .random_puzzle_page
+                        .clone()
+                        .upcast()]);
                 }
             });
         self.imp()
@@ -107,7 +131,21 @@ impl PuzzledWindow {
                     self_clone.imp().puzzle_area_nav_page.show_puzzle(puzzle);
                     self_clone.imp().outer_view.set_show_content(true);
                 }
-            })
+            });
+        self.imp().random_puzzle_page.connect_create_random_puzzle({
+            let self_clone = self.clone();
+            move |collection| {
+                let puzzle = collection.puzzles().first().unwrap();
+                self_clone.imp().puzzle_area_nav_page.show_puzzle(puzzle);
+                self_clone.imp().outer_view.set_show_content(true);
+            }
+        });
+    }
+
+    pub fn select_first_collection(&self) {
+        self.imp()
+            .collection_selection_nav_page
+            .select_first_collection();
     }
 
     pub fn puzzle_area_nav_page(&self) -> &PuzzlePage {

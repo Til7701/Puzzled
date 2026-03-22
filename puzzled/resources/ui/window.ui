@@ -28,7 +28,18 @@
                                     <object class="PuzzledCollectionSelectionPage" id="collection_selection_nav_page"/>
                                 </property>
                                 <property name="content">
-                                    <object class="PuzzleSelectionPage" id="puzzle_selection_nav_page"/>
+                                    <object class="AdwNavigationPage">
+                                        <property name="child">
+                                            <object class="AdwNavigationView" id="content_page">
+                                                <child>
+                                                    <object class="PuzzleSelectionPage" id="puzzle_selection_nav_page"/>
+                                                </child>
+                                                <child>
+                                                    <object class="PuzzledRandomPuzzlePage" id="random_puzzle_page"/>
+                                                </child>
+                                            </object>
+                                        </property>
+                                    </object>
                                 </property>
                             </object>
                         </property>

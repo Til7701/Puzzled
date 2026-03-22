@@ -23,17 +23,20 @@
                                         <property name="margin-bottom">8</property>
                                         <property name="margin-start">8</property>
                                         <property name="margin-end">8</property>
-                                        <!--                                        <child>-->
-                                        <!--                                            <object class="GtkButton">-->
-                                        <!--                                                <property name="action-name">app.random_puzzle</property>-->
-                                        <!--                                                <child>-->
-                                        <!--                                                    <object class="AdwButtonContent">-->
-                                        <!--                                                        <property name="icon-name">plus-symbolic</property>-->
-                                        <!--                                                        <property name="label" translatable="yes">Random Puzzle</property>-->
-                                        <!--                                                    </object>-->
-                                        <!--                                                </child>-->
-                                        <!--                                            </object>-->
-                                        <!--                                        </child>-->
+                                        <child>
+                                            <object class="GtkListBox" id="extra_options_list">
+                                                <style>
+                                                    <class name="boxed-list"/>
+                                                </style>
+                                                <child>
+                                                    <object class="AdwButtonRow">
+                                                        <property name="action-name">app.random_puzzle</property>
+                                                        <property name="start-icon-name">dice3-symbolic</property>
+                                                        <property name="title" translatable="yes">Random Puzzle</property>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
                                         <child>
                                             <object class="GtkLabel">
                                                 <property name="label" translatable="yes">Core Collections</property>

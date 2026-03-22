@@ -1,13 +1,11 @@
 use crate::model::collection::CollectionModel;
 use crate::model::puzzle_meta::PuzzleMeta;
-use crate::model::store;
 use adw::gio;
 use adw::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::*;
 use log::debug;
-use puzzle_config::random;
-use puzzle_config::random::RandomPuzzleSettings;
+use puzzle_config::random::{random_puzzle, Algorithm, RandomPuzzleSettings};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 const CREATE_RANDOM_PUZZLE_SIGNAL_NAME: &str = "random-puzzle-created";
@@ -23,6 +21,12 @@ mod imp {
     pub struct PuzzledRandomPuzzlePage {
         #[template_child]
         pub seed_entry: TemplateChild<adw::EntryRow>,
+        #[template_child]
+        pub tile_count_row: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub board_width_row: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub board_height_row: TemplateChild<adw::SpinRow>,
     }
 
     #[glib::object_subclass]
@@ -67,15 +71,11 @@ glib::wrapper! {
 }
 
 impl RandomPuzzlePage {
-    pub fn new() -> Self {
-        glib::Object::builder().build()
-    }
-
-    pub fn connect_create_random_puzzle<F: Fn(&RandomPuzzlePage) + 'static>(&self, callback: F) {
+    pub fn connect_create_random_puzzle<F: Fn(&CollectionModel) + 'static>(&self, callback: F) {
         self.connect_local(CREATE_RANDOM_PUZZLE_SIGNAL_NAME, false, move |values| {
-            let page = values[0]
-                .get::<RandomPuzzlePage>()
-                .expect("Failed to get RandomPuzzlePage from signal");
+            let page = values[1]
+                .get::<CollectionModel>()
+                .expect("Failed to get CollectionModel from signal");
             callback(&page);
             None
         });
@@ -83,14 +83,17 @@ impl RandomPuzzlePage {
 
     fn show_random_puzzle(&self) {
         debug!("Setting random puzzle");
-        let predefined = store::get_predefined();
         let settings = RandomPuzzleSettings {
             seed: self.get_seed(),
-            tile_count: 10,
-            tiles: predefined.tiles(),
+            algorithm: Algorithm::Growing {
+                tile_count: self.imp().tile_count_row.value() as usize,
+                board_width: self.imp().board_width_row.value() as usize,
+                board_height: self.imp().board_height_row.value() as usize,
+            },
         };
-        let collection = random::random_puzzle(&settings);
+        let collection = random_puzzle(&settings);
         let collection = CollectionModel::new(collection, &PuzzleMeta::new());
+        collection.mark_all_as_unsolved();
         debug!("Generated random puzzle collection");
         self.emit_by_name::<()>(CREATE_RANDOM_PUZZLE_SIGNAL_NAME, &[&collection]);
     }

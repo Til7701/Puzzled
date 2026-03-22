@@ -50,6 +50,7 @@
         <file preprocess="xml-stripblanks" alias="view-grid-symbolic.svg">icons/view-grid-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="star-large-symbolic.svg">icons/star-large-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="star-outline-rounded-symbolic.svg">icons/star-outline-rounded-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="dice3-symbolic.svg">icons/dice3-symbolic.svg</file>
     </gresource>
     <!-- @formatter:on -->
 </gresources>
