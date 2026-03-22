@@ -97,11 +97,10 @@ impl PuzzlePage {
             move || {
                 solver.interrupt_solver_call();
                 let puzzle_state = self_clone.imp().grid.extract_puzzle_state();
-                if let Ok(puzzle_state) = puzzle_state {
-                    if solver.is_solved(&puzzle_state) {
+                if let Ok(puzzle_state) = puzzle_state
+                    && solver.is_solved(&puzzle_state) {
                         self_clone.on_solved();
                     }
-                }
             }
         });
         self.connect_hiding({

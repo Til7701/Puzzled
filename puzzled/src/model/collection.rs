@@ -119,7 +119,7 @@ impl CollectionModel {
             .map(|p| {
                 let solved = p.is_solved_default();
                 let best_hint_count = p.best_hint_count_default();
-                stars::calculate_stars(solved, best_hint_count, &p.config().difficulty())
+                stars::calculate_stars(solved, best_hint_count, p.config().difficulty())
             })
             .fold((0, 0), |(reached, total), stars| {
                 (reached + stars.reached(), total + stars.total())

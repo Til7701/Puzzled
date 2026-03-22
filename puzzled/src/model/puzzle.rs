@@ -87,7 +87,7 @@ impl PuzzleModel {
             .expect("Failed to set collection for PuzzleModel");
 
         let solved = puzzle_meta.is_solved(
-            &collection.config(),
+            collection.config(),
             obj.config().index(),
             &Some(default_extension.clone()),
         );
@@ -96,7 +96,7 @@ impl PuzzleModel {
             .insert(Some(default_extension.clone()), solved);
 
         let hints = puzzle_meta.hints(
-            &collection.config(),
+            collection.config(),
             obj.config().index(),
             &Some(default_extension.clone()),
         );
@@ -224,7 +224,7 @@ impl PuzzleModel {
         let solved = self.is_solved(extension);
         let best_hint_count = self.best_hint_count(extension);
         let difficulty = self.config().difficulty();
-        stars::calculate_stars(solved, best_hint_count, &difficulty)
+        stars::calculate_stars(solved, best_hint_count, difficulty)
     }
 
     /// Returns the stars instance for this puzzle and the default extension.
@@ -234,7 +234,7 @@ impl PuzzleModel {
         let solved = self.is_solved_default();
         let best_hint_count = self.best_hint_count_default();
         let difficulty = self.config().difficulty();
-        stars::calculate_stars(solved, best_hint_count, &difficulty)
+        stars::calculate_stars(solved, best_hint_count, difficulty)
     }
 
     /// Marks the puzzle as unsolved and emits the signal.

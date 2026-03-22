@@ -64,7 +64,7 @@ mod imp {
                             .puzzles()
                             .get(index)
                             .expect("Index out of bounds in puzzle list");
-                        page.emit_puzzle_selected(&puzzle);
+                        page.emit_puzzle_selected(puzzle);
                     }
                 },
             );

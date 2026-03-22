@@ -9,10 +9,10 @@ impl PuzzlePage {
         let puzzle = self.imp().puzzle.borrow();
         if let Some(puzzle) = puzzle.as_ref() {
             let hint_count = self.imp().hint_count.get();
-            let previous_hint_count = puzzle.best_hint_count(&*self.imp().extension.borrow());
+            let previous_hint_count = puzzle.best_hint_count(&self.imp().extension.borrow());
             let best_hint_count = hint_count.min(previous_hint_count.unwrap_or(u32::MAX));
 
-            puzzle.set_solved(best_hint_count, &*self.imp().extension.borrow());
+            puzzle.set_solved(best_hint_count, &self.imp().extension.borrow());
         } else {
             error!("Could not mark puzzle as solved: missing puzzle collection or puzzle config");
         }
@@ -25,7 +25,7 @@ impl PuzzlePage {
         let puzzle = self.imp().puzzle.borrow();
         let has_next = {
             if let Some(puzzle) = puzzle.as_ref() {
-                let stars = puzzle.stars(&*extension);
+                let stars = puzzle.stars(&extension);
                 solved_dialog.set_stars(&stars);
                 puzzle.has_next_puzzle()
             } else {

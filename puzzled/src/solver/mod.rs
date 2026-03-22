@@ -79,7 +79,7 @@ impl Solver {
         let solver_call_id = self.create_solver_call_id();
         let mut state = self.state.write().unwrap();
         *state = SolverState::Running {
-            call_id: solver_call_id.clone(),
+            call_id: solver_call_id,
             cancel_token: cancel_token.clone(),
         };
 
@@ -94,7 +94,7 @@ impl Solver {
         let now = Instant::now();
         runtime.spawn({
             let self_clone = self.clone();
-            let solver_call_id = solver_call_id.clone();
+            let solver_call_id = solver_call_id;
             let cancel_token = cancel_token.clone();
             async move {
                 debug!("Starting Solver task.");

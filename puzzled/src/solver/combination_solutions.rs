@@ -88,7 +88,7 @@ impl CombinationsSolver {
     fn create_list_entry_for_tile(unused_tile: &UnusedTile) -> String {
         let name = &unused_tile.name;
         if let Some(name) = name {
-            format!("\"{}\"", name.to_string())
+            format!("\"{}\"", name)
         } else {
             unused_tile.base.to_string()
         }

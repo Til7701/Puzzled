@@ -102,7 +102,7 @@ impl CollectionSelectionPage {
                     self_clone.imp().community_collection_list.unselect_all();
                     let row = row.clone().downcast::<CollectionSelectionItem>().unwrap();
                     let collection = row.collection();
-                    self_clone.emit_collection_selected(&collection);
+                    self_clone.emit_collection_selected(collection);
                 }
             }
         });
@@ -113,7 +113,7 @@ impl CollectionSelectionPage {
                     self_clone.imp().core_collection_list.unselect_all();
                     let row = row.clone().downcast::<CollectionSelectionItem>().unwrap();
                     let collection = row.collection();
-                    self_clone.emit_collection_selected(&collection);
+                    self_clone.emit_collection_selected(collection);
                 }
             }
         });
