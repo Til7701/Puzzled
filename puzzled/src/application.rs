@@ -93,6 +93,10 @@ mod imp {
             );
 
             window.present();
+            window
+                .downcast_ref::<PuzzledWindow>()
+                .unwrap()
+                .select_first_collection();
         }
 
         fn shutdown(&self) {

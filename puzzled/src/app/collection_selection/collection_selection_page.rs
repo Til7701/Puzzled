@@ -3,10 +3,10 @@ use crate::model::collection::CollectionModel;
 use crate::model::store::with_puzzle_collection_store;
 use crate::window::PuzzledWindow;
 use adw::gio;
-use adw::prelude::{Cast, ObjectExt};
+use adw::prelude::{Cast, NavigationPageExt, ObjectExt};
 use adw::subclass::prelude::*;
+use gtk::glib;
 use gtk::prelude::WidgetExt;
-use gtk::{glib, ListBoxRow};
 use log::debug;
 
 const COLLECTION_SELECTED_SIGNAL_NAME: &str = "collection-selected";
@@ -27,6 +27,8 @@ mod imp {
     #[template(resource = "/de/til7701/Puzzled/ui/page/collection-selection-page.ui")]
     pub struct PuzzledCollectionSelectionPage {
         #[template_child]
+        pub extra_options_list: TemplateChild<gtk::ListBox>,
+        #[template_child]
         pub core_collection_list: TemplateChild<gtk::ListBox>,
         #[template_child]
         pub community_collection_list: TemplateChild<gtk::ListBox>,
@@ -46,7 +48,6 @@ mod imp {
                 page.show_load_collection_dialog()
             });
             klass.install_action("app.random_puzzle", None, |page, _, _| {
-                page.select_none();
                 page.emit_random_selected();
             });
         }
@@ -101,10 +102,20 @@ impl CollectionSelectionPage {
         self.load_core_collections();
         self.load_community_collections();
 
+        self.imp().extra_options_list.connect_row_selected({
+            let self_clone = self.clone();
+            move |_, row| {
+                if let Some(_) = row {
+                    self_clone.imp().core_collection_list.unselect_all();
+                    self_clone.imp().community_collection_list.unselect_all();
+                }
+            }
+        });
         self.imp().core_collection_list.connect_row_selected({
             let self_clone = self.clone();
             move |_, row| {
                 if let Some(row) = row {
+                    self_clone.imp().extra_options_list.unselect_all();
                     self_clone.imp().community_collection_list.unselect_all();
                     let row = row.clone().downcast::<CollectionSelectionItem>().unwrap();
                     let collection = row.collection();
@@ -116,6 +127,7 @@ impl CollectionSelectionPage {
             let self_clone = self.clone();
             move |_, row| {
                 if let Some(row) = row {
+                    self_clone.imp().extra_options_list.unselect_all();
                     self_clone.imp().core_collection_list.unselect_all();
                     let row = row.clone().downcast::<CollectionSelectionItem>().unwrap();
                     let collection = row.collection();
@@ -123,7 +135,9 @@ impl CollectionSelectionPage {
                 }
             }
         });
+    }
 
+    pub fn select_first_collection(&self) {
         self.imp()
             .core_collection_list
             .select_row(self.imp().core_collection_list.row_at_index(0).as_ref());
@@ -214,17 +228,6 @@ impl CollectionSelectionPage {
             .row_at_index(last_index as i32)
             .unwrap()
             .activate();
-    }
-
-    /// Unselects all collections. Used when a special view should be opened like the random puzzle
-    /// generator.
-    fn select_none(&self) {
-        self.imp()
-            .core_collection_list
-            .select_row(None::<&ListBoxRow>);
-        self.imp()
-            .community_collection_list
-            .select_row(None::<&ListBoxRow>);
     }
 
     /// Selects the last community collection if there are any, otherwise selects the first core collection.

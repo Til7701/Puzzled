@@ -142,6 +142,12 @@ impl PuzzledWindow {
         });
     }
 
+    pub fn select_first_collection(&self) {
+        self.imp()
+            .collection_selection_nav_page
+            .select_first_collection();
+    }
+
     pub fn puzzle_area_nav_page(&self) -> &PuzzlePage {
         &self.imp().puzzle_area_nav_page
     }
