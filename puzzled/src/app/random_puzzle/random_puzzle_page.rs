@@ -22,6 +22,12 @@ mod imp {
     pub struct PuzzledRandomPuzzlePage {
         #[template_child]
         pub seed_entry: TemplateChild<adw::EntryRow>,
+        #[template_child]
+        pub tile_count_row: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub board_width_row: TemplateChild<adw::SpinRow>,
+        #[template_child]
+        pub board_height_row: TemplateChild<adw::SpinRow>,
     }
 
     #[glib::object_subclass]
@@ -78,12 +84,13 @@ impl RandomPuzzlePage {
 
     fn show_random_puzzle(&self) {
         debug!("Setting random puzzle");
-        let predefined = store::get_predefined();
         let settings = RandomPuzzleSettings {
             seed: self.get_seed(),
-            tile_count: 10,
-            tiles: predefined.tiles(),
-            algorithm: Algorithm::Growing,
+            algorithm: Algorithm::Growing {
+                tile_count: self.imp().tile_count_row.value() as usize,
+                board_width: self.imp().board_width_row.value() as usize,
+                board_height: self.imp().board_height_row.value() as usize,
+            },
         };
         let collection = random_puzzle(&settings);
         let collection = CollectionModel::new(collection, &PuzzleMeta::new());

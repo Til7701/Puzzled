@@ -26,6 +26,48 @@
                                 <property name="title" translatable="yes">Random Puzzle Settings</property>
                                 <property name="separate-rows">True</property>
                                 <child>
+                                    <object class="AdwSpinRow" id="tile_count_row">
+                                        <property name="title" translatable="yes">Tile Count</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">2</property>
+                                                <property name="upper">40</property>
+                                                <property name="value">5</property>
+                                                <property name="page-increment">5</property>
+                                                <property name="step-increment">1</property>
+                                            </object>
+                                        </property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="AdwSpinRow" id="board_width_row">
+                                        <property name="title" translatable="yes">Board Width</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">2</property>
+                                                <property name="upper">30</property>
+                                                <property name="value">5</property>
+                                                <property name="page-increment">5</property>
+                                                <property name="step-increment">1</property>
+                                            </object>
+                                        </property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="AdwSpinRow" id="board_height_row">
+                                        <property name="title" translatable="yes">Board Height</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">2</property>
+                                                <property name="upper">30</property>
+                                                <property name="value">5</property>
+                                                <property name="page-increment">5</property>
+                                                <property name="step-increment">1</property>
+                                            </object>
+                                        </property>
+                                    </object>
+                                </child>
+                                <child>
                                     <object class="AdwEntryRow" id="seed_entry">
                                         <property name="title" translatable="yes">Seed</property>
                                     </object>

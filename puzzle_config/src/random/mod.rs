@@ -1,50 +1,46 @@
 use crate::{
-    BoardConfig, PreviewConfig, ProgressionConfig, PuzzleConfig, PuzzleConfigCollection, TileConfig,
+    BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig,
+    PuzzleConfigCollection, TileConfig,
 };
-use log::debug;
-use puzzled_common::array_util;
+use ndarray::Array2;
+use puzzled_common::array_util::TileRotationIterator;
 use rand::rngs::Xoshiro256PlusPlus;
-use rand::SeedableRng;
+use rand::{Rng, RngExt, SeedableRng};
 
 mod growing;
-mod random_placement;
 
-pub struct RandomPuzzleSettings<'a> {
+pub struct RandomPuzzleSettings {
     pub seed: u64,
-    pub tile_count: usize,
-    pub tiles: &'a [TileConfig],
     pub algorithm: Algorithm,
 }
 
 pub enum Algorithm {
-    RandomPlacement,
-    Growing,
+    Growing {
+        tile_count: usize,
+        board_width: usize,
+        board_height: usize,
+    },
 }
 
 /// Returns a collection containing exactly one puzzle which was generated.
 pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection {
-    debug!(
-        "Generating random puzzle with seed {} and {} tiles",
-        settings.seed, settings.tile_count
-    );
     let mut rng = Xoshiro256PlusPlus::seed_from_u64(settings.seed);
 
     let (board_layout, tiles) = match settings.algorithm {
-        Algorithm::RandomPlacement => random_placement::create_puzzle(settings, &mut rng),
-        Algorithm::Growing => growing::create_puzzle(settings, &mut rng),
+        Algorithm::Growing { .. } => growing::create_puzzle(settings, &mut rng),
     };
-
-    debug!("Board:");
-    array_util::debug_print(&board_layout);
-
-    debug!("Tiles:");
-    for tile in &tiles {
-        array_util::debug_print(tile.base());
-    }
 
     let board = BoardConfig::Simple {
         layout: board_layout,
     };
+    let tiles = tiles
+        .iter()
+        .enumerate()
+        .map(|(i, tile)| {
+            let base = random_orientation(&mut rng, tile.clone());
+            TileConfig::new(base, ColorConfig::default_with_index(i), None)
+        })
+        .collect();
     let puzzle = PuzzleConfig::new(
         0,
         "r".to_string(),
@@ -52,7 +48,7 @@ pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection 
         None,
         None,
         false,
-        tiles.to_vec(),
+        tiles,
         board,
         None,
     );
@@ -66,4 +62,9 @@ pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection 
         PreviewConfig::default(),
         vec![puzzle],
     )
+}
+
+fn random_orientation(rng: &mut dyn Rng, array: Array2<bool>) -> Array2<bool> {
+    let iterator = TileRotationIterator::new(array);
+    iterator.into_iter().nth(rng.random_range(0..8)).unwrap()
 }
