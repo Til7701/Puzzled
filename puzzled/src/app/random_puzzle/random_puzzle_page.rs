@@ -71,11 +71,11 @@ impl RandomPuzzlePage {
         glib::Object::builder().build()
     }
 
-    pub fn connect_create_random_puzzle<F: Fn(&RandomPuzzlePage) + 'static>(&self, callback: F) {
+    pub fn connect_create_random_puzzle<F: Fn(&CollectionModel) + 'static>(&self, callback: F) {
         self.connect_local(CREATE_RANDOM_PUZZLE_SIGNAL_NAME, false, move |values| {
-            let page = values[0]
-                .get::<RandomPuzzlePage>()
-                .expect("Failed to get RandomPuzzlePage from signal");
+            let page = values[1]
+                .get::<CollectionModel>()
+                .expect("Failed to get CollectionModel from signal");
             callback(&page);
             None
         });
