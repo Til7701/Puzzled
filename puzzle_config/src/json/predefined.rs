@@ -36,22 +36,19 @@ impl ConfigStore {
         let tiles: HashMap<String, Tile> = take(&mut self.tiles);
         tiles
             .into_iter()
-            .map(|(name, tile)| {
+            .flat_map(|(name, tile)| {
                 (0, tile, Some(name))
-                    .convert(&mut Predefined::default(), &mut Custom::default())
+                    .convert(&Predefined::default(), &mut Custom::default())
                     .unwrap()
             })
-            .flatten()
             .collect()
     }
 
     pub(crate) fn take_boards(&mut self) -> Vec<BoardConfig> {
         let boards: HashMap<String, Board> = take(&mut self.boards);
-        boards
-            .into_iter()
-            .map(|(_, board)| {
+        boards.into_values().map(|board| {
                 board
-                    .convert(&mut Predefined::default(), &mut Custom::default())
+                    .convert(&Predefined::default(), &mut Custom::default())
                     .unwrap()
             })
             .collect()

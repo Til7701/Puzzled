@@ -17,33 +17,32 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+use crate::app::components::tile::{DrawingMode, TileView};
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
-use crate::global::state::get_state_mut;
-use crate::presenter::collection_selection::CollectionSelectionPresenter;
-use crate::presenter::main::MainPresenter;
-use crate::presenter::puzzle::PuzzlePresenter;
-use crate::presenter::puzzle_selection::PuzzleSelectionPresenter;
-use crate::puzzles;
-use crate::view::tile::{DrawingMode, TileView};
+use crate::model::store;
+use crate::model::store::with_puzzle_collection_store;
 use crate::window::PuzzledWindow;
 use adw::gdk::Display;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::{gio, glib, CssProvider, License, Settings, STYLE_PROVIDER_PRIORITY_APPLICATION};
+use log::info;
 use ndarray::array;
 use puzzle_config::ColorConfig;
 use std::fmt::Debug;
-use std::rc::Rc;
 
 mod imp {
     use super::*;
     use crate::global::runtime::take_runtime;
     use crate::window::PuzzledWindow;
+    use std::cell::OnceCell;
 
     #[derive(Debug, Default)]
-    pub struct PuzzledApplication {}
+    pub struct PuzzledApplication {
+        pub window: OnceCell<PuzzledWindow>,
+    }
 
     #[glib::object_subclass]
     impl ObjectSubclass for PuzzledApplication {
@@ -72,10 +71,17 @@ mod imp {
                 .env()
                 .init()
                 .unwrap();
+            store::init();
+
             let application = self.obj();
             // Get the current window or create one if necessary
             let window = application.active_window().unwrap_or_else(|| {
                 let window = PuzzledWindow::new(&*application);
+                application
+                    .imp()
+                    .window
+                    .set(window.clone())
+                    .expect("Failed to set window in application");
                 window.upcast()
             });
 
@@ -128,7 +134,47 @@ impl PuzzledApplication {
         let preferences = gio::ActionEntry::builder("preferences")
             .activate(move |app: &Self, _, _| app.show_preferences())
             .build();
-        self.add_action_entries([quit_action, about_action, how_to_play_action, preferences]);
+        let mark_all_puzzles_unsolved = gio::ActionEntry::builder("mark_all_puzzles_unsolved")
+            .activate(move |app: &Self, _, _| app.show_mark_all_puzzles_unsolved_dialog())
+            .build();
+        let calculate_tile_combinations_to_solve =
+            gio::ActionEntry::builder("calculate_tile_combinations_to_solve")
+                .activate(move |app: &Self, _, _| {
+                    app.imp()
+                        .window
+                        .get()
+                        .unwrap()
+                        .puzzle_area_nav_page()
+                        .calculate_tile_combinations_to_solve()
+                })
+                .build();
+        let stop_calculate_tile_combinations_to_solve =
+            gio::ActionEntry::builder("stop_calculate_tile_combinations_to_solve")
+                .activate(move |app: &Self, _, _| {
+                    app.imp()
+                        .window
+                        .get()
+                        .unwrap()
+                        .puzzle_area_nav_page()
+                        .stop_calculate_tile_combinations_to_solve()
+                })
+                .build();
+
+        self.add_action_entries([
+            quit_action,
+            about_action,
+            how_to_play_action,
+            preferences,
+            mark_all_puzzles_unsolved,
+            calculate_tile_combinations_to_solve,
+            stop_calculate_tile_combinations_to_solve,
+        ]);
+
+        self.set_accels_for_action("app.calculate_tile_combinations_to_solve", &["<control>k"]);
+        self.set_accels_for_action(
+            "app.stop_calculate_tile_combinations_to_solve",
+            &["<control>l"],
+        );
     }
 
     fn show_about(&self) {
@@ -166,6 +212,23 @@ impl PuzzledApplication {
         if let Some(window) = self.active_window() {
             dialog.present(Some(&window));
         }
+    }
+
+    fn show_mark_all_puzzles_unsolved_dialog(&self) {
+        const RESOURCE_PATH: &str = "/de/til7701/Puzzled/ui/dialog/mark-unsolved-dialog.ui";
+        let builder = gtk::Builder::from_resource(RESOURCE_PATH);
+        let dialog: adw::AlertDialog = builder
+            .object("dialog")
+            .expect("Missing `dialog` in resource");
+
+        dialog.connect_response(Some("mark"), {
+            move |_, _| {
+                info!("Marking all puzzles as unsolved");
+                with_puzzle_collection_store(|store| store.mark_all_as_unsolved());
+            }
+        });
+
+        dialog.present(self.active_window().as_ref());
     }
 
     fn show_how_to_play(&self) {
@@ -263,50 +326,12 @@ impl PuzzledApplication {
     }
 
     fn setup(&self, window: &PuzzledWindow) {
-        puzzles::init();
-        let collection_store = puzzles::get_puzzle_collection_store();
-        let mut state = get_state_mut();
-        state.puzzle_collection = Some(
-            collection_store
-                .core_puzzle_collections()
-                .first()
-                .unwrap()
-                .clone(),
-        );
-        drop(collection_store);
-        drop(state);
-
-        let mut main_presenter = MainPresenter::new(window);
-        let mut puzzle_presenter = PuzzlePresenter::new(window);
-        let puzzle_selection_presenter = Rc::new(PuzzleSelectionPresenter::new(
-            window,
-            main_presenter.clone(),
-        ));
-        let collection_selection_presenter = Rc::new(CollectionSelectionPresenter::new(
-            window,
-            main_presenter.clone(),
-        ));
-
-        main_presenter.register_actions(self);
-        main_presenter.setup(
-            &collection_selection_presenter,
-            &puzzle_selection_presenter,
-            &puzzle_presenter,
-        );
-
-        puzzle_presenter.register_actions(self);
-        puzzle_presenter.setup(Rc::new({
-            let main_presenter = main_presenter.clone();
-            move || {
-                main_presenter.on_solved();
-            }
-        }));
-
-        puzzle_selection_presenter.register_actions(self);
-        puzzle_selection_presenter.setup();
-
-        collection_selection_presenter.register_actions(self);
-        collection_selection_presenter.setup();
+        with_puzzle_collection_store(|store| {
+            window
+                .imp()
+                .puzzle_selection_nav_page
+                .show_collection(store.core_puzzle_collections().first().unwrap());
+        });
 
         if cfg!(debug_assertions) {
             window.add_css_class("devel");

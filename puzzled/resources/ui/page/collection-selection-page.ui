@@ -2,7 +2,7 @@
 <interface>
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
-    <template class="CollectionSelectionPage" parent="AdwNavigationPage">
+    <template class="PuzzledCollectionSelectionPage" parent="AdwNavigationPage">
         <property name="title" translatable="yes">Puzzled</property>
         <property name="tag">collection-selection</property>
         <property name="child">

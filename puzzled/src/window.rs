@@ -17,11 +17,15 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-use crate::view::collection_selection_page::CollectionSelectionPage;
-use crate::view::puzzle_area_page::PuzzleAreaPage;
+use crate::app::collection_selection::collection_selection_page::CollectionSelectionPage;
+use crate::app::puzzle::puzzle_page::PuzzlePage;
+use crate::app::puzzle_selection::puzzle_selection_page::PuzzleSelectionPage;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{gio, glib};
+
+pub const MIN_WINDOW_WIDTH: i32 = 320;
+pub const MIN_WINDOW_HEIGHT: i32 = 240;
 
 mod imp {
     use super::*;
@@ -36,7 +40,9 @@ mod imp {
         #[template_child]
         pub collection_selection_nav_page: TemplateChild<CollectionSelectionPage>,
         #[template_child]
-        pub puzzle_area_nav_page: TemplateChild<PuzzleAreaPage>,
+        pub puzzle_selection_nav_page: TemplateChild<PuzzleSelectionPage>,
+        #[template_child]
+        pub puzzle_area_nav_page: TemplateChild<PuzzlePage>,
     }
 
     #[glib::object_subclass]
@@ -70,24 +76,45 @@ glib::wrapper! {
 
 impl PuzzledWindow {
     pub fn new<P: IsA<gtk::Application>>(application: &P) -> Self {
-        glib::Object::builder()
+        let obj: PuzzledWindow = glib::Object::builder()
             .property("application", application)
-            .build()
+            .build();
+        obj.imp().puzzle_area_nav_page.set_window(&obj);
+        obj.imp().collection_selection_nav_page.set_window(&obj);
+        obj.setup_nav_signals();
+        obj
     }
 
-    pub fn outer_view(&self) -> adw::NavigationSplitView {
-        self.imp().outer_view.clone()
+    fn setup_nav_signals(&self) {
+        self.imp()
+            .collection_selection_nav_page
+            .connect_collection_selected({
+                let self_clone = self.clone();
+                move |collection| {
+                    self_clone
+                        .imp()
+                        .puzzle_selection_nav_page
+                        .show_collection(collection);
+                    self_clone.imp().outer_view.set_show_content(false);
+                    self_clone.imp().inner_view.set_show_content(true);
+                }
+            });
+        self.imp()
+            .puzzle_selection_nav_page
+            .connect_puzzle_selected({
+                let self_clone = self.clone();
+                move |puzzle| {
+                    self_clone.imp().puzzle_area_nav_page.show_puzzle(puzzle);
+                    self_clone.imp().outer_view.set_show_content(true);
+                }
+            })
     }
 
-    pub fn inner_view(&self) -> adw::NavigationSplitView {
-        self.imp().inner_view.clone()
+    pub fn puzzle_area_nav_page(&self) -> &PuzzlePage {
+        &self.imp().puzzle_area_nav_page
     }
 
-    pub fn collection_selection_nav_page(&self) -> CollectionSelectionPage {
-        self.imp().collection_selection_nav_page.clone()
-    }
-
-    pub fn puzzle_area_nav_page(&self) -> PuzzleAreaPage {
-        self.imp().puzzle_area_nav_page.clone()
+    pub fn outer_view(&self) -> &TemplateChild<adw::NavigationSplitView> {
+        &self.imp().outer_view
     }
 }

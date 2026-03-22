@@ -6,6 +6,8 @@
         <property name="title" translatable="yes">Puzzled</property>
         <property name="default-width">1280</property>
         <property name="default-height">720</property>
+        <property name="width-request">320</property>
+        <property name="height-request">240</property>
         <child>
             <object class="AdwBreakpoint">
                 <condition>max-width: 750sp</condition>
@@ -23,14 +25,17 @@
                                 <property name="max-sidebar-width">500</property>
                                 <property name="sidebar-width-fraction">0.25</property>
                                 <property name="sidebar">
-                                    <object class="CollectionSelectionPage" id="collection_selection_nav_page"/>
+                                    <object class="PuzzledCollectionSelectionPage" id="collection_selection_nav_page"/>
+                                </property>
+                                <property name="content">
+                                    <object class="PuzzleSelectionPage" id="puzzle_selection_nav_page"/>
                                 </property>
                             </object>
                         </property>
                     </object>
                 </property>
                 <property name="content">
-                    <object class="PuzzleAreaPage" id="puzzle_area_nav_page"/>
+                    <object class="PuzzledPuzzlePage" id="puzzle_area_nav_page"/>
                 </property>
             </object>
         </property>

@@ -21,14 +21,13 @@ extern crate core;
 
 #[allow(dead_code)]
 mod adw_ext;
+mod app;
 mod application;
 mod config;
 mod global;
+mod model;
 mod offset;
-mod presenter;
-mod puzzles;
 mod solver;
-mod view;
 mod window;
 
 use self::application::PuzzledApplication;

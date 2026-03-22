@@ -2,7 +2,7 @@
 <interface>
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
-    <object class="GtkListBoxRow" id="row">
+    <template class="PuzzledPuzzleSelectionItem" parent="GtkListBoxRow">
         <property name="selectable">False</property>
         <property name="activatable">True</property>
         <property name="action-name">app.puzzle_activated</property>
@@ -78,7 +78,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkScrolledWindow">
+                    <object class="GtkScrolledWindow" id="tile_preview_parent">
                         <property name="vscrollbar-policy">never</property>
                         <child>
                             <object class="GtkFixed" id="tile_preview_fixed">
@@ -87,7 +87,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkBox">
+                    <object class="GtkBox" id="board_preview_parent">
                         <property name="halign">fill</property>
                         <property name="hexpand">True</property>
                         <property name="hexpand-set">True</property>
@@ -106,5 +106,5 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>
