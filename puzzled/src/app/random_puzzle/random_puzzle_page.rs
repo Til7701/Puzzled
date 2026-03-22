@@ -1,6 +1,5 @@
 use crate::model::collection::CollectionModel;
 use crate::model::puzzle_meta::PuzzleMeta;
-use crate::model::store;
 use adw::gio;
 use adw::subclass::prelude::*;
 use gtk::glib;
@@ -94,6 +93,7 @@ impl RandomPuzzlePage {
         };
         let collection = random_puzzle(&settings);
         let collection = CollectionModel::new(collection, &PuzzleMeta::new());
+        collection.mark_all_as_unsolved();
         debug!("Generated random puzzle collection");
         self.emit_by_name::<()>(CREATE_RANDOM_PUZZLE_SIGNAL_NAME, &[&collection]);
     }
