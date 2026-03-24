@@ -3,7 +3,7 @@ use crate::model::collection::CollectionModel;
 use crate::model::store::with_puzzle_collection_store;
 use crate::window::PuzzledWindow;
 use adw::gio;
-use adw::prelude::{Cast, NavigationPageExt, ObjectExt};
+use adw::prelude::{Cast, ObjectExt};
 use adw::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::WidgetExt;
@@ -105,7 +105,7 @@ impl CollectionSelectionPage {
         self.imp().extra_options_list.connect_row_selected({
             let self_clone = self.clone();
             move |_, row| {
-                if let Some(_) = row {
+                if row.is_some() {
                     self_clone.imp().core_collection_list.unselect_all();
                     self_clone.imp().community_collection_list.unselect_all();
                 }

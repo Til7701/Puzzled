@@ -83,7 +83,7 @@ fn tile_indices_sorted_by_size(board: &Array2<Option<u32>>) -> Vec<u32> {
             *acc.entry(x).or_insert(0) += 1;
             acc
         });
-    let mut indices_with_count: Vec<(u32, u32)> = map.into_iter().map(|(k, v)| (k, v)).collect();
+    let mut indices_with_count: Vec<(u32, u32)> = map.into_iter().collect();
     indices_with_count.sort_by(|a, b| a.1.cmp(&b.1));
     indices_with_count.into_iter().map(|x| x.0).collect()
 }
