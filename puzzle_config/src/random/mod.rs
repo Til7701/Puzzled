@@ -68,3 +68,127 @@ fn random_orientation(rng: &mut dyn Rng, array: Array2<bool>) -> Array2<bool> {
     let iterator = TileRotationIterator::new(array);
     iterator.into_iter().nth(rng.random_range(0..8)).unwrap()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ndarray::arr2;
+
+    #[test]
+    fn test_normal() {
+        let settings = RandomPuzzleSettings {
+            seed: 42,
+            algorithm: Algorithm::Growing {
+                tile_count: 5,
+                board_width: 6,
+                board_height: 5,
+            },
+        };
+        let collection = random_puzzle(&settings);
+
+        assert_eq!(1, collection.puzzles().len());
+        let puzzle = &collection.puzzles()[0];
+        assert_eq!(
+            BoardConfig::Simple {
+                layout: arr2(&[
+                    [true, true, true, true, true],
+                    [true, true, true, true, true],
+                    [true, true, true, true, true],
+                    [true, true, true, true, true],
+                    [true, true, true, true, true],
+                    [true, true, true, true, true],
+                ])
+            },
+            *puzzle.board_config()
+        );
+        assert_eq!(5, puzzle.tiles().len());
+        assert_eq!(
+            TileConfig::new(
+                arr2(&[
+                    [true, true, true, true, true],
+                    [true, true, true, true, false]
+                ]),
+                ColorConfig::default_with_index(0),
+                None
+            ),
+            puzzle.tiles()[0]
+        );
+        assert_eq!(
+            TileConfig::new(
+                arr2(&[
+                    [false, false, true],
+                    [true, true, true],
+                    [false, false, true],
+                    [false, false, true],
+                    [false, true, true]
+                ]),
+                ColorConfig::default_with_index(1),
+                None
+            ),
+            puzzle.tiles()[1]
+        );
+        assert_eq!(
+            TileConfig::new(
+                arr2(&[[true, true, true, true]]),
+                ColorConfig::default_with_index(2),
+                None
+            ),
+            puzzle.tiles()[2]
+        );
+        assert_eq!(
+            TileConfig::new(
+                arr2(&[[false, false, true], [true, true, true]]),
+                ColorConfig::default_with_index(3),
+                None
+            ),
+            puzzle.tiles()[3]
+        );
+        assert_eq!(
+            TileConfig::new(
+                arr2(&[[true], [true], [true], [true], [true]]),
+                ColorConfig::default_with_index(4),
+                None
+            ),
+            puzzle.tiles()[4]
+        );
+    }
+
+    #[test]
+    fn test_small() {
+        let settings = RandomPuzzleSettings {
+            seed: 349587345923,
+            algorithm: Algorithm::Growing {
+                tile_count: 5,
+                board_width: 2,
+                board_height: 2,
+            },
+        };
+        let collection = random_puzzle(&settings);
+
+        assert_eq!(1, collection.puzzles().len());
+        let puzzle = &collection.puzzles()[0];
+        assert_eq!(
+            BoardConfig::Simple {
+                layout: arr2(&[[true, true], [true, true],])
+            },
+            *puzzle.board_config()
+        );
+        assert_eq!(4, puzzle.tiles().len());
+        assert_eq!(
+            TileConfig::new(arr2(&[[true]]), ColorConfig::default_with_index(0), None),
+            puzzle.tiles()[0]
+        );
+        assert_eq!(
+            TileConfig::new(arr2(&[[true]]), ColorConfig::default_with_index(1), None),
+            puzzle.tiles()[1]
+        );
+        assert_eq!(
+            TileConfig::new(arr2(&[[true]]), ColorConfig::default_with_index(2), None),
+            puzzle.tiles()[2]
+        );
+        assert_eq!(
+            TileConfig::new(arr2(&[[true]]), ColorConfig::default_with_index(3), None),
+            puzzle.tiles()[3]
+        );
+    }
+}

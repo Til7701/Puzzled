@@ -4,7 +4,7 @@ use ndarray::Array2;
 use std::hash::{Hash, Hasher};
 
 /// Configuration for the board layout and areas.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum BoardConfig {
     Simple {
         layout: Array2<bool>,

@@ -7,7 +7,7 @@ use std::fmt::{Display, Formatter};
 /// The placeholders {0}, {1}, {2}, etc. will be replaced with the display values
 /// of the corresponding target indices.
 /// The area formatter will be applied to each value before inserting it into the template.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TargetTemplate(String);
 
 impl TargetTemplate {

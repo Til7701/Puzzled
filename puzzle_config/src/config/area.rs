@@ -1,7 +1,7 @@
 /// Metadata for an area on the board.
 /// Includes the name and the formatter for the area values.
 /// This is used by the target selection UI.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct AreaConfig {
     name: String,
     formatter: AreaValueFormatter,
@@ -35,7 +35,7 @@ impl AreaConfig {
 }
 
 /// Formatter for a value for an area to display on the target selection button.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum AreaValueFormatter {
     /// Displays the value as is.
     Plain,
