@@ -218,14 +218,8 @@ impl PuzzleArea {
     /// that everything is wrapped in, does not work well with changing width requests
     /// if the children.
     fn set_min_size(&self) {
-        if !self
-            .imp()
-            .window
-            .get()
-            .unwrap()
-            .outer_view()
-            .shows_content()
-        {
+        let window = self.imp().window.get().unwrap();
+        if !window.outer_view().shows_content() {
             return;
         }
 
@@ -233,23 +227,12 @@ impl PuzzleArea {
         let grid_config = self.imp().grid_config.borrow();
 
         let fixed_min_width = grid_config.min_grid_h_cell_count as i32 * min_board_elements_width;
-        self.imp()
-            .window
-            .get()
-            .unwrap()
-            .set_width_request(fixed_min_width.max(MIN_WINDOW_WIDTH));
+        window.set_width_request(fixed_min_width.max(MIN_WINDOW_WIDTH));
+
         let fixed_min_height = grid_config.min_grid_v_cell_count as i32 * min_board_elements_width;
-        self.imp().window.get().unwrap().set_height_request(
-            (fixed_min_height
-                + self
-                    .imp()
-                    .window
-                    .get()
-                    .unwrap()
-                    .puzzle_area_nav_page()
-                    .header_bar()
-                    .height())
-            .max(MIN_WINDOW_HEIGHT),
+        window.set_height_request(
+            (fixed_min_height + window.puzzle_area_nav_page().header_bar().height())
+                .max(MIN_WINDOW_HEIGHT),
         );
     }
 }

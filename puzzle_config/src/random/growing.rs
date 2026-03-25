@@ -2,7 +2,7 @@ use crate::random::{Algorithm, RandomPuzzleSettings};
 use ndarray::Array2;
 use puzzled_common::array_util;
 use rand::{Rng, RngExt};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub fn create_puzzle(
     settings: &RandomPuzzleSettings,
@@ -17,6 +17,7 @@ pub fn create_puzzle(
     let board = complete_board.map(|x| x.is_some());
     let tiles = (0..tile_count)
         .map(|i| extract_tile(i as u32, &complete_board))
+        .filter(|tile| tile.iter().any(|&x| x))
         .collect();
 
     (board, tiles)
@@ -78,11 +79,11 @@ fn tile_indices_sorted_by_size(board: &Array2<Option<u32>>) -> Vec<u32> {
     let map = board
         .iter()
         .filter_map(|&x| x)
-        .fold(HashMap::new(), |mut acc, x| {
+        .fold(BTreeMap::new(), |mut acc, x| {
             *acc.entry(x).or_insert(0) += 1;
             acc
         });
-    let mut indices_with_count: Vec<(u32, u32)> = map.into_iter().map(|(k, v)| (k, v)).collect();
+    let mut indices_with_count: Vec<(u32, u32)> = map.into_iter().collect();
     indices_with_count.sort_by(|a, b| a.1.cmp(&b.1));
     indices_with_count.into_iter().map(|x| x.0).collect()
 }
