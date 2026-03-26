@@ -75,7 +75,6 @@ impl Solver {
         always_run_callback: bool,
         cancel_token: CancellationToken,
     ) {
-        self.interrupt_solver_call();
         let solver_call_id = self.create_solver_call_id();
         let mut state = self.state.write().unwrap();
         *state = SolverState::Running {
@@ -96,12 +95,13 @@ impl Solver {
             let self_clone = self.clone();
             let cancel_token = cancel_token.clone();
             async move {
-                debug!("Starting Solver task.");
+                debug!("Starting Solver task. Solver call id: {:?}", solver_call_id);
                 let result = puzzle_solver::solve_all_filling(board, &tiles, cancel_token).await;
                 let end = Instant::now();
                 let duration = end.duration_since(now);
                 debug!(
-                    "Solver task completed in {}.",
+                    "Solver task ({:?}) completed in {}.",
+                    solver_call_id,
                     humantime::format_duration(duration)
                 );
                 if always_run_callback {
