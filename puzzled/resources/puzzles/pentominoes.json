@@ -142,526 +142,6 @@
       ],
       "board": "3x10"
     }, {
-      "name": "3 x 10 K",
-      "id": "3x10K",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "V5", "N5", "L5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 L",
-      "id": "3x10L",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "F5", "N5", "Y5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 M",
-      "id": "3x10M",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "F5", "L5", "Y5", "N5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 N",
-      "id": "3x10N",
-      "difficulty": "Easy",
-      "tiles": [
-        "W5", "T5", "V5", "Y5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 O",
-      "id": "3x10O",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "T5", "L5", "Y5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 P",
-      "id": "3x10P",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "F5", "V5", "Y5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 Q",
-      "id": "3x10Q",
-      "difficulty": "Easy",
-      "tiles": [
-        "W5", "T5", "L5", "N5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 R",
-      "id": "3x10R",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "T5", "L5", "N5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 S",
-      "id": "3x10S",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "W5", "N5", "Y5", "L5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 T",
-      "id": "3x10T",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "W5", "Y5", "N5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 U",
-      "id": "3x10U",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "L5", "Y5", "N5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 V",
-      "id": "3x10V",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "V5", "T5", "N5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 W",
-      "id": "3x10W",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "V5", "F5", "L5", "N5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 X",
-      "id": "3x10X",
-      "difficulty": "Easy",
-      "tiles": [
-        "W5", "V5", "Z5", "Y5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 Y",
-      "id": "3x10Y",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "W5", "Z5", "Y5", "L5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 Z",
-      "id": "3x10Z",
-      "difficulty": "Easy",
-      "tiles": [
-        "Z5", "V5", "N5", "L5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AA",
-      "id": "3x10AA",
-      "difficulty": "Easy",
-      "tiles": [
-        "Z5", "W5", "Y5", "N5", "L5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AB",
-      "id": "3x10AB",
-      "difficulty": "Easy",
-      "tiles": [
-        "Z5", "V5", "N5", "L5", "Y5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AC",
-      "id": "3x10AC",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "Z5", "Y5", "N5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AD",
-      "id": "3x10AD",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "F5", "Z5", "L5", "N5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AE",
-      "id": "3x10AE",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "F5", "Z5", "N5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AF",
-      "id": "3x10AF",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "T5", "Z5", "Y5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AG",
-      "id": "3x10AG",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "Z5", "W5", "N5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AH",
-      "id": "3x10AH",
-      "difficulty": "Easy",
-      "tiles": [
-        "X5", "V5", "Y5", "L5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AI",
-      "id": "3x10AI",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "V5", "W5", "Y5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AJ",
-      "id": "3x10AJ",
-      "difficulty": "Easy",
-      "tiles": [
-        "W5", "F5", "Y5", "L5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AK",
-      "id": "3x10AK",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "F5", "Y5", "U5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AL",
-      "id": "3x10AL",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "N5", "L5", "Y5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AM",
-      "id": "3x10AM",
-      "difficulty": "Easy",
-      "tiles": [
-        "X5", "N5", "L5", "P5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AN",
-      "id": "3x10AN",
-      "difficulty": "Easy",
-      "tiles": [
-        "W5", "N5", "L5", "Y5", "U5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AO",
-      "id": "3x10AO",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "Y5", "N5", "L5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AP",
-      "id": "3x10AP",
-      "difficulty": "Easy",
-      "tiles": [
-        "N5", "Y5", "L5", "U5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AQ",
-      "id": "3x10AQ",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "Y5", "N5", "P5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AR",
-      "id": "3x10AR",
-      "difficulty": "Easy",
-      "tiles": [
-        "X5", "N5", "L5", "Y5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AS",
-      "id": "3x10AS",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "V5", "N5", "L5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AT",
-      "id": "3x10AT",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "W5", "N5", "L5", "Y5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AU",
-      "id": "3x10AU",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "V5", "N5", "L5", "Y5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AV",
-      "id": "3x10AV",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "F5", "Y5", "N5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AW",
-      "id": "3x10AW",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "W5", "L5", "N5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AX",
-      "id": "3x10BX",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "L5", "N5", "P5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AY",
-      "id": "3x10AY",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "F5", "N5", "P5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 AZ",
-      "id": "3x10AZ",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "V5", "L5", "N5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BA",
-      "id": "3x10BA",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "Y5", "N5", "P5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BB",
-      "id": "3x10BB",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "F5", "Y5", "N5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BC",
-      "id": "3x10BC",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "T5", "L5", "Y5", "U5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BD",
-      "id": "3x10BD",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "T5", "Y5", "P5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BE",
-      "id": "3x10BE",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "F5", "Y5", "L5", "U5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BF",
-      "id": "3x10BF",
-      "difficulty": "Easy",
-      "tiles": [
-        "W5", "T5", "N5", "Y5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BG",
-      "id": "3x10BG",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "L5", "N5", "Y5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BH",
-      "id": "3x10BH",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "N5", "Y5", "P5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BI",
-      "id": "3x10BI",
-      "difficulty": "Easy",
-      "tiles": [
-        "X5", "T5", "N5", "Y5", "U5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BJ",
-      "id": "3x10BJ",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "W5", "T5", "N5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BK",
-      "id": "3x10BK",
-      "difficulty": "Easy",
-      "tiles": [
-        "T5", "F5", "N5", "U5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BL",
-      "id": "3x10BL",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "T5", "Y5", "N5", "U5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BM",
-      "id": "3x10BM",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "Z5", "L5", "Y5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BN",
-      "id": "3x10BN",
-      "difficulty": "Easy",
-      "tiles": [
-        "X5", "Z5", "V5", "U5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BO",
-      "id": "3x10BO",
-      "difficulty": "Easy",
-      "tiles": [
-        "Z5", "V5", "Y5", "U5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BP",
-      "id": "3x10BP",
-      "difficulty": "Easy",
-      "tiles": [
-        "Z5", "V5", "Y5", "L5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BQ",
-      "id": "3x10BQ",
-      "difficulty": "Easy",
-      "tiles": [
-        "Z5", "W5", "V5", "F5", "Y5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BR",
-      "id": "3x10BR",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "Z5", "F5", "P5", "U5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BS",
-      "id": "3x10BS",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "V5", "Z5", "Y5", "U5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BT",
-      "id": "3x10BT",
-      "difficulty": "Easy",
-      "tiles": [
-        "Z5", "Y5", "N5", "U5", "P5", "I5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BU",
-      "id": "3x10BU",
-      "difficulty": "Easy",
-      "tiles": [
-        "Z5", "X5", "Y5", "N5", "U5", "P5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BV",
-      "id": "3x10BV",
-      "difficulty": "Easy",
-      "tiles": [
-        "F5", "Z5", "Y5", "N5", "P5", "U5"
-      ],
-      "board": "3x10"
-    }, {
-      "name": "3 x 10 BW",
-      "id": "3x10BW",
-      "difficulty": "Easy",
-      "tiles": [
-        "V5", "T5", "Z5", "L5", "U5", "P5"
-      ],
-      "board": "3x10"
-    }, {
       "name": "3 x 15 A",
       "id": "3x15A",
       "difficulty": "Medium",
@@ -686,6 +166,62 @@
       ],
       "board": "3x15"
     }, {
+      "name": "3 x 15 D",
+      "id": "3x15D",
+      "difficulty": "Medium",
+      "tiles": [
+        "T5", "Z5", "W5", "V5", "Y5", "N5", "L5", "P5", "I5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "3 x 15 E",
+      "id": "3x15E",
+      "difficulty": "Medium",
+      "tiles": [
+        "T5", "V5", "X5", "W5", "Y5", "L5", "P5", "U5", "I5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "3 x 15 F",
+      "id": "3x15F",
+      "difficulty": "Medium",
+      "tiles": [
+        "V5", "W5", "T5", "Y5", "N5", "L5", "U5", "P5", "I5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "3 x 15 G",
+      "id": "3x15G",
+      "difficulty": "Medium",
+      "tiles": [
+        "W5", "X5", "V5", "Z5", "L5", "Y5", "U5", "P5", "I5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "3 x 15 H",
+      "id": "3x15H",
+      "difficulty": "Medium",
+      "tiles": [
+        "V5", "X5", "W5", "Z5", "T5", "L5", "Y5", "U5", "P5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "3 x 15 I",
+      "id": "3x15I",
+      "difficulty": "Medium",
+      "tiles": [
+        "V5", "X5", "Z5", "T5", "Y5", "L5", "U5", "P5", "I5"
+      ],
+      "board": "3x15"
+    }, {
+      "name": "3 x 15 J",
+      "id": "3x15J",
+      "difficulty": "Medium",
+      "tiles": [
+        "Z5", "V5", "T5", "X5", "Y5", "N5", "U5", "P5", "I5"
+      ],
+      "board": "3x15"
+    }, {
       "name": "All 3 x 20",
       "id": "3x20",
       "difficulty": "Hard",
@@ -695,6 +231,166 @@
       "board": "3x20"
     },
     {
+      "name": "All 4 x 5 A",
+      "id": "4x5A",
+      "difficulty": "Medium",
+      "tiles": [
+        "F5", "Y5", "U5", "P5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 B",
+      "id": "4x5B",
+      "difficulty": "Medium",
+      "tiles": [
+        "F5", "P5", "U5", "I5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 C",
+      "id": "4x5C",
+      "difficulty": "Medium",
+      "tiles": [
+        "Y5", "U5", "P5", "I5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 D",
+      "id": "4x5D",
+      "difficulty": "Medium",
+      "tiles": [
+        "N5", "Y5", "P5", "U5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 E",
+      "id": "4x5E",
+      "difficulty": "Medium",
+      "tiles": [
+        "N5", "U5", "P5", "I5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 F",
+      "id": "4x5F",
+      "difficulty": "Medium",
+      "tiles": [
+        "T5", "F5", "Y5", "L5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 G",
+      "id": "4x5G",
+      "difficulty": "Medium",
+      "tiles": [
+        "T5", "Y5", "L5", "I5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 H",
+      "id": "4x5H",
+      "difficulty": "Medium",
+      "tiles": [
+        "F5", "L5", "Y5", "U5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 I",
+      "id": "4x5I",
+      "difficulty": "Medium",
+      "tiles": [
+        "T5", "Y5", "L5", "P5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 5 J",
+      "id": "4x5J",
+      "difficulty": "Medium",
+      "tiles": [
+        "V5", "L5", "Y5", "U5"
+      ],
+      "board": "4x5"
+    }, {
+      "name": "All 4 x 10 A",
+      "id": "4x10A",
+      "difficulty": "Hard",
+      "tiles": [
+        "F5", "Z5", "V5", "N5", "Y5", "U5", "P5", "I5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 B",
+      "id": "4x10B",
+      "difficulty": "Hard",
+      "tiles": [
+        "V5", "F5", "Z5", "Y5", "L5", "N5", "P5", "I5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 C",
+      "id": "4x10C",
+      "difficulty": "Hard",
+      "tiles": [
+        "V5", "F5", "Z5", "Y5", "L5", "P5", "U5", "I5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 D",
+      "id": "4x10D",
+      "difficulty": "Hard",
+      "tiles": [
+        "Z5", "V5", "F5", "L5", "N5", "P5", "U5", "I5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 E",
+      "id": "4x10E",
+      "difficulty": "Hard",
+      "tiles": [
+        "V5", "F5", "Y5", "N5", "L5", "U5", "P5", "I5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 F",
+      "id": "4x10F",
+      "difficulty": "Hard",
+      "tiles": [
+        "X5", "F5", "V5", "Y5", "L5", "P5", "U5", "I5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 G",
+      "id": "4x10G",
+      "difficulty": "Hard",
+      "tiles": [
+        "W5", "V5", "Z5", "F5", "Y5", "P5", "U5", "I5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 H",
+      "id": "4x10H",
+      "difficulty": "Hard",
+      "tiles": [
+        "F5", "W5", "Z5", "L5", "Y5", "N5", "U5", "P5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 I",
+      "id": "4x10I",
+      "difficulty": "Hard",
+      "tiles": [
+        "F5", "T5", "V5", "Y5", "N5", "P5", "U5", "I5"
+      ],
+      "board": "4x10"
+    }, {
+      "name": "All 4 x 10 J",
+      "id": "4x10J",
+      "difficulty": "Hard",
+      "tiles": [
+        "T5", "Z5", "V5", "F5", "N5", "L5", "P5", "I5"
+      ],
+      "board": "4x10"
+    }, {
       "name": "All 4 x 15",
       "id": "4x15",
       "difficulty": "Hard",
