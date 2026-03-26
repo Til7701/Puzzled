@@ -84,6 +84,7 @@ impl PuzzlePage {
         let cancel_token = CancellationToken::new();
         let solver = Solver::default();
         self.display_state(&HintButtonState::Calculating);
+        solver.interrupt_solver_call();
         solver.solve_for_target(
             puzzle_state,
             Box::new(move |result| {
