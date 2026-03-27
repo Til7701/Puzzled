@@ -52,36 +52,49 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.0.1/data/screenshot-start-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.1.0/data/screenshot-start-light.png</image>
             <caption>Puzzle Selection</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.0.1/data/screenshot-year-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.1.0/data/screenshot-year-light.png</image>
             <caption>Solving a Puzzle</caption>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.1.0/data/screenshot-start-dark.png</image>
+            <caption>Puzzle Selection in Dark Mode</caption>
         </screenshot>
     </screenshots>
 
     <releases>
-          <release version="1.0.1" date="2026-03-14">
-               <description translate="no">
-                   <ul>
-                       <li>Update icon and description for Flathub.</li>
-                       <li>Set log level to info.</li>
-                   </ul>
-               </description>
-          </release>
-         <release version="1.0.0" date="2026-03-10">
-              <description translate="no">
-                  <ul>
-                      <li>Add more puzzles to the Hexomino and Tromino collections.</li>
-                      <li>You now get stars for solving puzzles using less hints.</li>
-                      <li>Improve solver feedback, if no solution is available.</li>
-                      <li>Allow marking puzzles as unsolvable.</li>
-                      <li>Fixed name for menu entry for about dialog.</li>
-                  </ul>
-              </description>
-         </release>
-         <release version="0.4.0" date="2026-02-22">
+        <release version="1.1.0" date="2026-03-27">
+            <description translate="no">
+                <ul>
+                    <li>Added the ability to generate random puzzles.</li>
+                    <li>Added more puzzles to the pentominoes collection.</li>
+                    <li>Added popover to explain community collections.</li>
+                </ul>
+            </description>
+        </release>
+        <release version="1.0.1" date="2026-03-14">
+            <description translate="no">
+                <ul>
+                    <li>Update icon and description for Flathub.</li>
+                    <li>Set log level to info.</li>
+                </ul>
+            </description>
+        </release>
+        <release version="1.0.0" date="2026-03-10">
+            <description translate="no">
+                <ul>
+                    <li>Add more puzzles to the Hexomino and Tromino collections.</li>
+                    <li>You now get stars for solving puzzles using less hints.</li>
+                    <li>Improve solver feedback, if no solution is available.</li>
+                    <li>Allow marking puzzles as unsolvable.</li>
+                    <li>Fixed name for menu entry for about dialog.</li>
+                </ul>
+            </description>
+        </release>
+        <release version="0.4.0" date="2026-02-22">
             <description translate="no">
                 <ul>
                     <li>Update collection selection list.</li>
