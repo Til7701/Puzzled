@@ -136,5 +136,5 @@ ij_yaml_spaces_within_braces = true
 ij_yaml_spaces_within_brackets = true
 
 
-[*.ui]
+[{*.ui,*.xml.in}]
 max_line_length = 200
