@@ -23,6 +23,6 @@ tokio = { version = "1.51.0", features = ["rt", "rt-multi-thread", "macros"] }
 tokio-util = "0.7.18"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149" }
-semver = "1.0.27"
+semver = "1.0.28"
 regex = "1.12.3"
 rand = "0.10.0"
