@@ -2,6 +2,7 @@ use crate::model::extension::PuzzleTypeExtension;
 use crate::offset::CellOffset;
 use ndarray::Array2;
 use puzzle_config::PuzzleConfig;
+use puzzled_common::Shape;
 use std::cell::Ref;
 use std::collections::HashSet;
 
@@ -50,7 +51,7 @@ impl Default for Cell {
 pub struct UnusedTile {
     /// Used to identify the tile when having multiple identical tiles.
     pub id: usize,
-    pub base: Array2<bool>,
+    pub base: Shape,
     pub name: Option<String>,
 }
 

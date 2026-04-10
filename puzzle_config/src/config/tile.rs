@@ -1,11 +1,11 @@
 use crate::config::color::ColorConfig;
-use ndarray::Array2;
+use puzzled_common::Shape;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 /// Configuration for a tile that can be placed on the board.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TileConfig {
-    base: Array2<bool>,
+    base: Shape,
     color: ColorConfig,
     name: Option<String>,
 }
@@ -18,13 +18,13 @@ impl TileConfig {
     /// * `base`: Base shape of the tile as a 2D boolean array.
     ///
     /// returns: TileConfig
-    pub fn new(base: Array2<bool>, color: ColorConfig, name: Option<String>) -> TileConfig {
+    pub fn new(base: Shape, color: ColorConfig, name: Option<String>) -> TileConfig {
         TileConfig { base, color, name }
     }
 
     /// Base shape of the tile as a 2D boolean array.
     /// True indicates a filled cell, false indicates an empty cell.
-    pub fn base(&self) -> &Array2<bool> {
+    pub fn base(&self) -> &Shape {
         &self.base
     }
 

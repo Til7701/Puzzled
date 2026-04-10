@@ -34,13 +34,13 @@ mod tests {
     use super::*;
     use crate::board::Board;
     use crate::tile::Tile;
-    use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_check_passing() {
         let board = Board::new((3, 3));
-        let tile1 = Tile::new(arr2(&[[true, true], [true, true], [true, false]]));
-        let tile2 = Tile::new(arr2(&[[false, true], [false, true], [true, true]]));
+        let tile1 = Tile::new(shape_square(&[[true, true], [true, true], [true, false]]));
+        let tile2 = Tile::new(shape_square(&[[false, true], [false, true], [true, true]]));
         let tiles = vec![tile1, tile2];
 
         assert!(check(&board, &tiles));
@@ -49,8 +49,8 @@ mod tests {
     #[test]
     fn test_check_failing() {
         let board = Board::new((3, 3));
-        let tile1 = Tile::new(arr2(&[[true, true], [true, false]]));
-        let tile2 = Tile::new(arr2(&[[false, true], [false, true]]));
+        let tile1 = Tile::new(shape_square(&[[true, true], [true, false]]));
+        let tile2 = Tile::new(shape_square(&[[false, true], [false, true]]));
         let tiles = vec![tile1, tile2];
 
         assert!(!check(&board, &tiles));

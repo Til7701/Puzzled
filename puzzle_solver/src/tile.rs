@@ -1,6 +1,7 @@
 use log::debug;
 use ndarray::Array2;
 use puzzled_common::array_util::{debug_print, rotate_90};
+use puzzled_common::Shape;
 use std::collections::HashSet;
 
 /// Represents a tile to place on a board.
@@ -10,9 +11,9 @@ use std::collections::HashSet;
 pub struct Tile {
     /// The base 2D boolean array representing the tile.
     /// This is kept for convenience to give back to users who want the original base.
-    pub(crate) base: Array2<bool>,
+    pub(crate) base: Shape,
     /// All unique rotations and flips of the tile, containing the base orientation as well.
-    pub(crate) all_rotations: Vec<Array2<bool>>,
+    pub(crate) all_rotations: Vec<Shape>,
 }
 
 impl Tile {
@@ -36,8 +37,8 @@ impl Tile {
     /// let base = arr2(&[[true, false], [true, true]]);
     /// let tile = Tile::new(base);
     /// ```
-    pub fn new(base: Array2<bool>) -> Tile {
-        let mut all_rotations_set: HashSet<Array2<bool>> = HashSet::new();
+    pub fn new(base: Shape) -> Tile {
+        let mut all_rotations_set: HashSet<Shape> = HashSet::new();
 
         all_rotations_set.insert(base.clone());
 
@@ -82,7 +83,7 @@ impl Tile {
     /// let tile = Tile::new(base.clone());
     /// assert_eq!(tile.base(), &base);
     /// ```
-    pub fn base(&self) -> &Array2<bool> {
+    pub fn base(&self) -> &Shape {
         &self.base
     }
 
@@ -102,94 +103,104 @@ impl Tile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_new() {
-        let base = arr2(&[[true, false], [true, true]]);
+        let base = shape_square(&[[true, false], [true, true]]);
         let tile = Tile::new(base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 4);
         assert!(
             tile.all_rotations
-                .contains(&arr2(&[[true, false], [true, true]]))
+                .contains(&shape_square(&[[true, false], [true, true]]))
         );
         assert!(
             tile.all_rotations
-                .contains(&arr2(&[[true, true], [true, false]]))
+                .contains(&shape_square(&[[true, true], [true, false]]))
         );
         assert!(
             tile.all_rotations
-                .contains(&arr2(&[[true, true], [false, true]]))
+                .contains(&shape_square(&[[true, true], [false, true]]))
         );
         assert!(
             tile.all_rotations
-                .contains(&arr2(&[[false, true], [true, true]]))
+                .contains(&shape_square(&[[false, true], [true, true]]))
         );
     }
 
     #[test]
     fn test_new_1x1() {
-        let base = arr2(&[[true]]);
+        let base = shape_square(&[[true]]);
         let tile = Tile::new(base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 1);
-        assert!(tile.all_rotations.contains(&arr2(&[[true]])));
+        assert!(tile.all_rotations.contains(&shape_square(&[[true]])));
     }
 
     #[test]
     fn test_new_1x2() {
-        let base = arr2(&[[true, false]]);
+        let base = shape_square(&[[true, false]]);
         let tile = Tile::new(base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 4);
-        assert!(tile.all_rotations.contains(&arr2(&[[true, false]])));
-        assert!(tile.all_rotations.contains(&arr2(&[[false], [true]])));
-        assert!(tile.all_rotations.contains(&arr2(&[[false, true]])));
-        assert!(tile.all_rotations.contains(&arr2(&[[true], [false]])));
+        assert!(tile.all_rotations.contains(&shape_square(&[[true, false]])));
+        assert!(
+            tile.all_rotations
+                .contains(&shape_square(&[[false], [true]]))
+        );
+        assert!(tile.all_rotations.contains(&shape_square(&[[false, true]])));
+        assert!(
+            tile.all_rotations
+                .contains(&shape_square(&[[true], [false]]))
+        );
     }
 
     #[test]
     fn test_new_2x3() {
-        let base = arr2(&[[true, false], [true, true], [true, true]]);
+        let base = shape_square(&[[true, false], [true, true], [true, true]]);
         let tile = Tile::new(base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 8);
+        assert!(tile.all_rotations.contains(&shape_square(&[
+            [true, false],
+            [true, true],
+            [true, true]
+        ])));
+        assert!(tile.all_rotations.contains(&shape_square(&[
+            [true, true],
+            [true, true],
+            [false, true]
+        ])));
+        assert!(tile.all_rotations.contains(&shape_square(&[
+            [true, true],
+            [true, true],
+            [true, false]
+        ])));
+        assert!(tile.all_rotations.contains(&shape_square(&[
+            [false, true],
+            [true, true],
+            [true, true]
+        ])));
         assert!(
             tile.all_rotations
-                .contains(&arr2(&[[true, false], [true, true], [true, true]]))
+                .contains(&shape_square(&[[false, true, true], [true, true, true]]))
         );
         assert!(
             tile.all_rotations
-                .contains(&arr2(&[[true, true], [true, true], [false, true]]))
+                .contains(&shape_square(&[[true, true, true], [false, true, true]]))
         );
         assert!(
             tile.all_rotations
-                .contains(&arr2(&[[true, true], [true, true], [true, false]]))
+                .contains(&shape_square(&[[true, true, false], [true, true, true]]))
         );
         assert!(
             tile.all_rotations
-                .contains(&arr2(&[[false, true], [true, true], [true, true]]))
-        );
-        assert!(
-            tile.all_rotations
-                .contains(&arr2(&[[false, true, true], [true, true, true]]))
-        );
-        assert!(
-            tile.all_rotations
-                .contains(&arr2(&[[true, true, true], [false, true, true]]))
-        );
-        assert!(
-            tile.all_rotations
-                .contains(&arr2(&[[true, true, false], [true, true, true]]))
-        );
-        assert!(
-            tile.all_rotations
-                .contains(&arr2(&[[true, true, true], [true, true, false]]))
+                .contains(&shape_square(&[[true, true, true], [true, true, false]]))
         );
     }
 }

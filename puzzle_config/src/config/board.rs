@@ -1,16 +1,17 @@
 use crate::config::area::AreaConfig;
 use crate::{Target, TargetIndex, TargetTemplate};
 use ndarray::Array2;
+use puzzled_common::Shape;
 use std::hash::{Hash, Hasher};
 
 /// Configuration for the board layout and areas.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum BoardConfig {
     Simple {
-        layout: Array2<bool>,
+        layout: Shape,
     },
     Area {
-        layout: Box<Array2<bool>>,
+        layout: Box<Shape>,
         area_indices: Box<Array2<i32>>,
         display_values: Box<Array2<String>>,
         value_order: Box<Array2<i32>>,
@@ -59,7 +60,7 @@ impl BoardConfig {
         None
     }
 
-    pub fn layout(&self) -> &Array2<bool> {
+    pub fn layout(&self) -> &Shape {
         match self {
             BoardConfig::Simple { layout } => layout,
             BoardConfig::Area { layout, .. } => layout,

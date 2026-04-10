@@ -1,7 +1,7 @@
 use log::debug;
 use ndarray::Array2;
-use puzzled_common::array_util;
 use puzzled_common::array_util::TrimSides;
+use puzzled_common::{array_util, Shape};
 use std::ops::{Index, IndexMut};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
@@ -19,7 +19,7 @@ use std::ops::{Index, IndexMut};
 /// board[[2, 3]] = true;
 /// assert_eq!(board[[2, 3]], true);
 /// ```
-pub struct Board(Array2<bool>);
+pub struct Board(Shape);
 
 impl Board {
     /// Creates a new Board with the given dimensions, initialized to all false (empty).
@@ -40,7 +40,7 @@ impl Board {
     /// assert!(board.get_array().iter().all(|&b| b == false));
     /// ```
     pub fn new(dims: (usize, usize)) -> Self {
-        Board(Array2::default(dims))
+        Board(Shape::default(dims))
     }
 
     /// Returns a reference to the internal 2D array representing the board.
@@ -60,7 +60,7 @@ impl Board {
     /// let board = Board::new((3, 4));
     /// assert_eq!(board.get_array(), Array2::default((3, 4)));
     /// ```
-    pub fn get_array(&self) -> &Array2<bool> {
+    pub fn get_array(&self) -> &Shape {
         &self.0
     }
 
