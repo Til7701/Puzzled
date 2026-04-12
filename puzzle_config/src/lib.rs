@@ -56,7 +56,7 @@ impl Predefined {
 #[cfg(test)]
 mod tests {
     use crate::create_json_loader;
-    use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_load_puzzle_collection_from_json() {
@@ -125,17 +125,17 @@ mod tests {
         assert_eq!(2, puzzle.tiles().len());
         assert_eq!(
             puzzle.board_config().layout(),
-            arr2(&[[true, true, true], [true, false, true], [true, true, true]])
+            &shape_square(&[[true, true, true], [true, false, true], [true, true, true]])
         );
         let ref_tile = &puzzle.tiles()[0];
         assert_eq!(
             ref_tile.base(),
-            arr2(&[[true, false], [true, true]]).reversed_axes()
+            &shape_square(&[[true, true], [false, true]])
         );
         let custom_tile = &puzzle.tiles()[1];
         assert_eq!(
             custom_tile.base(),
-            arr2(&[[true, false, true], [true, true, true]]).reversed_axes()
+            &shape_square(&[[true, true], [false, true], [true, true]])
         );
     }
 }

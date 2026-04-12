@@ -2,6 +2,7 @@ use crate::config::area::AreaConfig;
 use crate::{Target, TargetIndex, TargetTemplate};
 use ndarray::Array2;
 use puzzled_common::Shape;
+use puzzled_common::ShapeType::Square;
 use std::hash::{Hash, Hasher};
 
 /// Configuration for the board layout and areas.
@@ -168,7 +169,7 @@ pub fn from_predefined_board(name: &str) -> Option<BoardConfig> {
         .get(0..2)
         .map(|dims| (dims[0], dims[1]));
     dim.map(|(rows, cols)| BoardConfig::Simple {
-        layout: Array2::from_shape_fn((rows as usize, cols as usize), |_| true),
+        layout: Shape::from_elem((rows as usize, cols as usize), Square, true),
     })
 }
 
@@ -178,10 +179,12 @@ mod tests {
     use crate::config::area::{AreaConfig, AreaValueFormatter};
     use crate::config::target::{TargetIndex, TargetTemplate};
     use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_puzzle_config_get_display_values_for_area() {
-        let board_layout = arr2(&[[true, true, false], [true, true, true], [false, true, true]]);
+        let board_layout =
+            shape_square(&[[true, true, false], [true, true, true], [false, true, true]]);
         let area_indices = arr2(&[[0, 0, -1], [0, 1, 1], [-1, 1, 1]]);
         let display_values = arr2(&[
             ["A".to_string(), "B".to_string(), "".to_string()],

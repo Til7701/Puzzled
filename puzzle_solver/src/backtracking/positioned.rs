@@ -3,8 +3,7 @@ use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
 use log::debug;
-use ndarray::Array2;
-use puzzled_common::array_util;
+use puzzled_common::Shape;
 
 /// A tile with all its possible placements on the board represented as bitmasks.
 ///
@@ -29,13 +28,13 @@ impl PositionedTile {
     ///
     /// returns: PositionedTile
     pub(crate) fn new(tile: &Tile, board: &Board, pruner: &Pruner) -> Self {
-        let all_placements: Vec<Array2<bool>> = tile
+        let all_placements: Vec<Shape> = tile
             .all_rotations
             .iter()
-            .flat_map(|rotation| array_util::place_on_all_positions(board.get_array(), rotation))
+            .flat_map(|rotation| board.get_array().place_on_all_positions(rotation))
             .map(|array| {
                 let mut array = array.clone();
-                array_util::remove_parent(board.get_array(), &mut array);
+                array.remove_parent(board.get_array());
                 array
             })
             .collect();
@@ -65,13 +64,13 @@ impl PositionedTile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_positioned_tile_new() {
         let mut board = Board::new((3, 4));
         board[[0, 0]] = true;
-        let tile = Tile::new(arr2(&[[true, true, true], [true, true, false]]));
+        let tile = Tile::new(shape_square(&[[true, true, true], [true, true, false]]));
 
         let positioned_tile = PositionedTile::new(
             &tile,
@@ -80,128 +79,216 @@ mod tests {
         );
         assert_eq!(positioned_tile.bitmasks().len(), 15);
 
-        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, false],
-            [false, true, true, true],
-            [false, false, false, false]
-        ]))));
-        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [false, true, true, true],
-            [false, true, true, false]
-        ]))));
-        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, true, false],
-            [false, true, true, false],
-            [false, true, true, false]
-        ]))));
-        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, true, false],
-            [false, false, true, true],
-            [false, false, true, true]
-        ]))));
-        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, false],
-            [false, true, true, false],
-            [false, false, true, false]
-        ]))));
-        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, true, true],
-            [false, false, true, true],
-            [false, false, true, false]
-        ]))));
-        assert!(!positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [true, true, true, false],
-            [false, true, true, false]
-        ]))));
+        assert!(
+            !positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, true, true, false],
+                    [false, true, true, true],
+                    [false, false, false, false]
+                ])))
+        );
+        assert!(
+            !positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, false],
+                    [false, true, true, true],
+                    [false, true, true, false]
+                ])))
+        );
+        assert!(
+            !positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, true, false],
+                    [false, true, true, false],
+                    [false, true, true, false]
+                ])))
+        );
+        assert!(
+            !positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, true, false],
+                    [false, false, true, true],
+                    [false, false, true, true]
+                ])))
+        );
+        assert!(
+            !positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, true, true, false],
+                    [false, true, true, false],
+                    [false, false, true, false]
+                ])))
+        );
+        assert!(
+            !positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, true, true],
+                    [false, false, true, true],
+                    [false, false, true, false]
+                ])))
+        );
+        assert!(
+            !positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, false],
+                    [true, true, true, false],
+                    [false, true, true, false]
+                ])))
+        );
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [true, true, false, false],
-            [true, true, true, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [false, true, true, false],
-            [false, true, true, true]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, true],
-            [false, true, true, false],
-            [false, false, false, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [true, true, true, false],
-            [true, true, false, false]
-        ]))));
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, false],
+                    [true, true, false, false],
+                    [true, true, true, false]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, false],
+                    [false, true, true, false],
+                    [false, true, true, true]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, true, true, true],
+                    [false, true, true, false],
+                    [false, false, false, false]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, false],
+                    [true, true, true, false],
+                    [true, true, false, false]
+                ])))
+        );
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, false, false],
-            [true, true, false, false],
-            [true, true, false, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, true],
-            [false, false, true, true],
-            [false, false, true, true]
-        ]))));
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, true, false, false],
+                    [true, true, false, false],
+                    [true, true, false, false]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, true],
+                    [false, false, true, true],
+                    [false, false, true, true]
+                ])))
+        );
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, false, false],
-            [false, true, true, false],
-            [false, true, true, false]
-        ]))));
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, true, false, false],
+                    [false, true, true, false],
+                    [false, true, true, false]
+                ])))
+        );
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, true, true],
-            [false, false, true, true],
-            [false, false, false, true]
-        ]))));
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, true, true],
+                    [false, false, true, true],
+                    [false, false, false, true]
+                ])))
+        );
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, false],
-            [false, true, true, false],
-            [false, true, false, false]
-        ]))));
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, true, true, false],
+                    [false, true, true, false],
+                    [false, true, false, false]
+                ])))
+        );
 
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, false],
-            [true, true, true, false],
-            [false, false, false, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, true, true],
-            [false, true, true, true],
-            [false, false, false, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [false, true, true, false],
-            [true, true, true, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [false, false, true, true],
-            [false, true, true, true]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, true, true, true],
-            [false, false, true, true],
-            [false, false, false, false]
-        ]))));
-        assert!(positioned_tile.bitmasks.contains(&Bitmask::from(&arr2(&[
-            [false, false, false, false],
-            [false, true, true, true],
-            [false, false, true, true]
-        ]))));
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, true, true, false],
+                    [true, true, true, false],
+                    [false, false, false, false]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, true, true],
+                    [false, true, true, true],
+                    [false, false, false, false]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, false],
+                    [false, true, true, false],
+                    [true, true, true, false]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, false],
+                    [false, false, true, true],
+                    [false, true, true, true]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, true, true, true],
+                    [false, false, true, true],
+                    [false, false, false, false]
+                ])))
+        );
+        assert!(
+            positioned_tile
+                .bitmasks
+                .contains(&Bitmask::from(&shape_square(&[
+                    [false, false, false, false],
+                    [false, true, true, true],
+                    [false, false, true, true]
+                ])))
+        );
     }
 
     #[test]
     fn test_positioned_tile_new_no_placements() {
         let board = Board::new((2, 2));
-        let tile = Tile::new(arr2(&[
+        let tile = Tile::new(shape_square(&[
             [true, true, true],
             [true, false, false],
             [false, false, false],
@@ -222,7 +309,7 @@ mod tests {
         board[[0, 1]] = true;
         board[[1, 0]] = true;
         board[[1, 1]] = true;
-        let tile = Tile::new(arr2(&[[true]]));
+        let tile = Tile::new(shape_square(&[[true]]));
 
         let positioned_tile = PositionedTile::new(
             &tile,
@@ -235,7 +322,7 @@ mod tests {
     #[test]
     fn test_positioned_tile_new_duplicates() {
         let board = Board::new((3, 3));
-        let tile = Tile::new(arr2(&[[true, true], [true, true]]));
+        let tile = Tile::new(shape_square(&[[true, true], [true, true]]));
 
         let positioned_tile = PositionedTile::new(
             &tile,

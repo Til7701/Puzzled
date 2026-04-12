@@ -1,6 +1,4 @@
 use log::debug;
-use ndarray::Array2;
-use puzzled_common::array_util::{debug_print, rotate_90};
 use puzzled_common::Shape;
 use std::collections::HashSet;
 
@@ -40,24 +38,9 @@ impl Tile {
     pub fn new(base: Shape) -> Tile {
         let mut all_rotations_set: HashSet<Shape> = HashSet::new();
 
-        all_rotations_set.insert(base.clone());
-
-        let mut tmp = rotate_90(&base);
-        all_rotations_set.insert(tmp.clone());
-        tmp = rotate_90(&tmp);
-        all_rotations_set.insert(tmp.clone());
-        tmp = rotate_90(&tmp);
-        all_rotations_set.insert(tmp.clone());
-
-        tmp = base.clone().reversed_axes();
-        all_rotations_set.insert(tmp.clone());
-
-        tmp = rotate_90(&tmp);
-        all_rotations_set.insert(tmp.clone());
-        tmp = rotate_90(&tmp);
-        all_rotations_set.insert(tmp.clone());
-        tmp = rotate_90(&tmp);
-        all_rotations_set.insert(tmp.clone());
+        base.rotations_flips_iter().for_each(|rotation| {
+            all_rotations_set.insert(rotation);
+        });
 
         let all_rotations = all_rotations_set.into_iter().collect();
         Tile {
@@ -91,11 +74,11 @@ impl Tile {
     #[allow(dead_code)]
     pub(crate) fn debug_print(&self) {
         debug!("Tile Base: ");
-        debug_print(&self.base);
+        &self.base.debug_print();
         debug!("All Rotations: ");
         for rotation in &self.all_rotations {
             debug!("Rotation:");
-            debug_print(rotation);
+            rotation.debug_print();
         }
     }
 }

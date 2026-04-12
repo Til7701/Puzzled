@@ -68,8 +68,8 @@ impl PuzzlePage {
             "Board Dimensions",
             &format!(
                 "{} x {}",
-                puzzle_config.board_config().layout().nrows(),
-                puzzle_config.board_config().layout().ncols()
+                puzzle_config.board_config().layout().dim().0,
+                puzzle_config.board_config().layout().dim().1
             ),
         );
         action_rows.push(board_dimensions);

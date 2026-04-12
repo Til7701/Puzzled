@@ -1,8 +1,8 @@
 use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::tile::Tile;
-use ndarray::{arr2, Array2};
-use puzzled_common::array_util;
+use puzzled_common::shape::shape_square;
+use puzzled_common::Shape;
 use std::hash::Hash;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -23,7 +23,10 @@ pub fn create_banned_bitmasks_for_filling(
 ) -> Vec<Vec<BannedBitmask>> {
     let min_tile_size = tiles
         .iter()
-        .map(|tile| array_util::count_biggest_connected_area_of_cells_matching(tile.base(), true))
+        .map(|tile| {
+            tile.base()
+                .count_biggest_connected_area_of_cells_matching(true)
+        })
         .min()
         .unwrap_or(0);
 
@@ -72,12 +75,12 @@ fn create_banned_bitmasks_for_cell(
 }
 
 fn banned_bitmasks_1(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
-    let pattern = arr2(&[
+    let pattern = shape_square(&[
         [false, true, false],
         [true, false, true],
         [false, true, false],
     ]);
-    let area = arr2(&[
+    let area = shape_square(&[
         [false, true, false],
         [true, true, true],
         [false, true, false],
@@ -93,12 +96,12 @@ fn banned_bitmasks_1(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Ve
 
 #[allow(non_snake_case)]
 fn banned_bitmasks_D2(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
-    let pattern = arr2(&[
+    let mut pattern = shape_square(&[
         [false, true, true, false],
         [true, false, false, true],
         [false, true, true, false],
     ]);
-    let area = arr2(&[
+    let mut area = shape_square(&[
         [false, true, true, false],
         [true, true, true, true],
         [false, true, true, false],
@@ -114,8 +117,8 @@ fn banned_bitmasks_D2(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    let pattern = array_util::rotate_90(&pattern);
-    let area = array_util::rotate_90(&area);
+    pattern.rotate_clockwise();
+    area.rotate_clockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -131,13 +134,13 @@ fn banned_bitmasks_D2(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
 
 #[allow(non_snake_case)]
 fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
-    let pattern = arr2(&[
+    let mut pattern = shape_square(&[
         [false, true, true, false],
         [true, false, false, true],
         [true, false, true, false],
         [false, true, false, false],
     ]);
-    let area = arr2(&[
+    let mut area = shape_square(&[
         [false, true, true, false],
         [true, true, true, true],
         [true, true, true, false],
@@ -155,8 +158,8 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    let pattern = array_util::rotate_90(&pattern);
-    let area = array_util::rotate_90(&area);
+    pattern.rotate_clockwise();
+    area.rotate_clockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -169,8 +172,8 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    let pattern = array_util::rotate_90(&pattern);
-    let area = array_util::rotate_90(&area);
+    pattern.rotate_clockwise();
+    area.rotate_clockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -183,8 +186,8 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    let pattern = array_util::rotate_90(&pattern);
-    let area = array_util::rotate_90(&area);
+    pattern.rotate_clockwise();
+    area.rotate_clockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -200,12 +203,12 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
 
 #[allow(non_snake_case)]
 fn banned_bitmasks_I3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
-    let pattern = arr2(&[
+    let mut pattern = shape_square(&[
         [false, true, true, true, false],
         [true, false, false, false, true],
         [false, true, true, true, false],
     ]);
-    let area = arr2(&[
+    let mut area = shape_square(&[
         [false, true, true, true, false],
         [true, true, true, true, true],
         [false, true, true, true, false],
@@ -222,8 +225,8 @@ fn banned_bitmasks_I3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    let pattern = array_util::rotate_90(&pattern);
-    let area = array_util::rotate_90(&area);
+    pattern.rotate_clockwise();
+    area.rotate_clockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -239,19 +242,19 @@ fn banned_bitmasks_I3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
 
 #[allow(non_snake_case)]
 fn banned_bitmasks_O4(board: &Board, x: usize, y: usize, banned_bitmasks: &mut Vec<BannedBitmask>) {
-    let pattern = arr2(&[
+    let pattern = shape_square(&[
         [false, true, true, false],
         [true, false, false, true],
         [true, false, false, true],
         [false, true, true, false],
     ]);
-    let area = arr2(&[
+    let mut area = shape_square(&[
         [false, true, true, false],
         [true, true, true, true],
         [true, true, true, true],
         [false, true, true, false],
     ]);
-    let area = array_util::rotate_90(&area);
+    area.rotate_clockwise();
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
@@ -265,8 +268,8 @@ fn banned_bitmasks_O4(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
 }
 
 fn create_banned_bitmask_for_pattern_at_if_possible(
-    pattern: &Array2<bool>,
-    area: &Array2<bool>,
+    pattern: &Shape,
+    area: &Shape,
     x: isize,
     y: isize,
     board: &Board,
@@ -275,8 +278,8 @@ fn create_banned_bitmask_for_pattern_at_if_possible(
         for py in 0..pattern.dim().1 {
             let board_x = x + px as isize;
             let board_y = y + py as isize;
-            if area[[px, py]]
-                && !pattern[[px, py]]
+            if area[(px, py)]
+                && !pattern[(px, py)]
                 && *board
                     .get_array()
                     .get((board_x as usize, board_y as usize))
@@ -304,8 +307,8 @@ fn create_banned_bitmask_for_pattern_at_if_possible(
 ///
 /// returns: BannedBitmask
 fn create_banned_bitmask_for_pattern_at(
-    pattern: &Array2<bool>,
-    area: &Array2<bool>,
+    pattern: &Shape,
+    area: &Shape,
     x: isize,
     y: isize,
     board: &Board,
@@ -313,10 +316,10 @@ fn create_banned_bitmask_for_pattern_at(
     let mut board_array = board.get_array().clone();
     board_array.fill(false);
 
-    let pattern_board = array_util::or_arrays_at(&board_array, pattern, x, y);
+    let pattern_board = board_array.or_arrays_at(pattern, x, y);
     let pattern_bitmask = Bitmask::from(&pattern_board);
 
-    let area_board = array_util::or_arrays_at(&board_array, area, x, y);
+    let area_board = board_array.or_arrays_at(area, x, y);
     let area_bitmask = Bitmask::from(&area_board);
 
     BannedBitmask {
@@ -329,16 +332,15 @@ fn create_banned_bitmask_for_pattern_at(
 mod tests {
     use super::*;
     use crate::board::Board;
-    use ndarray::arr2;
 
     #[test]
     fn test_create_banned_bitmask_for_pattern_at_middle() {
-        let pattern = arr2(&[
+        let pattern = shape_square(&[
             [false, true, false],
             [true, false, true],
             [false, true, false],
         ]);
-        let area = arr2(&[
+        let area = shape_square(&[
             [false, true, false],
             [true, true, true],
             [false, true, false],
@@ -346,14 +348,14 @@ mod tests {
         let board = Board::new((5, 5));
 
         let banned_bitmask = create_banned_bitmask_for_pattern_at(&pattern, &area, 1, 1, &board);
-        let expected_pattern_board = arr2(&[
+        let expected_pattern_board = shape_square(&[
             [false, false, false, false, false],
             [false, false, true, false, false],
             [false, true, false, true, false],
             [false, false, true, false, false],
             [false, false, false, false, false],
         ]);
-        let expected_area_board = arr2(&[
+        let expected_area_board = shape_square(&[
             [false, false, false, false, false],
             [false, false, true, false, false],
             [false, true, true, true, false],
@@ -369,12 +371,12 @@ mod tests {
 
     #[test]
     fn test_create_banned_bitmask_for_pattern_at_minus1_minus1() {
-        let pattern = arr2(&[
+        let pattern = shape_square(&[
             [false, true, false],
             [true, false, true],
             [false, true, false],
         ]);
-        let area = arr2(&[
+        let area = shape_square(&[
             [false, true, false],
             [true, true, true],
             [false, true, false],
@@ -382,14 +384,14 @@ mod tests {
         let board = Board::new((5, 5));
 
         let banned_bitmask = create_banned_bitmask_for_pattern_at(&pattern, &area, -1, -1, &board);
-        let expected_pattern_board = arr2(&[
+        let expected_pattern_board = shape_square(&[
             [false, true, false, false, false],
             [true, false, false, false, false],
             [false, false, false, false, false],
             [false, false, false, false, false],
             [false, false, false, false, false],
         ]);
-        let expected_area_board = arr2(&[
+        let expected_area_board = shape_square(&[
             [true, true, false, false, false],
             [true, false, false, false, false],
             [false, false, false, false, false],
@@ -405,12 +407,12 @@ mod tests {
 
     #[test]
     fn test_create_banned_bitmask_for_pattern_at_3_3() {
-        let pattern = arr2(&[
+        let pattern = shape_square(&[
             [false, true, false],
             [true, false, true],
             [false, true, false],
         ]);
-        let area = arr2(&[
+        let area = shape_square(&[
             [false, true, false],
             [true, true, true],
             [false, true, false],
@@ -418,14 +420,14 @@ mod tests {
         let board = Board::new((5, 5));
 
         let banned_bitmask = create_banned_bitmask_for_pattern_at(&pattern, &area, 3, 3, &board);
-        let expected_pattern_board = arr2(&[
+        let expected_pattern_board = shape_square(&[
             [false, false, false, false, false],
             [false, false, false, false, false],
             [false, false, false, false, false],
             [false, false, false, false, true],
             [false, false, false, true, false],
         ]);
-        let expected_area_board = arr2(&[
+        let expected_area_board = shape_square(&[
             [false, false, false, false, false],
             [false, false, false, false, false],
             [false, false, false, false, false],

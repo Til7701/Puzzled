@@ -1,4 +1,4 @@
-use ndarray::Array2;
+use puzzled_common::{Shape, ShapeType};
 use std::ops::{BitAnd, BitOr, BitXor, Index};
 
 /// Must be the same as the bits in the primitive type used in the bitmask array.
@@ -304,13 +304,13 @@ impl Bitmask {
         TOTAL_BITS
     }
 
-    pub(crate) fn to_array2(&self, rows: usize, cols: usize) -> Array2<bool> {
-        let mut array = Array2::from_elem((rows, cols), false);
+    pub(crate) fn to_shape(&self, rows: usize, cols: usize, shape_type: ShapeType) -> Shape {
+        let mut array = Shape::from_elem((rows, cols), shape_type, false);
         for x in 0..cols {
             for y in 0..rows {
                 let index = x * rows + y;
                 if index < self.relevant_bits() {
-                    array[[y, x]] = self.get_bit(index);
+                    array[(y, x)] = self.get_bit(index);
                 }
             }
         }
@@ -356,17 +356,17 @@ impl Default for Bitmask {
     }
 }
 
-impl From<&Array2<bool>> for Bitmask {
+impl From<&Shape> for Bitmask {
     /// Creates a Bitmask from a 2D array of booleans.
     /// The relevant bits are determined by the number of elements in the array.
     /// Each cell in the array corresponds to a bit in the bitmask.
-    fn from(value: &Array2<bool>) -> Self {
+    fn from(value: &Shape) -> Self {
         let relevant_bits = value.iter().count();
         let mut bitmask = Bitmask::new(relevant_bits);
         let (xs, ys) = value.dim();
         for x in 0..ys {
             for y in 0..xs {
-                if value[[y, x]] {
+                if value[(y, x)] {
                     let index = x * xs + y;
                     bitmask.set_bit(index);
                 }
@@ -403,7 +403,8 @@ impl Index<usize> for Bitmask {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
+    use puzzled_common::ShapeType::Square;
 
     #[test]
     fn test_new() {
@@ -684,7 +685,7 @@ mod tests {
 
     #[test]
     fn test_from_array2_bool() {
-        let array = arr2(&[[true, false, true, true], [false, true, false, false]]);
+        let array = shape_square(&[[true, false, true, true], [false, true, false, false]]);
 
         let bitmask = Bitmask::from(&array);
 
@@ -701,7 +702,7 @@ mod tests {
 
     #[test]
     fn test_from_array2_bool_empty() {
-        let array = arr2(&[[]]);
+        let array = shape_square(&[[]]);
 
         let bitmask = Bitmask::from(&array);
 
@@ -710,7 +711,7 @@ mod tests {
 
     #[test]
     fn test_from_array2_bool_one() {
-        let array = arr2(&[[true]]);
+        let array = shape_square(&[[true]]);
 
         let bitmask = Bitmask::from(&array);
 
@@ -752,11 +753,11 @@ mod tests {
 
     #[test]
     fn test_to_array2() {
-        let bitmask = Bitmask::from(&arr2(&[[true, false, true], [false, false, true]]));
+        let bitmask = Bitmask::from(&shape_square(&[[true, false, true], [false, false, true]]));
 
-        let array = bitmask.to_array2(2, 3);
+        let array = bitmask.to_shape(2, 3, Square);
 
-        let expected = arr2(&[[true, false, true], [false, false, true]]);
+        let expected = shape_square(&[[true, false, true], [false, false, true]]);
 
         assert_eq!(array, expected);
     }

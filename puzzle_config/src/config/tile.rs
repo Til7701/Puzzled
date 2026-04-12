@@ -69,22 +69,22 @@ impl Hash for TileConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::array;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_hash() {
         let tile1 = TileConfig::new(
-            array![[true, false], [false, true]],
+            shape_square(&[[true, false], [false, true]]),
             ColorConfig::default_with_index(0),
             None,
         );
         let tile2 = TileConfig::new(
-            array![[true, false], [false, true]],
+            shape_square(&[[true, false], [false, true]]),
             ColorConfig::default_with_index(1),
             None,
         );
         let tile3 = TileConfig::new(
-            array![[false, true], [true, false]],
+            shape_square(&[[false, true], [true, false]]),
             ColorConfig::default_with_index(1),
             None,
         );
@@ -108,12 +108,12 @@ mod tests {
     #[test]
     fn test_hash_slice_any_order() {
         let tile1 = TileConfig::new(
-            array![[true, false], [false, true]],
+            shape_square(&[[true, false], [false, true]]),
             ColorConfig::default_with_index(0),
             None,
         );
         let tile2 = TileConfig::new(
-            array![[false, true], [true, false]],
+            shape_square(&[[false, true], [true, false]]),
             ColorConfig::default_with_index(1),
             None,
         );

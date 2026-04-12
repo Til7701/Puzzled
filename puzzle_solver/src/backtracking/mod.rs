@@ -5,7 +5,7 @@ use crate::board::Board;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use log::debug;
-use puzzled_common::array_util;
+use puzzled_common::ShapeType::Square;
 use tokio_util::sync::CancellationToken;
 
 pub mod core;
@@ -93,17 +93,17 @@ fn create_tile_placement(
 ) -> TilePlacement {
     let bitmask_placement = &positioned_tile.bitmasks()[placement_index];
     let placement_board =
-        bitmask_placement.to_array2(board.get_array().dim().0, board.get_array().dim().1);
-    let mut inverted_placement = placement_board.mapv(|v| !v);
-    array_util::remove_true_rows_cols_from_sides(&mut inverted_placement);
-    let rotation = inverted_placement.mapv(|v| !v);
+        bitmask_placement.to_shape(board.get_array().dim().0, board.get_array().dim().1, Square);
+    let mut inverted_placement = placement_board.map(|v| !v);
+    inverted_placement.trim_matching(true);
+    let rotation = inverted_placement.map(|v| !v);
 
     let x: usize = {
         let mut x_set = false;
         let mut x_start = 0usize;
         for x in 0..placement_board.dim().0 {
             for y in 0..placement_board.dim().1 {
-                if placement_board[[x, y]] {
+                if placement_board[(x, y)] {
                     x_start = x;
                     x_set = true;
                     break;
@@ -121,7 +121,7 @@ fn create_tile_placement(
         let mut y_start = 0usize;
         for y in 0..placement_board.dim().1 {
             for x in 0..placement_board.dim().0 {
-                if placement_board[[x, y]] {
+                if placement_board[(x, y)] {
                     y_start = y;
                     y_set = true;
                     break;

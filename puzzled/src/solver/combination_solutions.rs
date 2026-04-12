@@ -60,7 +60,7 @@ impl CombinationsSolver {
                             let mut message: String = "".to_string();
                             for (i, placement) in solution.placements().iter().enumerate() {
                                 let tile =
-                                    tiles.iter().find(|t| t.base == placement.base()).unwrap();
+                                    tiles.iter().find(|t| t.base == *placement.base()).unwrap();
                                 message = format!(
                                     "{} {}",
                                     message,

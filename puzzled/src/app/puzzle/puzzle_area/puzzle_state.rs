@@ -106,14 +106,12 @@ impl PuzzleState {
         let this_is_on_board = puzzle_config
             .board_config()
             .layout()
-            .get::<(usize, usize)>((position.0 as usize, position.1 as usize))
+            .get((position.0 as usize, position.1 as usize))
             .unwrap_or(&false);
         for (dr, dc) in DELTAS.iter() {
             let neighbor_pos = ((position.0 + dr) as usize, (position.1 + dc) as usize);
-            if let Some(neighbour_on_board) = puzzle_config
-                .board_config()
-                .layout()
-                .get::<(usize, usize)>(neighbor_pos)
+            if let Some(neighbour_on_board) =
+                puzzle_config.board_config().layout().get(neighbor_pos)
                 && !this_is_on_board
                 && *neighbour_on_board
             {

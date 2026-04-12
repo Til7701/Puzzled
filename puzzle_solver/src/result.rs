@@ -1,4 +1,3 @@
-use ndarray::Array2;
 use puzzled_common::Shape;
 
 /// Represents a successful solution to the puzzle.
@@ -66,7 +65,7 @@ pub enum UnsolvableReason {
     NoFit,
     PlausibilityCheckFailed,
     TileCannotBePlaced {
-        base: Array2<bool>,
+        base: Shape,
     },
     BoardTooLarge,
     /// Indicates that the solving process was canceled before a solution could be found.
