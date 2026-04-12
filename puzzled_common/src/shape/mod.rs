@@ -1,6 +1,6 @@
 mod iterators;
 
-use crate::ShapeType::Square;
+use crate::ShapeType::*;
 use ndarray::{arr2, s, Array2, Axis};
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
@@ -105,14 +105,29 @@ impl Shape {
 
     pub fn rotate_clockwise(&mut self) {
         match self.shape_type {
-            ShapeType::Square => {
+            Square => {
+                self.data.reverse_axes();
+                self.data.invert_axis(Axis(0));
+            }
+            Triangle => {
+                todo!()
+            }
+            Hexagon => {
+                todo!()
+            }
+        };
+    }
+
+    pub fn rotate_counterclockwise(&mut self) {
+        match self.shape_type {
+            Square => {
                 self.data.reverse_axes();
                 self.data.invert_axis(Axis(1));
             }
-            ShapeType::Triangle => {
+            Triangle => {
                 todo!()
             }
-            ShapeType::Hexagon => {
+            Hexagon => {
                 todo!()
             }
         };
@@ -127,13 +142,13 @@ impl Shape {
 
     pub fn flip_default(&mut self) {
         match self.shape_type {
-            ShapeType::Square => {
+            Square => {
                 self.data.invert_axis(Axis(0));
             }
-            ShapeType::Triangle => {
+            Triangle => {
                 todo!()
             }
-            ShapeType::Hexagon => {
+            Hexagon => {
                 todo!()
             }
         }
@@ -407,29 +422,29 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_rotate_clockwise_square_size_1() {
+    fn test_rotate_counterclockwise_square_size_1() {
         let mut shape = shape_square(&[[true]]);
-        shape.rotate_clockwise();
+        shape.rotate_counterclockwise();
         let expected = shape_square(&[[true]]);
         assert_eq!(expected, shape);
     }
 
     #[test]
-    fn test_rotate_clockwise_square_size_2() {
+    fn test_rotate_counterclockwise_square_size_2() {
         let mut shape = shape_square(&[[true, false]]);
-        shape.rotate_clockwise();
+        shape.rotate_counterclockwise();
         let expected = shape_square(&[[true], [false]]);
         assert_eq!(expected, shape);
     }
 
     #[test]
-    fn test_rotate_clockwise_square() {
+    fn test_rotate_counterclockwise_square() {
         let mut shape = shape_square(&[
             [true, false, false],
             [true, true, true],
             [true, false, true],
         ]);
-        shape.rotate_clockwise();
+        shape.rotate_counterclockwise();
         let expected = shape_square(&[
             [true, true, true],
             [false, true, false],

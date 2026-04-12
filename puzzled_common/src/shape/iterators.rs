@@ -41,7 +41,7 @@ impl Iterator for TileRotationIterator {
             self.current.transpose();
         }
         let current = self.current.clone();
-        self.current.rotate_clockwise();
+        self.current.rotate_counterclockwise();
         self.iteration += 1;
         Some(current)
     }

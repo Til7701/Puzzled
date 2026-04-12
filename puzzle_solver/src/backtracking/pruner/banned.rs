@@ -117,8 +117,8 @@ fn banned_bitmasks_D2(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    pattern.rotate_clockwise();
-    area.rotate_clockwise();
+    pattern.rotate_counterclockwise();
+    area.rotate_counterclockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -158,8 +158,8 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    pattern.rotate_clockwise();
-    area.rotate_clockwise();
+    pattern.rotate_counterclockwise();
+    area.rotate_counterclockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -172,8 +172,8 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    pattern.rotate_clockwise();
-    area.rotate_clockwise();
+    pattern.rotate_counterclockwise();
+    area.rotate_counterclockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -186,8 +186,8 @@ fn banned_bitmasks_L3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    pattern.rotate_clockwise();
-    area.rotate_clockwise();
+    pattern.rotate_counterclockwise();
+    area.rotate_counterclockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -225,8 +225,8 @@ fn banned_bitmasks_I3(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         banned_bitmasks.push(banned_bitmask);
     }
 
-    pattern.rotate_clockwise();
-    area.rotate_clockwise();
+    pattern.rotate_counterclockwise();
+    area.rotate_counterclockwise();
 
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
@@ -254,7 +254,7 @@ fn banned_bitmasks_O4(board: &Board, x: usize, y: usize, banned_bitmasks: &mut V
         [true, true, true, true],
         [false, true, true, false],
     ]);
-    area.rotate_clockwise();
+    area.rotate_counterclockwise();
     let opt_banned_bitmask = create_banned_bitmask_for_pattern_at_if_possible(
         &pattern,
         &area,
