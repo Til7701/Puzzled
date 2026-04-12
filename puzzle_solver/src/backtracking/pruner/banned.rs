@@ -30,11 +30,11 @@ pub fn create_banned_bitmasks_for_filling(
         .min()
         .unwrap_or(0);
 
-    let mut banned_bitmasks = Vec::with_capacity(board.get_array().len());
-    for _ in 0..board.get_array().len() {
+    let mut banned_bitmasks = Vec::with_capacity(board.get_shape().len());
+    for _ in 0..board.get_shape().len() {
         banned_bitmasks.push(Vec::with_capacity(0));
     }
-    let (xs, ys) = board.get_array().dim();
+    let (xs, ys) = board.get_shape().dim();
     for x in 0..ys {
         for y in 0..xs {
             if !board[[y, x]] {
@@ -281,7 +281,7 @@ fn create_banned_bitmask_for_pattern_at_if_possible(
             if area[(px, py)]
                 && !pattern[(px, py)]
                 && *board
-                    .get_array()
+                    .get_shape()
                     .get((board_x as usize, board_y as usize))
                     .unwrap_or(&true)
             {
@@ -313,13 +313,13 @@ fn create_banned_bitmask_for_pattern_at(
     y: isize,
     board: &Board,
 ) -> BannedBitmask {
-    let mut board_array = board.get_array().clone();
+    let mut board_array = board.get_shape().clone();
     board_array.fill(false);
 
-    let pattern_board = board_array.or_arrays_at(pattern, x, y);
+    let pattern_board = board_array.or_at(pattern, x, y);
     let pattern_bitmask = Bitmask::from(&pattern_board);
 
-    let area_board = board_array.or_arrays_at(area, x, y);
+    let area_board = board_array.or_at(area, x, y);
     let area_bitmask = Bitmask::from(&area_board);
 
     BannedBitmask {

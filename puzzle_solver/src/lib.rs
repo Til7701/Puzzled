@@ -34,17 +34,17 @@ pub mod tile;
 /// # Examples
 ///
 /// ```
-/// use ndarray::arr2;
 /// use puzzle_solver::board::Board;
 /// use puzzle_solver::tile::Tile;
 /// use puzzle_solver::solve_all_filling;
 /// use tokio_util::sync::CancellationToken;
+/// use puzzled_common::shape::shape_square;
 ///
 /// let mut board = Board::new((3, 4));
 /// board[[0, 0]] = true;
 /// let tiles = vec![
-///     Tile::new(arr2(&[[true, true, true], [true, true, true]])),
-///     Tile::new(arr2(&[[true, true, true], [true, true, false]])),
+///     Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
+///     Tile::new(shape_square(&[[true, true, true], [true, true, false]])),
 /// ];
 /// let cancel_token = CancellationToken::new();
 ///
@@ -64,7 +64,7 @@ pub async fn solve_all_filling(
     let mut board = board;
     let trim_sides = board.trim();
 
-    if board.get_array().iter().filter(|c| !*c).count() > Bitmask::max_bits() {
+    if board.get_shape().iter().filter(|c| !*c).count() > Bitmask::max_bits() {
         debug!("Board too large for bitmask representation.");
         return Err(UnsolvableReason::BoardTooLarge);
     }

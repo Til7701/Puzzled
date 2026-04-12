@@ -38,10 +38,11 @@ impl Iterator for TileRotationIterator {
             return None;
         }
         if self.iteration == 4 {
-            self.current.flip_default();
+            self.current.transpose();
         }
+        let current = self.current.clone();
         self.current.rotate_clockwise();
         self.iteration += 1;
-        Some(self.current.clone())
+        Some(current)
     }
 }

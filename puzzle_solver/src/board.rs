@@ -37,8 +37,8 @@ impl Board {
     /// use puzzle_solver::board::Board;
     ///
     /// let board = Board::new((3, 4));
-    /// assert_eq!(board.get_array().shape(), &[3, 4]);
-    /// assert!(board.get_array().iter().all(|&b| b == false));
+    /// assert_eq!(board.get_shape().dim(), (3, 4));
+    /// assert!(board.get_shape().iter().all(|&b| b == false));
     /// ```
     pub fn new(dims: (usize, usize)) -> Self {
         Board(Shape::from_elem(dims, Square, false))
@@ -56,12 +56,13 @@ impl Board {
     ///
     /// ```rust
     /// use puzzle_solver::board::Board;
-    /// use ndarray::Array2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType::Square;
     ///
     /// let board = Board::new((3, 4));
-    /// assert_eq!(board.get_array(), Array2::default((3, 4)));
+    /// assert_eq!(board.get_shape(), &Shape::from_elem((3, 4), Square, false));
     /// ```
-    pub fn get_array(&self) -> &Shape {
+    pub fn get_shape(&self) -> &Shape {
         &self.0
     }
 
@@ -108,14 +109,14 @@ mod tests {
     #[test]
     fn test_new_0_0() {
         let board = Board::new((0, 0));
-        assert_eq!(board.get_array().dim(), (0, 0));
+        assert_eq!(board.get_shape().dim(), (0, 0));
     }
 
     #[test]
     fn test_new_3_4() {
         let board = Board::new((3, 4));
-        assert_eq!(board.get_array().dim(), (3, 4));
-        assert!(board.get_array().iter().all(|&b| b == false));
+        assert_eq!(board.get_shape().dim(), (3, 4));
+        assert!(board.get_shape().iter().all(|&b| b == false));
     }
 
     #[test]
@@ -137,7 +138,7 @@ mod tests {
 
         board.trim();
 
-        assert_eq!(board.get_array().dim(), (3, 3));
+        assert_eq!(board.get_shape().dim(), (3, 3));
         assert_eq!(board[[0, 0]], false);
         assert_eq!(board[[0, 1]], false);
         assert_eq!(board[[0, 2]], false);

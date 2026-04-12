@@ -12,10 +12,60 @@ pub struct Shape {
 }
 
 impl Shape {
+    /// Creates a new `Shape` instance with the specified `shape_type` and 2D boolean array `data`.
+    ///
+    /// # Arguments
+    ///
+    /// * `shape_type`: the shape type.
+    /// * `data`: the data defining the shape
+    ///
+    /// returns: Shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let shape = Shape::new(ShapeType::Square, arr2(&[[true, false], [false, true]]));
+    ///
+    /// assert_eq!(shape.shape_type(), ShapeType::Square);
+    /// assert_eq!(shape.dim(), (2, 2));
+    /// assert_eq!(shape.get((0, 0)), Some(&true));
+    /// assert_eq!(shape.get((0, 1)), Some(&false));
+    /// assert_eq!(shape.get((1, 0)), Some(&false));
+    /// assert_eq!(shape.get((1, 1)), Some(&true));
+    /// ```
     pub fn new(shape_type: ShapeType, data: Array2<bool>) -> Self {
         Self { shape_type, data }
     }
 
+    /// Creates a new `Shape` instance with the specified dimensions, shape type, and initial value
+    /// for all cells.
+    ///
+    /// # Arguments
+    ///
+    /// * `(x, y)`: the dimensions of the shape
+    /// * `shape_type`: the shape type for the new shape
+    /// * `value`: the value to set all cells to
+    ///
+    /// returns: Shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    ///let shape = Shape::from_elem((1, 2), ShapeType::Square, true);
+    ///
+    /// assert_eq!(shape.shape_type(), ShapeType::Square);
+    /// assert_eq!(shape.dim(), (1, 2));
+    /// // FIXME remove some
+    /// assert_eq!(shape.get((0, 0)), Some(&true));
+    /// assert_eq!(shape.get((0, 1)), Some(&true));
+    /// ```
     pub fn from_elem((x, y): (usize, usize), shape_type: ShapeType, value: bool) -> Self {
         Self {
             shape_type,
@@ -109,43 +159,44 @@ impl Shape {
     ///
     /// returns: ()
     pub fn trim_matching(&mut self, to_trim: bool) -> TrimSides {
-        let mut array = self.data.clone();
         let mut trim_sides = TrimSides::default();
         loop {
-            if array.nrows() == 0 || array.ncols() == 0 {
+            if self.data.nrows() == 0 || self.data.ncols() == 0 {
                 break;
             }
 
-            let left_col_all_true = array.column(0).iter().all(|&cell| cell == to_trim);
+            let left_col_all_true = self.data.column(0).iter().all(|&cell| cell == to_trim);
             if left_col_all_true {
-                array = array.slice(s![.., 1..]).to_owned();
+                self.data = self.data.slice(s![.., 1..]).to_owned();
                 trim_sides.lower_y += 1;
                 continue;
             }
 
-            let right_col_all_true = array
-                .column(array.ncols() - 1)
+            let right_col_all_true = self
+                .data
+                .column(self.data.ncols() - 1)
                 .iter()
                 .all(|&cell| cell == to_trim);
             if right_col_all_true {
-                array = array.slice(s![.., ..array.ncols() - 1]).to_owned();
+                self.data = self.data.slice(s![.., ..self.data.ncols() - 1]).to_owned();
                 trim_sides.upper_y += 1;
                 continue;
             }
 
-            let top_row_all_true = array.row(0).iter().all(|&cell| cell == to_trim);
+            let top_row_all_true = self.data.row(0).iter().all(|&cell| cell == to_trim);
             if top_row_all_true {
-                array = array.slice(s![1.., ..]).to_owned();
+                self.data = self.data.slice(s![1.., ..]).to_owned();
                 trim_sides.lower_x += 1;
                 continue;
             }
 
-            let bottom_row_all_true = array
-                .row(array.nrows() - 1)
+            let bottom_row_all_true = self
+                .data
+                .row(self.data.nrows() - 1)
                 .iter()
                 .all(|&cell| cell == to_trim);
             if bottom_row_all_true {
-                array = array.slice(s![..array.nrows() - 1, ..]).to_owned();
+                self.data = self.data.slice(s![..self.data.nrows() - 1, ..]).to_owned();
                 trim_sides.upper_x += 1;
                 continue;
             }
@@ -208,7 +259,7 @@ impl Shape {
     /// * `y_offset`: The y-axis offset for placing the child.
     ///
     /// returns: Shape
-    pub fn or_arrays_at(&self, child: &Shape, x_offset: isize, y_offset: isize) -> Shape {
+    pub fn or_at(&self, child: &Shape, x_offset: isize, y_offset: isize) -> Shape {
         let mut new_array = self.clone();
         let child_xs = child.data.nrows();
         let child_ys = child.data.ncols();
@@ -284,7 +335,7 @@ impl Shape {
     pub fn remove_parent(&mut self, parent: &Shape) {
         for row in 0..parent.data.nrows() {
             for col in 0..parent.data.ncols() {
-                if self[(row, col)] {
+                if parent[(row, col)] {
                     self[(row, col)] = false;
                 }
             }
@@ -386,451 +437,451 @@ mod test {
         ]);
         assert_eq!(expected, shape);
     }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_sides_empty() {
-    //     let mut array: Array2<bool> = Array2::default((0, 0));
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected: Array2<bool> = Array2::default((0, 0));
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 0,
-    //         lower_y: 0,
-    //         upper_y: 0,
-    //         upper_x: 0,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_sides_true() {
-    //     let mut array = shape_square(&[[true]]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected: Array2<bool> = shape_square(&[[]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 0,
-    //         lower_y: 1,
-    //         upper_y: 0,
-    //         upper_x: 0,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_sides_false() {
-    //     let mut array = shape_square(&[[false]]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected: Array2<bool> = shape_square(&[[false]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 0,
-    //         lower_y: 0,
-    //         upper_y: 0,
-    //         upper_x: 0,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_sides_lower_y_upper_y() {
-    //     let mut array = shape_square(&[
-    //         [true, true, false, true],
-    //         [true, false, false, true],
-    //         [true, true, false, true],
-    //     ]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected = shape_square(&[[true, false], [false, false], [true, false]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 0,
-    //         lower_y: 1,
-    //         upper_y: 1,
-    //         upper_x: 0,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_sides_lower_x_upper_x() {
-    //     let mut array = shape_square(&[
-    //         [true, true, true, true],
-    //         [false, true, false, false],
-    //         [true, true, true, true],
-    //     ]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected = shape_square(&[[false, true, false, false]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 1,
-    //         lower_y: 0,
-    //         upper_y: 0,
-    //         upper_x: 1,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_sides_all_sides() {
-    //     let mut array = shape_square(&[
-    //         [true, true, true, true, true],
-    //         [true, true, false, false, true],
-    //         [true, false, true, false, true],
-    //         [true, true, true, true, true],
-    //     ]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected = shape_square(&[[true, false, false], [false, true, false]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 1,
-    //         lower_y: 1,
-    //         upper_y: 1,
-    //         upper_x: 1,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_lower_y() {
-    //     let mut array = shape_square(&[[true, true, false, false], [true, false, true, false]]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected = shape_square(&[[true, false, false], [false, true, false]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 0,
-    //         lower_y: 1,
-    //         upper_y: 0,
-    //         upper_x: 0,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_upper_y() {
-    //     let mut array = shape_square(&[[false, false, true, true], [false, true, false, true]]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected = shape_square(&[[false, false, true], [false, true, false]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 0,
-    //         lower_y: 0,
-    //         upper_y: 1,
-    //         upper_x: 0,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_lower_x() {
-    //     let mut array = shape_square(&[
-    //         [true, true, true],
-    //         [false, true, false],
-    //         [true, false, true],
-    //     ]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected = shape_square(&[[false, true, false], [true, false, true]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 1,
-    //         lower_y: 0,
-    //         upper_y: 0,
-    //         upper_x: 0,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_from_upper_x() {
-    //     let mut array = shape_square(&[
-    //         [false, true, false],
-    //         [true, false, true],
-    //         [true, true, true],
-    //     ]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected = shape_square(&[[false, true, false], [true, false, true]]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 0,
-    //         lower_y: 0,
-    //         upper_y: 0,
-    //         upper_x: 1,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_remove_true_rows_cols_test() {
-    //     let mut array = shape_square(&[
-    //         [false, false, false, false],
-    //         [false, false, false, false],
-    //         [true, true, true, true],
-    //         [false, true, false, true],
-    //         [true, true, true, true],
-    //     ]);
-    //     let trim_sides = remove_true_rows_cols_from_sides(&mut array);
-    //     let expected = shape_square(&[
-    //         [false, false, false, false],
-    //         [false, false, false, false],
-    //         [true, true, true, true],
-    //         [false, true, false, true],
-    //     ]);
-    //     assert_eq!(expected, array);
-    //     let expected_trim_sides = TrimSides {
-    //         lower_x: 0,
-    //         lower_y: 0,
-    //         upper_y: 0,
-    //         upper_x: 1,
-    //     };
-    //     assert_eq!(expected_trim_sides, trim_sides);
-    // }
-    //
-    // #[test]
-    // fn test_or_arrays_at() {
-    //     let parent = shape_square(&[
-    //         [false, false, false],
-    //         [false, false, false],
-    //         [false, false, false],
-    //     ]);
-    //     let child = shape_square(&[[true, false], [false, true]]);
-    //     let result = or_arrays_at(&parent, &child, 1, 1);
-    //     let expected = shape_square(&[
-    //         [false, false, false],
-    //         [false, true, false],
-    //         [false, false, true],
-    //     ]);
-    //     assert_eq!(expected, result);
-    // }
-    //
-    // #[test]
-    // fn test_or_arrays_at_empty_child() {
-    //     let parent = shape_square(&[
-    //         [false, false, false],
-    //         [false, false, false],
-    //         [false, false, false],
-    //     ]);
-    //     let child = shape_square(&[[]]);
-    //     let result = or_arrays_at(&parent, &child, 1, 1);
-    //     let expected = shape_square(&[
-    //         [false, false, false],
-    //         [false, false, false],
-    //         [false, false, false],
-    //     ]);
-    //     assert_eq!(expected, result);
-    // }
-    //
-    // #[test]
-    // fn test_or_arrays_at_child_1x1() {
-    //     let parent = shape_square(&[
-    //         [false, false, false],
-    //         [false, false, false],
-    //         [false, false, false],
-    //     ]);
-    //     let child = shape_square(&[[true]]);
-    //     let result = or_arrays_at(&parent, &child, 1, 1);
-    //     let expected = shape_square(&[
-    //         [false, false, false],
-    //         [false, true, false],
-    //         [false, false, false],
-    //     ]);
-    //     assert_eq!(expected, result);
-    // }
-    //
-    // #[test]
-    // fn test_or_arrays_at_child_off_parent() {
-    //     let parent = shape_square(&[
-    //         [false, false, false],
-    //         [false, false, false],
-    //         [false, false, false],
-    //     ]);
-    //     let child = shape_square(&[[true, true], [true, true]]);
-    //     let result = or_arrays_at(&parent, &child, 2, 2);
-    //     let expected = shape_square(&[
-    //         [false, false, false],
-    //         [false, false, false],
-    //         [false, false, true],
-    //     ]);
-    //     assert_eq!(expected, result);
-    // }
-    //
-    // #[test]
-    // fn test_or_arrays_at_true_parent() {
-    //     let parent = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
-    //     let child = shape_square(&[[true, false], [true, false]]);
-    //     let result = or_arrays_at(&parent, &child, 1, 1);
-    //     let expected = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
-    //     assert_eq!(expected, result);
-    // }
-    //
-    // #[test]
-    // fn test_or_arrays_at_smaller_parent() {
-    //     let parent = shape_square(&[[false, false], [false, false]]);
-    //     let child = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
-    //     let result = or_arrays_at(&parent, &child, 0, 0);
-    //     let expected = shape_square(&[[true, true], [true, true]]);
-    //     assert_eq!(expected, result);
-    // }
-    //
-    // #[test]
-    // fn test_place_on_all_positions() {
-    //     let parent = shape_square(&[
-    //         [false, false, false],
-    //         [false, false, false],
-    //         [false, false, false],
-    //     ]);
-    //     let child = shape_square(&[[true, false], [false, true]]);
-    //     let placements = place_on_all_positions(&parent, &child);
-    //     assert_eq!(placements.len(), 4);
-    //     assert!(placements.contains(&shape_square(&[
-    //         [true, false, false],
-    //         [false, true, false],
-    //         [false, false, false],
-    //     ])));
-    //     assert!(placements.contains(&shape_square(&[
-    //         [false, true, false],
-    //         [false, false, true],
-    //         [false, false, false],
-    //     ])));
-    //     assert!(placements.contains(&shape_square(&[
-    //         [false, false, false],
-    //         [true, false, false],
-    //         [false, true, false],
-    //     ])));
-    //     assert!(placements.contains(&shape_square(&[
-    //         [false, false, false],
-    //         [false, true, false],
-    //         [false, false, true],
-    //     ])));
-    // }
-    //
-    // #[test]
-    // fn test_place_on_all_positions_same_size() {
-    //     let parent = shape_square(&[[false, false], [false, false]]);
-    //     let child = shape_square(&[[true, false], [false, true]]);
-    //     let placements = place_on_all_positions(&parent, &child);
-    //     assert_eq!(placements.len(), 1);
-    //     assert!(placements.contains(&shape_square(&[[true, false], [false, true],])));
-    // }
-    //
-    // #[test]
-    // fn test_place_on_all_positions_smaller_parent() {
-    //     let parent = shape_square(&[[false, false], [false, false]]);
-    //     let child = shape_square(&[[true, false, true], [false, true, false]]);
-    //     let placements = place_on_all_positions(&parent, &child);
-    //     assert_eq!(placements.len(), 0);
-    // }
-    //
-    // #[test]
-    // fn test_place_on_all_positions_with_blocking() {
-    //     let parent = shape_square(&[
-    //         [false, false, false],
-    //         [false, true, false],
-    //         [false, false, false],
-    //     ]);
-    //     let child = shape_square(&[[true, false], [false, true]]);
-    //     let placements = place_on_all_positions(&parent, &child);
-    //     assert_eq!(placements.len(), 2);
-    //     assert!(placements.contains(&shape_square(&[
-    //         [false, true, false],
-    //         [false, true, true],
-    //         [false, false, false],
-    //     ])));
-    //     assert!(placements.contains(&shape_square(&[
-    //         [false, false, false],
-    //         [true, true, false],
-    //         [false, true, false],
-    //     ])));
-    // }
-    //
-    // #[test]
-    // fn test_remove_parent() {
-    //     let parent = shape_square(&[
-    //         [true, false, true],
-    //         [false, true, false],
-    //         [true, true, true],
-    //     ]);
-    //     let mut child = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
-    //     remove_parent(&parent, &mut child);
-    //     let expected = shape_square(&[
-    //         [false, true, false],
-    //         [true, false, true],
-    //         [false, false, false],
-    //     ]);
-    //     assert_eq!(expected, child);
-    // }
-    //
-    // #[test]
-    // fn test_remove_parent_smaller_parent() {
-    //     let parent = shape_square(&[[true, false], [false, true]]);
-    //     let mut child = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
-    //     remove_parent(&parent, &mut child);
-    //     let expected =
-    //         shape_square(&[[false, true, true], [true, false, true], [true, true, true]]);
-    //     assert_eq!(expected, child);
-    // }
-    //
-    // #[test]
-    // #[should_panic]
-    // fn test_remove_parent_bigger_parent_panic() {
-    //     let parent = shape_square(&[
-    //         [true, false, true],
-    //         [false, true, false],
-    //         [true, true, true],
-    //     ]);
-    //     let mut child = shape_square(&[[true, true], [true, true]]);
-    //     remove_parent(&parent, &mut child);
-    // }
-    //
-    // #[test]
-    // fn test_count_biggest_connected_area_of_cells_matching() {
-    //     let array = shape_square(&[
-    //         [true, false, true],
-    //         [false, true, false],
-    //         [true, true, true],
-    //     ]);
-    //     let count_true = count_biggest_connected_area_of_cells_matching(&array, true);
-    //     let count_false = count_biggest_connected_area_of_cells_matching(&array, false);
-    //     assert_eq!(count_true, 4);
-    //     assert_eq!(count_false, 1);
-    // }
-    //
-    // #[test]
-    // fn test_tile_rotation_iterator() {
-    //     let base = shape_square(&[[true, false], [false, false]]);
-    //     let mut iter = TileRotationIterator::new(base);
-    //
-    //     assert_eq!(
-    //         iter.next(),
-    //         Some(shape_square(&[[true, false], [false, false]]))
-    //     );
-    //     assert_eq!(
-    //         iter.next(),
-    //         Some(shape_square(&[[false, true], [false, false]]))
-    //     );
-    //     assert_eq!(
-    //         iter.next(),
-    //         Some(shape_square(&[[false, false], [false, true]]))
-    //     );
-    //     assert_eq!(
-    //         iter.next(),
-    //         Some(shape_square(&[[false, false], [true, false]]))
-    //     );
-    //
-    //     assert_eq!(
-    //         iter.next(),
-    //         Some(shape_square(&[[true, false], [false, false]]))
-    //     );
-    //     assert_eq!(
-    //         iter.next(),
-    //         Some(shape_square(&[[false, true], [false, false]]))
-    //     );
-    //     assert_eq!(
-    //         iter.next(),
-    //         Some(shape_square(&[[false, false], [false, true]]))
-    //     );
-    //     assert_eq!(
-    //         iter.next(),
-    //         Some(shape_square(&[[false, false], [true, false]]))
-    //     );
-    //     assert_eq!(iter.next(), None);
-    // }
+
+    #[test]
+    fn test_trim_sides_empty() {
+        let mut array = Shape::from_elem((0, 0), Square, true);
+        let trim_sides = array.trim_matching(true);
+        let expected = Shape::from_elem((0, 0), Square, true);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_true() {
+        let mut array = shape_square(&[[true]]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[[]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 1,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_false() {
+        let mut array = shape_square(&[[false]]);
+        let trim_sides = array.trim_matching(false);
+        let expected = shape_square(&[[]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 1,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_lower_y_upper_y() {
+        let mut array = shape_square(&[
+            [true, true, false, true],
+            [true, false, false, true],
+            [true, true, false, true],
+        ]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[[true, false], [false, false], [true, false]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 1,
+            upper_y: 1,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_lower_x_upper_x() {
+        let mut array = shape_square(&[
+            [true, true, true, true],
+            [false, true, false, false],
+            [true, true, true, true],
+        ]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[[false, true, false, false]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 1,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 1,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_all_sides() {
+        let mut array = shape_square(&[
+            [true, true, true, true, true],
+            [true, true, false, false, true],
+            [true, false, true, false, true],
+            [true, true, true, true, true],
+        ]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[[true, false, false], [false, true, false]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 1,
+            lower_y: 1,
+            upper_y: 1,
+            upper_x: 1,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_from_lower_y() {
+        let mut array = shape_square(&[[true, true, false, false], [true, false, true, false]]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[[true, false, false], [false, true, false]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 1,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_from_upper_y() {
+        let mut array = shape_square(&[[false, false, true, true], [false, true, false, true]]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[[false, false, true], [false, true, false]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 1,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_from_lower_x() {
+        let mut array = shape_square(&[
+            [true, true, true],
+            [false, true, false],
+            [true, false, true],
+        ]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[[false, true, false], [true, false, true]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 1,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 0,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_from_upper_x() {
+        let mut array = shape_square(&[
+            [false, true, false],
+            [true, false, true],
+            [true, true, true],
+        ]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[[false, true, false], [true, false, true]]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 1,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_trim_sides_rows_cols_test() {
+        let mut array = shape_square(&[
+            [false, false, false, false],
+            [false, false, false, false],
+            [true, true, true, true],
+            [false, true, false, true],
+            [true, true, true, true],
+        ]);
+        let trim_sides = array.trim_matching(true);
+        let expected = shape_square(&[
+            [false, false, false, false],
+            [false, false, false, false],
+            [true, true, true, true],
+            [false, true, false, true],
+        ]);
+        assert_eq!(expected, array);
+        let expected_trim_sides = TrimSides {
+            lower_x: 0,
+            lower_y: 0,
+            upper_y: 0,
+            upper_x: 1,
+        };
+        assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_or_arrays_at() {
+        let parent = shape_square(&[
+            [false, false, false],
+            [false, false, false],
+            [false, false, false],
+        ]);
+        let child = shape_square(&[[true, false], [false, true]]);
+        let result = parent.or_at(&child, 1, 1);
+        let expected = shape_square(&[
+            [false, false, false],
+            [false, true, false],
+            [false, false, true],
+        ]);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_or_arrays_at_empty_child() {
+        let parent = shape_square(&[
+            [false, false, false],
+            [false, false, false],
+            [false, false, false],
+        ]);
+        let child = shape_square(&[[]]);
+        let result = parent.or_at(&child, 1, 1);
+        let expected = shape_square(&[
+            [false, false, false],
+            [false, false, false],
+            [false, false, false],
+        ]);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_or_arrays_at_child_1x1() {
+        let parent = shape_square(&[
+            [false, false, false],
+            [false, false, false],
+            [false, false, false],
+        ]);
+        let child = shape_square(&[[true]]);
+        let result = parent.or_at(&child, 1, 1);
+        let expected = shape_square(&[
+            [false, false, false],
+            [false, true, false],
+            [false, false, false],
+        ]);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_or_arrays_at_child_off_parent() {
+        let parent = shape_square(&[
+            [false, false, false],
+            [false, false, false],
+            [false, false, false],
+        ]);
+        let child = shape_square(&[[true, true], [true, true]]);
+        let result = parent.or_at(&child, 2, 2);
+        let expected = shape_square(&[
+            [false, false, false],
+            [false, false, false],
+            [false, false, true],
+        ]);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_or_arrays_at_true_parent() {
+        let parent = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
+        let child = shape_square(&[[true, false], [true, false]]);
+        let result = parent.or_at(&child, 1, 1);
+        let expected = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_or_arrays_at_smaller_parent() {
+        let parent = shape_square(&[[false, false], [false, false]]);
+        let child = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
+        let result = parent.or_at(&child, 0, 0);
+        let expected = shape_square(&[[true, true], [true, true]]);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_place_on_all_positions() {
+        let parent = shape_square(&[
+            [false, false, false],
+            [false, false, false],
+            [false, false, false],
+        ]);
+        let child = shape_square(&[[true, false], [false, true]]);
+        let placements = parent.place_on_all_positions(&child);
+        assert_eq!(placements.len(), 4);
+        assert!(placements.contains(&shape_square(&[
+            [true, false, false],
+            [false, true, false],
+            [false, false, false],
+        ])));
+        assert!(placements.contains(&shape_square(&[
+            [false, true, false],
+            [false, false, true],
+            [false, false, false],
+        ])));
+        assert!(placements.contains(&shape_square(&[
+            [false, false, false],
+            [true, false, false],
+            [false, true, false],
+        ])));
+        assert!(placements.contains(&shape_square(&[
+            [false, false, false],
+            [false, true, false],
+            [false, false, true],
+        ])));
+    }
+
+    #[test]
+    fn test_place_on_all_positions_same_size() {
+        let parent = shape_square(&[[false, false], [false, false]]);
+        let child = shape_square(&[[true, false], [false, true]]);
+        let placements = parent.place_on_all_positions(&child);
+        assert_eq!(placements.len(), 1);
+        assert!(placements.contains(&shape_square(&[[true, false], [false, true],])));
+    }
+
+    #[test]
+    fn test_place_on_all_positions_smaller_parent() {
+        let parent = shape_square(&[[false, false], [false, false]]);
+        let child = shape_square(&[[true, false, true], [false, true, false]]);
+        let placements = parent.place_on_all_positions(&child);
+        assert_eq!(placements.len(), 0);
+    }
+
+    #[test]
+    fn test_place_on_all_positions_with_blocking() {
+        let parent = shape_square(&[
+            [false, false, false],
+            [false, true, false],
+            [false, false, false],
+        ]);
+        let child = shape_square(&[[true, false], [false, true]]);
+        let placements = parent.place_on_all_positions(&child);
+        assert_eq!(placements.len(), 2);
+        assert!(placements.contains(&shape_square(&[
+            [false, true, false],
+            [false, true, true],
+            [false, false, false],
+        ])));
+        assert!(placements.contains(&shape_square(&[
+            [false, false, false],
+            [true, true, false],
+            [false, true, false],
+        ])));
+    }
+
+    #[test]
+    fn test_remove_parent() {
+        let parent = shape_square(&[
+            [true, false, true],
+            [false, true, false],
+            [true, true, true],
+        ]);
+        let mut child = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
+        child.remove_parent(&parent);
+        let expected = shape_square(&[
+            [false, true, false],
+            [true, false, true],
+            [false, false, false],
+        ]);
+        assert_eq!(expected, child);
+    }
+
+    #[test]
+    fn test_remove_parent_smaller_parent() {
+        let parent = shape_square(&[[true, false], [false, true]]);
+        let mut child = shape_square(&[[true, true, true], [true, true, true], [true, true, true]]);
+        child.remove_parent(&parent);
+        let expected =
+            shape_square(&[[false, true, true], [true, false, true], [true, true, true]]);
+        assert_eq!(expected, child);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_remove_parent_bigger_parent_panic() {
+        let parent = shape_square(&[
+            [true, false, true],
+            [false, true, false],
+            [true, true, true],
+        ]);
+        let mut child = shape_square(&[[true, true], [true, true]]);
+        child.remove_parent(&parent);
+    }
+
+    #[test]
+    fn test_count_biggest_connected_area_of_cells_matching() {
+        let array = shape_square(&[
+            [true, false, true],
+            [false, true, false],
+            [true, true, true],
+        ]);
+        let count_true = array.count_biggest_connected_area_of_cells_matching(true);
+        let count_false = array.count_biggest_connected_area_of_cells_matching(false);
+        assert_eq!(count_true, 4);
+        assert_eq!(count_false, 1);
+    }
+
+    #[test]
+    fn test_tile_rotation_iterator() {
+        let base = shape_square(&[[true, false], [false, false]]);
+        let mut iter = base.rotations_flips_iter();
+
+        assert_eq!(
+            iter.next(),
+            Some(shape_square(&[[true, false], [false, false]]))
+        );
+        assert_eq!(
+            iter.next(),
+            Some(shape_square(&[[false, true], [false, false]]))
+        );
+        assert_eq!(
+            iter.next(),
+            Some(shape_square(&[[false, false], [false, true]]))
+        );
+        assert_eq!(
+            iter.next(),
+            Some(shape_square(&[[false, false], [true, false]]))
+        );
+
+        assert_eq!(
+            iter.next(),
+            Some(shape_square(&[[true, false], [false, false]]))
+        );
+        assert_eq!(
+            iter.next(),
+            Some(shape_square(&[[false, true], [false, false]]))
+        );
+        assert_eq!(
+            iter.next(),
+            Some(shape_square(&[[false, false], [false, true]]))
+        );
+        assert_eq!(
+            iter.next(),
+            Some(shape_square(&[[false, false], [true, false]]))
+        );
+        assert_eq!(iter.next(), None);
+    }
 }

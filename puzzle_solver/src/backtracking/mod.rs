@@ -23,7 +23,7 @@ pub async fn solve_all_filling(
 
     let pruner = Pruner::new_for_filling(&board, &tiles);
 
-    let board_bitmask = Bitmask::from(board.get_array());
+    let board_bitmask = Bitmask::from(board.get_shape());
     let positioned_tiles: Vec<PositionedTile> = tiles
         .iter()
         .map(|tile| PositionedTile::new(tile, &board, &pruner))
@@ -39,7 +39,7 @@ pub async fn solve_all_filling(
     }
 
     let result = core::solve_filling(
-        board.get_array().dim().0 as i32,
+        board.get_shape().dim().0 as i32,
         &board_bitmask,
         &positioned_tiles,
         pruner,
@@ -93,7 +93,7 @@ fn create_tile_placement(
 ) -> TilePlacement {
     let bitmask_placement = &positioned_tile.bitmasks()[placement_index];
     let placement_board =
-        bitmask_placement.to_shape(board.get_array().dim().0, board.get_array().dim().1, Square);
+        bitmask_placement.to_shape(board.get_shape().dim().0, board.get_shape().dim().1, Square);
     let mut inverted_placement = placement_board.map(|v| !v);
     inverted_placement.trim_matching(true);
     let rotation = inverted_placement.map(|v| !v);

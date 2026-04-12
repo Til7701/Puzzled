@@ -31,10 +31,10 @@ impl PositionedTile {
         let all_placements: Vec<Shape> = tile
             .all_rotations
             .iter()
-            .flat_map(|rotation| board.get_array().place_on_all_positions(rotation))
+            .flat_map(|rotation| board.get_shape().place_on_all_positions(rotation))
             .map(|array| {
                 let mut array = array.clone();
-                array.remove_parent(board.get_array());
+                array.remove_parent(board.get_shape());
                 array
             })
             .collect();

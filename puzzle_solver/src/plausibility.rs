@@ -17,7 +17,7 @@ use log::debug;
 ///
 /// returns: bool
 pub(crate) fn check(board: &Board, tiles: &[Tile]) -> bool {
-    let board_area = board.get_array().iter().filter(|&&cell| !cell).count();
+    let board_area = board.get_shape().iter().filter(|&&cell| !cell).count();
     let tiles_area: usize = tiles
         .iter()
         .map(|tile| tile.base.iter().filter(|&&cell| cell).count())

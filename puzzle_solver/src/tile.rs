@@ -30,9 +30,9 @@ impl Tile {
     ///
     /// ```rust
     /// use puzzle_solver::tile::Tile;
-    /// use ndarray::arr2;
+    /// use puzzled_common::shape::shape_square;
     ///
-    /// let base = arr2(&[[true, false], [true, true]]);
+    /// let base = shape_square(&[[true, false], [true, true]]);
     /// let tile = Tile::new(base);
     /// ```
     pub fn new(base: Shape) -> Tile {
@@ -60,9 +60,9 @@ impl Tile {
     ///
     /// ```rust
     /// use puzzle_solver::tile::Tile;
-    /// use ndarray::arr2;
+    /// use puzzled_common::shape::shape_square;
     ///
-    /// let base = arr2(&[[true, false], [true, true]]);
+    /// let base = shape_square(&[[true, false], [true, true]]);
     /// let tile = Tile::new(base.clone());
     /// assert_eq!(tile.base(), &base);
     /// ```
