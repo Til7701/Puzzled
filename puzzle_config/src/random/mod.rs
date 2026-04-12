@@ -2,8 +2,7 @@ use crate::{
     BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig,
     PuzzleConfigCollection, TileConfig,
 };
-use ndarray::Array2;
-use puzzled_common::array_util::TileRotationIterator;
+use puzzled_common::Shape;
 use rand::rngs::Xoshiro256PlusPlus;
 use rand::{Rng, RngExt, SeedableRng};
 
@@ -64,15 +63,17 @@ pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection 
     )
 }
 
-fn random_orientation(rng: &mut dyn Rng, array: Array2<bool>) -> Array2<bool> {
-    let iterator = TileRotationIterator::new(array);
-    iterator.into_iter().nth(rng.random_range(0..8)).unwrap()
+fn random_orientation(rng: &mut dyn Rng, shape: Shape) -> Shape {
+    shape
+        .rotations_flips_iter()
+        .nth(rng.random_range(0..8))
+        .unwrap()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_normal() {
@@ -90,7 +91,7 @@ mod tests {
         let puzzle = &collection.puzzles()[0];
         assert_eq!(
             BoardConfig::Simple {
-                layout: arr2(&[
+                layout: shape_square(&[
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
@@ -104,7 +105,7 @@ mod tests {
         assert_eq!(5, puzzle.tiles().len());
         assert_eq!(
             TileConfig::new(
-                arr2(&[
+                shape_square(&[
                     [true, true, true, true, true],
                     [true, true, true, true, false]
                 ]),
@@ -115,7 +116,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                arr2(&[
+                shape_square(&[
                     [false, false, true],
                     [true, true, true],
                     [false, false, true],
@@ -129,7 +130,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                arr2(&[[true, true, true, true]]),
+                shape_square(&[[true, true, true, true]]),
                 ColorConfig::default_with_index(2),
                 None
             ),
@@ -137,7 +138,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                arr2(&[[false, false, true], [true, true, true]]),
+                shape_square(&[[false, false, true], [true, true, true]]),
                 ColorConfig::default_with_index(3),
                 None
             ),
@@ -145,7 +146,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                arr2(&[[true], [true], [true], [true], [true]]),
+                shape_square(&[[true], [true], [true], [true], [true]]),
                 ColorConfig::default_with_index(4),
                 None
             ),
@@ -169,25 +170,41 @@ mod tests {
         let puzzle = &collection.puzzles()[0];
         assert_eq!(
             BoardConfig::Simple {
-                layout: arr2(&[[true, true], [true, true],])
+                layout: shape_square(&[[true, true], [true, true],])
             },
             *puzzle.board_config()
         );
         assert_eq!(4, puzzle.tiles().len());
         assert_eq!(
-            TileConfig::new(arr2(&[[true]]), ColorConfig::default_with_index(0), None),
+            TileConfig::new(
+                shape_square(&[[true]]),
+                ColorConfig::default_with_index(0),
+                None
+            ),
             puzzle.tiles()[0]
         );
         assert_eq!(
-            TileConfig::new(arr2(&[[true]]), ColorConfig::default_with_index(1), None),
+            TileConfig::new(
+                shape_square(&[[true]]),
+                ColorConfig::default_with_index(1),
+                None
+            ),
             puzzle.tiles()[1]
         );
         assert_eq!(
-            TileConfig::new(arr2(&[[true]]), ColorConfig::default_with_index(2), None),
+            TileConfig::new(
+                shape_square(&[[true]]),
+                ColorConfig::default_with_index(2),
+                None
+            ),
             puzzle.tiles()[2]
         );
         assert_eq!(
-            TileConfig::new(arr2(&[[true]]), ColorConfig::default_with_index(3), None),
+            TileConfig::new(
+                shape_square(&[[true]]),
+                ColorConfig::default_with_index(3),
+                None
+            ),
             puzzle.tiles()[3]
         );
     }

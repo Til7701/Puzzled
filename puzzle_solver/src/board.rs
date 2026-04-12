@@ -1,7 +1,8 @@
 use log::debug;
 use ndarray::Array2;
-use puzzled_common::array_util;
-use puzzled_common::array_util::TrimSides;
+use puzzled_common::shape::TrimSides;
+use puzzled_common::Shape;
+use puzzled_common::ShapeType::Square;
 use std::ops::{Index, IndexMut};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
@@ -19,7 +20,7 @@ use std::ops::{Index, IndexMut};
 /// board[[2, 3]] = true;
 /// assert_eq!(board[[2, 3]], true);
 /// ```
-pub struct Board(Array2<bool>);
+pub struct Board(Shape);
 
 impl Board {
     /// Creates a new Board with the given dimensions, initialized to all false (empty).
@@ -36,11 +37,11 @@ impl Board {
     /// use puzzle_solver::board::Board;
     ///
     /// let board = Board::new((3, 4));
-    /// assert_eq!(board.get_array().shape(), &[3, 4]);
-    /// assert!(board.get_array().iter().all(|&b| b == false));
+    /// assert_eq!(board.get_shape().dim(), (3, 4));
+    /// assert!(board.get_shape().iter().all(|&b| b == false));
     /// ```
     pub fn new(dims: (usize, usize)) -> Self {
-        Board(Array2::default(dims))
+        Board(Shape::from_elem(dims, Square, false))
     }
 
     /// Returns a reference to the internal 2D array representing the board.
@@ -55,12 +56,13 @@ impl Board {
     ///
     /// ```rust
     /// use puzzle_solver::board::Board;
-    /// use ndarray::Array2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType::Square;
     ///
     /// let board = Board::new((3, 4));
-    /// assert_eq!(board.get_array(), Array2::default((3, 4)));
+    /// assert_eq!(board.get_shape(), &Shape::from_elem((3, 4), Square, false));
     /// ```
-    pub fn get_array(&self) -> &Array2<bool> {
+    pub fn get_shape(&self) -> &Shape {
         &self.0
     }
 
@@ -69,14 +71,14 @@ impl Board {
     pub(crate) fn debug_print(&self) {
         if log::log_enabled!(log::Level::Debug) {
             debug!("Board:");
-            array_util::debug_print(&self.0);
+            self.0.debug_print();
         }
     }
 
     /// Trims the board by removing any rows or columns on the edges that are entirely
     /// true (filled).
     pub(crate) fn trim(&mut self) -> TrimSides {
-        array_util::remove_true_rows_cols_from_sides(&mut self.0)
+        self.0.trim_matching(true)
     }
 }
 
@@ -84,18 +86,18 @@ impl Index<[usize; 2]> for Board {
     type Output = bool;
 
     fn index(&self, index: [usize; 2]) -> &Self::Output {
-        &self.0[[index[0], index[1]]]
+        &self.0[(index[0], index[1])]
     }
 }
 
 impl IndexMut<[usize; 2]> for Board {
     fn index_mut(&mut self, index: [usize; 2]) -> &mut Self::Output {
-        &mut self.0[[index[0], index[1]]]
+        &mut self.0[(index[0], index[1])]
     }
 }
 
-impl From<Array2<bool>> for Board {
-    fn from(array: Array2<bool>) -> Self {
+impl From<Shape> for Board {
+    fn from(array: Shape) -> Self {
         Board(array)
     }
 }
@@ -107,14 +109,14 @@ mod tests {
     #[test]
     fn test_new_0_0() {
         let board = Board::new((0, 0));
-        assert_eq!(board.get_array().shape(), &[0, 0]);
+        assert_eq!(board.get_shape().dim(), (0, 0));
     }
 
     #[test]
     fn test_new_3_4() {
         let board = Board::new((3, 4));
-        assert_eq!(board.get_array().shape(), &[3, 4]);
-        assert!(board.get_array().iter().all(|&b| b == false));
+        assert_eq!(board.get_shape().dim(), (3, 4));
+        assert!(board.get_shape().iter().all(|&b| b == false));
     }
 
     #[test]
@@ -136,7 +138,7 @@ mod tests {
 
         board.trim();
 
-        assert_eq!(board.get_array().shape(), &[3, 3]);
+        assert_eq!(board.get_shape().dim(), (3, 3));
         assert_eq!(board[[0, 0]], false);
         assert_eq!(board[[0, 1]], false);
         assert_eq!(board[[0, 2]], false);

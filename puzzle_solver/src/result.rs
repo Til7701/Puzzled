@@ -1,4 +1,4 @@
-use ndarray::Array2;
+use puzzled_common::Shape;
 
 /// Represents a successful solution to the puzzle.
 #[derive(Debug)]
@@ -22,20 +22,16 @@ impl Solution {
 #[derive(Debug, Eq, PartialEq)]
 pub struct TilePlacement {
     /// The base of the tile being placed.
-    base: Array2<bool>,
+    base: Shape,
     /// The rotation in which the tile is placed.
-    rotation: Array2<bool>,
+    rotation: Shape,
     /// The (x, y) position where the tile is placed.
     position: (usize, usize),
 }
 
 impl TilePlacement {
     /// Creates a new `TilePlacement` with the given base, rotation, and position.
-    pub(crate) fn new(
-        base: Array2<bool>,
-        rotation: Array2<bool>,
-        position: (usize, usize),
-    ) -> Self {
+    pub(crate) fn new(base: Shape, rotation: Shape, position: (usize, usize)) -> Self {
         Self {
             base,
             rotation,
@@ -44,12 +40,12 @@ impl TilePlacement {
     }
 
     /// Returns a reference to the base layout of the tile.
-    pub fn base(&self) -> &Array2<bool> {
+    pub fn base(&self) -> &Shape {
         &self.base
     }
 
     /// Returns a reference to the rotation of the tile as placed.
-    pub fn rotation(&self) -> &Array2<bool> {
+    pub fn rotation(&self) -> &Shape {
         &self.rotation
     }
 
@@ -69,7 +65,7 @@ pub enum UnsolvableReason {
     NoFit,
     PlausibilityCheckFailed,
     TileCannotBePlaced {
-        base: Array2<bool>,
+        base: Shape,
     },
     BoardTooLarge,
     /// Indicates that the solving process was canceled before a solution could be found.

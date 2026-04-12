@@ -2,6 +2,7 @@ use crate::model::extension::PuzzleTypeExtension;
 use crate::offset::CellOffset;
 use ndarray::Array2;
 use puzzle_config::PuzzleConfig;
+use puzzled_common::Shape;
 use std::cell::Ref;
 use std::collections::HashSet;
 
@@ -50,7 +51,7 @@ impl Default for Cell {
 pub struct UnusedTile {
     /// Used to identify the tile when having multiple identical tiles.
     pub id: usize,
-    pub base: Array2<bool>,
+    pub base: Shape,
     pub name: Option<String>,
 }
 
@@ -105,14 +106,12 @@ impl PuzzleState {
         let this_is_on_board = puzzle_config
             .board_config()
             .layout()
-            .get::<(usize, usize)>((position.0 as usize, position.1 as usize))
+            .get((position.0 as usize, position.1 as usize))
             .unwrap_or(&false);
         for (dr, dc) in DELTAS.iter() {
             let neighbor_pos = ((position.0 + dr) as usize, (position.1 + dc) as usize);
-            if let Some(neighbour_on_board) = puzzle_config
-                .board_config()
-                .layout()
-                .get::<(usize, usize)>(neighbor_pos)
+            if let Some(neighbour_on_board) =
+                puzzle_config.board_config().layout().get(neighbor_pos)
                 && !this_is_on_board
                 && *neighbour_on_board
             {
