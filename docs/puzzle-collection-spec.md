@@ -8,9 +8,9 @@ If it does not give an error message, when this specification suggests it should
 <!-- @formatter:off -->
 ```json
 {
-    "puzzled": "0.2.0",
+    "puzzled": "1.0.0",
     "name": "Example Puzzle",
-    "author": "Puzzle More Days",
+    "author": "Puzzled",
     "description": "Fill the board with trominoes.",
     "custom_tiles": {
         "looong": [
@@ -44,7 +44,7 @@ If it does not give an error message, when this specification suggests it should
 ```
 <!-- @formatter:on -->
 
-This file can be loaded by Puzzle More Days to add a new puzzle collection for the user to solve.
+This file can be loaded by Puzzled to add a new puzzle collection for the user to solve.
 The fields have the following meaning:
 
 | Field                | Type                 | Required | Description                                                                                                                                                                                                                                                                            | Default   | Version |
