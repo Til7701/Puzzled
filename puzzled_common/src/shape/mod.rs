@@ -62,7 +62,6 @@ impl Shape {
     ///
     /// assert_eq!(shape.shape_type(), ShapeType::Square);
     /// assert_eq!(shape.dim(), (1, 2));
-    /// // FIXME remove some
     /// assert_eq!(shape.get((0, 0)), Some(&true));
     /// assert_eq!(shape.get((0, 1)), Some(&true));
     /// ```
@@ -73,22 +72,97 @@ impl Shape {
         }
     }
 
+    /// Returns the shape type of this shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let shape = Shape::new(ShapeType::Square, arr2(&[[true]]));
+    ///
+    /// assert_eq!(shape.shape_type(), ShapeType::Square);
+    /// ```
     pub fn shape_type(&self) -> ShapeType {
         self.shape_type
     }
 
+    /// Returns the dimensions of this shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let shape = Shape::new(ShapeType::Square, arr2(&[[true, true]]));
+    ///
+    /// assert_eq!(shape.dim(), (1, 2));
+    /// ```
     pub fn dim(&self) -> (usize, usize) {
         self.data.dim()
     }
 
+    /// Returns the number of cells in the shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let shape = Shape::new(ShapeType::Square, arr2(&[[true, true], [false, true]]));
+    ///
+    /// assert_eq!(shape.len(), 4);
+    /// ```
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
+    /// Returns the value of the cell at the given position in the shape or none, if the index
+    /// is out of bounds.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let shape = Shape::new(ShapeType::Square, arr2(&[[true, false]]));
+    ///
+    /// assert_eq!(shape.get((0, 0)), Some(&true));
+    /// assert_eq!(shape.get((0, 1)), Some(&false));
+    /// assert_eq!(shape.get((1, 1)), None);
+    /// ```
     pub fn get(&self, index: (usize, usize)) -> Option<&bool> {
         self.data.get(index)
     }
 
+    /// Maps all values in the shape and returns a new shape.
+    ///
+    /// # Arguments
+    ///
+    /// * `f`: the mapping function
+    ///
+    /// returns: Shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let shape = Shape::new(ShapeType::Square, arr2(&[[true, false], [false, true]]));
+    /// let expected = Shape::new(ShapeType::Square, arr2(&[[false, true], [true, false]]));
+    ///
+    /// assert_eq!(shape.map(|v| !v), expected);
+    /// ```
     pub fn map<F>(&self, f: F) -> Self
     where
         F: FnMut(&bool) -> bool,
@@ -99,6 +173,27 @@ impl Shape {
         }
     }
 
+    /// Fills the shape with the given value.
+    ///
+    /// # Arguments
+    ///
+    /// * `value`: the value to set all cells to
+    ///
+    /// returns: ()
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let mut shape = Shape::new(ShapeType::Square, arr2(&[[true, false], [false, true]]));
+    /// shape.fill(false);
+    /// let expected = Shape::new(ShapeType::Square, arr2(&[[false, false], [false, false]]));
+    ///
+    /// assert_eq!(shape, expected);
+    /// ```
     pub fn fill(&mut self, value: bool) {
         self.data.fill(value);
     }

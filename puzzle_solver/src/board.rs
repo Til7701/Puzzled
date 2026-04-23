@@ -1,5 +1,4 @@
 use log::debug;
-use ndarray::Array2;
 use puzzled_common::shape::TrimSides;
 use puzzled_common::Shape;
 use puzzled_common::ShapeType::Square;

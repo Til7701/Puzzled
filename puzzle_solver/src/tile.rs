@@ -74,7 +74,7 @@ impl Tile {
     #[allow(dead_code)]
     pub(crate) fn debug_print(&self) {
         debug!("Tile Base: ");
-        &self.base.debug_print();
+        self.base.debug_print();
         debug!("All Rotations: ");
         for rotation in &self.all_rotations {
             debug!("Rotation:");

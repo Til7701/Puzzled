@@ -29,7 +29,6 @@ use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::{gio, glib, CssProvider, License, Settings, STYLE_PROVIDER_PRIORITY_APPLICATION};
 use log::info;
-use ndarray::array;
 use puzzle_config::ColorConfig;
 use puzzled_common::shape::shape_square;
 use std::fmt::Debug;
