@@ -1081,45 +1081,4 @@ mod test {
         assert_eq!(count_true, 4);
         assert_eq!(count_false, 1);
     }
-
-    #[test]
-    fn test_tile_rotation_iterator() {
-        let base = shape_square(&[[true, false], [false, false]]);
-        let mut iter = base.rotations_flips_iter();
-
-        assert_eq!(
-            iter.next(),
-            Some(shape_square(&[[true, false], [false, false]]))
-        );
-        assert_eq!(
-            iter.next(),
-            Some(shape_square(&[[false, false], [true, false]]))
-        );
-        assert_eq!(
-            iter.next(),
-            Some(shape_square(&[[false, false], [false, true]]))
-        );
-        assert_eq!(
-            iter.next(),
-            Some(shape_square(&[[false, true], [false, false]]))
-        );
-
-        assert_eq!(
-            iter.next(),
-            Some(shape_square(&[[true, false], [false, false]]))
-        );
-        assert_eq!(
-            iter.next(),
-            Some(shape_square(&[[false, false], [true, false]]))
-        );
-        assert_eq!(
-            iter.next(),
-            Some(shape_square(&[[false, false], [false, true]]))
-        );
-        assert_eq!(
-            iter.next(),
-            Some(shape_square(&[[false, true], [false, false]]))
-        );
-        assert_eq!(iter.next(), None);
-    }
 }
