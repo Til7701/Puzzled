@@ -106,8 +106,8 @@ mod tests {
         assert_eq!(
             TileConfig::new(
                 shape_square(&[
-                    [true, true, true, true, true],
-                    [true, true, true, true, false]
+                    [false, true, true, true, true],
+                    [true, true, true, true, true]
                 ]),
                 ColorConfig::default_with_index(0),
                 None
@@ -117,11 +117,11 @@ mod tests {
         assert_eq!(
             TileConfig::new(
                 shape_square(&[
-                    [false, false, true],
+                    [true, true, false],
+                    [true, false, false],
+                    [true, false, false],
                     [true, true, true],
-                    [false, false, true],
-                    [false, false, true],
-                    [false, true, true]
+                    [true, false, false]
                 ]),
                 ColorConfig::default_with_index(1),
                 None
@@ -138,7 +138,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                shape_square(&[[false, false, true], [true, true, true]]),
+                shape_square(&[[true, true, true], [true, false, false]]),
                 ColorConfig::default_with_index(3),
                 None
             ),

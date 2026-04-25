@@ -212,7 +212,8 @@ impl TileView {
     /// Rotates the tile one step clockwise.
     pub fn rotate_clockwise(&self) {
         let mut layout = self.current_rotation().clone();
-        layout.rotate_clockwise();
+        // We are calling counterclockwise here, since the tile is drawn transposed.
+        layout.rotate_counterclockwise();
         self.set_current_rotation(layout);
     }
 

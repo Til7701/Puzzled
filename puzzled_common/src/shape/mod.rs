@@ -198,26 +198,11 @@ impl Shape {
         self.data.fill(value);
     }
 
-    pub fn rotate_clockwise(&mut self) {
-        match self.shape_type {
-            Square => {
-                self.data.reverse_axes();
-                self.data.invert_axis(Axis(0));
-            }
-            Triangle => {
-                todo!()
-            }
-            Hexagon => {
-                todo!()
-            }
-        };
-    }
-
     pub fn rotate_counterclockwise(&mut self) {
         match self.shape_type {
             Square => {
                 self.data.reverse_axes();
-                self.data.invert_axis(Axis(1));
+                self.data.invert_axis(Axis(0));
             }
             Triangle => {
                 todo!()
@@ -528,7 +513,7 @@ mod test {
     fn test_rotate_counterclockwise_square_size_2() {
         let mut shape = shape_square(&[[true, false]]);
         shape.rotate_counterclockwise();
-        let expected = shape_square(&[[true], [false]]);
+        let expected = shape_square(&[[false], [true]]);
         assert_eq!(expected, shape);
     }
 
@@ -541,9 +526,9 @@ mod test {
         ]);
         shape.rotate_counterclockwise();
         let expected = shape_square(&[
-            [true, true, true],
+            [false, true, true],
             [false, true, false],
-            [true, true, false],
+            [true, true, true],
         ]);
         assert_eq!(expected, shape);
     }
@@ -965,7 +950,7 @@ mod test {
         );
         assert_eq!(
             iter.next(),
-            Some(shape_square(&[[false, true], [false, false]]))
+            Some(shape_square(&[[false, false], [true, false]]))
         );
         assert_eq!(
             iter.next(),
@@ -973,7 +958,7 @@ mod test {
         );
         assert_eq!(
             iter.next(),
-            Some(shape_square(&[[false, false], [true, false]]))
+            Some(shape_square(&[[false, true], [false, false]]))
         );
 
         assert_eq!(
@@ -982,7 +967,7 @@ mod test {
         );
         assert_eq!(
             iter.next(),
-            Some(shape_square(&[[false, true], [false, false]]))
+            Some(shape_square(&[[false, false], [true, false]]))
         );
         assert_eq!(
             iter.next(),
@@ -990,7 +975,7 @@ mod test {
         );
         assert_eq!(
             iter.next(),
-            Some(shape_square(&[[false, false], [true, false]]))
+            Some(shape_square(&[[false, true], [false, false]]))
         );
         assert_eq!(iter.next(), None);
     }
