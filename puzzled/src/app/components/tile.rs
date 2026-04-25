@@ -8,8 +8,9 @@ use adw::prelude::GdkCairoContextExt;
 use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
-use ndarray::{Array2, Axis};
+use ndarray::Array2;
 use puzzle_config::ColorConfig;
+use puzzled_common::Shape;
 use std::cell::Ref;
 use std::collections::HashMap;
 
@@ -30,15 +31,16 @@ pub enum DrawingMode {
 
 mod imp {
     use super::*;
+    use puzzled_common::Shape;
     use std::cell::{Cell, RefCell};
     use std::collections::HashMap;
 
     #[derive(Debug, Default)]
     pub struct PuzzledTileView {
         pub id: Cell<usize>,
-        pub base: RefCell<Array2<bool>>,
+        pub base: RefCell<Shape>,
         pub name: RefCell<Option<String>>,
-        pub current_rotation: RefCell<Array2<bool>>,
+        pub current_rotation: RefCell<Shape>,
         pub position_cells: Cell<Option<CellOffset>>,
         pub position_pixels: Cell<PixelOffset>,
         pub color: RefCell<HashMap<DrawingMode, RGBA>>,
@@ -99,7 +101,7 @@ impl TileView {
     /// Creates a new TileView with the given id and base layout.
     /// The name is used to refer to the tile layout when calculating possible solutions for given
     /// tiles.
-    pub fn new(id: usize, base: Array2<bool>, color: ColorConfig, name: Option<String>) -> Self {
+    pub fn new(id: usize, base: Shape, color: ColorConfig, name: Option<String>) -> Self {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
@@ -195,7 +197,7 @@ impl TileView {
     /// Returns the base layout of the tile, which is the original orientation without any
     /// rotations or flips.
     /// This does not change over the lifetime of the tile.
-    pub fn base(&self) -> Ref<'_, Array2<bool>> {
+    pub fn base(&self) -> Ref<'_, Shape> {
         self.imp().base.borrow()
     }
 
@@ -209,20 +211,20 @@ impl TileView {
 
     /// Rotates the tile one step clockwise.
     pub fn rotate_clockwise(&self) {
-        let previous = self.current_rotation().clone();
-        let mut layout = previous.reversed_axes();
-        layout.invert_axis(Axis(0));
+        let mut layout = self.current_rotation().clone();
+        // We are calling counterclockwise here, since the tile is drawn transposed.
+        layout.rotate_counterclockwise();
         self.set_current_rotation(layout);
     }
 
     /// Flips the tile horizontally.
     pub fn flip_horizontal(&self) {
         let mut layout = self.current_rotation().clone();
-        layout.invert_axis(Axis(0));
+        layout.flip_default();
         self.set_current_rotation(layout);
     }
 
-    fn set_current_rotation(&self, rotation: Array2<bool>) {
+    fn set_current_rotation(&self, rotation: Shape) {
         self.imp()
             .drawing_modes
             .replace(Array2::default(rotation.dim()));
@@ -231,7 +233,7 @@ impl TileView {
     }
 
     /// Returns the current layout of the tile, which changes when the tile is rotated or flipped.
-    pub fn current_rotation(&self) -> Ref<'_, Array2<bool>> {
+    pub fn current_rotation(&self) -> Ref<'_, Shape> {
         self.imp().current_rotation.borrow()
     }
 

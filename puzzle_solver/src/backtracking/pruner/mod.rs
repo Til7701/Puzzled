@@ -50,83 +50,83 @@ mod tests {
     use crate::bitmask::Bitmask;
     use crate::board::Board;
     use crate::tile::Tile;
-    use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_pruner_trominoes() {
-        let board: Board = arr2(&[
+        let board: Board = shape_square(&[
             [false, false, false],
             [true, false, true],
             [true, false, false],
         ])
         .into();
         let tiles = vec![
-            Tile::new(arr2(&[[true, true, true]])),
-            Tile::new(arr2(&[[true, true], [true, false]])),
+            Tile::new(shape_square(&[[true, true, true]])),
+            Tile::new(shape_square(&[[true, true], [true, false]])),
         ];
 
         let pruner = Pruner::new_for_filling(&board, &tiles);
         assert!(pruner.banned_bitmasks.len() > 0);
 
         // Assert prune
-        assert!(pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(pruner.prune(&Bitmask::from(&shape_square(&[
             [false, true, false],
             [true, false, true],
             [true, false, false],
         ]))));
-        assert!(pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(pruner.prune(&Bitmask::from(&shape_square(&[
             [true, false, true],
             [true, true, false],
             [true, false, true],
         ]))));
-        assert!(pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(pruner.prune(&Bitmask::from(&shape_square(&[
             [false, true, false],
             [true, false, true],
             [true, false, false],
         ]))));
-        assert!(pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(pruner.prune(&Bitmask::from(&shape_square(&[
             [false, true, false],
             [true, false, true],
             [true, true, false],
         ]))));
-        assert!(pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(pruner.prune(&Bitmask::from(&shape_square(&[
             [false, false, true],
             [true, true, false],
             [true, false, true],
         ]))));
-        assert!(pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(pruner.prune(&Bitmask::from(&shape_square(&[
             [false, false, false],
             [true, true, false],
             [true, false, true],
         ]))));
-        assert!(pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(pruner.prune(&Bitmask::from(&shape_square(&[
             [false, true, false],
             [true, true, true],
             [true, true, false],
         ]))));
-        assert!(pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(pruner.prune(&Bitmask::from(&shape_square(&[
             [false, true, true],
             [true, true, true],
             [true, false, false],
         ]))));
 
         // Assert not prune
-        assert!(!pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(!pruner.prune(&Bitmask::from(&shape_square(&[
             [false, false, false],
             [true, false, true],
             [true, false, false],
         ]))));
-        assert!(!pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(!pruner.prune(&Bitmask::from(&shape_square(&[
             [false, false, false],
             [true, true, true],
             [true, true, true],
         ]))));
-        assert!(!pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(!pruner.prune(&Bitmask::from(&shape_square(&[
             [true, true, true],
             [true, false, true],
             [true, false, false],
         ]))));
-        assert!(!pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(!pruner.prune(&Bitmask::from(&shape_square(&[
             [true, true, true],
             [true, true, true],
             [true, true, true],
@@ -135,37 +135,37 @@ mod tests {
 
     #[test]
     fn test_pruner_simple() {
-        let board: Board = arr2(&[
+        let board: Board = shape_square(&[
             [true, false, false, false],
             [false, false, false, false],
             [false, false, false, false],
         ])
         .into();
         let tiles = vec![
-            Tile::new(arr2(&[[false, true, true], [true, true, true]])),
-            Tile::new(arr2(&[[true, true, true], [true, true, true]])),
+            Tile::new(shape_square(&[[false, true, true], [true, true, true]])),
+            Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
         ];
 
         let pruner = Pruner::new_for_filling(&board, &tiles);
         assert!(pruner.banned_bitmasks.len() > 0);
 
         // Assert not prune
-        assert!(!pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(!pruner.prune(&Bitmask::from(&shape_square(&[
             [true, false, false, false],
             [false, false, false, false],
             [false, false, false, false],
         ]))));
-        assert!(!pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(!pruner.prune(&Bitmask::from(&shape_square(&[
             [true, true, false, false],
             [true, true, false, false],
             [true, true, false, false],
         ]))));
-        assert!(!pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(!pruner.prune(&Bitmask::from(&shape_square(&[
             [true, false, true, true],
             [false, false, true, true],
             [false, false, true, true],
         ]))));
-        assert!(!pruner.prune(&Bitmask::from(&arr2(&[
+        assert!(!pruner.prune(&Bitmask::from(&shape_square(&[
             [true, true, true, true],
             [true, true, true, true],
             [true, true, true, true],

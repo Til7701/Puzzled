@@ -29,8 +29,8 @@ use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::{gio, glib, CssProvider, License, Settings, STYLE_PROVIDER_PRIORITY_APPLICATION};
 use log::info;
-use ndarray::array;
 use puzzle_config::ColorConfig;
+use puzzled_common::shape::shape_square;
 use std::fmt::Debug;
 
 mod imp {
@@ -249,7 +249,7 @@ impl PuzzledApplication {
             .expect("Missing `overlapping_fixed` in resource");
         let left_tile = TileView::new(
             0,
-            array![[true, false], [true, true]],
+            shape_square(&[[true, false], [true, true]]),
             ColorConfig::default_with_index(0),
             None,
         );
@@ -259,7 +259,7 @@ impl PuzzledApplication {
 
         let right_tile = TileView::new(
             0,
-            array![[true, true], [false, true]],
+            shape_square(&[[true, true], [false, true]]),
             ColorConfig::default_with_index(5),
             None,
         );
@@ -275,7 +275,7 @@ impl PuzzledApplication {
             .expect("Missing `outside_fixed` in resource");
         let tile = TileView::new(
             0,
-            array![[true, true], [false, true]],
+            shape_square(&[[true, true], [false, true]]),
             ColorConfig::default_with_index(0),
             None,
         );
@@ -294,7 +294,12 @@ impl PuzzledApplication {
             color_config.blue(),
             128,
         );
-        let tile = TileView::new(0, array![[true, true], [false, true]], color_config, None);
+        let tile = TileView::new(
+            0,
+            shape_square(&[[true, true], [false, true]]),
+            color_config,
+            None,
+        );
         tile.set_width_request(CELL_SIZE * 2);
         tile.set_height_request(CELL_SIZE * 2);
 

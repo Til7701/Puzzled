@@ -9,6 +9,8 @@ use crate::{
     TileConfig,
 };
 use ndarray::Array2;
+use puzzled_common::Shape;
+use puzzled_common::ShapeType::Square;
 use std::num::NonZero;
 use time::OffsetDateTime;
 
@@ -99,19 +101,19 @@ fn rotate_board_to_landscape<T>(arr: Array2<T>) -> Array2<T> {
 
 fn rotate_board(board: BoardConfig) -> BoardConfig {
     match board {
-        BoardConfig::Simple { layout } => {
-            let layout = rotate_board_to_landscape(layout);
+        BoardConfig::Simple { mut layout } => {
+            layout.rotate_to_landscape();
             BoardConfig::Simple { layout }
         }
         BoardConfig::Area {
-            layout,
+            mut layout,
             area_indices,
             display_values,
             value_order,
             area_configs,
             target_template,
         } => {
-            let layout = Box::new(rotate_board_to_landscape(*layout));
+            layout.rotate_to_landscape();
             let area_indices = Box::new(rotate_board_to_landscape(*area_indices));
             let display_values = Box::new(rotate_board_to_landscape(*display_values));
             let value_order = Box::new(rotate_board_to_landscape(*value_order));
@@ -206,12 +208,12 @@ impl Convertable<Vec<TileConfig>> for (usize, Tile, Option<String>) {
     }
 }
 
-impl Convertable<(Array2<bool>, Option<String>)> for (usize, TileLayout) {
+impl Convertable<(Shape, Option<String>)> for (usize, TileLayout) {
     fn convert(
         self,
         predefined: &Predefined,
         custom: &mut Custom,
-    ) -> Result<(Array2<bool>, Option<String>), ReadError> {
+    ) -> Result<(Shape, Option<String>), ReadError> {
         match self.1 {
             TileLayout::Ref(name) => {
                 if let Some(custom_tile) = custom.get_tile(&name) {
@@ -249,13 +251,13 @@ impl Convertable<(Array2<bool>, Option<String>)> for (usize, TileLayout) {
                         return Err(ReadError::TileWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut base = Array2::<bool>::default((height, width));
+                let mut base = Shape::from_elem((height, width), Square, false);
                 for (i, row) in array.iter().enumerate() {
                     for (j, &value) in row.iter().enumerate() {
                         base[(i, j)] = value != 0;
                     }
                 }
-                let base = base.reversed_axes();
+                base.transpose();
                 Ok((base, None))
             }
         }
@@ -305,13 +307,13 @@ impl Convertable<BoardConfig> for Board {
                         return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut array = Array2::<bool>::default((height, width));
+                let mut array = Shape::from_elem((height, width), Square, false);
                 for (i, row) in layout.iter().enumerate() {
                     for (j, &value) in row.iter().enumerate() {
                         array[(i, j)] = value < 1;
                     }
                 }
-                let array = array.reversed_axes();
+                array.transpose();
                 Ok(BoardConfig::Simple { layout: array })
             }
             Board::AreaBoard {
@@ -337,14 +339,15 @@ impl Convertable<BoardConfig> for Board {
                             return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                         }
                     }
-                    let mut array = Array2::<bool>::default((height, width));
+                    let mut array = Shape::from_elem((height, width), Square, false);
                     for (i, row) in area_layout.iter().enumerate() {
                         for (j, &value) in row.iter().enumerate() {
                             array[(i, j)] = value >= 0;
                         }
                     }
 
-                    array.reversed_axes()
+                    array.transpose();
+                    array
                 };
 
                 Ok(BoardConfig::Area {
@@ -444,7 +447,7 @@ impl Convertable<String> for DefaultFactory {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::arr2;
+    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_convert_predefined_tile() {
@@ -459,7 +462,7 @@ mod tests {
             .convert(&predefined, &mut Custom::default())
             .unwrap();
         let expected_tile = TileConfig::new(
-            arr2(&[[true, false], [true, true]]).reversed_axes(),
+            shape_square(&[[true, false], [true, true]]).transposed(),
             ColorConfig::default_with_index(0),
             Some("L3".to_string()),
         );
@@ -487,7 +490,7 @@ mod tests {
             .convert(&Predefined::default(), &mut Custom::default())
             .unwrap();
         let expected_tile = TileConfig::new(
-            arr2(&[[true, false], [true, true]]).reversed_axes(),
+            shape_square(&[[true, false], [true, true]]).transposed(),
             ColorConfig::default_with_index(0),
             Some("L3".to_string()),
         );

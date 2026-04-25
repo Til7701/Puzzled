@@ -157,7 +157,7 @@ impl Solver {
     /// returns: bool
     pub fn is_solved(&self, puzzle_state: &PuzzleState) -> bool {
         let board = self.create_board(puzzle_state);
-        board.get_array().iter().all(|cell| *cell)
+        board.get_shape().iter().all(|cell| *cell)
     }
 
     /// Creates a board representation from the given puzzle state and target to give to the solver.

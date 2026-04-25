@@ -1,20 +1,18 @@
 use crate::random::{Algorithm, RandomPuzzleSettings};
 use ndarray::Array2;
-use puzzled_common::array_util;
+use puzzled_common::Shape;
+use puzzled_common::ShapeType::Square;
 use rand::{Rng, RngExt};
 use std::collections::BTreeMap;
 
-pub fn create_puzzle(
-    settings: &RandomPuzzleSettings,
-    rng: &mut dyn Rng,
-) -> (Array2<bool>, Vec<Array2<bool>>) {
+pub fn create_puzzle(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> (Shape, Vec<Shape>) {
     let tile_count = match settings.algorithm {
         Algorithm::Growing { tile_count, .. } => tile_count,
     };
     let base_board = generate_base_board(settings, rng);
     let complete_board = grow_until_complete(rng, base_board);
 
-    let board = complete_board.map(|x| x.is_some());
+    let board = Shape::new(Square, complete_board.map(|x| x.is_some()));
     let tiles = (0..tile_count)
         .map(|i| extract_tile(i as u32, &complete_board))
         .filter(|tile| tile.iter().any(|&x| x))
@@ -128,8 +126,9 @@ fn grow_tile_index(
     (changed, new_board)
 }
 
-fn extract_tile(tile_index: u32, complete_board: &Array2<Option<u32>>) -> Array2<bool> {
-    let mut base = complete_board.map(|&x| x.filter(|&i| i == tile_index).is_none());
-    array_util::remove_true_rows_cols_from_sides(&mut base);
-    base.map(|x| !x)
+fn extract_tile(tile_index: u32, complete_board: &Array2<Option<u32>>) -> Shape {
+    let base = complete_board.map(|&x| x.filter(|&i| i == tile_index).is_none());
+    let mut shape = Shape::new(Square, base);
+    shape.trim_matching(true);
+    shape.map(|x| !x)
 }

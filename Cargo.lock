@@ -883,6 +883,7 @@ dependencies = [
  "once_cell",
  "puzzle_config",
  "puzzle_solver",
+ "puzzled_common",
  "rand",
  "simple_logger",
  "tokio",

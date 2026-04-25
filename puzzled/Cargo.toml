@@ -4,6 +4,7 @@ edition = "2024"
 version.workspace = true
 
 [dependencies]
+puzzled_common = { workspace = true }
 puzzle_solver = { workspace = true }
 puzzle_config = { workspace = true }
 gettext-rs = { workspace = true }
