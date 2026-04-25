@@ -198,6 +198,23 @@ impl Shape {
         self.data.fill(value);
     }
 
+    /// Rotates the shape counterclockwise.
+    /// This rotates by a different angle for each shape type, but is always the next viable
+    /// angle.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let mut shape = Shape::new(ShapeType::Square, arr2(&[[true, false], [false, true]]));
+    /// shape.rotate_counterclockwise();
+    /// let expected = Shape::new(ShapeType::Square, arr2(&[[false, true], [true, false]]));
+    ///
+    /// assert_eq!(shape, expected);
+    /// ```
     pub fn rotate_counterclockwise(&mut self) {
         match self.shape_type {
             Square => {
@@ -213,6 +230,19 @@ impl Shape {
         };
     }
 
+    /// Rotates the shape to landscape.
+    /// # Examples
+    ///
+    /// ```
+    /// use puzzled_common::shape::shape_square;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let mut shape = shape_square(&[[true, false]]);
+    /// shape.rotate_to_landscape();
+    /// let expected = shape_square(&[[true], [false]]);
+    /// assert_eq!(expected, shape);
+    /// ```
     pub fn rotate_to_landscape(&mut self) {
         let dim = self.dim();
         if dim.0 < dim.1 {
@@ -220,6 +250,20 @@ impl Shape {
         }
     }
 
+    /// Flips the shape by a default axis for the shape type.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use puzzled_common::shape::shape_square;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let mut shape = shape_square(&[[false, true], [false, false]]);
+    /// shape.flip_default();
+    /// let expected = shape_square(&[[false, false], [false, true]]);
+    /// assert_eq!(expected, shape);
+    /// ```
     pub fn flip_default(&mut self) {
         match self.shape_type {
             Square => {
@@ -234,14 +278,38 @@ impl Shape {
         }
     }
 
+    /// Transposes the shape.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use puzzled_common::shape::shape_square;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let mut shape = shape_square(&[[false, true], [false, false]]);
+    /// shape.transpose();
+    /// let expected = shape_square(&[[false, false], [true, false]]);
+    /// assert_eq!(expected, shape);
+    /// ```
     pub fn transpose(&mut self) {
-        self.data.reverse_axes();
+        match self.shape_type {
+            Square => {
+                self.data.reverse_axes();
+            }
+            Triangle => {
+                todo!()
+            }
+            Hexagon => {
+                todo!()
+            }
+        }
     }
 
     pub fn transposed(&self) -> Self {
         Self {
             shape_type: self.shape_type,
-            data: self.data.t().into_owned(),
+            data: self.data.clone().reversed_axes(),
         }
     }
 
@@ -534,6 +602,22 @@ mod test {
     }
 
     #[test]
+    fn test_rotate_to_landscape_empty() {
+        let mut shape = shape_square(&[[]]);
+        shape.rotate_to_landscape();
+        let expected = shape_square(&[[]]);
+        assert_eq!(expected, shape);
+    }
+
+    #[test]
+    fn test_rotate_to_landscape_one() {
+        let mut shape = shape_square(&[[true]]);
+        shape.rotate_to_landscape();
+        let expected = shape_square(&[[true]]);
+        assert_eq!(expected, shape);
+    }
+
+    #[test]
     fn test_trim_sides_empty() {
         let mut array = Shape::from_elem((0, 0), Square, true);
         let trim_sides = array.trim_matching(true);
@@ -728,6 +812,65 @@ mod test {
             upper_x: 1,
         };
         assert_eq!(expected_trim_sides, trim_sides);
+    }
+
+    #[test]
+    fn test_count_biggest_connected_area_of_cells_matching_empty() {
+        let shape = shape_square(&[[]]);
+
+        let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
+        let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+
+        assert_eq!(count_true, 0);
+        assert_eq!(count_false, 0);
+    }
+
+    #[test]
+    fn test_count_biggest_connected_area_of_cells_matching_true() {
+        let shape = shape_square(&[[true]]);
+
+        let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
+        let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+
+        assert_eq!(count_true, 1);
+        assert_eq!(count_false, 0);
+    }
+
+    #[test]
+    fn test_count_biggest_connected_area_of_cells_matching_false() {
+        let shape = shape_square(&[[false]]);
+
+        let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
+        let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+
+        assert_eq!(count_true, 0);
+        assert_eq!(count_false, 1);
+    }
+
+    #[test]
+    fn test_count_biggest_connected_area_of_cells_matching_ring() {
+        let shape = shape_square(&[[true, true, true], [true, false, true], [true, true, true]]);
+
+        let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
+        let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+
+        assert_eq!(count_true, 8);
+        assert_eq!(count_false, 1);
+    }
+
+    #[test]
+    fn test_count_biggest_connected_area_of_cells_matching_complex() {
+        let shape = shape_square(&[
+            [true, true, true, false, true],
+            [true, false, true, false, true],
+            [true, true, true, false, true],
+        ]);
+
+        let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
+        let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+
+        assert_eq!(count_true, 8);
+        assert_eq!(count_false, 3);
     }
 
     #[test]
