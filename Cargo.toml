@@ -11,8 +11,8 @@ puzzled_common = { path = "./puzzled_common" }
 puzzle_solver = { path = "./puzzle_solver" }
 puzzle_config = { path = "./puzzle_config" }
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
-gtk = { version = "0.10.3", package = "gtk4", features = ["gnome_49"] }
-adw = { version = "0.8.1", package = "libadwaita", features = ["v1_8"] }
+gtk = { version = "0.11.2", package = "gtk4", features = ["gnome_50"] }
+adw = { version = "0.9.1", package = "libadwaita", features = ["v1_9"] }
 ndarray = "0.17.2"
 once_cell = "1.21.4"
 log = "0.4.29"
