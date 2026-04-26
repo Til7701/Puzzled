@@ -3,7 +3,7 @@ resolver = "3"
 members = ["puzzle_solver", "puzzle_config", "puzzled", "puzzled_common"]
 
 [workspace.package]
-version = "1.1.0"
+version = "1.2.0"
 edition = "2024"
 
 [workspace.dependencies]

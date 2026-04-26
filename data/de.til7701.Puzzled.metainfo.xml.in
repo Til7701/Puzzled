@@ -52,20 +52,29 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.1.0/data/screenshot-start-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.0/data/screenshot-start-light.png</image>
             <caption>Puzzle Selection</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.1.0/data/screenshot-year-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.0/data/screenshot-year-light.png</image>
             <caption>Solving a Puzzle</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.1.0/data/screenshot-start-dark.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.0/data/screenshot-start-dark.png</image>
             <caption>Puzzle Selection in Dark Mode</caption>
         </screenshot>
     </screenshots>
 
     <releases>
+        <release version="1.2.0" date="2026-04-26">
+            <description translate="no">
+                <ul>
+                    <li>Updated to Gnome 50.</li>
+                    <li>Add more puzzles to the Tetromino and Pentomino collections.</li>
+                    <li>Fix display bugs when loading an already loaded community collection.</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.1.0" date="2026-03-27">
             <description translate="no">
                 <ul>
