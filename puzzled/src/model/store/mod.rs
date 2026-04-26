@@ -6,8 +6,7 @@ use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::store::community::save_community_collection;
 use adw::gio::{resources_lookup_data, ResourceLookupFlags};
 use log::error;
-use once_cell::sync::OnceCell;
-use puzzle_config::{JsonLoader, Predefined, PuzzleConfigCollection, ReadError};
+use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::cell::RefCell;
 
 const CORE_COLLECTIONS: [&str; 9] = [
@@ -182,15 +181,6 @@ pub fn create_json_loader() -> JsonLoader {
 fn read_resource(filename: &str) -> String {
     let data = resources_lookup_data(filename, ResourceLookupFlags::NONE).unwrap();
     std::str::from_utf8(&data).unwrap().to_string()
-}
-
-static PREDEFINED: OnceCell<Predefined> = OnceCell::new();
-
-pub fn get_predefined<'a>() -> &'a Predefined {
-    PREDEFINED.get_or_init(|| {
-        let predefined_json_str = read_resource("/de/til7701/Puzzled/predefined.json");
-        puzzle_config::get_predefined(&predefined_json_str, config::VERSION)
-    })
 }
 
 #[cfg(test)]
