@@ -6,8 +6,7 @@ use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::store::community::save_community_collection;
 use adw::gio::{resources_lookup_data, ResourceLookupFlags};
 use log::error;
-use once_cell::sync::OnceCell;
-use puzzle_config::{JsonLoader, Predefined, PuzzleConfigCollection, ReadError};
+use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::cell::RefCell;
 
 const CORE_COLLECTIONS: [&str; 9] = [
@@ -58,6 +57,12 @@ impl PuzzleCollectionStore {
         &self.community_puzzle_collections
     }
 
+    pub fn find_community_collection_by_id(&self, id: &str) -> Option<&CollectionModel> {
+        self.community_puzzle_collections
+            .iter()
+            .find(|collection| collection.config().id() == id)
+    }
+
     /// Adds a community collection from the provided JSON string.
     /// Predefined tiles and boards are available.
     ///
@@ -68,11 +73,9 @@ impl PuzzleCollectionStore {
     /// returns: Result<(), ReadError>
     pub fn add_community_collection_from_string(
         &mut self,
+        collection: PuzzleConfigCollection,
         json_str: &str,
     ) -> Result<(), ReadError> {
-        let json_loader = create_json_loader();
-        let collection = json_loader.load_puzzle_collection(json_str)?;
-        self.remove_community_collection(collection.id());
         save_community_collection(collection.id(), json_str);
         self.community_puzzle_collections
             .push(CollectionModel::new(collection, &PuzzleMeta::new()));
@@ -167,7 +170,7 @@ fn load_core_from_resource(filename: &str, json_loader: &JsonLoader) -> PuzzleCo
 }
 
 /// Creates a JsonLoader and adds predefined tiles from the predefined JSON resource.
-fn create_json_loader() -> JsonLoader {
+pub fn create_json_loader() -> JsonLoader {
     let predefined_json_str = read_resource("/de/til7701/Puzzled/predefined.json");
     puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap()
 }
@@ -178,15 +181,6 @@ fn create_json_loader() -> JsonLoader {
 fn read_resource(filename: &str) -> String {
     let data = resources_lookup_data(filename, ResourceLookupFlags::NONE).unwrap();
     std::str::from_utf8(&data).unwrap().to_string()
-}
-
-static PREDEFINED: OnceCell<Predefined> = OnceCell::new();
-
-pub fn get_predefined<'a>() -> &'a Predefined {
-    PREDEFINED.get_or_init(|| {
-        let predefined_json_str = read_resource("/de/til7701/Puzzled/predefined.json");
-        puzzle_config::get_predefined(&predefined_json_str, config::VERSION)
-    })
 }
 
 #[cfg(test)]
