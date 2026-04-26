@@ -179,7 +179,7 @@ impl CollectionModel {
         });
     }
 
-    fn emit_deleted(&self) {
+    pub fn emit_deleted(&self) {
         self.emit_by_name::<()>(DELETED_SIGNAL_NAME, &[]);
     }
 }

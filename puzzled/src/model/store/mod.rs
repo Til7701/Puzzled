@@ -58,6 +58,12 @@ impl PuzzleCollectionStore {
         &self.community_puzzle_collections
     }
 
+    pub fn find_community_collection_by_id(&self, id: &str) -> Option<&CollectionModel> {
+        self.community_puzzle_collections
+            .iter()
+            .find(|collection| collection.config().id() == id)
+    }
+
     /// Adds a community collection from the provided JSON string.
     /// Predefined tiles and boards are available.
     ///
@@ -68,11 +74,9 @@ impl PuzzleCollectionStore {
     /// returns: Result<(), ReadError>
     pub fn add_community_collection_from_string(
         &mut self,
+        collection: PuzzleConfigCollection,
         json_str: &str,
     ) -> Result<(), ReadError> {
-        let json_loader = create_json_loader();
-        let collection = json_loader.load_puzzle_collection(json_str)?;
-        self.remove_community_collection(collection.id());
         save_community_collection(collection.id(), json_str);
         self.community_puzzle_collections
             .push(CollectionModel::new(collection, &PuzzleMeta::new()));
@@ -167,7 +171,7 @@ fn load_core_from_resource(filename: &str, json_loader: &JsonLoader) -> PuzzleCo
 }
 
 /// Creates a JsonLoader and adds predefined tiles from the predefined JSON resource.
-fn create_json_loader() -> JsonLoader {
+pub fn create_json_loader() -> JsonLoader {
     let predefined_json_str = read_resource("/de/til7701/Puzzled/predefined.json");
     puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap()
 }

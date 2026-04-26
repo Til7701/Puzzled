@@ -89,9 +89,22 @@ impl CollectionSelectionPage {
         match file.load_contents(None::<&Cancellable>) {
             Ok((bytes, _etag)) => match std::str::from_utf8(bytes.as_ref()) {
                 Ok(text) => {
-                    let content: String = text.to_owned();
+                    // Load collection
+                    let json_loader = crate::model::store::create_json_loader();
+                    let collection_config = json_loader.load_puzzle_collection(text)?;
+                    // Delete old collection if it exists
+                    with_puzzle_collection_store(|store| {
+                        store
+                            .find_community_collection_by_id(collection_config.id())
+                            .cloned()
+                    })
+                    .iter()
+                    .for_each(|collection| {
+                        collection.delete();
+                    });
+                    // Add new collection
                     let new_collection = with_puzzle_collection_store(|store| {
-                        store.add_community_collection_from_string(&content)?;
+                        store.add_community_collection_from_string(collection_config, text)?;
                         Ok(store.community_puzzle_collections().last().cloned())
                     })?;
                     self.add_community_collection(&new_collection.unwrap());
