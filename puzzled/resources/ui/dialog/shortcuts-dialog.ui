@@ -24,13 +24,13 @@
                 <child>
                     <object class="AdwShortcutsItem">
                         <property name="title" translatable="yes" context="shortcut window">Calculate tile combinations to solve</property>
-                        <property name="action-name">app.calculate-tile-combinations-to-solve</property>
+                        <property name="action-name">app.calculate_tile_combinations_to_solve</property>
                     </object>
                 </child>
                 <child>
                     <object class="AdwShortcutsItem">
                         <property name="title" translatable="yes" context="shortcut window">Stop calculating tile combinations to solve</property>
-                        <property name="action-name">app.stop-calculate-tile-combinations-to-solve</property>
+                        <property name="action-name">app.stop_calculate_tile_combinations_to_solve</property>
                     </object>
                 </child>
             </object>
