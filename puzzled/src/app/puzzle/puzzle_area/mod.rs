@@ -2,7 +2,6 @@ mod board;
 mod highlight;
 mod hint;
 mod layout;
-mod placement;
 pub mod puzzle_state;
 mod tile;
 
@@ -10,6 +9,7 @@ use crate::app::puzzle::puzzle_area::puzzle_state::{
     Cell, PuzzleState, TileCellPlacement, UnusedTile,
 };
 use crate::model::extension::PuzzleTypeExtension;
+use crate::model::placement::initial;
 use crate::model::puzzle::PuzzleModel;
 use crate::offset::{CellOffset, PixelOffset};
 use crate::window::PuzzledWindow;
@@ -17,33 +17,26 @@ use adw::gio;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{glib, Widget};
-use log::debug;
 use std::mem::take;
-
-const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 
 mod imp {
     use super::*;
     use crate::app::components::board::BoardView;
     use crate::app::components::tile::TileView;
-    use crate::app::puzzle::puzzle_area::layout::GridConfig;
-    use crate::model::extension::PuzzleTypeExtension;
-    use adw::glib::subclass::Signal;
+    use crate::model::placement::PlacementModel;
     use std::cell::{OnceCell, RefCell};
-    use std::sync::OnceLock;
 
     #[derive(Debug, Default)]
     pub struct PuzzledPuzzleArea {
+        pub(super) placement_model: RefCell<Option<PlacementModel>>,
         pub board: RefCell<Option<BoardView>>,
         pub tiles: RefCell<Vec<TileView>>,
         pub hint_tile: RefCell<Option<TileView>>,
 
         pub window: OnceCell<PuzzledWindow>,
 
-        pub grid_config: RefCell<GridConfig>,
         pub elements_in_fixed: RefCell<Vec<Widget>>,
         pub puzzle: RefCell<Option<PuzzleModel>>,
-        pub puzzle_type_extension: RefCell<Option<PuzzleTypeExtension>>,
     }
 
     #[glib::object_subclass]
@@ -54,11 +47,6 @@ mod imp {
     }
 
     impl ObjectImpl for PuzzledPuzzleArea {
-        fn signals() -> &'static [Signal] {
-            static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
-            SIGNALS.get_or_init(|| vec![Signal::builder(TILE_MOVED_SIGNAL_NAME).build()])
-        }
-
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
@@ -108,7 +96,7 @@ impl PuzzleArea {
 
         self.setup_board(puzzle_config);
 
-        let start_positions = placement::calculate_tile_start_positions(
+        let start_positions = initial::calculate_tile_start_positions(
             puzzle_config.tiles(),
             puzzle_config,
             self.imp().grid_config.borrow().board_offset_cells,
@@ -133,18 +121,6 @@ impl PuzzleArea {
         self.update_highlights();
         self.update_layout();
         self.emit_tile_moved();
-    }
-
-    pub fn connect_tile_moved<F: Fn() + 'static>(&self, callback: F) {
-        self.connect_local(TILE_MOVED_SIGNAL_NAME, false, move |_| {
-            callback();
-            None
-        });
-    }
-
-    fn emit_tile_moved(&self) {
-        debug!("Emitting tile moved signal",);
-        self.emit_by_name::<()>(TILE_MOVED_SIGNAL_NAME, &[]);
     }
 
     fn clear_elements(&self) {
