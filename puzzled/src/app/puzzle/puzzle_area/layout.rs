@@ -1,5 +1,5 @@
 use crate::app::puzzle::puzzle_area::PuzzleArea;
-use crate::offset::{CellOffset, PixelOffset};
+use crate::offset::PixelOffset;
 use crate::window::{MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
 use adw::glib;
 use adw::subclass::prelude::ObjectSubclassIsExt;
@@ -60,16 +60,6 @@ impl PuzzleArea {
         self.set_min_size();
         self.update_board_layout();
         self.update_tile_layout();
-    }
-
-    /// Get the dimensions of the board in cells.
-    fn board_size_cells(&self) -> CellOffset {
-        let puzzle = self.imp().puzzle.borrow();
-        let board_size = puzzle
-            .as_ref()
-            .map(|p| p.config().board_config().layout().dim())
-            .unwrap_or((1, 1));
-        CellOffset(board_size.0 as i32, board_size.1 as i32)
     }
 
     /// Sets the minimum size of the window based on the current grid configuration.

@@ -9,7 +9,7 @@ use crate::app::puzzle::puzzle_area::puzzle_state::{
     Cell, PuzzleState, TileCellPlacement, UnusedTile,
 };
 use crate::model::extension::PuzzleTypeExtension;
-use crate::model::placement::initial;
+use crate::model::placement::PlacementModel;
 use crate::model::puzzle::PuzzleModel;
 use crate::offset::{CellOffset, PixelOffset};
 use crate::window::PuzzledWindow;
@@ -90,17 +90,15 @@ impl PuzzleArea {
         let puzzle_config = puzzle.config();
         self.clear_elements();
 
-        self.imp()
-            .grid_config
-            .replace(self.initial_grid_config(puzzle_config));
+        let placement_model = PlacementModel::new(puzzle);
+        placement_model.connect_tile_moved({
+            let self_clone = self.clone();
+            || self_clone.run_on_tile_moved()
+        });
+        self.imp().placement_model.replace(Some(placement_model));
 
         self.setup_board(puzzle_config);
 
-        let start_positions = initial::calculate_tile_start_positions(
-            puzzle_config.tiles(),
-            puzzle_config,
-            self.imp().grid_config.borrow().board_offset_cells,
-        );
         for (i, tile) in puzzle_config.tiles().iter().enumerate() {
             self.setup_tile(tile, i, &start_positions[i]);
         }
@@ -120,7 +118,6 @@ impl PuzzleArea {
     pub fn run_on_tile_moved(&self) {
         self.update_highlights();
         self.update_layout();
-        self.emit_tile_moved();
     }
 
     fn clear_elements(&self) {

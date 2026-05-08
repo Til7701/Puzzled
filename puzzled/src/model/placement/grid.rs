@@ -31,7 +31,7 @@ impl Default for GridConfig {
 }
 
 impl GridConfig {
-    pub fn initial_grid_config(&self, puzzle_config: &PuzzleConfig) -> GridConfig {
+    pub fn initial_grid_config(puzzle_config: &PuzzleConfig) -> GridConfig {
         let board_cell_width = puzzle_config.board_config().layout().dim().0 as i32;
         let board_cell_height = puzzle_config.board_config().layout().dim().1 as i32;
 
