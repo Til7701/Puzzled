@@ -1,4 +1,4 @@
-use crate::model::collection::CollectionModel;
+use crate::app::puzzle::puzzle_area::puzzle_state::Cell;
 use crate::model::placement::grid::GridConfig;
 use crate::model::puzzle::PuzzleModel;
 use crate::offset::{CellOffset, PixelOffset};
@@ -6,6 +6,8 @@ use adw::glib;
 use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use log::debug;
+use puzzled_common::Shape;
+use std::cell::Ref;
 
 mod grid;
 mod initial;
@@ -18,6 +20,7 @@ mod imp {
     use crate::offset::PixelOffset;
     use adw::glib::subclass::Signal;
     use adw::glib::Properties;
+    use puzzled_common::Shape;
     use std::cell::{Cell, RefCell};
     use std::sync::OnceLock;
 
@@ -28,7 +31,8 @@ mod imp {
         pub(super) area_pixel_size: Cell<PixelOffset>,
         pub(super) grid_config: RefCell<GridConfig>,
         pub(super) board_position_cells: Cell<CellOffset>,
-        pub(super) tile_positions_cells: RefCell<Vec<CellOffset>>,
+        pub(super) tile_positions_shapes: RefCell<Vec<(CellOffset, Shape)>>,
+        pub(super) hint_tile_position: Cell<Option<CellOffset>>,
     }
 
     #[glib::object_subclass]
@@ -58,31 +62,70 @@ impl PlacementModel {
 
         obj.imp()
             .grid_config
-            .replace(GridConfig::initial_grid_config(puzzle_config));
+            .replace(Self::initial_grid_config(puzzle_config));
 
         let start_positions = initial::calculate_tile_start_positions(
             puzzle_config.tiles(),
             puzzle_config,
             obj.imp().grid_config.borrow().board_offset_cells,
         );
-        obj.imp().tile_positions_cells.replace(start_positions);
+        let start_positions_shapes: Vec<(CellOffset, Shape)> = start_positions
+            .iter()
+            .enumerate()
+            .map(move |(i, pos)| (*pos, puzzle_model.config().tiles()[i].base().clone()))
+            .collect();
+        obj.imp()
+            .tile_positions_shapes
+            .replace(start_positions_shapes);
 
-        obj.update_pixel_size(PixelOffset(100.0, 100.0));
+        obj.update_pixel_size(PixelOffset(100.0, 100.0), 10);
         obj
     }
 
-    pub fn update_pixel_size(&self, size: PixelOffset) {
-        self.imp().area_pixel_size.replace(size);
+    pub fn update_pixel_size(&self, total_view_size_pixel: PixelOffset, min_cell_size_pixel: i32) {
+        self.imp().area_pixel_size.replace(total_view_size_pixel);
+    }
+
+    pub fn cell_size(&self) -> u32 {
+        self.imp().grid_config.borrow().cell_size_pixel
+    }
+
+    pub fn board_position(&self) -> PixelOffset {
+        todo!()
+    }
+
+    pub fn board_size(&self) -> PixelOffset {
+        todo!()
     }
 
     pub fn tile_pixel_position(&self, idx: usize) -> PixelOffset {
-        let cell_position = self.imp().tile_positions_cells.borrow()[idx];
+        let list: Ref<Vec<(CellOffset, Shape)>> = self.imp().tile_positions_shapes.borrow();
+        let tile = list.get(idx).unwrap();
         let pixel_size = self.imp().grid_config.borrow().cell_size_pixel;
-        PixelOffset::from(cell_position).mul_scalar(pixel_size as f64)
+        PixelOffset::from(tile.0).mul_scalar(pixel_size as f64)
     }
 
     pub fn update_tile_pixel_position(&self, idx: usize, position: PixelOffset) {
         todo!()
+    }
+
+    pub fn update_tile_shape(&self, idx: usize, shape: Shape) {
+        let mut list = self.imp().tile_positions_shapes.borrow_mut();
+        let old = list.get_mut(idx).unwrap();
+        old.1 = shape;
+    }
+
+    pub fn init_hint_tile_position(&self, board_position: CellOffset) {
+        let position = self.imp().grid_config.borrow().board_offset_cells + board_position;
+        self.imp().hint_tile_position.replace(Some(position));
+    }
+
+    pub fn hint_tile_position(&self) -> PixelOffset {
+        todo!()
+    }
+
+    pub fn remove_hint_tile(&self) {
+        self.imp().hint_tile_position.replace(None);
     }
 
     pub fn connect_tile_moved<F: Fn() + 'static>(&self, callback: F) {
@@ -95,15 +138,5 @@ impl PlacementModel {
     fn emit_tile_moved(&self) {
         debug!("Emitting tile moved signal",);
         self.emit_by_name::<()>(TILE_MOVED_SIGNAL_NAME, &[]);
-    }
-
-    /// Get the dimensions of the board in cells.
-    fn board_size_cells(&self) -> CellOffset {
-        let puzzle = self.imp().puzzle.borrow();
-        let board_size = puzzle
-            .as_ref()
-            .map(|p| p.config().board_config().layout().dim())
-            .unwrap_or((1, 1));
-        CellOffset(board_size.0 as i32, board_size.1 as i32)
     }
 }

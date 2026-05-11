@@ -1,6 +1,4 @@
 use crate::adw_ext;
-use crate::offset::CellOffset;
-use crate::offset::PixelOffset;
 use adw::gdk::RGBA;
 use adw::gio;
 use adw::glib;
@@ -41,8 +39,6 @@ mod imp {
         pub base: RefCell<Shape>,
         pub name: RefCell<Option<String>>,
         pub current_rotation: RefCell<Shape>,
-        pub position_cells: Cell<Option<CellOffset>>,
-        pub position_pixels: Cell<PixelOffset>,
         pub color: RefCell<HashMap<DrawingMode, RGBA>>,
         pub drawing_modes: RefCell<Array2<DrawingMode>>,
     }
@@ -235,30 +231,6 @@ impl TileView {
     /// Returns the current layout of the tile, which changes when the tile is rotated or flipped.
     pub fn current_rotation(&self) -> Ref<'_, Shape> {
         self.imp().current_rotation.borrow()
-    }
-
-    /// Returns the position of the tile in terms of cell coordinates, which is used by the puzzle
-    /// area presenter to move the tile to the correct position.
-    /// This has to be set manually by the puzzle area presenter when the tile is moved.
-    pub fn position_cells(&self) -> Option<CellOffset> {
-        self.imp().position_cells.get()
-    }
-
-    /// Sets the position of the tile in terms of cell coordinates.
-    pub fn set_position_cells(&self, position_cells: Option<CellOffset>) {
-        self.imp().position_cells.replace(position_cells);
-    }
-
-    /// Returns the position of the tile in terms of pixel coordinates, which is set by the puzzle
-    /// area presenter when the tile is moved, and is used to draw the tile at the correct position.
-    /// This has to be set manually by the puzzle area presenter.
-    pub fn position_pixels(&self) -> PixelOffset {
-        self.imp().position_pixels.get()
-    }
-
-    /// Sets the position of the tile in terms of pixel coordinates.
-    pub fn set_position_pixels(&self, position_pixels: PixelOffset) {
-        self.imp().position_pixels.replace(position_pixels);
     }
 
     /// Sets the drawing mode for the cell at the given coordinates.

@@ -11,41 +11,14 @@ impl PuzzleArea {
     pub fn post_construct_setup_layout(&self) {
         // May have to use window here, since the size may change unpredictably
         self.add_tick_callback({
-            let self_clone = self.clone();
             let last = Rc::new(Cell::new((self.width(), self.height())));
-            move |window, _| {
-                let (w, h) = last.get();
-                let window_width = window.width();
-                let window_height = window.height();
-                if window_width != w || window_height != h {
-                    last.set((window_width, window_height));
-                    self_clone
-                        .imp()
-                        .placement_model
-                        .borrow()
-                        .iter()
-                        .for_each(|placement_model| {
-                            let available_width_pixel =
-                                self.imp().window.get().unwrap().width() as f64;
-                            let available_height_pixel = {
-                                let mut header_height =
-                                    self.imp()
-                                        .window
-                                        .get()
-                                        .unwrap()
-                                        .puzzle_area_nav_page()
-                                        .header_bar()
-                                        .height() as f64;
-                                if header_height == 0.0 {
-                                    header_height = 40.0;
-                                }
-                                self.imp().window.get().unwrap().height() as f64 - header_height
-                            };
-                            placement_model.update_pixel_size(PixelOffset(
-                                available_width_pixel,
-                                available_height_pixel,
-                            ));
-                        });
+            move |puzzle_area, _| {
+                let (last_width, last_height) = last.get();
+                let width = puzzle_area.width();
+                let height = puzzle_area.height();
+                if width != last_width || height != last_height {
+                    last.set((width, height));
+                    puzzle_area.update_layout();
                 }
                 glib::ControlFlow::Continue
             }
@@ -56,10 +29,18 @@ impl PuzzleArea {
     ///
     /// This moves the puzzle area elements according to the current window size.
     pub fn update_layout(&self) {
-        self.update_grid_layout();
-        self.set_min_size();
-        self.update_board_layout();
-        self.update_tile_layout();
+        let placement_model = { self.imp().placement_model.borrow().clone() };
+        if let Some(placement_model) = placement_model {
+            let min_cell_size = self.get_min_element_width();
+            placement_model.update_pixel_size(
+                PixelOffset(self.width() as f64, self.height() as f64),
+                min_cell_size,
+            );
+            self.set_min_size();
+            self.update_board_layout();
+            self.update_tile_layout();
+            self.update_hint_tile_layout();
+        }
     }
 
     /// Sets the minimum size of the window based on the current grid configuration.

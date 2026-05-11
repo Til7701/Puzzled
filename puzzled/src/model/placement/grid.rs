@@ -1,3 +1,4 @@
+use crate::model::placement::PlacementModel;
 use crate::offset::CellOffset;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use puzzle_config::PuzzleConfig;
@@ -30,7 +31,7 @@ impl Default for GridConfig {
     }
 }
 
-impl GridConfig {
+impl PlacementModel {
     pub fn initial_grid_config(puzzle_config: &PuzzleConfig) -> GridConfig {
         let board_cell_width = puzzle_config.board_config().layout().dim().0 as i32;
         let board_cell_height = puzzle_config.board_config().layout().dim().1 as i32;
@@ -58,9 +59,9 @@ impl GridConfig {
     /// [Self::update_grid_config()] is called if the grid layout needs to be updated based on the
     /// new calculations.
     fn update_grid_layout(&self) {
-        let pixel_size = self.imp().pixel_size.get();
-        let available_width_pixel = pixel_size.0;
-        let available_height_pixel = pixel_size.1;
+        let area_pixel_size = self.imp().area_pixel_size.get();
+        let available_width_pixel = area_pixel_size.0;
+        let available_height_pixel = area_pixel_size.1;
 
         let board_size_cells = self.board_size_cells();
         let board_size_cells_with_margin = board_size_cells.add_tuple((
@@ -101,7 +102,7 @@ impl GridConfig {
 
     /// Calculates the dimensions required to fit all tiles in their current positions.
     fn tiles_required_cells(&self) -> CellOffset {
-        let tiles = self.imp().tiles.borrow();
+        let tiles = self.imp().tile_positions_cells.borrow();
         let mut required_cells = CellOffset(0, 0);
         let mut lowest_position_cells = CellOffset(0, 0);
         for tile_view in tiles.iter() {
@@ -154,5 +155,15 @@ impl GridConfig {
             let new_position_cells = position_cells + offset_cells;
             hint_tile_view.set_position_cells(Some(new_position_cells));
         }
+    }
+
+    /// Get the dimensions of the board in cells.
+    fn board_size_cells(&self) -> CellOffset {
+        let puzzle = self.imp().puzzle.borrow();
+        let board_size = puzzle
+            .as_ref()
+            .map(|p| p.config().board_config().layout().dim())
+            .unwrap_or((1, 1));
+        CellOffset(board_size.0 as i32, board_size.1 as i32)
     }
 }

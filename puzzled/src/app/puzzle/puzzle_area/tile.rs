@@ -10,7 +10,7 @@ use gtk::{EventController, GestureClick, GestureDrag, PropagationPhase, Widget};
 use puzzle_config::TileConfig;
 
 impl PuzzleArea {
-    pub fn setup_tile(&self, tile: &TileConfig, tile_id: usize, start_position_cell: &CellOffset) {
+    pub fn setup_tile(&self, tile: &TileConfig, tile_id: usize) {
         let tile_view = TileView::new(
             tile_id,
             tile.base().clone(),
@@ -18,16 +18,9 @@ impl PuzzleArea {
             tile.name().clone(),
         );
 
-        let start_position = {
-            let grid_config = self.imp().grid_config.borrow();
-            start_position_cell.mul_scalar(grid_config.cell_size_pixel as f64)
-        };
-        tile_view.set_position_pixels(start_position.into());
-        tile_view.set_position_cells(Some(*start_position_cell));
-
         self.setup_drag_and_drop(tile_id, tile_view.upcast_ref());
         self.setup_tile_rotation_and_flip(tile_id, tile_view.upcast_ref());
-        self.add(tile_view.upcast_ref(), &start_position.into());
+        self.add(tile_view.upcast_ref(), &PixelOffset(0.0, 0.0));
         self.imp().tiles.borrow_mut().push(tile_view);
     }
 
@@ -38,16 +31,6 @@ impl PuzzleArea {
         drag.connect_drag_begin({
             let self_clone = self.clone();
             move |_, _x, _y| {
-                {
-                    let tiles = self_clone.imp().tiles.borrow();
-                    let tile_view = {
-                        match tiles.get(tile_view_index) {
-                            Some(tv) => tv,
-                            None => return,
-                        }
-                    };
-                    tile_view.set_position_cells(None);
-                }
                 self_clone.run_on_tile_moved();
             }
         });
@@ -63,7 +46,7 @@ impl PuzzleArea {
                             None => return,
                         }
                     };
-                    let mut pos = tile_view.position_pixels();
+                    let mut pos: PixelOffset = self_clone.child_position(tile_view).into();
                     pos = pos.add_tuple((dx, dy));
 
                     let max_x = self_clone.width() as f64 - tile_view.width() as f64;
@@ -80,37 +63,21 @@ impl PuzzleArea {
         drag.connect_drag_end({
             let self_clone = self.clone();
             move |_, _, _| {
-                let snapped = {
-                    let tiles = self_clone.imp().tiles.borrow();
-                    let grid_config = self_clone.imp().grid_config.borrow();
-                    let grid_size = grid_config.cell_size_pixel;
-                    let grid_h_cell_count = grid_config.grid_h_cell_count;
-                    let grid_v_cell_count = grid_config.grid_v_cell_count;
-                    let tile_view = {
-                        match tiles.get(tile_view_index) {
-                            Some(tv) => tv,
-                            None => return,
-                        }
-                    };
-                    let pos = tile_view.position_pixels();
-                    let pos = pos
-                        .div_scalar(grid_size as f64)
-                        .round()
-                        .mul_scalar(grid_size as f64);
-
-                    let max_h_cell_position =
-                        grid_h_cell_count as i32 - tile_view.current_rotation().dim().0 as i32;
-                    let max_v_cell_position =
-                        grid_v_cell_count as i32 - tile_view.current_rotation().dim().1 as i32;
-                    let mut new_position_cells =
-                        self_clone.calculate_cells_from_pixels(&pos, grid_size as f64);
-                    new_position_cells.0 = new_position_cells.0.clamp(0, max_h_cell_position);
-                    new_position_cells.1 = new_position_cells.1.clamp(0, max_v_cell_position);
-
-                    tile_view.set_position_cells(Some(new_position_cells));
-                    new_position_cells.mul_scalar(grid_size as f64).into()
+                let tiles = self_clone.imp().tiles.borrow();
+                let tile_view = {
+                    match tiles.get(tile_view_index) {
+                        Some(tv) => tv,
+                        None => return,
+                    }
                 };
-                self_clone.move_to(tile_view_index, snapped);
+                let pos: PixelOffset = self_clone.child_position(tile_view).into();
+                self_clone
+                    .imp()
+                    .placement_model
+                    .borrow()
+                    .as_ref()
+                    .unwrap()
+                    .update_tile_pixel_position(tile_view_index, pos);
                 self_clone.run_on_tile_moved();
             }
         });
@@ -131,7 +98,17 @@ impl PuzzleArea {
         let gesture = GestureClick::new();
         gesture.set_button(BUTTON_SECONDARY);
         self.setup_tile_updating_gesture(tile_view_index, &gesture, {
-            move |tile_view| tile_view.rotate_clockwise()
+            let self_clone = self.clone();
+            move |tile_view| {
+                tile_view.rotate_clockwise();
+                self_clone
+                    .imp()
+                    .placement_model
+                    .borrow()
+                    .as_ref()
+                    .unwrap()
+                    .update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+            }
         });
         draggable.add_controller(gesture.upcast::<EventController>());
 
@@ -163,7 +140,6 @@ impl PuzzleArea {
                 tile_update_function(tile_view);
 
                 self_clone.run_on_tile_moved();
-                self_clone.update_tile_layout();
             }
         });
     }
@@ -189,20 +165,6 @@ impl PuzzleArea {
             };
             self.move_to(i, pos);
         }
-        let hint_tile = self.imp().hint_tile.borrow();
-        let grid_config = self.imp().grid_config.borrow();
-        if let Some(tile_view) = hint_tile.as_ref() {
-            let grid_size = grid_config.cell_size_pixel;
-            let dims = tile_view.current_rotation().dim();
-            tile_view.set_width_request(dims.0 as i32 * grid_size as i32);
-            tile_view.set_height_request(dims.1 as i32 * grid_size as i32);
-
-            if let Some(position_cells) = tile_view.position_cells() {
-                let pos: PixelOffset = position_cells.mul_scalar(grid_size as f64).into();
-                self.move_(tile_view, pos.0, pos.1);
-                tile_view.set_position_pixels(pos);
-            }
-        }
     }
 
     /// Move the tile to the specified (x, y) position in pixels.
@@ -211,7 +173,6 @@ impl PuzzleArea {
         if let Some(tile_view) = tiles.get(tile_view_index) {
             self.move_(tile_view, pos_pixel.0, pos_pixel.1);
             tile_view.insert_before(self, None::<&Widget>); // Bring to front
-            tile_view.set_position_pixels(pos_pixel);
         }
     }
 }
