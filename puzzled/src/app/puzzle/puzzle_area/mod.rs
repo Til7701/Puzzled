@@ -165,7 +165,7 @@ impl PuzzleArea {
         let placement_model = placement_borrow.as_ref().unwrap();
 
         let tiles = self.imp().tiles.borrow();
-        let board_position = placement_model.board_cel_position();
+        let board_position = placement_model.board_cell_position();
 
         for (i, tile_view) in tiles.iter().enumerate() {
             let tile_position = placement_model

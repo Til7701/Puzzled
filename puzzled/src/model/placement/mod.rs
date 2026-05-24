@@ -1,30 +1,29 @@
-use crate::app::puzzle::puzzle_area::puzzle_state::{
-    Cell, PuzzleState, TileCellPlacement, UnusedTile,
-};
-use crate::model::extension::PuzzleTypeExtension;
-use crate::model::placement::grid::GridConfig;
+use crate::app::puzzle::puzzle_area::puzzle_state::{PuzzleState, TileCellPlacement, UnusedTile};
+use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
 use crate::offset::{CellOffset, PixelOffset};
 use adw::glib;
 use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use log::debug;
+use puzzled_common::shape::shape_square;
 use puzzled_common::Shape;
-use std::cell::Ref;
-use std::mem::take;
 
+mod board;
 mod grid;
 mod initial;
+mod tile;
 
 const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 
 mod imp {
     use super::*;
+    use crate::model::placement::board::PlacedBoard;
     use crate::model::placement::grid::GridConfig;
+    use crate::model::placement::tile::PlacedTile;
     use crate::offset::PixelOffset;
     use adw::glib::subclass::Signal;
     use adw::glib::Properties;
-    use puzzled_common::Shape;
     use std::cell::{Cell, RefCell};
     use std::sync::OnceLock;
 
@@ -33,10 +32,11 @@ mod imp {
     pub struct PuzzledPlacementModel {
         pub(super) puzzle: RefCell<Option<PuzzleModel>>,
         pub(super) area_pixel_size: Cell<PixelOffset>,
+        pub(super) min_area_pixel_size: Cell<PixelOffset>,
         pub(super) grid_config: RefCell<GridConfig>,
-        pub(super) board_position_cells: Cell<CellOffset>,
-        pub(super) tile_positions_shapes: RefCell<Vec<(CellOffset, Shape)>>,
-        pub(super) hint_tile_position: Cell<Option<CellOffset>>,
+        pub(super) board: RefCell<PlacedBoard>,
+        pub(super) tiles: RefCell<Vec<PlacedTile>>,
+        pub(super) hint_tile: RefCell<Option<PlacedTile>>,
     }
 
     #[glib::object_subclass]
@@ -73,14 +73,16 @@ impl PlacementModel {
             puzzle_config,
             obj.imp().grid_config.borrow().board_offset_cells,
         );
-        let start_positions_shapes: Vec<(CellOffset, Shape)> = start_positions
+        let tiles: Vec<PlacedTile> = start_positions
             .iter()
             .enumerate()
-            .map(move |(i, pos)| (*pos, puzzle_model.config().tiles()[i].base().clone()))
+            .map(move |(i, pos)| {
+                let shape = puzzle_model.config().tiles()[i].base().clone();
+                let cell_size = shape.dim().into();
+                PlacedTile::new(shape, cell_size, *pos)
+            })
             .collect();
-        obj.imp()
-            .tile_positions_shapes
-            .replace(start_positions_shapes);
+        obj.imp().tiles.replace(tiles);
 
         obj.update_pixel_size(PixelOffset(100.0, 100.0), 10);
         obj
@@ -88,76 +90,108 @@ impl PlacementModel {
 
     pub fn update_pixel_size(&self, total_view_size_pixel: PixelOffset, min_cell_size_pixel: u32) {
         self.imp().area_pixel_size.replace(total_view_size_pixel);
-        todo!()
-    }
-
-    pub fn cell_size(&self) -> u32 {
-        self.imp().grid_config.borrow().cell_size_pixel
+        self.update_grid_layout();
+        let grid_config = self.imp().grid_config.borrow();
+        self.imp().min_area_pixel_size.replace(
+            CellOffset(
+                grid_config.min_grid_h_cell_count as i32,
+                grid_config.min_grid_v_cell_count as i32,
+            )
+            .mul_scalar(min_cell_size_pixel as f64)
+            .into(),
+        );
     }
 
     pub fn min_area_size(&self) -> PixelOffset {
-        todo!()
+        self.imp().min_area_pixel_size.get()
     }
 
     pub fn board_pixel_position(&self) -> PixelOffset {
-        todo!()
+        let board = self.imp().board.borrow();
+        board.position_pixel()
     }
 
-    pub fn board_cel_position(&self) -> CellOffset {
-        todo!()
+    pub fn board_cell_position(&self) -> CellOffset {
+        let board = self.imp().board.borrow();
+        board.position_cells()
     }
 
     pub fn board_size(&self) -> PixelOffset {
-        todo!()
+        let board = self.imp().board.borrow();
+        board.pixel_size()
     }
 
     /// None, if the tile is being dragged
     pub fn tile_pixel_position(&self, idx: usize) -> Option<PixelOffset> {
-        todo!();
-        let list: Ref<Vec<(CellOffset, Shape)>> = self.imp().tile_positions_shapes.borrow();
+        let list = self.imp().tiles.borrow();
         let tile = list.get(idx).unwrap();
-        let pixel_size = self.imp().grid_config.borrow().cell_size_pixel;
-        Some(PixelOffset::from(tile.0).mul_scalar(pixel_size as f64))
+        if tile.dragged() {
+            None
+        } else {
+            Some(tile.position_pixels())
+        }
     }
 
     /// None, if the tile is being dragged
     pub fn tile_cell_position(&self, idx: usize) -> Option<CellOffset> {
-        todo!();
-        let list: Ref<Vec<(CellOffset, Shape)>> = self.imp().tile_positions_shapes.borrow();
+        let list = self.imp().tiles.borrow();
         let tile = list.get(idx).unwrap();
-        let pixel_size = self.imp().grid_config.borrow().cell_size_pixel;
-        Some(PixelOffset::from(tile.0).mul_scalar(pixel_size as f64))
+        if tile.dragged() {
+            None
+        } else {
+            Some(tile.position_cells())
+        }
     }
 
     pub fn tile_size(&self, idx: usize) -> PixelOffset {
-        todo!()
+        let list = self.imp().tiles.borrow();
+        let tile = list.get(idx).unwrap();
+        tile.pixel_size()
     }
 
     pub fn update_tile_pixel_position(&self, idx: usize, position: PixelOffset) {
-        todo!()
+        let mut list = self.imp().tiles.borrow_mut();
+        let tile = list.get_mut(idx).unwrap();
+        let position_cells = self.translate_pixel_to_cells(position);
+        tile.set_position_pixels(position);
+        tile.set_position_cells(position_cells);
+        self.emit_tile_moved();
+    }
+
+    pub fn update_tile_dragged(&self, idx: usize, dragged: bool) {
+        let mut list = self.imp().tiles.borrow_mut();
+        let tile = list.get_mut(idx).unwrap();
+        tile.set_dragged(dragged);
     }
 
     pub fn update_tile_shape(&self, idx: usize, shape: Shape) {
-        let mut list = self.imp().tile_positions_shapes.borrow_mut();
+        let mut list = self.imp().tiles.borrow_mut();
         let old = list.get_mut(idx).unwrap();
-        old.1 = shape;
+        old.set_current_rotation(shape);
+        self.emit_tile_moved();
     }
 
-    pub fn init_hint_tile_position(&self, board_position: CellOffset) {
-        let position = self.imp().grid_config.borrow().board_offset_cells + board_position;
-        self.imp().hint_tile_position.replace(Some(position));
+    pub fn init_hint_tile(&self, position_on_board: CellOffset) {
+        let position = self.imp().grid_config.borrow().board_offset_cells + position_on_board;
+        self.imp().hint_tile.replace(Some(PlacedTile::new(
+            shape_square(&[[]]),
+            CellOffset::default(),
+            position,
+        )));
     }
 
     pub fn hint_tile_position(&self) -> PixelOffset {
-        todo!()
+        let hint_tile_borrow = self.imp().hint_tile.borrow();
+        hint_tile_borrow.as_ref().unwrap().position_pixels()
     }
 
     pub fn hint_tile_size(&self) -> PixelOffset {
-        todo!()
+        let hint_tile_borrow = self.imp().hint_tile.borrow();
+        hint_tile_borrow.as_ref().unwrap().pixel_size()
     }
 
     pub fn remove_hint_tile(&self) {
-        self.imp().hint_tile_position.replace(None);
+        self.imp().hint_tile.replace(None);
     }
 
     pub fn connect_tile_moved<F: Fn() + 'static>(&self, callback: F) {
@@ -168,7 +202,12 @@ impl PlacementModel {
     }
 
     fn emit_tile_moved(&self) {
-        debug!("Emitting tile moved signal",);
+        debug!("Emitting tile moved signal");
         self.emit_by_name::<()>(TILE_MOVED_SIGNAL_NAME, &[]);
+    }
+
+    fn translate_pixel_to_cells(&self, position: PixelOffset) -> CellOffset {
+        let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
+        position.div_scalar(cell_size as f64).into() // TODO round
     }
 }

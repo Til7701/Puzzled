@@ -41,7 +41,7 @@ impl PuzzleArea {
             .borrow()
             .as_ref()
             .unwrap()
-            .init_hint_tile_position(placement.position().into());
+            .init_hint_tile(placement.position().into());
 
         let click_gesture = gtk::GestureClick::new();
         click_gesture.connect_pressed({

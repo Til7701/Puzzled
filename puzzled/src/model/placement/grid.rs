@@ -58,7 +58,7 @@ impl PlacementModel {
     /// This function should ensure, that all tiles are visible and the board is centered.
     /// [Self::update_grid_config()] is called if the grid layout needs to be updated based on the
     /// new calculations.
-    fn update_grid_layout(&self) {
+    pub(super) fn update_grid_layout(&self) {
         let area_pixel_size = self.imp().area_pixel_size.get();
         let available_width_pixel = area_pixel_size.0;
         let available_height_pixel = area_pixel_size.1;
@@ -102,15 +102,13 @@ impl PlacementModel {
 
     /// Calculates the dimensions required to fit all tiles in their current positions.
     fn tiles_required_cells(&self) -> CellOffset {
-        let tiles = self.imp().tile_positions_cells.borrow();
+        let tiles = self.imp().tiles.borrow();
         let mut required_cells = CellOffset(0, 0);
         let mut lowest_position_cells = CellOffset(0, 0);
-        for tile_view in tiles.iter() {
-            let tile_size: CellOffset = tile_view.base().dim().into();
-            required_cells =
-                required_cells.max(tile_size + tile_view.position_cells().unwrap_or_default());
-            lowest_position_cells = lowest_position_cells
-                .min(tile_view.position_cells().unwrap_or(lowest_position_cells));
+        for tile in tiles.iter() {
+            let tile_size = tile.cell_size();
+            required_cells = required_cells.max(tile_size + tile.position_cells());
+            lowest_position_cells = lowest_position_cells.min(tile.position_cells());
         }
         required_cells - lowest_position_cells
     }
@@ -135,25 +133,22 @@ impl PlacementModel {
     /// If the new position of an element would be negative, it is set to 0 to ensure that all
     /// elements remain visible.
     fn move_all_elements_by(&self, offset_cells: CellOffset) {
-        let tiles = self.imp().tiles.borrow();
-        for tile_view in tiles.iter() {
-            if let Some(position_cells) = tile_view.position_cells() {
-                let mut new_position_cells = position_cells + offset_cells;
-                if new_position_cells.0 < 0 {
-                    new_position_cells.0 = 0;
-                }
-                if new_position_cells.1 < 0 {
-                    new_position_cells.1 = 0;
-                }
-                tile_view.set_position_cells(Some(new_position_cells));
+        let mut tiles = self.imp().tiles.borrow_mut();
+        for tile in tiles.iter_mut() {
+            let position_cells = tile.position_cells();
+            let mut new_position_cells = position_cells + offset_cells;
+            if new_position_cells.0 < 0 {
+                new_position_cells.0 = 0;
             }
+            if new_position_cells.1 < 0 {
+                new_position_cells.1 = 0;
+            }
+            tile.set_position_cells(new_position_cells);
         }
-        let hint_tile = self.imp().hint_tile.borrow();
-        if let Some(hint_tile_view) = hint_tile.as_ref()
-            && let Some(position_cells) = hint_tile_view.position_cells()
-        {
-            let new_position_cells = position_cells + offset_cells;
-            hint_tile_view.set_position_cells(Some(new_position_cells));
+        let mut opt_hint_tile = self.imp().hint_tile.borrow_mut();
+        if let Some(hint_tile) = opt_hint_tile.as_mut() {
+            let new_position_cells = hint_tile.position_cells() + offset_cells;
+            hint_tile.set_position_cells(new_position_cells);
         }
     }
 

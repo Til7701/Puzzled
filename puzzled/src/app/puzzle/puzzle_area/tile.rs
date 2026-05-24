@@ -31,6 +31,9 @@ impl PuzzleArea {
         drag.connect_drag_begin({
             let self_clone = self.clone();
             move |_, _x, _y| {
+                let placement_model_borrow = self_clone.imp().placement_model.borrow();
+                let placement_model = placement_model_borrow.as_ref().unwrap();
+                placement_model.update_tile_dragged(tile_view_index, true);
                 self_clone.run_on_tile_moved();
             }
         });
@@ -71,13 +74,10 @@ impl PuzzleArea {
                     }
                 };
                 let pos: PixelOffset = self_clone.child_position(tile_view).into();
-                self_clone
-                    .imp()
-                    .placement_model
-                    .borrow()
-                    .as_ref()
-                    .unwrap()
-                    .update_tile_pixel_position(tile_view_index, pos);
+                let placement_model_borrow = self_clone.imp().placement_model.borrow();
+                let placement_model = placement_model_borrow.as_ref().unwrap();
+                placement_model.update_tile_dragged(tile_view_index, false);
+                placement_model.update_tile_pixel_position(tile_view_index, pos);
                 self_clone.run_on_tile_moved();
             }
         });
