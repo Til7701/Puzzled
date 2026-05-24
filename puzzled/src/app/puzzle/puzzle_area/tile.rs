@@ -103,7 +103,17 @@ impl PuzzleArea {
         let gesture = GestureClick::new();
         gesture.set_button(BUTTON_MIDDLE);
         self.setup_tile_updating_gesture(tile_view_index, &gesture, {
-            move |tile_view| tile_view.flip_horizontal()
+            let self_clone = self.clone();
+            move |tile_view| {
+                tile_view.flip_horizontal();
+                self_clone
+                    .imp()
+                    .placement_model
+                    .borrow()
+                    .as_ref()
+                    .unwrap()
+                    .update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+            }
         });
         draggable.add_controller(gesture.upcast::<EventController>());
     }
