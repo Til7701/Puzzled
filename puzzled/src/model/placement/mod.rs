@@ -1,4 +1,8 @@
 use crate::app::puzzle::puzzle_area::puzzle_state::{PuzzleState, TileCellPlacement, UnusedTile};
+use crate::model::placement::board::PlacedBoard;
+use crate::model::placement::grid::{
+    MIN_CELLS_TO_THE_SIDES_OF_BOARD, MIN_CELLS_TO_THE_TOP_OF_BOARD,
+};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
 use crate::offset::{CellOffset, PixelOffset};
@@ -68,10 +72,24 @@ impl PlacementModel {
             .grid_config
             .replace(Self::initial_grid_config(puzzle_config));
 
+        let board_config = puzzle_config.board_config();
+        let board = PlacedBoard::new(
+            board_config.layout().dim().into(),
+            PixelOffset::default(),
+            CellOffset(
+                MIN_CELLS_TO_THE_SIDES_OF_BOARD,
+                MIN_CELLS_TO_THE_TOP_OF_BOARD,
+            ),
+        );
+        obj.imp().board.replace(board);
+
         let start_positions = initial::calculate_tile_start_positions(
             puzzle_config.tiles(),
             puzzle_config,
-            obj.imp().grid_config.borrow().board_offset_cells,
+            CellOffset(
+                MIN_CELLS_TO_THE_SIDES_OF_BOARD,
+                MIN_CELLS_TO_THE_TOP_OF_BOARD,
+            ),
         );
         let tiles: Vec<PlacedTile> = start_positions
             .iter()
@@ -89,17 +107,44 @@ impl PlacementModel {
     }
 
     pub fn update_pixel_size(&self, total_view_size_pixel: PixelOffset, min_cell_size_pixel: u32) {
+        if total_view_size_pixel.0 < 100.0
+            || total_view_size_pixel.1 < 100.0
+            || min_cell_size_pixel < 10
+        {
+            return;
+        }
         self.imp().area_pixel_size.replace(total_view_size_pixel);
         self.update_grid_layout();
         let grid_config = self.imp().grid_config.borrow();
         self.imp().min_area_pixel_size.replace(
-            CellOffset(
-                grid_config.min_grid_h_cell_count as i32,
-                grid_config.min_grid_v_cell_count as i32,
-            )
-            .mul_scalar(min_cell_size_pixel as f64)
-            .into(),
+            grid_config
+                .min_grid_cells
+                .mul_scalar(min_cell_size_pixel as f64)
+                .into(),
         );
+        self.update_pixel_from_cell_data();
+    }
+
+    fn update_pixel_from_cell_data(&self) {
+        let mut board = self.imp().board.borrow_mut();
+        let position_cells = board.position_cells();
+        board.set_position_pixel(self.translate_cells_to_pixels(position_cells));
+        let size_cells = board.cell_size();
+        board.set_pixel_size(self.translate_cells_to_pixels(size_cells));
+
+        let mut tiles = self.imp().tiles.borrow_mut();
+        for tile in tiles.iter_mut() {
+            let position_cells = tile.position_cells();
+            tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
+            let cells_size = tile.cell_size();
+            tile.set_pixel_size(self.translate_cells_to_pixels(cells_size));
+        }
+        if let Some(hint_tile) = self.imp().hint_tile.borrow_mut().as_mut() {
+            let position_cells = hint_tile.position_cells();
+            hint_tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
+            let cells_size = hint_tile.cell_size();
+            hint_tile.set_pixel_size(self.translate_cells_to_pixels(cells_size));
+        }
     }
 
     pub fn min_area_size(&self) -> PixelOffset {
@@ -150,11 +195,13 @@ impl PlacementModel {
     }
 
     pub fn update_tile_pixel_position(&self, idx: usize, position: PixelOffset) {
-        let mut list = self.imp().tiles.borrow_mut();
-        let tile = list.get_mut(idx).unwrap();
-        let position_cells = self.translate_pixel_to_cells(position);
-        tile.set_position_pixels(position);
-        tile.set_position_cells(position_cells);
+        {
+            let mut list = self.imp().tiles.borrow_mut();
+            let tile = list.get_mut(idx).unwrap();
+            let position_cells = self.translate_pixels_to_cells(position);
+            tile.set_position_pixels(position);
+            tile.set_position_cells(position_cells);
+        }
         self.emit_tile_moved();
     }
 
@@ -165,19 +212,21 @@ impl PlacementModel {
     }
 
     pub fn update_tile_shape(&self, idx: usize, shape: Shape) {
-        let mut list = self.imp().tiles.borrow_mut();
-        let old = list.get_mut(idx).unwrap();
-        old.set_current_rotation(shape);
+        {
+            let mut list = self.imp().tiles.borrow_mut();
+            let old = list.get_mut(idx).unwrap();
+            old.set_cell_size(shape.dim().into());
+            old.set_current_rotation(shape);
+        }
         self.emit_tile_moved();
     }
 
-    pub fn init_hint_tile(&self, position_on_board: CellOffset) {
-        let position = self.imp().grid_config.borrow().board_offset_cells + position_on_board;
-        self.imp().hint_tile.replace(Some(PlacedTile::new(
-            shape_square(&[[]]),
-            CellOffset::default(),
-            position,
-        )));
+    pub fn init_hint_tile(&self, position_on_board: CellOffset, shape: Shape) {
+        let position = self.imp().board.borrow().position_cells() + position_on_board;
+        let size = shape.dim().into();
+        self.imp()
+            .hint_tile
+            .replace(Some(PlacedTile::new(shape, size, position)));
     }
 
     pub fn hint_tile_position(&self) -> PixelOffset {
@@ -206,8 +255,13 @@ impl PlacementModel {
         self.emit_by_name::<()>(TILE_MOVED_SIGNAL_NAME, &[]);
     }
 
-    fn translate_pixel_to_cells(&self, position: PixelOffset) -> CellOffset {
+    fn translate_pixels_to_cells(&self, position: PixelOffset) -> CellOffset {
         let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
-        position.div_scalar(cell_size as f64).into() // TODO round
+        position.div_scalar(cell_size as f64).round().into()
+    }
+
+    fn translate_cells_to_pixels(&self, position: CellOffset) -> PixelOffset {
+        let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
+        position.mul_scalar(cell_size as f64).into()
     }
 }

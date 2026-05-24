@@ -30,10 +30,8 @@ impl PuzzleArea {
             let pos = placement_model.board_pixel_position();
             let size = placement_model.board_size();
             self.move_(&widget, pos.0, pos.1);
-            for widget in board_view.elements().iter() {
-                widget.set_width_request(size.0 as i32);
-                widget.set_height_request(size.1 as i32);
-            }
+            board_view.set_width_request(size.0 as i32);
+            board_view.set_height_request(size.1 as i32);
         }
     }
 
