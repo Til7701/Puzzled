@@ -1,11 +1,12 @@
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::puzzle::PuzzleModel;
 use crate::solver::Solver;
-use crate::window::PuzzledWindow;
+use crate::window::{PuzzledWindow, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
 use adw::gio;
 use adw::prelude::NavigationPageExt;
 use adw::subclass::prelude::*;
 use gtk::glib;
+use gtk::prelude::WidgetExt;
 use log::debug;
 
 mod imp {
@@ -105,8 +106,14 @@ impl PuzzlePage {
             }
         });
         self.connect_hiding({
+            let self_clone = self.clone();
             move |_| {
                 Solver::default().interrupt_solver_call();
+                let window = self_clone.imp().window.get();
+                if let Some(window) = window {
+                    window.set_width_request(MIN_WINDOW_WIDTH);
+                    window.set_height_request(MIN_WINDOW_HEIGHT);
+                }
             }
         });
     }
