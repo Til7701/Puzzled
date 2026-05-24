@@ -3,6 +3,7 @@ use puzzled_common::Shape;
 
 #[derive(Clone, Debug, Default)]
 pub struct PlacedTile {
+    name: Option<String>,
     base: Shape,
     current_rotation: Shape,
     cell_size: CellOffset,
@@ -13,8 +14,14 @@ pub struct PlacedTile {
 }
 
 impl PlacedTile {
-    pub fn new(base: Shape, cell_size: CellOffset, position_cells: CellOffset) -> Self {
+    pub fn new(
+        name: Option<String>,
+        base: Shape,
+        cell_size: CellOffset,
+        position_cells: CellOffset,
+    ) -> Self {
         PlacedTile {
+            name,
             base: base.clone(),
             current_rotation: base,
             cell_size,
@@ -23,6 +30,10 @@ impl PlacedTile {
             position_pixels: PixelOffset::default(),
             dragged: false,
         }
+    }
+
+    pub fn name(&self) -> &Option<String> {
+        &self.name
     }
 
     pub fn base(&self) -> &Shape {

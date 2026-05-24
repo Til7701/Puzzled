@@ -5,21 +5,17 @@ mod layout;
 pub mod puzzle_state;
 mod tile;
 
-use crate::app::puzzle::puzzle_area::puzzle_state::{
-    Cell, PuzzleState, TileCellPlacement, UnusedTile,
-};
+use crate::app::puzzle::puzzle_area::puzzle_state::PuzzleState;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::placement::PlacementModel;
 use crate::model::puzzle::PuzzleModel;
-use crate::offset::{CellOffset, PixelOffset};
+use crate::offset::PixelOffset;
 use crate::window::PuzzledWindow;
 use adw::gio;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{glib, Widget};
 use log::debug;
-use std::cell::Ref;
-use std::mem::take;
 
 const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 
@@ -151,78 +147,13 @@ impl PuzzleArea {
         self.remove_hint_tile();
     }
 
-    // TODO move to placement model
     pub fn extract_puzzle_state(&self) -> Result<PuzzleState, String> {
-        let puzzle = self.imp().puzzle.borrow();
-        if puzzle.is_none() {
-            return Err("No puzzle set".to_string());
+        let placement_model = self.imp().placement_model.borrow();
+        let extension = self.imp().puzzle_type_extension.borrow();
+        if let Some(placement_model) = placement_model.as_ref() {
+            placement_model.extract_puzzle_state(extension)
+        } else {
+            Err("No placement model set up".to_owned())
         }
-        let puzzle = puzzle.as_ref().unwrap();
-        let puzzle_config = puzzle.config();
-
-        let mut state = PuzzleState::new(puzzle_config, self.imp().puzzle_type_extension.borrow());
-        let placement_borrow = self.imp().placement_model.borrow();
-        let placement_model = placement_borrow.as_ref().unwrap();
-
-        let tiles = self.imp().tiles.borrow();
-        let board_position = placement_model.board_cell_position();
-
-        for (i, tile_view) in tiles.iter().enumerate() {
-            let tile_position = placement_model
-                .tile_cell_position(i)
-                .ok_or_else(|| "Tile position not set".to_string())?;
-            let tile_position = tile_position - board_position + CellOffset(1, 1);
-            let mut any_cell_on_board = false;
-            for ((x, y), cell) in tile_view.current_rotation().indexed_iter() {
-                if !*cell {
-                    continue;
-                }
-
-                let cell_position = tile_position + CellOffset(x as i32, y as i32);
-                if cell_position.0 >= 0
-                    && cell_position.1 >= 0
-                    && (cell_position.0 as usize) < state.grid.dim().0
-                    && (cell_position.1 as usize) < state.grid.dim().1
-                {
-                    let idx: (usize, usize) = cell_position.into();
-                    let new = match state.grid.get_mut(idx) {
-                        None => return Err("Index out of bounds".to_string()),
-                        Some(cell_ref) => {
-                            let old = take(cell_ref);
-                            let tile_cell_placement = TileCellPlacement {
-                                tile_id: i,
-                                cell_position: CellOffset(x as i32, y as i32),
-                            };
-                            match old {
-                                Cell::Empty(data) => {
-                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
-                                    Cell::One(data, tile_cell_placement)
-                                }
-                                Cell::One(data, existing_widget) => {
-                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
-                                    let widgets = vec![existing_widget, tile_cell_placement];
-                                    Cell::Many(data, widgets)
-                                }
-                                Cell::Many(data, mut widgets) => {
-                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
-                                    widgets.push(tile_cell_placement);
-                                    Cell::Many(data, widgets)
-                                }
-                            }
-                        }
-                    };
-                    state.grid[idx] = new;
-                }
-            }
-            if !any_cell_on_board {
-                let unused_tile = UnusedTile {
-                    id: i,
-                    base: tile_view.base().clone(),
-                    name: tile_view.name(),
-                };
-                state.unused_tiles.insert(unused_tile);
-            }
-        }
-        Ok(state)
     }
 }

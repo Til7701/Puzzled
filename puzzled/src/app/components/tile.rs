@@ -36,8 +36,6 @@ mod imp {
     #[derive(Debug, Default)]
     pub struct PuzzledTileView {
         pub id: Cell<usize>,
-        pub base: RefCell<Shape>,
-        pub name: RefCell<Option<String>>,
         pub current_rotation: RefCell<Shape>,
         pub color: RefCell<HashMap<DrawingMode, RGBA>>,
         pub drawing_modes: RefCell<Array2<DrawingMode>>,
@@ -97,12 +95,10 @@ impl TileView {
     /// Creates a new TileView with the given id and base layout.
     /// The name is used to refer to the tile layout when calculating possible solutions for given
     /// tiles.
-    pub fn new(id: usize, base: Shape, color: ColorConfig, name: Option<String>) -> Self {
+    pub fn new(id: usize, base: Shape, color: ColorConfig) -> Self {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
-        obj.imp().base.replace(base.clone());
-        obj.imp().name.replace(name);
         obj.imp().drawing_modes.replace(Array2::default(base.dim()));
         obj.imp().current_rotation.replace(base);
         obj.init_color(color);
@@ -188,17 +184,6 @@ impl TileView {
     /// Returns the id of the tile to identify it.
     pub fn id(&self) -> usize {
         self.imp().id.get()
-    }
-
-    /// Returns the base layout of the tile, which is the original orientation without any
-    /// rotations or flips.
-    /// This does not change over the lifetime of the tile.
-    pub fn base(&self) -> Ref<'_, Shape> {
-        self.imp().base.borrow()
-    }
-
-    pub fn name(&self) -> Option<String> {
-        self.imp().name.borrow().clone()
     }
 
     pub fn color(&self) -> RGBA {

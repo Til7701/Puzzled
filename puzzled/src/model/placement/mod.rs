@@ -1,4 +1,7 @@
-use crate::app::puzzle::puzzle_area::puzzle_state::{PuzzleState, TileCellPlacement, UnusedTile};
+use crate::app::puzzle::puzzle_area::puzzle_state::{
+    Cell, PuzzleState, TileCellPlacement, UnusedTile,
+};
+use crate::model::extension::PuzzleTypeExtension;
 use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::grid::{
     MIN_CELLS_TO_THE_SIDES_OF_BOARD, MIN_CELLS_TO_THE_TOP_OF_BOARD,
@@ -10,8 +13,9 @@ use adw::glib;
 use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use log::debug;
-use puzzled_common::shape::shape_square;
 use puzzled_common::Shape;
+use std::cell::Ref;
+use std::mem::take;
 
 mod board;
 mod grid;
@@ -66,6 +70,7 @@ glib::wrapper! {
 impl PlacementModel {
     pub fn new(puzzle_model: &PuzzleModel) -> Self {
         let obj: PlacementModel = glib::Object::builder().build();
+        obj.imp().puzzle.replace(Some(puzzle_model.clone()));
         let puzzle_config = puzzle_model.config();
 
         obj.imp()
@@ -95,9 +100,10 @@ impl PlacementModel {
             .iter()
             .enumerate()
             .map(move |(i, pos)| {
-                let shape = puzzle_model.config().tiles()[i].base().clone();
+                let config = &puzzle_model.config().tiles()[i];
+                let shape = config.base().clone();
                 let cell_size = shape.dim().into();
-                PlacedTile::new(shape, cell_size, *pos)
+                PlacedTile::new(config.name().clone(), shape, cell_size, *pos)
             })
             .collect();
         obj.imp().tiles.replace(tiles);
@@ -226,7 +232,7 @@ impl PlacementModel {
         let size = shape.dim().into();
         self.imp()
             .hint_tile
-            .replace(Some(PlacedTile::new(shape, size, position)));
+            .replace(Some(PlacedTile::new(None, shape, size, position)));
     }
 
     pub fn hint_tile_position(&self) -> PixelOffset {
@@ -263,5 +269,89 @@ impl PlacementModel {
     fn translate_cells_to_pixels(&self, position: CellOffset) -> PixelOffset {
         let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
         position.mul_scalar(cell_size as f64).into()
+    }
+
+    pub fn find_tile_matching_base(&self, base: &Shape) -> Option<usize> {
+        let tiles = self.imp().tiles.borrow();
+        tiles
+            .iter()
+            .enumerate()
+            .find(|t| t.1.base() == base)
+            .map(|t| t.0)
+    }
+
+    pub fn extract_puzzle_state(
+        &self,
+        puzzle_type_extension: Ref<Option<PuzzleTypeExtension>>,
+    ) -> Result<PuzzleState, String> {
+        let puzzle = self.imp().puzzle.borrow();
+        if puzzle.is_none() {
+            return Err("No puzzle set".to_string());
+        }
+        let puzzle = puzzle.as_ref().unwrap();
+        let puzzle_config = puzzle.config();
+
+        let mut state = PuzzleState::new(puzzle_config, puzzle_type_extension);
+
+        let tiles = self.imp().tiles.borrow();
+        let board_position = self.board_cell_position();
+
+        for (i, tile) in tiles.iter().enumerate() {
+            let tile_position = self
+                .tile_cell_position(i)
+                .ok_or_else(|| "Tile position not set".to_string())?;
+            let tile_position = tile_position - board_position + CellOffset(1, 1);
+            let mut any_cell_on_board = false;
+            for ((x, y), cell) in tile.current_rotation().indexed_iter() {
+                if !*cell {
+                    continue;
+                }
+
+                let cell_position = tile_position + CellOffset(x as i32, y as i32);
+                if cell_position.0 >= 0
+                    && cell_position.1 >= 0
+                    && (cell_position.0 as usize) < state.grid.dim().0
+                    && (cell_position.1 as usize) < state.grid.dim().1
+                {
+                    let idx: (usize, usize) = cell_position.into();
+                    let new = match state.grid.get_mut(idx) {
+                        None => return Err("Index out of bounds".to_string()),
+                        Some(cell_ref) => {
+                            let old = take(cell_ref);
+                            let tile_cell_placement = TileCellPlacement {
+                                tile_id: i,
+                                cell_position: CellOffset(x as i32, y as i32),
+                            };
+                            match old {
+                                Cell::Empty(data) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    Cell::One(data, tile_cell_placement)
+                                }
+                                Cell::One(data, existing_widget) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    let widgets = vec![existing_widget, tile_cell_placement];
+                                    Cell::Many(data, widgets)
+                                }
+                                Cell::Many(data, mut widgets) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    widgets.push(tile_cell_placement);
+                                    Cell::Many(data, widgets)
+                                }
+                            }
+                        }
+                    };
+                    state.grid[idx] = new;
+                }
+            }
+            if !any_cell_on_board {
+                let unused_tile = UnusedTile {
+                    id: i,
+                    base: tile.base().clone(),
+                    name: tile.name().clone(),
+                };
+                state.unused_tiles.insert(unused_tile);
+            }
+        }
+        Ok(state)
     }
 }

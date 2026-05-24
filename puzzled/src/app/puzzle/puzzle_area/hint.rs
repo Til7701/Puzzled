@@ -9,12 +9,14 @@ use puzzle_solver::result::TilePlacement;
 impl PuzzleArea {
     /// Show the placement of a tile as a hint.
     pub fn show_hint_tile(&self, placement: &TilePlacement) {
+        let tiles = self.imp().tiles.borrow();
         let tile_matching_base = {
-            let tiles = self.imp().tiles.borrow();
-            tiles
-                .iter()
-                .find(|t| t.base().eq(placement.base()))
-                .cloned()
+            let placement_model = self.imp().placement_model.borrow();
+            let index = placement_model
+                .as_ref()
+                .unwrap()
+                .find_tile_matching_base(placement.base());
+            index.and_then(|i| tiles.get(i))
         };
         if tile_matching_base.is_none() {
             return;
@@ -35,7 +37,7 @@ impl PuzzleArea {
     }
 
     fn create_hint_tile(&self, placement: &TilePlacement, color_config: ColorConfig) -> TileView {
-        let tile_view = TileView::new(usize::MAX, placement.rotation().clone(), color_config, None);
+        let tile_view = TileView::new(usize::MAX, placement.rotation().clone(), color_config);
 
         self.imp()
             .placement_model

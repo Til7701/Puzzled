@@ -1,6 +1,6 @@
 use crate::app::components::tile::TileView;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
-use crate::offset::{CellOffset, PixelOffset};
+use crate::offset::PixelOffset;
 use adw::gdk::{BUTTON_MIDDLE, BUTTON_SECONDARY};
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{
@@ -11,12 +11,7 @@ use puzzle_config::TileConfig;
 
 impl PuzzleArea {
     pub fn setup_tile(&self, tile: &TileConfig, tile_id: usize) {
-        let tile_view = TileView::new(
-            tile_id,
-            tile.base().clone(),
-            tile.color(),
-            tile.name().clone(),
-        );
+        let tile_view = TileView::new(tile_id, tile.base().clone(), tile.color());
 
         self.setup_drag_and_drop(tile_id, tile_view.upcast_ref());
         self.setup_tile_rotation_and_flip(tile_id, tile_view.upcast_ref());
@@ -83,14 +78,6 @@ impl PuzzleArea {
         });
 
         draggable.add_controller(drag);
-    }
-
-    fn calculate_cells_from_pixels(
-        &self,
-        pos_pixel: &PixelOffset,
-        grid_cell_width_pixel: f64,
-    ) -> CellOffset {
-        pos_pixel.div_scalar(grid_cell_width_pixel).round().into()
     }
 
     fn setup_tile_rotation_and_flip(&self, tile_view_index: usize, draggable: &Widget) {
