@@ -1,6 +1,5 @@
 use crate::app::components::tile::TileView;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
-use crate::offset::PixelOffset;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{FixedExt, WidgetExt};
 use puzzle_config::ColorConfig;
@@ -72,16 +71,14 @@ impl PuzzleArea {
     pub fn update_hint_tile_layout(&self) {
         let hint_tile = self.imp().hint_tile.borrow();
         if let Some(tile_view) = hint_tile.as_ref() {
-            let grid_size = grid_config.cell_size_pixel;
-            let dims = tile_view.current_rotation().dim();
-            tile_view.set_width_request(dims.0 as i32 * grid_size as i32);
-            tile_view.set_height_request(dims.1 as i32 * grid_size as i32);
+            let placement_borrow = self.imp().placement_model.borrow();
+            let placement_model = placement_borrow.as_ref().unwrap();
+            let pos = placement_model.hint_tile_position();
+            let size = placement_model.hint_tile_size();
 
-            if let Some(position_cells) = tile_view.position_cells() {
-                let pos: PixelOffset = position_cells.mul_scalar(grid_size as f64).into();
-                self.move_(tile_view, pos.0, pos.1);
-                tile_view.set_position_pixels(pos);
-            }
+            tile_view.set_width_request(size.0 as i32);
+            tile_view.set_height_request(size.1 as i32);
+            self.move_(tile_view, pos.0, pos.1);
         }
     }
 }

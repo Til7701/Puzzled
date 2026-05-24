@@ -1,4 +1,7 @@
-use crate::app::puzzle::puzzle_area::puzzle_state::Cell;
+use crate::app::puzzle::puzzle_area::puzzle_state::{
+    Cell, PuzzleState, TileCellPlacement, UnusedTile,
+};
+use crate::model::extension::PuzzleTypeExtension;
 use crate::model::placement::grid::GridConfig;
 use crate::model::puzzle::PuzzleModel;
 use crate::offset::{CellOffset, PixelOffset};
@@ -8,6 +11,7 @@ use adw::subclass::prelude::*;
 use log::debug;
 use puzzled_common::Shape;
 use std::cell::Ref;
+use std::mem::take;
 
 mod grid;
 mod initial;
@@ -82,15 +86,24 @@ impl PlacementModel {
         obj
     }
 
-    pub fn update_pixel_size(&self, total_view_size_pixel: PixelOffset, min_cell_size_pixel: i32) {
+    pub fn update_pixel_size(&self, total_view_size_pixel: PixelOffset, min_cell_size_pixel: u32) {
         self.imp().area_pixel_size.replace(total_view_size_pixel);
+        todo!()
     }
 
     pub fn cell_size(&self) -> u32 {
         self.imp().grid_config.borrow().cell_size_pixel
     }
 
-    pub fn board_position(&self) -> PixelOffset {
+    pub fn min_area_size(&self) -> PixelOffset {
+        todo!()
+    }
+
+    pub fn board_pixel_position(&self) -> PixelOffset {
+        todo!()
+    }
+
+    pub fn board_cel_position(&self) -> CellOffset {
         todo!()
     }
 
@@ -98,11 +111,26 @@ impl PlacementModel {
         todo!()
     }
 
-    pub fn tile_pixel_position(&self, idx: usize) -> PixelOffset {
+    /// None, if the tile is being dragged
+    pub fn tile_pixel_position(&self, idx: usize) -> Option<PixelOffset> {
+        todo!();
         let list: Ref<Vec<(CellOffset, Shape)>> = self.imp().tile_positions_shapes.borrow();
         let tile = list.get(idx).unwrap();
         let pixel_size = self.imp().grid_config.borrow().cell_size_pixel;
-        PixelOffset::from(tile.0).mul_scalar(pixel_size as f64)
+        Some(PixelOffset::from(tile.0).mul_scalar(pixel_size as f64))
+    }
+
+    /// None, if the tile is being dragged
+    pub fn tile_cell_position(&self, idx: usize) -> Option<CellOffset> {
+        todo!();
+        let list: Ref<Vec<(CellOffset, Shape)>> = self.imp().tile_positions_shapes.borrow();
+        let tile = list.get(idx).unwrap();
+        let pixel_size = self.imp().grid_config.borrow().cell_size_pixel;
+        Some(PixelOffset::from(tile.0).mul_scalar(pixel_size as f64))
+    }
+
+    pub fn tile_size(&self, idx: usize) -> PixelOffset {
+        todo!()
     }
 
     pub fn update_tile_pixel_position(&self, idx: usize, position: PixelOffset) {
@@ -121,6 +149,10 @@ impl PlacementModel {
     }
 
     pub fn hint_tile_position(&self) -> PixelOffset {
+        todo!()
+    }
+
+    pub fn hint_tile_size(&self) -> PixelOffset {
         todo!()
     }
 

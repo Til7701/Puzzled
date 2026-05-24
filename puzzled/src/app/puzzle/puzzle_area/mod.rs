@@ -18,6 +18,7 @@ use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{glib, Widget};
 use log::debug;
+use std::cell::Ref;
 use std::mem::take;
 
 const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
@@ -150,6 +151,7 @@ impl PuzzleArea {
         self.remove_hint_tile();
     }
 
+    // TODO move to placement model
     pub fn extract_puzzle_state(&self) -> Result<PuzzleState, String> {
         let puzzle = self.imp().puzzle.borrow();
         if puzzle.is_none() {
@@ -159,14 +161,15 @@ impl PuzzleArea {
         let puzzle_config = puzzle.config();
 
         let mut state = PuzzleState::new(puzzle_config, self.imp().puzzle_type_extension.borrow());
+        let placement_borrow = self.imp().placement_model.borrow();
+        let placement_model = placement_borrow.as_ref().unwrap();
 
         let tiles = self.imp().tiles.borrow();
-        let grid_config = self.imp().grid_config.borrow();
-        let board_position = grid_config.board_offset_cells;
+        let board_position = placement_model.board_cel_position();
 
         for (i, tile_view) in tiles.iter().enumerate() {
-            let tile_position = tile_view
-                .position_cells()
+            let tile_position = placement_model
+                .tile_cell_position(i)
                 .ok_or_else(|| "Tile position not set".to_string())?;
             let tile_position = tile_position - board_position + CellOffset(1, 1);
             let mut any_cell_on_board = false;

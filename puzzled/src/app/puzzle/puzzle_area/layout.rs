@@ -47,22 +47,20 @@ impl PuzzleArea {
     ///
     /// This has to be set on the window instead of the Fixed, since the AdwBreakpointBin
     /// that everything is wrapped in, does not work well with changing width requests
-    /// if the children.
+    /// of the children.
     fn set_min_size(&self) {
         let window = self.imp().window.get().unwrap();
         if !window.outer_view().shows_content() {
             return;
         }
 
-        let min_board_elements_width = self.get_min_element_width();
-        let grid_config = self.imp().grid_config.borrow();
+        let placement_borrow = self.imp().placement_model.borrow();
+        let placement_model = placement_borrow.as_ref().unwrap();
+        let fixed_min = placement_model.min_area_size();
 
-        let fixed_min_width = grid_config.min_grid_h_cell_count as i32 * min_board_elements_width;
-        window.set_width_request(fixed_min_width.max(MIN_WINDOW_WIDTH));
-
-        let fixed_min_height = grid_config.min_grid_v_cell_count as i32 * min_board_elements_width;
+        window.set_width_request((fixed_min.0 as i32).max(MIN_WINDOW_WIDTH));
         window.set_height_request(
-            (fixed_min_height + window.puzzle_area_nav_page().header_bar().height())
+            (fixed_min.1 as i32 + window.puzzle_area_nav_page().header_bar().height())
                 .max(MIN_WINDOW_HEIGHT),
         );
     }

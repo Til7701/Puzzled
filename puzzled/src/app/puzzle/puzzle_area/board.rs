@@ -23,16 +23,16 @@ impl PuzzleArea {
     pub fn update_board_layout(&self) {
         self.update_target_selection();
         let board = self.imp().board.borrow();
-        let grid_config = self.imp().grid_config.borrow();
+        let placement_borrow = self.imp().placement_model.borrow();
+        let placement_model = placement_borrow.as_ref().unwrap();
         if let Some(board_view) = board.as_ref() {
             let widget = board_view.clone().upcast::<Widget>();
-            let pos = grid_config
-                .board_offset_cells
-                .mul_scalar(grid_config.cell_size_pixel as f64);
-            self.move_(&widget, pos.0 as f64, pos.1 as f64);
+            let pos = placement_model.board_pixel_position();
+            let size = placement_model.board_size();
+            self.move_(&widget, pos.0, pos.1);
             for widget in board_view.elements().iter() {
-                widget.set_width_request(grid_config.cell_size_pixel as i32);
-                widget.set_height_request(grid_config.cell_size_pixel as i32);
+                widget.set_width_request(size.0 as i32);
+                widget.set_height_request(size.1 as i32);
             }
         }
     }
@@ -63,7 +63,7 @@ impl PuzzleArea {
         }
     }
 
-    pub fn get_min_element_width(&self) -> i32 {
+    pub fn get_min_element_width(&self) -> u32 {
         let board = self.imp().board.borrow();
         if let Some(board_view) = board.as_ref() {
             board_view.get_min_element_size()

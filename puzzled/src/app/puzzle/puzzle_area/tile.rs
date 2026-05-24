@@ -147,23 +147,21 @@ impl PuzzleArea {
     pub fn update_tile_layout(&self) {
         let len = self.imp().tiles.borrow().len();
         for i in 0..len {
-            let pos: PixelOffset = {
+            let pos: Option<PixelOffset> = {
                 let tiles = self.imp().tiles.borrow();
-                let grid_config = self.imp().grid_config.borrow();
-                let grid_size = grid_config.cell_size_pixel;
+                let placement_borrow = self.imp().placement_model.borrow();
+                let placement_model = placement_borrow.as_ref().unwrap();
                 let tile_view = &tiles[i];
+                let size = placement_model.tile_size(i);
 
-                let dims = tile_view.current_rotation().dim();
-                tile_view.set_width_request(dims.0 as i32 * grid_size as i32);
-                tile_view.set_height_request(dims.1 as i32 * grid_size as i32);
+                tile_view.set_width_request(size.0 as i32);
+                tile_view.set_height_request(size.1 as i32);
 
-                if let Some(position_cells) = tile_view.position_cells() {
-                    position_cells.mul_scalar(grid_size as f64).into()
-                } else {
-                    tile_view.position_pixels()
-                }
+                placement_model.tile_pixel_position(i)
             };
-            self.move_to(i, pos);
+            if let Some(pos) = pos {
+                self.move_to(i, pos);
+            }
         }
     }
 
