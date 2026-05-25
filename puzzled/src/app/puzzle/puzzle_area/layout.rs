@@ -29,13 +29,19 @@ impl PuzzleArea {
     ///
     /// This moves the puzzle area elements according to the current window size.
     pub fn update_layout(&self) {
+        let window = self.imp().window.get().unwrap();
+        if !window.outer_view().shows_content() {
+            return;
+        }
+        let size = PixelOffset(
+            window.width() as f64,
+            (window.height() - window.puzzle_area_nav_page().header_bar().height()) as f64,
+        );
+
         let placement_model = { self.imp().placement_model.borrow().clone() };
         if let Some(placement_model) = placement_model {
             let min_cell_size = self.get_min_element_width();
-            placement_model.update_pixel_size(
-                PixelOffset(self.width() as f64, self.height() as f64),
-                min_cell_size,
-            );
+            placement_model.update_pixel_size(size, min_cell_size);
             self.set_min_size();
             self.update_board_layout();
             self.update_tile_layout();
