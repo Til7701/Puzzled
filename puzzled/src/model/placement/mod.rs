@@ -68,6 +68,23 @@ glib::wrapper! {
 }
 
 impl PlacementModel {
+    /// Creates a new PlacementModel.
+    ///
+    /// This calculates initial placements of tiles and the board.
+    /// The size of the area where they are placed should be updated as soon as possible using
+    /// [Self::update_pixel_size].
+    ///
+    /// The order of tiles in the given model is relevant, as their indices are used in other
+    /// functions to reference them.
+    ///
+    /// Instances of PlacementModel are not reusable. Create a new one for each puzzle when
+    /// they are needed.
+    ///
+    /// # Arguments
+    ///
+    /// * `puzzle_model`: the model to prepare positions for
+    ///
+    /// returns: PlacementModel
     pub fn new(puzzle_model: &PuzzleModel) -> Self {
         let obj: PlacementModel = glib::Object::builder().build();
         obj.imp().puzzle.replace(Some(puzzle_model.clone()));
@@ -112,6 +129,20 @@ impl PlacementModel {
         obj
     }
 
+    /// Recalculates tile and board positions for the new area size.
+    ///
+    /// The given `total_view_size_pixel` must be the actual size of the view the tiles
+    /// and board are placed in or should be placed in.
+    ///
+    /// After this function completed, you can fetch the sizes and positions using the
+    /// corresponding getters.
+    ///
+    /// # Arguments
+    ///
+    /// * `total_view_size_pixel`: the size of the view in pixels
+    /// * `min_cell_size_pixel`: the min cell size for calculating the min area size
+    ///
+    /// returns: ()
     pub fn update_pixel_size(&self, total_view_size_pixel: PixelOffset, min_cell_size_pixel: u32) {
         if total_view_size_pixel.0 < 100.0 || total_view_size_pixel.1 < 100.0 {
             return;
@@ -128,6 +159,8 @@ impl PlacementModel {
         self.update_pixel_from_cell_data();
     }
 
+    /// Takes all cell positions, calculates pixel positions for them and writes them
+    /// back to the tiles and board.
     fn update_pixel_from_cell_data(&self) {
         let mut board = self.imp().board.borrow_mut();
         let position_cells = board.position_cells();
@@ -150,26 +183,35 @@ impl PlacementModel {
         }
     }
 
+    /// Returns the minimum size the view needs to place all tiles and board while respecting
+    /// the minimum cell size.
     pub fn min_area_size(&self) -> PixelOffset {
         self.imp().min_area_pixel_size.get()
     }
 
+    /// The board position in pixels.
     pub fn board_pixel_position(&self) -> PixelOffset {
         let board = self.imp().board.borrow();
         board.position_pixel()
     }
 
-    pub fn board_cell_position(&self) -> CellOffset {
+    /// The board position in cells.
+    fn board_cell_position(&self) -> CellOffset {
         let board = self.imp().board.borrow();
         board.position_cells()
     }
 
+    /// The board size in pixels.
     pub fn board_size(&self) -> PixelOffset {
         let board = self.imp().board.borrow();
         board.pixel_size()
     }
 
-    /// None, if the tile is being dragged
+    /// The position of the tile with the given index in pixels.
+    ///
+    /// None, if the tile is being dragged.
+    ///
+    /// The index is the same as the index of the tile in the [PuzzleModel].
     pub fn tile_pixel_position(&self, idx: usize) -> Option<PixelOffset> {
         let list = self.imp().tiles.borrow();
         let tile = list.get(idx).unwrap();
@@ -180,8 +222,12 @@ impl PlacementModel {
         }
     }
 
-    /// None, if the tile is being dragged
-    pub fn tile_cell_position(&self, idx: usize) -> Option<CellOffset> {
+    /// The position of the tile with the given index in cells.
+    ///
+    /// None, if the tile is being dragged.
+    ///
+    /// The index is the same as the index of the tile in the [PuzzleModel].
+    fn tile_cell_position(&self, idx: usize) -> Option<CellOffset> {
         let list = self.imp().tiles.borrow();
         let tile = list.get(idx).unwrap();
         if tile.dragged() {
@@ -191,29 +237,60 @@ impl PlacementModel {
         }
     }
 
+    /// The size of the tile in pixels.
     pub fn tile_size(&self, idx: usize) -> PixelOffset {
         let list = self.imp().tiles.borrow();
         let tile = list.get(idx).unwrap();
         tile.pixel_size()
     }
 
+    /// Updates the tile position by calculating the new position in cells from the given
+    /// position in pixels. This calculation snaps the position to the nearest cell
+    /// position.
+    ///
+    /// # Arguments
+    ///
+    /// * `idx`: the index of the tile
+    /// * `position`: the new position in pixels
+    ///
+    /// returns: ()
     pub fn update_tile_pixel_position(&self, idx: usize, position: PixelOffset) {
         {
             let mut list = self.imp().tiles.borrow_mut();
             let tile = list.get_mut(idx).unwrap();
             let position_cells = self.translate_pixels_to_cells(position);
-            tile.set_position_pixels(position);
+            tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
             tile.set_position_cells(position_cells);
         }
         self.emit_tile_moved();
     }
 
+    /// Marks the tile as being dragged or not.
+    ///
+    /// If a tile is marked as dragged, its position is not valid and should not be recalculated.
+    ///
+    /// # Arguments
+    ///
+    /// * `idx`: the index of the tile
+    /// * `dragged`: true, if the tile is being dragged, otherwise false
+    ///
+    /// returns: ()
     pub fn update_tile_dragged(&self, idx: usize, dragged: bool) {
         let mut list = self.imp().tiles.borrow_mut();
         let tile = list.get_mut(idx).unwrap();
         tile.set_dragged(dragged);
     }
 
+    /// Updates the shape for the given tile. This must be called, if the tile rotated
+    /// or flipped. The given shape must be a valid result of flipping or rotating the base
+    /// shape.
+    ///
+    /// # Arguments
+    ///
+    /// * `idx`: the index of the tile to update
+    /// * `shape`: the new rotation
+    ///
+    /// returns: ()
     pub fn update_tile_shape(&self, idx: usize, shape: Shape) {
         {
             let mut list = self.imp().tiles.borrow_mut();
@@ -224,6 +301,18 @@ impl PlacementModel {
         self.emit_tile_moved();
     }
 
+    /// Initializes a new hint tile at the given position on the board and with the
+    /// given shape.
+    /// This replaces the hint tile currently stored in the PlacementModel.
+    /// Make sure to call [Self::remove_hint_tile] before this call and remove the
+    /// old hint tile from the view.
+    ///
+    /// # Arguments
+    ///
+    /// * `position_on_board`: the position of the hint tile relative to the board
+    /// * `shape`: the shape of the hint tile
+    ///
+    /// returns: ()
     pub fn init_hint_tile(&self, position_on_board: CellOffset, shape: Shape) {
         let position = self.imp().board.borrow().position_cells() + position_on_board;
         let size = shape.dim().into();
@@ -232,20 +321,30 @@ impl PlacementModel {
             .replace(Some(PlacedTile::new(None, shape, size, position)));
     }
 
-    pub fn hint_tile_position(&self) -> PixelOffset {
+    /// Returns the position of the hint tile in pixels.
+    ///
+    /// None, if no hint tile is registered.
+    pub fn hint_tile_position(&self) -> Option<PixelOffset> {
         let hint_tile_borrow = self.imp().hint_tile.borrow();
-        hint_tile_borrow.as_ref().unwrap().position_pixels()
+        hint_tile_borrow.as_ref().map(|tile| tile.position_pixels())
     }
 
-    pub fn hint_tile_size(&self) -> PixelOffset {
+    /// Returns the size of the hint tile in pixels.
+    ///
+    /// None, if no hint tile is registered.
+    pub fn hint_tile_size(&self) -> Option<PixelOffset> {
         let hint_tile_borrow = self.imp().hint_tile.borrow();
-        hint_tile_borrow.as_ref().unwrap().pixel_size()
+        hint_tile_borrow.as_ref().map(|tile| tile.pixel_size())
     }
 
+    /// Removes the hint tile from the placement model.
+    /// Positions will no longer be calculated for the old hint tile.
     pub fn remove_hint_tile(&self) {
         self.imp().hint_tile.replace(None);
     }
 
+    /// Connects to the `tile_moved` signal which is emitted when a tile changes positon
+    /// or rotation.
     pub fn connect_tile_moved<F: Fn() + 'static>(&self, callback: F) {
         self.connect_local(TILE_MOVED_SIGNAL_NAME, false, move |_| {
             callback();
@@ -258,16 +357,39 @@ impl PlacementModel {
         self.emit_by_name::<()>(TILE_MOVED_SIGNAL_NAME, &[]);
     }
 
+    /// Converts a PixelOffset to a CellOffset respecting the current grid layout.
+    ///
+    /// # Arguments
+    ///
+    /// * `position`: the position to convert
+    ///
+    /// returns: CellOffset
     fn translate_pixels_to_cells(&self, position: PixelOffset) -> CellOffset {
         let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
         position.div_scalar(cell_size as f64).round().into()
     }
 
+    /// Converts a CellOffset to a PixelOffset respecting the current grid layout.
+    ///
+    /// # Arguments
+    ///
+    /// * `position`: the position to convert
+    ///
+    /// returns: PixelOffset
     fn translate_cells_to_pixels(&self, position: CellOffset) -> PixelOffset {
         let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
         position.mul_scalar(cell_size as f64).into()
     }
 
+    /// Finds the index of a tile that has the same base shape.
+    ///
+    /// None, if no tile was found.
+    ///
+    /// # Arguments
+    ///
+    /// * `base`: the base shape to search for
+    ///
+    /// returns: Option<usize>
     pub fn find_tile_matching_base(&self, base: &Shape) -> Option<usize> {
         let tiles = self.imp().tiles.borrow();
         tiles

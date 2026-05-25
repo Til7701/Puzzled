@@ -79,8 +79,8 @@ impl PuzzleArea {
         if let Some(tile_view) = hint_tile.as_ref() {
             let placement_borrow = self.imp().placement_model.borrow();
             let placement_model = placement_borrow.as_ref().unwrap();
-            let pos = placement_model.hint_tile_position();
-            let size = placement_model.hint_tile_size();
+            let pos = placement_model.hint_tile_position().unwrap();
+            let size = placement_model.hint_tile_size().unwrap();
 
             tile_view.set_width_request(size.0 as i32);
             tile_view.set_height_request(size.1 as i32);
