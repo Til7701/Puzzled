@@ -123,6 +123,24 @@ impl Shape {
         self.data.len()
     }
 
+    /// Returns true, if the shape does not have any cells.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use puzzled_common::Shape;
+    /// use puzzled_common::ShapeType;
+    ///
+    /// let shape = Shape::new(ShapeType::Square, arr2(&[[true, true], [false, true]]));
+    /// assert_eq!(shape.is_empty(), false);
+    /// let shape = Shape::new(ShapeType::Square, arr2(&[[]]));
+    /// assert_eq!(shape.is_empty(), true);
+    /// ```
+    pub fn is_empty(&self) -> bool {
+        self.data.len() == 0
+    }
+
     /// Returns the value of the cell at the given position in the shape or none, if the index
     /// is out of bounds.
     ///

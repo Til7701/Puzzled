@@ -113,7 +113,7 @@ impl BoardView {
         self.imp().elements.borrow()
     }
 
-    pub fn get_min_element_size(&self) -> i32 {
+    pub fn get_min_element_size(&self) -> u32 {
         self.elements()
             .iter()
             .map(|w| {
@@ -126,7 +126,7 @@ impl BoardView {
                         .pixel_size()
                         .0
                         .max(label.layout().pixel_size().1);
-                    (size as f64 * 1.4) as i32
+                    (size as f64 * 1.4) as u32
                 } else {
                     0
                 }

@@ -1,6 +1,4 @@
 use crate::adw_ext;
-use crate::offset::CellOffset;
-use crate::offset::PixelOffset;
 use adw::gdk::RGBA;
 use adw::gio;
 use adw::glib;
@@ -38,11 +36,7 @@ mod imp {
     #[derive(Debug, Default)]
     pub struct PuzzledTileView {
         pub id: Cell<usize>,
-        pub base: RefCell<Shape>,
-        pub name: RefCell<Option<String>>,
         pub current_rotation: RefCell<Shape>,
-        pub position_cells: Cell<Option<CellOffset>>,
-        pub position_pixels: Cell<PixelOffset>,
         pub color: RefCell<HashMap<DrawingMode, RGBA>>,
         pub drawing_modes: RefCell<Array2<DrawingMode>>,
     }
@@ -101,12 +95,10 @@ impl TileView {
     /// Creates a new TileView with the given id and base layout.
     /// The name is used to refer to the tile layout when calculating possible solutions for given
     /// tiles.
-    pub fn new(id: usize, base: Shape, color: ColorConfig, name: Option<String>) -> Self {
+    pub fn new(id: usize, base: Shape, color: ColorConfig) -> Self {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
-        obj.imp().base.replace(base.clone());
-        obj.imp().name.replace(name);
         obj.imp().drawing_modes.replace(Array2::default(base.dim()));
         obj.imp().current_rotation.replace(base);
         obj.init_color(color);
@@ -194,17 +186,6 @@ impl TileView {
         self.imp().id.get()
     }
 
-    /// Returns the base layout of the tile, which is the original orientation without any
-    /// rotations or flips.
-    /// This does not change over the lifetime of the tile.
-    pub fn base(&self) -> Ref<'_, Shape> {
-        self.imp().base.borrow()
-    }
-
-    pub fn name(&self) -> Option<String> {
-        self.imp().name.borrow().clone()
-    }
-
     pub fn color(&self) -> RGBA {
         self.imp().color.borrow()[&DrawingMode::Normal]
     }
@@ -235,30 +216,6 @@ impl TileView {
     /// Returns the current layout of the tile, which changes when the tile is rotated or flipped.
     pub fn current_rotation(&self) -> Ref<'_, Shape> {
         self.imp().current_rotation.borrow()
-    }
-
-    /// Returns the position of the tile in terms of cell coordinates, which is used by the puzzle
-    /// area presenter to move the tile to the correct position.
-    /// This has to be set manually by the puzzle area presenter when the tile is moved.
-    pub fn position_cells(&self) -> Option<CellOffset> {
-        self.imp().position_cells.get()
-    }
-
-    /// Sets the position of the tile in terms of cell coordinates.
-    pub fn set_position_cells(&self, position_cells: Option<CellOffset>) {
-        self.imp().position_cells.replace(position_cells);
-    }
-
-    /// Returns the position of the tile in terms of pixel coordinates, which is set by the puzzle
-    /// area presenter when the tile is moved, and is used to draw the tile at the correct position.
-    /// This has to be set manually by the puzzle area presenter.
-    pub fn position_pixels(&self) -> PixelOffset {
-        self.imp().position_pixels.get()
-    }
-
-    /// Sets the position of the tile in terms of pixel coordinates.
-    pub fn set_position_pixels(&self, position_pixels: PixelOffset) {
-        self.imp().position_pixels.replace(position_pixels);
     }
 
     /// Sets the drawing mode for the cell at the given coordinates.

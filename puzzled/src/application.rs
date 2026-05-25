@@ -251,7 +251,6 @@ impl PuzzledApplication {
             0,
             shape_square(&[[true, false], [true, true]]),
             ColorConfig::default_with_index(0),
-            None,
         );
         left_tile.set_drawing_mode_at(1, 1, DrawingMode::Overlapping);
         left_tile.set_width_request(CELL_SIZE * 2);
@@ -261,7 +260,6 @@ impl PuzzledApplication {
             0,
             shape_square(&[[true, true], [false, true]]),
             ColorConfig::default_with_index(5),
-            None,
         );
         right_tile.set_width_request(CELL_SIZE * 2);
         right_tile.set_height_request(CELL_SIZE * 2);
@@ -277,7 +275,6 @@ impl PuzzledApplication {
             0,
             shape_square(&[[true, true], [false, true]]),
             ColorConfig::default_with_index(0),
-            None,
         );
         tile.set_drawing_mode_at(1, 1, DrawingMode::OutOfBounds);
         tile.set_width_request(CELL_SIZE * 2);
@@ -298,7 +295,6 @@ impl PuzzledApplication {
             0,
             shape_square(&[[true, true], [false, true]]),
             color_config,
-            None,
         );
         tile.set_width_request(CELL_SIZE * 2);
         tile.set_height_request(CELL_SIZE * 2);
