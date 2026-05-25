@@ -30,9 +30,6 @@ impl PuzzleArea {
     /// This moves the puzzle area elements according to the current window size.
     pub fn update_layout(&self) {
         let window = self.imp().window.get().unwrap();
-        if !window.outer_view().shows_content() {
-            return;
-        }
         let size = PixelOffset(
             window.width() as f64,
             (window.height() - window.puzzle_area_nav_page().header_bar().height()) as f64,

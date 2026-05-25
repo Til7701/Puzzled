@@ -113,10 +113,7 @@ impl PlacementModel {
     }
 
     pub fn update_pixel_size(&self, total_view_size_pixel: PixelOffset, min_cell_size_pixel: u32) {
-        if total_view_size_pixel.0 < 100.0
-            || total_view_size_pixel.1 < 100.0
-            || min_cell_size_pixel < 10
-        {
+        if total_view_size_pixel.0 < 100.0 || total_view_size_pixel.1 < 100.0 {
             return;
         }
         self.imp().area_pixel_size.replace(total_view_size_pixel);
