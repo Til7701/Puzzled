@@ -99,7 +99,7 @@
                                                                         </child>
                                                                         <child>
                                                                             <object class="GtkLinkButton">
-                                                                                <property name="uri">https://github.com/Til7701/Puzzled/blob/main/docs/puzzle-collection-spec.md</property>
+                                                                                <property name="uri">https://til7701.de/projects/puzzled/collection-spec</property>
                                                                                 <property name="label" translatable="yes">Open puzzle collection specification</property>
                                                                                 <property name="halign">start</property>
                                                                             </object>
