@@ -13,7 +13,7 @@
         </p>
         <p>
             You can drag the tiles with your mouse, rotate them with right-click, and
-            flip them with middle, click. Move the tiles to fill the board in the
+            flip them with middle-click. Move the tiles to fill the board in the
             middle to solve the puzzle.
         </p>
         <p>
@@ -70,8 +70,8 @@
             <description translate="no">
                 <ul>
                     <li>Updated to Gnome 50.</li>
-                    <li>Add more puzzles to the Tetromino and Pentomino collections.</li>
-                    <li>Fix display bugs when loading an already loaded community collection.</li>
+                    <li>Added more puzzles to the Tetromino and Pentomino collections.</li>
+                    <li>Fixed display bugs when loading an already loaded community collection.</li>
                 </ul>
             </description>
         </release>
@@ -87,7 +87,7 @@
         <release version="1.0.1" date="2026-03-14">
             <description translate="no">
                 <ul>
-                    <li>Update icon and description for Flathub.</li>
+                    <li>Updated icon and description for Flathub.</li>
                     <li>Set log level to info.</li>
                 </ul>
             </description>
@@ -95,10 +95,10 @@
         <release version="1.0.0" date="2026-03-10">
             <description translate="no">
                 <ul>
-                    <li>Add more puzzles to the Hexomino and Tromino collections.</li>
+                    <li>Added more puzzles to the Hexomino and Tromino collections.</li>
                     <li>You now get stars for solving puzzles using less hints.</li>
-                    <li>Improve solver feedback, if no solution is available.</li>
-                    <li>Allow marking puzzles as unsolvable.</li>
+                    <li>Improved solver feedback, if no solution is available.</li>
+                    <li>Allowed marking puzzles as unsolvable.</li>
                     <li>Fixed name for menu entry for about dialog.</li>
                 </ul>
             </description>
@@ -106,10 +106,10 @@
         <release version="0.4.0" date="2026-02-22">
             <description translate="no">
                 <ul>
-                    <li>Update collection selection list.</li>
+                    <li>Updated collection selection list.</li>
                     <li>Grid lines can now be shown on the board.</li>
                     <li>Added a How to Play dialog.</li>
-                    <li>Fix flickering lines on tiles when moving them.</li>
+                    <li>Fixed flickering lines on tiles when moving them.</li>
                     <li>When deleting a community collection, another collection is now selected.</li>
                     <li>For each collection the average difficulty is now shown.</li>
                     <li>The amount of cells to fill on the board is now shown for each puzzle.</li>
@@ -119,10 +119,10 @@
         <release version="0.3.1" date="2026-02-18">
             <description translate="no">
                 <ul>
-                    <li>Disallow moving tile out of the puzzle area.</li>
-                    <li>Fix last tile hint showing up when opening another puzzle.</li>
-                    <li>Fix unused tile detection.</li>
-                    <li>Update layout when window size changes in any way.</li>
+                    <li>Disallowed moving tile out of the puzzle area.</li>
+                    <li>Fixed last tile hint showing up when opening another puzzle.</li>
+                    <li>Fixed unused tile detection.</li>
+                    <li>Updated layout when window size changes in any way.</li>
                 </ul>
             </description>
         </release>
