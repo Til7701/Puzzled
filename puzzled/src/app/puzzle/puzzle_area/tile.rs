@@ -73,7 +73,6 @@ impl PuzzleArea {
                 let placement_model = placement_model_borrow.as_ref().unwrap();
                 placement_model.update_tile_dragged(tile_view_index, false);
                 placement_model.update_tile_pixel_position(tile_view_index, pos);
-                self_clone.run_on_tile_moved();
             }
         });
 
@@ -135,8 +134,6 @@ impl PuzzleArea {
                 };
 
                 tile_update_function(tile_view);
-
-                self_clone.run_on_tile_moved();
             }
         });
     }
