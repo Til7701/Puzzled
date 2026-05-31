@@ -8,6 +8,3 @@ puzzled_common = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }
-
-[dev-dependencies]
-tokio = { workspace = true, features = ["time"] }
