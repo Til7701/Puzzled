@@ -52,20 +52,28 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.0/data/screenshot-start-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.1/data/screenshot-start-light.png</image>
             <caption>Puzzle Selection</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.0/data/screenshot-year-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.1/data/screenshot-year-light.png</image>
             <caption>Solving a Puzzle</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.0/data/screenshot-start-dark.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.1/data/screenshot-start-dark.png</image>
             <caption>Puzzle Selection in Dark Mode</caption>
         </screenshot>
     </screenshots>
 
     <releases>
+        <release version="1.2.1" date="2026-05-31">
+            <description translate="no">
+                <ul>
+                    <li>Fixed shortcut keys in shortcut dialog.</li>
+                    <li>The Community Collection explanation pop over now links to my website and not GitHub.</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.2.0" date="2026-04-26">
             <description translate="no">
                 <ul>
