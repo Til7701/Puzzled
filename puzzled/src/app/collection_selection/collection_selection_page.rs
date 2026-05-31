@@ -117,7 +117,7 @@ impl CollectionSelectionPage {
                 if let Some(row) = row {
                     self_clone.imp().extra_options_list.unselect_all();
                     self_clone.imp().community_collection_list.unselect_all();
-                    let row = row.clone().downcast::<CollectionSelectionItem>().unwrap();
+                    let row = row.downcast_ref::<CollectionSelectionItem>().unwrap();
                     let collection = row.collection();
                     self_clone.emit_collection_selected(collection);
                 }
@@ -129,7 +129,7 @@ impl CollectionSelectionPage {
                 if let Some(row) = row {
                     self_clone.imp().extra_options_list.unselect_all();
                     self_clone.imp().core_collection_list.unselect_all();
-                    let row = row.clone().downcast::<CollectionSelectionItem>().unwrap();
+                    let row = row.downcast_ref::<CollectionSelectionItem>().unwrap();
                     let collection = row.collection();
                     self_clone.emit_collection_selected(collection);
                 }

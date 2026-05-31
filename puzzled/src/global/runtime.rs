@@ -1,12 +1,11 @@
-use once_cell::sync::Lazy;
 use std::backtrace::Backtrace;
 use std::mem;
 use std::ops::DerefMut;
-use std::sync::{Mutex, MutexGuard, TryLockError};
+use std::sync::{LazyLock, Mutex, MutexGuard, TryLockError};
 use tokio::runtime;
 use tokio::runtime::Runtime;
 
-static RUNTIME: Lazy<Mutex<Runtime>> = Lazy::new(|| Mutex::new(create_runtime()));
+static RUNTIME: LazyLock<Mutex<Runtime>> = LazyLock::new(|| Mutex::new(create_runtime()));
 
 /// Acquires a lock on the global Tokio runtime and returns a guard to it.
 pub fn get_runtime() -> MutexGuard<'static, Runtime> {

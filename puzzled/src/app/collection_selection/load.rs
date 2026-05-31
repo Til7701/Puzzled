@@ -35,8 +35,8 @@ impl CollectionSelectionPage {
                 debug!("Successfully loaded collection.");
             }
             Err(e) => {
-                let message: String = match &e {
-                    FileReadError(e) => e.clone(),
+                let message: String = match e {
+                    FileReadError(e) => e,
                     ReadError::MissingVersion => "The `puzzled` field is missing.".to_string(),
                     ReadError::MalformedVersion => "The `puzzled` field is malformed.".to_string(),
                     ReadError::UnsupportedVersion => {

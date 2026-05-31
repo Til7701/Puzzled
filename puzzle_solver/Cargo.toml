@@ -1,11 +1,10 @@
 [package]
 name = "puzzle_solver"
-edition = "2024"
+edition.workspace = true
 version.workspace = true
 
 [dependencies]
 puzzled_common = { workspace = true }
-ndarray = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }

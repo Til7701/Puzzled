@@ -97,14 +97,13 @@ impl BoardView {
 
         let preferences = Preferences::default();
         preferences.bind(ShowBoardGridLines, &obj, "show-grid-lines");
+        obj.update_grid_lines(preferences.get(ShowBoardGridLines));
         obj.connect_show_grid_lines_notify({
-            let preferences = preferences.clone();
             move |obj| {
                 let show_grid_lines = preferences.get(ShowBoardGridLines);
                 obj.update_grid_lines(show_grid_lines);
             }
         });
-        obj.update_grid_lines(preferences.get(ShowBoardGridLines));
 
         Ok(obj)
     }
@@ -117,19 +116,21 @@ impl BoardView {
         self.elements()
             .iter()
             .map(|w| {
-                if let Ok(frame) = w.clone().downcast::<Frame>()
-                    && let Some(child) = frame.child()
-                    && let Ok(label) = child.downcast::<Label>()
-                {
-                    let size = label
-                        .layout()
-                        .pixel_size()
-                        .0
-                        .max(label.layout().pixel_size().1);
-                    (size as f64 * 1.4) as u32
-                } else {
-                    0
-                }
+                let frame: Option<&Frame> = w.downcast_ref::<Frame>();
+                frame
+                    .iter()
+                    .flat_map(|frame| frame.child())
+                    .flat_map(|child| child.downcast::<Label>())
+                    .map(|label| {
+                        let size = label
+                            .layout()
+                            .pixel_size()
+                            .0
+                            .max(label.layout().pixel_size().1);
+                        (size as f64 * 1.4) as u32
+                    })
+                    .next()
+                    .unwrap_or(0)
             })
             .chain(0..1)
             .max()

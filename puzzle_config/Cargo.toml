@@ -1,6 +1,6 @@
 [package]
 name = "puzzle_config"
-edition = "2024"
+edition.workspace = true
 version.workspace = true
 
 [dependencies]
@@ -11,6 +11,4 @@ serde_json = { workspace = true }
 time = { workspace = true }
 semver = { workspace = true }
 regex = { workspace = true }
-once_cell = { workspace = true }
 rand = { workspace = true }
-log = "0.4.30"

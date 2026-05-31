@@ -192,24 +192,25 @@ impl TileView {
 
     /// Rotates the tile one step clockwise.
     pub fn rotate_clockwise(&self) {
-        let mut layout = self.current_rotation().clone();
         // We are calling counterclockwise here, since the tile is drawn transposed.
-        layout.rotate_counterclockwise();
-        self.set_current_rotation(layout);
+        self.imp()
+            .current_rotation
+            .borrow_mut()
+            .rotate_counterclockwise();
+        self.update_drawing_modes();
     }
 
     /// Flips the tile horizontally.
     pub fn flip_horizontal(&self) {
-        let mut layout = self.current_rotation().clone();
-        layout.flip_default();
-        self.set_current_rotation(layout);
+        self.imp().current_rotation.borrow_mut().flip_default();
+        self.update_drawing_modes();
     }
 
-    fn set_current_rotation(&self, rotation: Shape) {
+    fn update_drawing_modes(&self) {
+        let rotation = self.imp().current_rotation.borrow();
         self.imp()
             .drawing_modes
             .replace(Array2::default(rotation.dim()));
-        self.imp().current_rotation.replace(rotation);
         self.queue_draw();
     }
 
