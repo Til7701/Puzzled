@@ -1,16 +1,12 @@
 use crate::ReadError;
-use once_cell::sync::Lazy;
 use regex::Regex;
-
-static COLLECTION_ID_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^([a-zA-Z0-9-]+\.)+[a-zA-Z0-9-]+$").unwrap());
 
 pub(crate) fn validate_collection_id(id: String) -> Result<String, ReadError> {
     if id.trim().is_empty() {
         return Err(ReadError::InvalidCollectionId(id));
     }
-
-    let result = COLLECTION_ID_REGEX.find(&id);
+    let regex = Regex::new(r"^([a-zA-Z0-9-]+\.)+[a-zA-Z0-9-]+$").unwrap();
+    let result = regex.find(&id);
     match result {
         None => Err(ReadError::InvalidCollectionId(id)),
         Some(_) => Ok(id),
