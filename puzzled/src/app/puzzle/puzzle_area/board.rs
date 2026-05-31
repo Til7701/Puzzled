@@ -15,7 +15,7 @@ impl PuzzleArea {
         let board_view =
             BoardView::new(puzzle_config.board_config()).expect("Failed to initialize board view");
         let widget = board_view.upcast_ref::<Widget>();
-        self.add(&widget, &PixelOffset::default());
+        self.add(widget, &PixelOffset::default());
 
         self.imp().board.replace(Some(board_view));
     }
