@@ -31,8 +31,8 @@ impl PuzzleArea {
         );
         let tile_view = self.create_hint_tile(placement, color_config);
         self.remove_hint_tile();
-        self.imp().hint_tile.replace(Some(tile_view.clone()));
         self.put(&tile_view, 0.0, 0.0);
+        self.imp().hint_tile.replace(Some(tile_view));
         self.update_layout();
     }
 

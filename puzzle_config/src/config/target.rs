@@ -45,11 +45,11 @@ impl TargetTemplate {
         let mut result = self.0.clone();
         for (i, value) in values.iter().enumerate() {
             let placeholder = format!("{{{}}}", i);
-            let value: String = {
+            let value = {
                 if let Some(area_config) = area_configs.get(i) {
-                    self.format_value(value, area_config)
+                    &self.format_value(value, area_config)
                 } else {
-                    value.clone()
+                    value
                 }
             };
             result = result.replace(&placeholder, value.as_str());

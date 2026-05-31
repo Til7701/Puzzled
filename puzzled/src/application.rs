@@ -319,15 +319,14 @@ impl PuzzledApplication {
         }
 
         let settings = Settings::default().unwrap();
+        let theme = settings.gtk_interface_color_scheme();
+        provider.set_prefers_color_scheme(theme);
         settings.connect_gtk_interface_color_scheme_notify({
-            let provider = provider.clone();
             move |s| {
                 let theme = s.gtk_interface_color_scheme();
                 provider.set_prefers_color_scheme(theme);
             }
         });
-        let theme = settings.gtk_interface_color_scheme();
-        provider.set_prefers_color_scheme(theme);
     }
 
     fn setup(&self, window: &PuzzledWindow) {

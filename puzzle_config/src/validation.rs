@@ -10,11 +10,11 @@ pub(crate) fn validate_collection_id(id: String) -> Result<String, ReadError> {
         return Err(ReadError::InvalidCollectionId(id));
     }
 
-    COLLECTION_ID_REGEX
-        .find(&id)
-        .ok_or(ReadError::InvalidCollectionId(id.clone()))?;
-
-    Ok(id)
+    let result = COLLECTION_ID_REGEX.find(&id);
+    match result {
+        None => Err(ReadError::InvalidCollectionId(id)),
+        Some(_) => Ok(id),
+    }
 }
 
 #[cfg(test)]

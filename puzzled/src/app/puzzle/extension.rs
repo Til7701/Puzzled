@@ -118,8 +118,6 @@ impl PuzzlePage {
         dialog.set_response_appearance(clear_id, ResponseAppearance::Destructive);
         dialog.set_prefer_wide_layout(true);
         dialog.connect_response(Some(accept_id), {
-            let dropdowns = dropdowns.clone();
-            let area_items = area_items.clone();
             let self_clone = self.clone();
             move |_, _| {
                 dbg!("Accepted target selection");

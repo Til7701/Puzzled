@@ -33,10 +33,10 @@ pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection 
         layout: board_layout,
     };
     let tiles = tiles
-        .iter()
+        .into_iter()
         .enumerate()
         .map(|(i, tile)| {
-            let base = random_orientation(&mut rng, tile.clone());
+            let base = random_orientation(&mut rng, tile);
             TileConfig::new(base, ColorConfig::default_with_index(i), None)
         })
         .collect();

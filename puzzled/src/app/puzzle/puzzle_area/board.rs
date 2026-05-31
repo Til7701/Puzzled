@@ -14,7 +14,7 @@ impl PuzzleArea {
     pub fn setup_board(&self, puzzle_config: &PuzzleConfig) {
         let board_view =
             BoardView::new(puzzle_config.board_config()).expect("Failed to initialize board view");
-        let widget = board_view.clone().upcast::<Widget>();
+        let widget = board_view.upcast_ref::<Widget>();
         self.add(&widget, &PixelOffset::default());
 
         self.imp().board.replace(Some(board_view));
@@ -26,10 +26,10 @@ impl PuzzleArea {
         let placement_borrow = self.imp().placement_model.borrow();
         let placement_model = placement_borrow.as_ref().unwrap();
         if let Some(board_view) = board.as_ref() {
-            let widget = board_view.clone().upcast::<Widget>();
+            let widget = board_view.upcast_ref::<Widget>();
             let pos = placement_model.board_pixel_position();
             let size = placement_model.board_size();
-            self.move_(&widget, pos.0, pos.1);
+            self.move_(widget, pos.0, pos.1);
             board_view.set_width_request(size.0 as i32);
             board_view.set_height_request(size.1 as i32);
         }
