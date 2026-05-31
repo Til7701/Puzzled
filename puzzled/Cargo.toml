@@ -1,6 +1,6 @@
 [package]
 name = "puzzled"
-edition = "2024"
+edition.workspace = true
 version.workspace = true
 
 [dependencies]
@@ -14,7 +14,6 @@ ndarray = { workspace = true }
 once_cell = { workspace = true }
 log = { workspace = true }
 simple_logger = { workspace = true }
-humantime = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }
 rand = { workspace = true }

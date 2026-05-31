@@ -528,12 +528,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
-name = "humantime"
-version = "2.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "135b12329e5e3ce057a9f972339ea52bc954fe1e9358ef27f95e89716fbc5424"
-
-[[package]]
 name = "id-arena"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -846,7 +840,6 @@ dependencies = [
 name = "puzzle_config"
 version = "1.2.1"
 dependencies = [
- "log",
  "ndarray",
  "once_cell",
  "puzzled_common",
@@ -863,7 +856,6 @@ name = "puzzle_solver"
 version = "1.2.1"
 dependencies = [
  "log",
- "ndarray",
  "puzzled_common",
  "tokio",
  "tokio-util",
@@ -875,7 +867,6 @@ version = "1.2.1"
 dependencies = [
  "gettext-rs",
  "gtk4",
- "humantime",
  "libadwaita",
  "log",
  "ndarray",

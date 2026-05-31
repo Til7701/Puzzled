@@ -100,9 +100,9 @@ impl Solver {
                 let end = Instant::now();
                 let duration = end.duration_since(now);
                 debug!(
-                    "Solver task ({:?}) completed in {}.",
+                    "Solver task ({:?}) completed in {}ms.",
                     solver_call_id,
-                    humantime::format_duration(duration)
+                    duration.as_millis()
                 );
                 if always_run_callback {
                     on_complete(result);
