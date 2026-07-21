@@ -3,7 +3,6 @@
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
     <template class="PuzzleSelectionPage" parent="AdwNavigationPage">
-        <property name="title" translatable="yes">Puzzle Selection</property>
         <property name="tag">puzzle-selection</property>
         <property name="child">
             <object class="AdwToolbarView">
@@ -32,14 +31,7 @@
                                         <property name="margin-start">8</property>
                                         <property name="margin-end">8</property>
                                         <child>
-                                            <object class="GtkLabel" id="puzzle_name_label">
-                                                <style>
-                                                    <class name="title-2"/>
-                                                </style>
-                                            </object>
-                                        </child>
-                                        <child>
-                                            <object class="GtkLabel" id="puzzle_description_label">
+                                            <object class="GtkLabel" id="collection_description_label">
                                                 <property name="halign">start</property>
                                                 <property name="wrap">True</property>
                                                 <style>

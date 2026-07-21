@@ -2,6 +2,7 @@ use crate::app::puzzle_selection::puzzle_selection_item::PuzzleSelectionItem;
 use crate::model::collection::CollectionModel;
 use crate::model::puzzle::PuzzleModel;
 use adw::gio;
+use adw::prelude::NavigationPageExt;
 use adw::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::*;
@@ -23,9 +24,7 @@ mod imp {
     #[template(resource = "/de/til7701/Puzzled/ui/page/puzzle-selection-page.ui")]
     pub struct PuzzleSelectionPage {
         #[template_child]
-        pub puzzle_name_label: TemplateChild<gtk::Label>,
-        #[template_child]
-        pub puzzle_description_label: TemplateChild<gtk::Label>,
+        pub collection_description_label: TemplateChild<gtk::Label>,
         #[template_child]
         pub collection_info_box: TemplateChild<adw::WrapBox>,
         #[template_child]
@@ -133,14 +132,14 @@ impl PuzzleSelectionPage {
         self.imp().collection.replace(Some(collection.clone()));
         self.imp().puzzle_list.remove_all();
 
-        self.imp()
-            .puzzle_name_label
-            .set_label(collection.config().name());
+        self.set_title(collection.config().name());
         if let Some(description) = collection.config().description() {
-            self.imp().puzzle_description_label.set_label(description);
-            self.imp().puzzle_description_label.set_visible(true);
+            self.imp()
+                .collection_description_label
+                .set_label(description);
+            self.imp().collection_description_label.set_visible(true);
         } else {
-            self.imp().puzzle_description_label.set_visible(false);
+            self.imp().collection_description_label.set_visible(false);
         }
 
         let puzzle_count = collection.puzzles().len();
