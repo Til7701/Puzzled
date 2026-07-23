@@ -60,7 +60,7 @@ mod imp {
     impl ObjectSubclass for PuzzledPuzzleSelectionItem {
         const NAME: &'static str = "PuzzledPuzzleSelectionItem";
         type Type = PuzzleSelectionItem;
-        type ParentType = gtk::ListBoxRow;
+        type ParentType = gtk::Box;
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
@@ -73,12 +73,12 @@ mod imp {
 
     impl ObjectImpl for PuzzledPuzzleSelectionItem {}
     impl WidgetImpl for PuzzledPuzzleSelectionItem {}
-    impl ListBoxRowImpl for PuzzledPuzzleSelectionItem {}
+    impl BoxImpl for PuzzledPuzzleSelectionItem {}
 }
 
 glib::wrapper! {
     pub struct PuzzleSelectionItem(ObjectSubclass<imp::PuzzledPuzzleSelectionItem>)
-        @extends Widget, gtk::ListBoxRow,
+        @extends Widget, gtk::Box,
          @implements gtk::Buildable, gtk::Accessible, gtk::ConstraintTarget,
                   gtk::Native, gio::ActionGroup, gio::ActionMap, gtk::Actionable;
 }

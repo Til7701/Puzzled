@@ -2,106 +2,99 @@
 <interface>
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
-    <template class="PuzzledPuzzleSelectionItem" parent="GtkListBoxRow">
-        <property name="selectable">False</property>
-        <property name="activatable">True</property>
-        <property name="action-name">app.puzzle_activated</property>
+    <template class="PuzzledPuzzleSelectionItem" parent="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+        <property name="margin-start">8</property>
+        <property name="margin-end">8</property>
+        <property name="margin-top">8</property>
+        <property name="margin-bottom">8</property>
         <child>
-            <object class="GtkBox" id="outer_box">
-                <property name="orientation">vertical</property>
+            <object class="GtkBox">
+                <property name="hexpand">True</property>
+                <property name="hexpand-set">True</property>
+                <property name="halign">fill</property>
                 <property name="spacing">4</property>
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">8</property>
-                <property name="margin-bottom">8</property>
                 <child>
-                    <object class="GtkBox">
-                        <property name="hexpand">True</property>
-                        <property name="hexpand-set">True</property>
-                        <property name="halign">fill</property>
-                        <property name="spacing">4</property>
-                        <child>
-                            <object class="GtkLabel" id="name">
-                                <property name="halign">start</property>
-                                <property name="hexpand">True</property>
-                                <property name="hexpand-set">True</property>
-                                <property name="ellipsize">end</property>
-                                <style>
-                                    <class name="title-3"/>
-                                </style>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="PuzzledPuzzleMod" id="puzzle_mod">
-                                <property name="halign">end</property>
-                            </object>
-                        </child>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkLabel" id="description">
+                    <object class="GtkLabel" id="name">
                         <property name="halign">start</property>
-                        <property name="wrap">True</property>
-                        <style>
-                            <class name="dimmed"/>
-                        </style>
-                    </object>
-                </child>
-                <child>
-                    <object class="AdwWrapBox" id="info_box">
-                        <property name="child-spacing">4</property>
-                        <property name="line-spacing">4</property>
-                        <child>
-                            <object class="PuzzledInfoPill" id="board_size_pill">
-                                <property name="tooltip-text">The dimensions of the board</property>
-                                <property name="icon-name">checkerboard-big-symbolic</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="PuzzledInfoPill" id="cell_count_pill">
-                                <property name="tooltip-text">The number of cells on the board</property>
-                                <property name="icon-name">view-grid-symbolic</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="PuzzledInfoPill" id="tile_count_pill">
-                                <property name="tooltip-text">The number of tiles in this puzzle</property>
-                                <property name="icon-name">puzzle-piece-symbolic</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="PuzzledInfoPill" id="difficulty_pill">
-                                <property name="tooltip-text">Difficulty of this puzzle</property>
-                                <property name="icon-name">brain-symbolic</property>
-                            </object>
-                        </child>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkScrolledWindow" id="tile_preview_parent">
-                        <property name="vscrollbar-policy">never</property>
-                        <child>
-                            <object class="GtkFixed" id="tile_preview_fixed">
-                            </object>
-                        </child>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkBox" id="board_preview_parent">
-                        <property name="halign">fill</property>
                         <property name="hexpand">True</property>
                         <property name="hexpand-set">True</property>
+                        <property name="ellipsize">end</property>
                         <style>
-                            <class name="board-preview"/>
+                            <class name="title-3"/>
                         </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="PuzzledPuzzleMod" id="puzzle_mod">
+                        <property name="halign">end</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkLabel" id="description">
+                <property name="halign">start</property>
+                <property name="wrap">True</property>
+                <style>
+                    <class name="dimmed"/>
+                </style>
+            </object>
+        </child>
+        <child>
+            <object class="AdwWrapBox" id="info_box">
+                <property name="child-spacing">4</property>
+                <property name="line-spacing">4</property>
+                <child>
+                    <object class="PuzzledInfoPill" id="board_size_pill">
+                        <property name="tooltip-text">The dimensions of the board</property>
+                        <property name="icon-name">checkerboard-big-symbolic</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="PuzzledInfoPill" id="cell_count_pill">
+                        <property name="tooltip-text">The number of cells on the board</property>
+                        <property name="icon-name">view-grid-symbolic</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="PuzzledInfoPill" id="tile_count_pill">
+                        <property name="tooltip-text">The number of tiles in this puzzle</property>
+                        <property name="icon-name">puzzle-piece-symbolic</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="PuzzledInfoPill" id="difficulty_pill">
+                        <property name="tooltip-text">Difficulty of this puzzle</property>
+                        <property name="icon-name">brain-symbolic</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkScrolledWindow" id="tile_preview_parent">
+                <property name="vscrollbar-policy">never</property>
+                <child>
+                    <object class="GtkFixed" id="tile_preview_fixed">
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkBox" id="board_preview_parent">
+                <property name="halign">fill</property>
+                <property name="hexpand">True</property>
+                <property name="hexpand-set">True</property>
+                <style>
+                    <class name="board-preview"/>
+                </style>
 
-                        <child>
-                            <object class="GtkBox" id="board_preview_box">
-                                <property name="halign">center</property>
-                                <property name="hexpand">True</property>
-                                <property name="hexpand-set">True</property>
-                            </object>
-                        </child>
+                <child>
+                    <object class="GtkBox" id="board_preview_box">
+                        <property name="halign">center</property>
+                        <property name="hexpand">True</property>
+                        <property name="hexpand-set">True</property>
                     </object>
                 </child>
             </object>

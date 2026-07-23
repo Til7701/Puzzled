@@ -17,6 +17,7 @@ mod imp {
     use crate::model::puzzle::PuzzleModel;
     use adw::glib::subclass::Signal;
     use adw::glib::VariantTy;
+    use gtk::SignalListItemFactory;
     use std::cell::RefCell;
     use std::sync::OnceLock;
 
@@ -34,7 +35,8 @@ mod imp {
         #[template_child]
         pub version_pill: TemplateChild<InfoPill>,
         #[template_child]
-        pub puzzle_list: TemplateChild<gtk::ListBox>,
+        pub puzzle_list: TemplateChild<gtk::ListView>,
+        pub item_factory: SignalListItemFactory,
 
         pub collection: RefCell<Option<CollectionModel>>,
     }
@@ -85,6 +87,11 @@ mod imp {
                 ]
             })
         }
+
+        fn constructed(&self) {
+            self.item_factory.connect_setup({ |factory, list_item| {} });
+            self.puzzle_list.set_factory(Some(&self.item_factory));
+        }
     }
     impl WidgetImpl for PuzzleSelectionPage {}
     impl NavigationPageImpl for PuzzleSelectionPage {}
@@ -130,7 +137,7 @@ impl PuzzleSelectionPage {
     /// returns: ()
     pub fn show_collection(&self, collection: &CollectionModel) {
         self.imp().collection.replace(Some(collection.clone()));
-        self.imp().puzzle_list.remove_all();
+        self.imp().puzzle_list.model().unwrap().remove_all();
 
         self.set_title(collection.config().name());
         if let Some(description) = collection.config().description() {
