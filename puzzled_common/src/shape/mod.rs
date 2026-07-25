@@ -1,17 +1,25 @@
 mod iterators;
+mod prototile;
 
 use crate::ShapeType::*;
-use ndarray::{arr2, s, Array2, Axis};
-use std::fmt::{Display, Formatter};
-use std::ops::{Index, IndexMut};
+use ndarray::{Array2, arr2};
+use std::fmt::{Display, Formatter, Pointer};
+use std::ops::Index;
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
-pub struct Shape {
-    shape_type: ShapeType,
-    data: Array2<bool>,
+pub type Shape = Polyform;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum Polyform {
+    Polyomino {
+        dim: (usize, usize),
+        data: Vec<prototile::Square>,
+    },
+    Hexomino {
+        data: Vec<prototile::Hexagon>
+    },
 }
 
-impl Shape {
+impl Polyform {
     /// Creates a new `Shape` instance with the specified `shape_type` and 2D boolean array `data`.
     ///
     /// # Arguments
@@ -38,7 +46,19 @@ impl Shape {
     /// assert_eq!(shape.get((1, 1)), Some(&true));
     /// ```
     pub fn new(shape_type: ShapeType, data: Array2<bool>) -> Self {
-        Self { shape_type, data }
+        match shape_type {
+            Square => {
+                let dim = data.dim();
+                let squares = data.indexed_iter().filter_map(|((i, j), e)| if *e {
+                    Some(prototile::Square::new(i as u32, j as u32))
+                } else {
+                    None
+                }).collect();
+                Polyform::Polyomino { dim, data: squares }
+            }
+            Triangle => { todo!() }
+            Hexagon => { todo!() }
+        }
     }
 
     /// Creates a new `Shape` instance with the specified dimensions, shape type, and initial value
@@ -66,10 +86,7 @@ impl Shape {
     /// assert_eq!(shape.get((0, 1)), Some(&true));
     /// ```
     pub fn from_elem((x, y): (usize, usize), shape_type: ShapeType, value: bool) -> Self {
-        Self {
-            shape_type,
-            data: Array2::from_elem((x, y), value),
-        }
+        Self::new(shape_type, Array2::from_elem((x, y), value))
     }
 
     /// Returns the shape type of this shape
@@ -86,7 +103,10 @@ impl Shape {
     /// assert_eq!(shape.shape_type(), ShapeType::Square);
     /// ```
     pub fn shape_type(&self) -> ShapeType {
-        self.shape_type
+        match self {
+            Polyform::Polyomino { .. } => { Square }
+            Polyform::Hexomino { .. } => { Hexagon }
+        }
     }
 
     /// Returns the dimensions of this shape
@@ -103,7 +123,10 @@ impl Shape {
     /// assert_eq!(shape.dim(), (1, 2));
     /// ```
     pub fn dim(&self) -> (usize, usize) {
-        self.data.dim()
+        match self {
+            Polyform::Polyomino { dim, .. } => { *dim }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
     }
 
     /// Returns the number of cells in the shape
@@ -120,7 +143,10 @@ impl Shape {
     /// assert_eq!(shape.len(), 4);
     /// ```
     pub fn len(&self) -> usize {
-        self.data.len()
+        match self {
+            Polyform::Polyomino { dim, .. } => { dim.0 * dim.1 }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
     }
 
     /// Returns true, if the shape does not have any cells.
@@ -138,7 +164,7 @@ impl Shape {
     /// assert_eq!(shape.is_empty(), true);
     /// ```
     pub fn is_empty(&self) -> bool {
-        self.data.len() == 0
+        self.len() == 0
     }
 
     /// Returns the value of the cell at the given position in the shape or none, if the index
@@ -158,7 +184,18 @@ impl Shape {
     /// assert_eq!(shape.get((1, 1)), None);
     /// ```
     pub fn get(&self, index: (usize, usize)) -> Option<&bool> {
-        self.data.get(index)
+        match self {
+            Polyform::Polyomino { dim, data } => {
+                if index.0 >= dim.1 || index.1 >= dim.1 {
+                    None
+                } else {
+                    data.iter().find(|square| square.x() == index.0 as u32 && square.y() == index.1 as u32)
+                        .map(|_| &true)
+                        .or(Some(&false))
+                }
+            }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
     }
 
     /// Maps all values in the shape and returns a new shape.
@@ -181,13 +218,25 @@ impl Shape {
     ///
     /// assert_eq!(shape.map(|v| !v), expected);
     /// ```
-    pub fn map<F>(&self, f: F) -> Self
+    pub fn map<F>(&self, mut f: F) -> Self
     where
         F: FnMut(&bool) -> bool,
     {
-        Shape {
-            shape_type: self.shape_type,
-            data: self.data.map(f),
+        match self {
+            Polyform::Polyomino { dim, data } => {
+                let mut new_squares = Vec::new();
+                for i in 0..dim.0 {
+                    for j in 0..dim.1 {
+                        let old = data.iter().find(|square| square.x() == i as u32 && square.y() == j as u32).is_some();
+                        let new = f(&old);
+                        if new {
+                            new_squares.push(prototile::Square::new(i as u32, j as u32));
+                        }
+                    }
+                }
+                Polyform::Polyomino { dim: *dim, data: new_squares }
+            }
+            Polyform::Hexomino { .. } => { todo!() }
         }
     }
 
@@ -213,7 +262,19 @@ impl Shape {
     /// assert_eq!(shape, expected);
     /// ```
     pub fn fill(&mut self, value: bool) {
-        self.data.fill(value);
+        match self {
+            Polyform::Polyomino { dim, data } => {
+                data.clear();
+                if value {
+                    for i in 0..dim.0 {
+                        for j in 0..dim.1 {
+                            data.push(prototile::Square::new(i as u32, j as u32));
+                        }
+                    }
+                }
+            }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
     }
 
     /// Rotates the shape counterclockwise.
@@ -234,18 +295,16 @@ impl Shape {
     /// assert_eq!(shape, expected);
     /// ```
     pub fn rotate_counterclockwise(&mut self) {
-        match self.shape_type {
-            Square => {
-                self.data.reverse_axes();
-                self.data.invert_axis(Axis(0));
+        match self {
+            Polyform::Polyomino { dim, data } => {
+                let new_dim = (dim.1, dim.0);
+                for square in data {
+                    square.rotate_counterclockwise((dim.0 as u32, dim.1 as u32));
+                }
+                *dim = new_dim;
             }
-            Triangle => {
-                todo!()
-            }
-            Hexagon => {
-                todo!()
-            }
-        };
+            Polyform::Hexomino { .. } => { todo!() }
+        }
     }
 
     /// Rotates the shape to landscape.
@@ -264,7 +323,7 @@ impl Shape {
     pub fn rotate_to_landscape(&mut self) {
         let dim = self.dim();
         if dim.0 < dim.1 {
-            self.data.reverse_axes();
+            self.rotate_counterclockwise();
         }
     }
 
@@ -283,16 +342,13 @@ impl Shape {
     /// assert_eq!(expected, shape);
     /// ```
     pub fn flip_default(&mut self) {
-        match self.shape_type {
-            Square => {
-                self.data.invert_axis(Axis(0));
+        match self {
+            Polyform::Polyomino { dim, data } => {
+                for square in data {
+                    square.flip_default((dim.0 as u32, dim.1 as u32));
+                }
             }
-            Triangle => {
-                todo!()
-            }
-            Hexagon => {
-                todo!()
-            }
+            Polyform::Hexomino { .. } => { todo!() }
         }
     }
 
@@ -311,24 +367,20 @@ impl Shape {
     /// assert_eq!(expected, shape);
     /// ```
     pub fn transpose(&mut self) {
-        match self.shape_type {
-            Square => {
-                self.data.reverse_axes();
+        match self {
+            Polyform::Polyomino { dim, data } => {
+                for square in data {
+                    square.transpose((dim.0 as u32, dim.1 as u32));
+                }
             }
-            Triangle => {
-                todo!()
-            }
-            Hexagon => {
-                todo!()
-            }
+            Polyform::Hexomino { .. } => { todo!() }
         }
     }
 
     pub fn transposed(&self) -> Self {
-        Self {
-            shape_type: self.shape_type,
-            data: self.data.clone().reversed_axes(),
-        }
+        let mut clone = self.clone();
+        clone.transpose();
+        clone
     }
 
     /// Removes rows and columns from the sides of a 2D boolean array where all cells are matching`
@@ -340,54 +392,61 @@ impl Shape {
     ///
     /// returns: ()
     pub fn trim_matching(&mut self, to_trim: bool) -> TrimSides {
-        let mut trim_sides = TrimSides::default();
-        loop {
-            if self.data.nrows() == 0 || self.data.ncols() == 0 {
-                break;
-            }
-
-            let left_col_all_true = self.data.column(0).iter().all(|&cell| cell == to_trim);
-            if left_col_all_true {
-                self.data = self.data.slice(s![.., 1..]).to_owned();
-                trim_sides.lower_y += 1;
-                continue;
-            }
-
-            let right_col_all_true = self
-                .data
-                .column(self.data.ncols() - 1)
-                .iter()
-                .all(|&cell| cell == to_trim);
-            if right_col_all_true {
-                self.data = self.data.slice(s![.., ..self.data.ncols() - 1]).to_owned();
-                trim_sides.upper_y += 1;
-                continue;
-            }
-
-            let top_row_all_true = self.data.row(0).iter().all(|&cell| cell == to_trim);
-            if top_row_all_true {
-                self.data = self.data.slice(s![1.., ..]).to_owned();
-                trim_sides.lower_x += 1;
-                continue;
-            }
-
-            let bottom_row_all_true = self
-                .data
-                .row(self.data.nrows() - 1)
-                .iter()
-                .all(|&cell| cell == to_trim);
-            if bottom_row_all_true {
-                self.data = self.data.slice(s![..self.data.nrows() - 1, ..]).to_owned();
-                trim_sides.upper_x += 1;
-                continue;
-            }
-
-            break;
+        if to_trim {
+            self.map(|old| !old);
         }
+
+        let trim_sides = match self {
+            Polyform::Polyomino { dim, data } => {
+                Self::polyomino_trim(dim, data)
+            }
+            Polyform::Hexomino { .. } => { todo!() }
+        };
+
+        if to_trim {
+            self.map(|old| !old);
+        }
+
+        trim_sides
+    }
+
+    fn polyomino_trim(dim: &mut (usize, usize), data: &mut Vec<prototile::Square>) -> TrimSides {
+        let mut trim_sides = TrimSides::default();
+        if dim.0 == 0 || dim.1 == 0 {
+            return trim_sides;
+        }
+
+        let min_y = data.iter().map(|square| square.y()).min().unwrap();
+        data.iter_mut().for_each(|square| { square.set_y(square.y() - min_y) });
+        dim.1 = dim.1 - min_y as usize;
+        trim_sides.lower_y += min_y as usize;
+
+        let max_y = data.iter().map(|square| square.y()).max().unwrap();
+        dim.1 = max_y as usize;
+        trim_sides.upper_y += max_y as usize;
+
+        let min_x = data.iter().map(|square| square.x()).min().unwrap();
+        data.iter_mut().for_each(|square| { square.set_x(square.x() - min_x) });
+        dim.1 = dim.1 - min_x as usize;
+        trim_sides.lower_x += min_x as usize;
+
+        let max_x = data.iter().map(|square| square.x()).max().unwrap();
+        dim.0 = max_x as usize;
+        trim_sides.upper_x += max_x as usize;
+
         trim_sides
     }
 
     pub fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+        match self {
+            Polyform::Polyomino { .. } => {
+                self.polyomino_count_biggest_connected_area_of_cells_matching(target_value)
+            }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
+    }
+
+    fn polyomino_count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
         let mut visited = Array2::from_elem(self.dim(), false);
         let mut max_area = 0;
 
@@ -397,8 +456,8 @@ impl Shape {
                 let mut stack = vec![(x, y)];
 
                 while let Some((cx, cy)) = stack.pop() {
-                    if cx < self.data.nrows()
-                        && cy < self.data.ncols()
+                    if cx < self.dim().0
+                        && cy < self.dim().1
                         && !visited[[cx, cy]]
                         && self[(cx, cy)] == target_value
                     {
@@ -409,13 +468,13 @@ impl Shape {
                         if cx > 0 {
                             stack.push((cx - 1, cy));
                         }
-                        if cx < self.data.nrows() - 1 {
+                        if cx < self.dim().0 - 1 {
                             stack.push((cx + 1, cy));
                         }
                         if cy > 0 {
                             stack.push((cx, cy - 1));
                         }
-                        if cy < self.data.ncols() - 1 {
+                        if cy < self.dim().1 - 1 {
                             stack.push((cx, cy + 1));
                         }
                     }
@@ -440,21 +499,22 @@ impl Shape {
     /// * `y_offset`: The y-axis offset for placing the child.
     ///
     /// returns: Shape
-    pub fn or_at(&self, child: &Shape, x_offset: isize, y_offset: isize) -> Shape {
+    pub fn or_at(&self, child: &Self, x_offset: isize, y_offset: isize) -> Self {
         let mut new_array = self.clone();
-        let child_xs = child.data.nrows();
-        let child_ys = child.data.ncols();
+        let (child_xs, child_ys) = child.dim();
 
         for x in 0..child_xs {
             for y in 0..child_ys {
                 let parent_x = x as isize + x_offset;
                 let parent_y = y as isize + y_offset;
                 if parent_x >= 0
-                    && parent_x < self.data.nrows() as isize
+                    && parent_x < child_xs as isize
                     && parent_y >= 0
-                    && parent_y < self.data.ncols() as isize
+                    && parent_y < child_ys as isize
                 {
-                    new_array[(parent_x as usize, parent_y as usize)] |= child[(x, y)];
+                    if child[(x, y)] {
+                        new_array.ensure_presence((parent_x as usize, parent_y as usize));
+                    }
                 }
             }
         }
@@ -470,12 +530,10 @@ impl Shape {
     /// * `child`: The child shape to be placed onto self.
     ///
     /// returns: Vec<Shape>
-    pub fn place_on_all_positions(&self, child: &Shape) -> Vec<Shape> {
+    pub fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
         let mut placements = Vec::new();
-        let parent_rows = self.data.nrows();
-        let parent_cols = self.data.ncols();
-        let child_rows = child.data.nrows();
-        let child_cols = child.data.ncols();
+        let (parent_rows, parent_cols) = self.dim();
+        let (child_rows, child_cols) = child.dim();
 
         if child_rows > parent_rows || child_cols > parent_cols {
             return placements;
@@ -491,7 +549,9 @@ impl Shape {
                             valid = false;
                             break;
                         }
-                        new_array[(row_offset + r, col_offset + c)] |= child[(r, c)];
+                        if child[(r, c)] {
+                            new_array.ensure_presence((row_offset + r, col_offset + c));
+                        }
                     }
                     if !valid {
                         break;
@@ -513,12 +573,33 @@ impl Shape {
     /// * `parent`: The mutable reference to the parent shape to be removed from self.
     ///
     /// returns: ()
-    pub fn remove_parent(&mut self, parent: &Shape) {
-        for row in 0..parent.data.nrows() {
-            for col in 0..parent.data.ncols() {
+    pub fn remove_parent(&mut self, parent: &Self) {
+        for row in 0..parent.dim().0 {
+            for col in 0..parent.dim().1 {
                 if parent[(row, col)] {
-                    self[(row, col)] = false;
+                    self.remove((row, col));
                 }
+            }
+        }
+    }
+
+    fn remove(&mut self, index: (usize, usize)) {
+        match self {
+            Polyform::Polyomino { data, .. } => {
+                let _ = data.extract_if(.., |square| square.x() == index.0 as u32 && square.y() == index.1 as u32);
+            }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
+    }
+
+    fn ensure_presence(&mut self, index: (usize, usize)) {
+        let contains = self.get(index).is_some();
+        if !contains {
+            match self {
+                Polyform::Polyomino { data, .. } => {
+                    data.push(prototile::Square::new(index.0 as u32, index.1 as u32));
+                }
+                Polyform::Hexomino { .. } => { todo!() }
             }
         }
     }
@@ -527,34 +608,38 @@ impl Shape {
     #[allow(dead_code)]
     pub fn debug_print(&self) {
         if cfg!(debug_assertions) {
-            for row in self.data.rows() {
-                let row_str: String = row
-                    .iter()
-                    .map(|&cell| if cell { '#' } else { '-' })
-                    .collect();
-                println!("{}", row_str);
+            for i in 0..self.dim().0 {
+                let mut row = String::new();
+                for j in 0..self.dim().1 {
+                    let char = if self.get((i, j)).is_some() {
+                        '#'
+                    } else {
+                        '-'
+                    };
+                    row.push(char);
+                }
+                println!("{}", row);
             }
         }
     }
 }
 
-impl Index<(usize, usize)> for Shape {
+impl Index<(usize, usize)> for Polyform {
     type Output = bool;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
-        &self.data[index]
+        &self.get(index).unwrap()
     }
 }
 
-impl IndexMut<(usize, usize)> for Shape {
-    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
-        &mut self.data[index]
-    }
-}
-
-impl Display for Shape {
+impl Display for Polyform {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        self.data.fmt(f)
+        match self {
+            Polyform::Polyomino { dim, data } => {
+                dim.fmt(f).and(data.fmt(f))
+            }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
     }
 }
 
@@ -1015,7 +1100,7 @@ mod test {
         let child = shape_square(&[[true, false], [false, true]]);
         let placements = parent.place_on_all_positions(&child);
         assert_eq!(placements.len(), 1);
-        assert!(placements.contains(&shape_square(&[[true, false], [false, true],])));
+        assert!(placements.contains(&shape_square(&[[true, false], [false, true], ])));
     }
 
     #[test]
