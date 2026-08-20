@@ -1,8 +1,8 @@
 use log::debug;
-use puzzled_common::shape::TrimSides;
 use puzzled_common::Shape;
 use puzzled_common::ShapeType::Square;
-use std::ops::{Index, IndexMut};
+use puzzled_common::shape::TrimSides;
+use std::ops::Index;
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
 /// A filled cell is either outside the puzzle area or blocked by a placed tile.
@@ -86,12 +86,6 @@ impl Index<[usize; 2]> for Board {
 
     fn index(&self, index: [usize; 2]) -> &Self::Output {
         &self.0[(index[0], index[1])]
-    }
-}
-
-impl IndexMut<[usize; 2]> for Board {
-    fn index_mut(&mut self, index: [usize; 2]) -> &mut Self::Output {
-        &mut self.0[(index[0], index[1])]
     }
 }
 

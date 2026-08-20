@@ -45,6 +45,7 @@ impl Polyform {
     /// assert_eq!(shape.get((1, 0)), Some(&false));
     /// assert_eq!(shape.get((1, 1)), Some(&true));
     /// ```
+    #[deprecated]
     pub fn new(shape_type: ShapeType, data: Array2<bool>) -> Self {
         match shape_type {
             Square => {
@@ -85,6 +86,7 @@ impl Polyform {
     /// assert_eq!(shape.get((0, 0)), Some(&true));
     /// assert_eq!(shape.get((0, 1)), Some(&true));
     /// ```
+    #[deprecated]
     pub fn from_elem((x, y): (usize, usize), shape_type: ShapeType, value: bool) -> Self {
         Self::new(shape_type, Array2::from_elem((x, y), value))
     }
@@ -102,6 +104,7 @@ impl Polyform {
     ///
     /// assert_eq!(shape.shape_type(), ShapeType::Square);
     /// ```
+    #[deprecated]
     pub fn shape_type(&self) -> ShapeType {
         match self {
             Polyform::Polyomino { .. } => { Square }
@@ -643,6 +646,7 @@ impl Display for Polyform {
     }
 }
 
+#[deprecated]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ShapeType {
     #[default]
@@ -664,6 +668,7 @@ pub struct TrimSides {
     pub upper_y: usize,
 }
 
+#[deprecated]
 pub fn shape_square<const N: usize>(data: &[[bool; N]]) -> Shape {
     Shape::new(Square, arr2(data))
 }
