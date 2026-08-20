@@ -1,7 +1,7 @@
 use log::debug;
-use puzzled_common::shape::TrimSides;
 use puzzled_common::Shape;
 use puzzled_common::ShapeType::Square;
+use puzzled_common::shape::TrimSides;
 use std::ops::{Index, IndexMut};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
@@ -19,6 +19,7 @@ use std::ops::{Index, IndexMut};
 /// board[[2, 3]] = true;
 /// assert_eq!(board[[2, 3]], true);
 /// ```
+#[derive(Clone)]
 pub struct Board(Shape);
 
 impl Board {

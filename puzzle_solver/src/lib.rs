@@ -12,6 +12,7 @@ pub mod board;
 mod plausibility;
 pub mod result;
 pub mod tile;
+mod dlx;
 
 /// Tries to place all given tiles on the board, filling it completely.
 /// If successful, returns a Solution; otherwise, returns an UnsolvableReason.
@@ -69,7 +70,16 @@ pub async fn solve_all_filling(
         return Err(UnsolvableReason::BoardTooLarge);
     }
 
-    let result = backtracking::solve_all_filling(board, tiles, cancel_token).await;
+    let result = tokio::select! {
+        res = backtracking::solve_all_filling(&board, tiles, cancel_token.clone()) => {
+            debug!("Backtracking solver finished.");
+            res
+        }
+        res = dlx::solve_all_filling(&board, tiles, cancel_token) => {
+            debug!("DLX solver finished.");
+            res
+        }
+    };
     match &result {
         Ok(solution) => {
             let trim_adjusted_placements: Vec<TilePlacement> = solution
@@ -138,8 +148,7 @@ mod tests {
             [true, true, true, true, true, true, true],
             [true, true, true, true, true, true, true],
             [true, true, true, true, true, true, true],
-        ])
-        .into();
+        ]).into();
         let tiles = vec![
             Tile::new(shape_square(&[[true, true, true], [true, true, false]])),
             Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
@@ -270,8 +279,7 @@ mod tests {
             [true, true, true, false, false],
             [true, false, false, true, true],
             [false, false, false, true, true],
-        ])
-        .into();
+        ]).into();
         let tiles = vec![
             Tile::new(shape_square(&[[false, true, true], [true, true, true]])),
             Tile::new(shape_square(&[
@@ -330,8 +338,7 @@ mod tests {
             [true, false, false],
             [false, true, false],
             [false, false, true],
-        ])
-        .into();
+        ]).into();
         let tiles = vec![
             Tile::new(shape_square(&[[false, true], [true, true]])),
             Tile::new(shape_square(&[[false, true], [true, true]])),

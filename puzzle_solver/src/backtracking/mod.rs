@@ -13,7 +13,7 @@ mod positioned;
 mod pruner;
 
 pub async fn solve_all_filling(
-    board: Board,
+    board: &Board,
     tiles: &[Tile],
     cancel_token: CancellationToken,
 ) -> Result<Solution, UnsolvableReason> {
@@ -44,8 +44,7 @@ pub async fn solve_all_filling(
         &positioned_tiles,
         pruner,
         cancel_token.clone(),
-    )
-    .await;
+    ).await;
 
     match result {
         Some(placements) => Ok(create_solution(
