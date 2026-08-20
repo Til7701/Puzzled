@@ -55,7 +55,7 @@ pub fn delete_community_collection(collection_id: &str) {
 
 fn get_xdg_data_dir() -> PathBuf {
     let xdg_data_dir = glib::user_data_dir();
-    let puzzles_dir = xdg_data_dir.join("../../..").join("community_puzzles");
+    let puzzles_dir = xdg_data_dir.join("puzzled").join("community_puzzles");
     if let Err(e) = std::fs::create_dir_all(&puzzles_dir) {
         error!("Failed to create puzzles directory: {}", e);
     }
