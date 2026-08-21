@@ -1,7 +1,9 @@
 mod positioned;
+mod pruner;
 
 use crate::board::Board;
 use crate::dlx::positioned::PositionedTile;
+use crate::dlx::pruner::Pruner;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
@@ -13,9 +15,10 @@ pub async fn solve_all_filling(
     tiles: &[Tile],
     cancel_token: CancellationToken,
 ) -> Result<Solution, UnsolvableReason> {
+    let pruner = Pruner::new(board, tiles);
     let positioned_tiles: Vec<PositionedTile> = tiles
         .iter()
-        .map(|tile| PositionedTile::new(tile, &board))
+        .map(|tile| PositionedTile::new(tile, &board, &pruner))
         .collect();
     let option_count = board.get_shape().len() + tiles.len();
 
