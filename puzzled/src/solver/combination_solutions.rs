@@ -1,7 +1,7 @@
 use crate::app::puzzle::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
 use crate::solver::Solver;
 use log::{debug, info};
-use puzzled_common::cancellation_token::CancellationToken;
+use puzzle_solver::cancellation_token::CancellationToken;
 use std::collections::HashSet;
 use std::sync::{Arc, RwLock};
 use std::thread;

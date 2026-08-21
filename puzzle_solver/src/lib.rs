@@ -2,10 +2,11 @@ use crate::board::Board;
 use crate::plausibility::check;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
+use cancellation_token::CancellationToken;
 use log::debug;
-use puzzled_common::cancellation_token::CancellationToken;
 
 pub mod board;
+pub mod cancellation_token;
 mod plausibility;
 pub mod result;
 pub mod tile;
@@ -35,7 +36,7 @@ mod dlx;
 /// use puzzle_solver::board::Board;
 /// use puzzle_solver::tile::Tile;
 /// use puzzle_solver::solve_all_filling;
-/// use tokio_util::sync::CancellationToken;
+/// use puzzle_solver::cancellation_token::CancellationToken;
 /// use puzzled_common::shape::shape_square;
 ///
 /// let mut board = Board::new((3, 4));
@@ -46,7 +47,7 @@ mod dlx;
 /// ];
 /// let cancel_token = CancellationToken::new();
 ///
-/// let result = tokio::runtime::Runtime::new().unwrap().block_on(solve_all_filling(board, &tiles, cancel_token));
+/// let result = solve_all_filling(board, &tiles, cancel_token);
 /// assert!(result.is_ok());
 /// ```
 pub fn solve_all_filling(

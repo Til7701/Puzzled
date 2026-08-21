@@ -7,8 +7,8 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{Toast, glib};
 use gtk::prelude::{BoxExt, ButtonExt, WidgetExt};
 use gtk::{Image, Label, Widget};
+use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
-use puzzled_common::cancellation_token::CancellationToken;
 use std::sync::mpsc;
 
 pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;

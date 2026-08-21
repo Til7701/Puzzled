@@ -1,12 +1,12 @@
 mod positioned;
 
 use crate::board::Board;
+use crate::cancellation_token::CancellationToken;
 use crate::dlx::positioned::PositionedTile;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
 use puzzled_common::Shape;
-use puzzled_common::cancellation_token::CancellationToken;
 
 pub fn solve_all_filling(
     board: &Board,
