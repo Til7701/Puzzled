@@ -127,12 +127,6 @@ impl PuzzlePage {
                     build_label("The remaining tiles do not fit on the board!"),
                 ]
             }
-            UnsolvableReason::BoardTooLarge => {
-                vec![
-                    icon,
-                    build_label("The board of this puzzle is too large for the solver!"),
-                ]
-            }
             UnsolvableReason::PlausibilityCheckFailed => {
                 vec![
                     icon,
