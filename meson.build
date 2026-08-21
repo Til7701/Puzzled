@@ -35,7 +35,7 @@ test('cargo-fmt-check',
 
 test('cargo-clippy',
   cargo_bin,
-  args: [ 'clippy' ] + cargo_manifest_path_opt +[ '--', '-D', 'warnings' ],
+  args: [ 'clippy', '--all-targets', '--all-features' ] + cargo_manifest_path_opt +[ '--', '-D', 'warnings' ],
   env: cargo_env,
   timeout: 60000,
 )

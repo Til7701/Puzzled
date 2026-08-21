@@ -113,6 +113,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::bool_comparison)]
     fn test_new_3_4() {
         let board = Board::new((3, 4));
         assert_eq!(board.get_shape().dim(), (3, 4));
@@ -120,6 +121,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::bool_assert_comparison)]
     fn test_trim() {
         let mut board = Board::new((5, 5));
         // Set edges
