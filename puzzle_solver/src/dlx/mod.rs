@@ -37,6 +37,7 @@ pub async fn solve_all_filling(
         }
     }
 
+    solver.select(Opt::Board).map_err(|_| UnsolvableReason::NoFit)?;
     let solution = solver.solve();
     match solution {
         None => { Err(UnsolvableReason::NoFit) }
