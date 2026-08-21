@@ -4,7 +4,7 @@ use crate::config;
 use crate::model::collection::CollectionModel;
 use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::store::community::save_community_collection;
-use adw::gio::{resources_lookup_data, ResourceLookupFlags};
+use adw::gio::{ResourceLookupFlags, resources_lookup_data};
 use log::error;
 use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::cell::RefCell;
@@ -189,10 +189,10 @@ mod tests {
     use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleId};
     use puzzle_solver::board::Board;
     use puzzle_solver::tile::Tile;
+    use puzzled_common::cancellation_token::CancellationToken;
     use std::collections::{HashMap, HashSet};
     use std::fs;
     use std::hash::{DefaultHasher, Hash, Hasher};
-    use tokio_util::sync::CancellationToken;
 
     #[test]
     fn test_load_core_collections() {
@@ -210,8 +210,8 @@ mod tests {
     }
 
     /// Ensures solvability of puzzles in core collections that are not known to be unsolvable or take too long to solve.
-    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
-    async fn test_solve_core_collections() {
+    #[test]
+    fn test_solve_core_collections() {
         let predefined_json_str =
             fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
         let json_loader =
@@ -266,8 +266,7 @@ mod tests {
                             board,
                             &tiles,
                             CancellationToken::new(),
-                        )
-                        .await;
+                        );
                         assert!(
                             result.is_ok(),
                             "Failed to solve puzzle '{}' in collection '{}'",

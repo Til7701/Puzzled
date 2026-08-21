@@ -3,7 +3,7 @@ use crate::plausibility::check;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use log::debug;
-use tokio_util::sync::CancellationToken;
+use puzzled_common::cancellation_token::CancellationToken;
 
 pub mod board;
 mod plausibility;
@@ -49,7 +49,7 @@ mod dlx;
 /// let result = tokio::runtime::Runtime::new().unwrap().block_on(solve_all_filling(board, &tiles, cancel_token));
 /// assert!(result.is_ok());
 /// ```
-pub async fn solve_all_filling(
+pub fn solve_all_filling(
     board: Board,
     tiles: &[Tile],
     cancel_token: CancellationToken,
@@ -62,7 +62,7 @@ pub async fn solve_all_filling(
     let mut board = board;
     let trim_sides = board.trim();
 
-    let result = dlx::solve_all_filling(&board, tiles, cancel_token).await;
+    let result = dlx::solve_all_filling(&board, tiles, cancel_token);
     match &result {
         Ok(solution) => {
             let trim_adjusted_placements: Vec<TilePlacement> = solution
@@ -88,10 +88,9 @@ pub async fn solve_all_filling(
 mod tests {
     use super::*;
     use puzzled_common::shape::shape_square;
-    use tokio_util::sync::CancellationToken;
 
-    #[tokio::test]
-    async fn test_solve_all_filling_success() {
+    #[test]
+    fn test_solve_all_filling_success() {
         let mut board = Board::new((3, 4));
         board[[0, 0]] = true;
         let tiles = vec![
@@ -99,7 +98,7 @@ mod tests {
             Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
         ];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();
@@ -118,8 +117,8 @@ mod tests {
         assert!(placements.contains(&expected_placement_2));
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_success_board_padding() {
+    #[test]
+    fn test_solve_all_filling_success_board_padding() {
         let board = shape_square(&[
             [true, true, true, true, true, true, true],
             [true, true, true, true, true, true, true],
@@ -137,7 +136,7 @@ mod tests {
             Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
         ];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();
@@ -157,8 +156,8 @@ mod tests {
         assert!(placements.contains(&expected_placement_2));
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_success_one_tile() {
+    #[test]
+    fn test_solve_all_filling_success_one_tile() {
         let mut board = Board::new((3, 2));
         board[[1, 0]] = true;
         let tiles = vec![Tile::new(shape_square(&[
@@ -166,7 +165,7 @@ mod tests {
             [true, false, true],
         ]))];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();
@@ -179,41 +178,41 @@ mod tests {
         assert!(placements.contains(&expected_placement_1));
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_failure() {
+    #[test]
+    fn test_solve_all_filling_failure() {
         let board = Board::new((3, 4));
         let tiles = vec![
             Tile::new(shape_square(&[[true, true, true], [false, true, true]])),
             Tile::new(shape_square(&[[true, true, true], [true, true, false]])),
         ];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_no_tiles() {
+    #[test]
+    fn test_solve_all_filling_no_tiles() {
         let board = Board::new((3, 4));
         let tiles = vec![];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_too_few_tiles() {
+    #[test]
+    fn test_solve_all_filling_too_few_tiles() {
         let board = Board::new((3, 4));
         let tiles = vec![Tile::new(shape_square(&[
             [true, true, true],
             [true, true, true],
         ]))];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_too_many_tiles() {
+    #[test]
+    fn test_solve_all_filling_too_many_tiles() {
         let board = Board::new((3, 4));
         let tiles = vec![
             Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
@@ -221,12 +220,12 @@ mod tests {
             Tile::new(shape_square(&[[true, false, true], [true, true, true]])),
         ];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_failure_with_enough_places_filled() {
+    #[test]
+    fn test_solve_all_filling_failure_with_enough_places_filled() {
         let mut board = Board::new((3, 4));
         board[[0, 0]] = true;
         let tiles = vec![
@@ -234,12 +233,12 @@ mod tests {
             Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
         ];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_solved_without_tiles() {
+    #[test]
+    fn test_solve_all_filling_solved_without_tiles() {
         let mut board = Board::new((3, 3));
         for i in 0..3 {
             for j in 0..3 {
@@ -248,14 +247,14 @@ mod tests {
         }
         let tiles = vec![];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_ok());
         let solution = result.unwrap();
         assert!(solution.placements().is_empty());
     }
 
-    #[tokio::test]
-    async fn test_solve_1() {
+    #[test]
+    fn test_solve_1() {
         let board = shape_square(&[
             [true, true, false, false, true],
             [true, true, false, false, true],
@@ -272,7 +271,7 @@ mod tests {
             ])),
         ];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();
@@ -299,19 +298,19 @@ mod tests {
         assert!(placements.contains(&expected_placement_2));
     }
 
-    #[tokio::test]
-    async fn test_solve_tile_can_not_be_placed() {
+    #[test]
+    fn test_solve_tile_can_not_be_placed() {
         let board = shape_square(&[[false, false], [false, false]]).into();
         let tiles = vec![Tile::new(shape_square(&[[true, true, true, true]]))];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
         let error = result.unwrap_err();
         assert_eq!(error, UnsolvableReason::NoFit);
     }
 
-    #[tokio::test]
-    async fn test_solve_all_filling_same_tiles() {
+    #[test]
+    fn test_solve_all_filling_same_tiles() {
         let board = shape_square(&[
             [true, false, false],
             [false, true, false],
@@ -322,7 +321,7 @@ mod tests {
             Tile::new(shape_square(&[[false, true], [true, true]])),
         ];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
+        let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();

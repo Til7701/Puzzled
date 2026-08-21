@@ -6,9 +6,9 @@ use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
 use puzzled_common::Shape;
-use tokio_util::sync::CancellationToken;
+use puzzled_common::cancellation_token::CancellationToken;
 
-pub async fn solve_all_filling(
+pub fn solve_all_filling(
     board: &Board,
     tiles: &[Tile],
     cancel_token: CancellationToken,

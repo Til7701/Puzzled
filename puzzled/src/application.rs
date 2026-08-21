@@ -27,7 +27,7 @@ use adw::gdk::Display;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
-use gtk::{gio, glib, CssProvider, License, Settings, STYLE_PROVIDER_PRIORITY_APPLICATION};
+use gtk::{CssProvider, License, STYLE_PROVIDER_PRIORITY_APPLICATION, Settings, gio, glib};
 use log::info;
 use puzzle_config::ColorConfig;
 use puzzled_common::shape::shape_square;
@@ -35,7 +35,6 @@ use std::fmt::Debug;
 
 mod imp {
     use super::*;
-    use crate::global::runtime::take_runtime;
     use crate::window::PuzzledWindow;
     use std::cell::OnceCell;
 
@@ -97,12 +96,6 @@ mod imp {
                 .downcast_ref::<PuzzledWindow>()
                 .unwrap()
                 .select_first_collection();
-        }
-
-        fn shutdown(&self) {
-            self.parent_shutdown();
-            let runtime = take_runtime();
-            runtime.shutdown_background();
         }
     }
 
