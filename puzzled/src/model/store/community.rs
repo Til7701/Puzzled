@@ -64,7 +64,7 @@ fn get_xdg_puzzles_data_dir() -> PathBuf {
 
 #[cfg(test)]
 mod test {
-    use crate::model::store::community::{delete_community_collection, get_xdg_puzzles_data_dir, load_community_collections, save_community_collection};
+    use crate::model::store::community::*;
     use std::path::PathBuf;
 
     #[test]

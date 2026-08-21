@@ -1,7 +1,7 @@
 mod iterators;
 
 use crate::ShapeType::*;
-use ndarray::{arr2, s, Array2, Axis};
+use ndarray::{Array2, Axis, arr2, s};
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 

@@ -46,7 +46,9 @@ impl ConfigStore {
 
     pub(crate) fn take_boards(&mut self) -> Vec<BoardConfig> {
         let boards: HashMap<String, Board> = take(&mut self.boards);
-        boards.into_values().map(|board| {
+        boards
+            .into_values()
+            .map(|board| {
                 board
                     .convert(&Predefined::default(), &mut Custom::default())
                     .unwrap()

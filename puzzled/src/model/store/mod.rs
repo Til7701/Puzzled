@@ -4,7 +4,7 @@ use crate::config;
 use crate::model::collection::CollectionModel;
 use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::store::community::save_community_collection;
-use adw::gio::{resources_lookup_data, ResourceLookupFlags};
+use adw::gio::{ResourceLookupFlags, resources_lookup_data};
 use log::error;
 use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::cell::RefCell;

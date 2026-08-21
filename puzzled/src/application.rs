@@ -27,7 +27,7 @@ use adw::gdk::Display;
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
-use gtk::{gio, glib, CssProvider, License, Settings, STYLE_PROVIDER_PRIORITY_APPLICATION};
+use gtk::{CssProvider, License, STYLE_PROVIDER_PRIORITY_APPLICATION, Settings, gio, glib};
 use log::info;
 use puzzle_config::ColorConfig;
 use puzzled_common::shape::shape_square;

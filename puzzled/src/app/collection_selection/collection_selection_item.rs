@@ -2,8 +2,8 @@ use crate::model::collection::CollectionModel;
 use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;
-use gtk::prelude::{BoxExt, WidgetExt};
 use gtk::Widget;
+use gtk::prelude::{BoxExt, WidgetExt};
 use puzzle_config::PuzzleDifficultyConfig;
 
 mod imp {
