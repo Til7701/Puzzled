@@ -15,7 +15,7 @@ pub async fn solve_all_filling(
 ) -> Result<Solution, UnsolvableReason> {
     let positioned_tiles: Vec<PositionedTile> = tiles
         .iter()
-        .map(|tile| PositionedTile::new(tile, &board))
+        .map(|tile| PositionedTile::new(tile, board))
         .collect();
     let option_count = board.get_shape().len() + tiles.len();
 
@@ -70,7 +70,7 @@ fn create_solution(
         None => Err(UnsolvableReason::NoFit),
         Some(s) => Ok(Solution::new(
             s.iter()
-                .map(|opt| {
+                .filter_map(|opt| {
                     if let Opt::Tile {
                         tile_index,
                         position_index,
@@ -89,7 +89,6 @@ fn create_solution(
                         None
                     }
                 })
-                .flatten()
                 .collect(),
         )),
     }
