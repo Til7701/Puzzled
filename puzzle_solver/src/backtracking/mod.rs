@@ -32,9 +32,7 @@ pub async fn solve_all_filling(
     for (i, positioned_tile) in positioned_tiles.iter().enumerate() {
         if positioned_tile.bitmasks().is_empty() {
             debug!("Tile cannot be placed on the board in any orientation.");
-            return Err(UnsolvableReason::TileCannotBePlaced {
-                base: tiles[i].base().clone(),
-            });
+            return Err(UnsolvableReason::NoFit);
         }
     }
 

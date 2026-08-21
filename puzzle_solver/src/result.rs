@@ -64,9 +64,6 @@ impl TilePlacement {
 pub enum UnsolvableReason {
     NoFit,
     PlausibilityCheckFailed,
-    TileCannotBePlaced {
-        base: Shape,
-    },
     BoardTooLarge,
     /// Indicates that the solving process was canceled before a solution could be found.
     Cancelled,

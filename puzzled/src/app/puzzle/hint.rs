@@ -4,7 +4,7 @@ use crate::model::extension::PuzzleTypeExtension;
 use crate::solver::Solver;
 use adw::prelude::Cast;
 use adw::subclass::prelude::ObjectSubclassIsExt;
-use adw::{glib, Toast};
+use adw::{Toast, glib};
 use gtk::prelude::{BoxExt, ButtonExt, WidgetExt};
 use gtk::{Image, Label, Widget};
 use puzzle_solver::result::{Solution, UnsolvableReason};
@@ -131,14 +131,6 @@ impl PuzzlePage {
                 vec![
                     icon,
                     build_label("The board of this puzzle is too large for the solver!"),
-                ]
-            }
-            UnsolvableReason::TileCannotBePlaced { .. } => {
-                vec![
-                    icon,
-                    build_label(
-                        "At least one of the remaining tiles does not fit in the remaining space!",
-                    ),
                 ]
             }
             UnsolvableReason::PlausibilityCheckFailed => {

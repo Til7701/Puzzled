@@ -324,12 +324,7 @@ mod tests {
         let result = solve_all_filling(board, &tiles, CancellationToken::new()).await;
         assert!(result.is_err());
         let error = result.unwrap_err();
-        assert_eq!(
-            error,
-            UnsolvableReason::TileCannotBePlaced {
-                base: shape_square(&[[true, true, true, true]]),
-            }
-        );
+        assert_eq!(error, UnsolvableReason::NoFit);
     }
 
     #[tokio::test]
