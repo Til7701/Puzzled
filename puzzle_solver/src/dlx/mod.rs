@@ -5,7 +5,6 @@ use crate::dlx::positioned::PositionedTile;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
-use log::debug;
 use puzzled_common::Shape;
 use tokio_util::sync::CancellationToken;
 
@@ -18,16 +17,14 @@ pub async fn solve_all_filling(
         .iter()
         .map(|tile| PositionedTile::new(tile, &board))
         .collect();
-    let option_count = positioned_tiles.iter()
-        .map(|positioned_tile| positioned_tile.all_placements().len())
-        .sum();
+    let option_count = board.get_shape().len() + tiles.len();
 
     let mut solver = Solver::new(option_count);
-    // solver.add_option(Opt::Board, &board.get_shape().iter().enumerate()
-    //     .filter(|(_, v)| **v)
-    //     .map(|(i, _)| positioned_tiles.len() + i + 1)
-    //     .collect::<Vec<usize>>(),
-    // );
+    solver.add_option(Opt::Board, &board.get_shape().iter().enumerate()
+        .filter(|(_, v)| **v)
+        .map(|(i, _)| positioned_tiles.len() + i + 1)
+        .collect::<Vec<usize>>(),
+    );
 
     for (tile_index, positioned_tile) in positioned_tiles.iter().enumerate() {
         for (position_index, placement) in positioned_tile.all_placements().iter().enumerate() {
@@ -35,13 +32,12 @@ pub async fn solve_all_filling(
                 tile_index,
                 position_index,
             };
-            solver.add_option(Opt::Tile(opt), &shape_to_filled_indices(placement, tile_index, positioned_tiles.len()));
+            let indices = shape_to_filled_indices(placement, tile_index, positioned_tiles.len());
+            solver.add_option(Opt::Tile(opt), &indices);
         }
     }
 
-    debug!("Solver: {}", solver);
     let solution = solver.solve();
-    debug!("Solution: {:?}", solution);
     match solution {
         None => { Err(UnsolvableReason::NoFit) }
         Some(s) => {
