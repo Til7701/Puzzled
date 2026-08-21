@@ -1,4 +1,3 @@
-use crate::bitmask::Bitmask;
 use crate::board::Board;
 use crate::plausibility::check;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
@@ -6,8 +5,6 @@ use crate::tile::Tile;
 use log::debug;
 use tokio_util::sync::CancellationToken;
 
-mod backtracking;
-mod bitmask;
 pub mod board;
 mod plausibility;
 pub mod result;
@@ -65,21 +62,7 @@ pub async fn solve_all_filling(
     let mut board = board;
     let trim_sides = board.trim();
 
-    if board.get_shape().iter().filter(|c| !*c).count() > Bitmask::max_bits() {
-        debug!("Board too large for bitmask representation.");
-        return Err(UnsolvableReason::BoardTooLarge);
-    }
-
-    let result = tokio::select! {
-        res = backtracking::solve_all_filling(&board, tiles, cancel_token.clone()) => {
-            debug!("Backtracking solver finished.");
-            res
-        }
-        res = dlx::solve_all_filling(&board, tiles, cancel_token) => {
-            debug!("DLX solver finished.");
-            res
-        }
-    };
+    let result = dlx::solve_all_filling(&board, tiles, cancel_token).await;
     match &result {
         Ok(solution) => {
             let trim_adjusted_placements: Vec<TilePlacement> = solution
@@ -357,30 +340,5 @@ mod tests {
             (0, 1),
         );
         assert!(placements.contains(&expected_placement_2));
-    }
-
-    #[tokio::test]
-    async fn test_solve_all_filling_too_large_board() {
-        // Increase board size if test fails after increasing the max bits in Bitmask
-        let board = Board::new((100, 10));
-        let mut tiles = Vec::with_capacity(100);
-        for _ in 0..100 {
-            tiles.push(Tile::new(shape_square(&[
-                [true, true, true, true, true],
-                [true, true, true, true, true],
-            ])));
-        }
-
-        let result: Result<Solution, UnsolvableReason> = tokio::select! {
-            result = solve_all_filling(board, &tiles, CancellationToken::new()) => result,
-            _ = tokio::time::sleep(std::time::Duration::from_secs(10)) => {
-                panic!("Test timed out, this might be because the bitmask size exceeded the board size in this test. Increase the board size in this test and try again.")
-            }
-        };
-        assert!(result.is_err());
-        assert_eq!(
-            result.expect_err("Expected Error"),
-            UnsolvableReason::BoardTooLarge
-        );
     }
 }
