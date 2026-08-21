@@ -28,12 +28,12 @@ pub async fn solve_all_filling(
 
     for (tile_index, positioned_tile) in positioned_tiles.iter().enumerate() {
         for (position_index, placement) in positioned_tile.all_placements().iter().enumerate() {
-            let opt = PositionedTileOpt {
+            let opt = Opt::Tile {
                 tile_index,
                 position_index,
             };
             let indices = shape_to_filled_indices(placement, tile_index, positioned_tiles.len());
-            solver.add_option(Opt::Tile(opt), &indices);
+            solver.add_option(opt, &indices);
         }
     }
 
@@ -44,9 +44,9 @@ pub async fn solve_all_filling(
         Some(s) => {
             Ok(Solution::new(s.iter()
                 .map(|opt| {
-                    if let Opt::Tile(opt) = opt {
-                        let tile = &tiles[opt.tile_index];
-                        let mut placed_tile = positioned_tiles[opt.tile_index].all_placements()[opt.position_index].clone();
+                    if let Opt::Tile { tile_index, position_index } = opt {
+                        let tile = &tiles[*tile_index];
+                        let mut placed_tile = positioned_tiles[*tile_index].all_placements()[*position_index].clone();
                         let trim = placed_tile.trim_matching(false);
                         Some(TilePlacement::new(
                             tile.base.clone(),
@@ -76,11 +76,8 @@ fn shape_to_filled_indices(shape: &Shape, tile_index: usize, max_tile_index: usi
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Opt {
     Board,
-    Tile(PositionedTileOpt),
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct PositionedTileOpt {
-    tile_index: usize,
-    position_index: usize,
+    Tile {
+        tile_index: usize,
+        position_index: usize,
+    },
 }
