@@ -39,7 +39,10 @@ pub async fn solve_all_filling(
     solver
         .select(Opt::Board)
         .map_err(|_| UnsolvableReason::NoFit)?;
-    let solution = solver.solve();
+    let solution = solver.solve_cancelable(&|| cancel_token.is_cancelled());
+    if cancel_token.is_cancelled() {
+        return Err(UnsolvableReason::Cancelled);
+    }
     create_solution(&tiles, &positioned_tiles, solution)
 }
 

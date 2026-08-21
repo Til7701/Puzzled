@@ -24,4 +24,4 @@ serde_json = { version = "1.0.150" }
 semver = "1.0.28"
 regex = "1.12.4"
 rand = "0.10.1"
-dlx-rs = "1.3.0"
+dlx-rs = { git = "https://github.com/Til7701/dlx-rs", rev = "07db398a1282d8248e2bf19536c0ae75fdfc4f60" }
