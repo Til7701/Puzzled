@@ -188,11 +188,11 @@ mod tests {
     use super::*;
     use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleId};
     use puzzle_solver::board::Board;
+    use puzzle_solver::cancellation_token::CancellationToken;
     use puzzle_solver::tile::Tile;
     use std::collections::{HashMap, HashSet};
     use std::fs;
     use std::hash::{DefaultHasher, Hash, Hasher};
-    use tokio_util::sync::CancellationToken;
 
     #[test]
     fn test_load_core_collections() {
@@ -209,8 +209,8 @@ mod tests {
     }
 
     /// Ensures solvability of puzzles in core collections that are not known to be unsolvable or take too long to solve.
-    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
-    async fn test_solve_core_collections() {
+    #[test]
+    fn test_solve_core_collections() {
         let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
@@ -264,8 +264,7 @@ mod tests {
                             board,
                             &tiles,
                             CancellationToken::new(),
-                        )
-                        .await;
+                        );
                         assert!(
                             result.is_ok(),
                             "Failed to solve puzzle '{}' in collection '{}'",

@@ -35,7 +35,6 @@ use std::fmt::Debug;
 
 mod imp {
     use super::*;
-    use crate::global::runtime::take_runtime;
     use crate::window::PuzzledWindow;
     use std::cell::OnceCell;
 
@@ -97,12 +96,6 @@ mod imp {
                 .downcast_ref::<PuzzledWindow>()
                 .unwrap()
                 .select_first_collection();
-        }
-
-        fn shutdown(&self) {
-            self.parent_shutdown();
-            let runtime = take_runtime();
-            runtime.shutdown_background();
         }
     }
 

@@ -1,14 +1,14 @@
 mod positioned;
 
 use crate::board::Board;
+use crate::cancellation_token::CancellationToken;
 use crate::dlx::positioned::PositionedTile;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
 use puzzled_common::Shape;
-use tokio_util::sync::CancellationToken;
 
-pub async fn solve_all_filling(
+pub fn solve_all_filling(
     board: &Board,
     tiles: &[Tile],
     cancel_token: CancellationToken,
