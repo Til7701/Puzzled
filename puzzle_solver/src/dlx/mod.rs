@@ -13,6 +13,7 @@ use puzzled_common::Shape;
 use std::num::NonZero;
 use std::thread;
 use std::thread::JoinHandle;
+use std::time::Duration;
 
 pub fn solve_all_filling(
     board: &Board,
@@ -44,6 +45,9 @@ pub fn solve_all_filling(
     Ok(create_solution(&tiles, &positioned_tiles, solution?))
 }
 
+/// Prepares the solver with all placements of all tiles except the tile with the most options
+/// indicated by the `index_with_most_options` argument.
+/// This also adds and selects the board.
 fn prepare_solver(board: &Board, positioned_tiles: &[PositionedTile], index_with_most_options: usize) -> Result<Solver<Opt>, UnsolvableReason> {
     let option_count = board.get_shape().len() + positioned_tiles.len();
     let mut solver = Solver::new(option_count);
@@ -78,24 +82,28 @@ fn run_multithreaded(solver: Solver<Opt>, cancel_token: &CancellationToken, max_
             let mut solver = solver.clone();
             let cancel_token = cancel_token.clone();
             let chunk = chunk.iter().cloned().collect::<Vec<Shape>>();
+            let main_thread = thread::current();
             move || {
                 add_placements(&mut solver, &chunk, index_with_most_options, max_tile_index, chunk_size * i);
-                solver.solve_cancelable(&|| cancel_token.is_cancelled()).ok_or(UnsolvableReason::NoFit)
+                let result = solver.solve_cancelable(&|| cancel_token.is_cancelled()).ok_or(UnsolvableReason::NoFit);
+                main_thread.unpark();
+                result
             }
         });
         join_handles.push(join_handle);
     }
 
-    let mut solution = Err(UnsolvableReason::NoFit);
-    for join_handle in join_handles {
-        let result = join_handle.join().map_err(|_| UnsolvableReason::NoFit).flatten();
-        if let Ok(s) = result {
-            debug!("Found Solution");
-            solution = Ok(s);
-            break;
+    while !join_handles.is_empty() {
+        for finished_handle in join_handles.extract_if(.., |join_handle| join_handle.is_finished()) {
+            let result = finished_handle.join().map_err(|_| UnsolvableReason::NoFit).flatten();
+            if let Ok(s) = result {
+                return Ok(s);
+            }
         }
+        // park_timeout to avoid any shenanigans with the unpark being timed wrongly.
+        thread::park_timeout(Duration::from_millis(200));
     }
-    solution
+    Err(UnsolvableReason::NoFit)
 }
 
 fn add_placements(solver: &mut Solver<Opt>, placements: &[Shape], tile_index: usize, max_tile_index: usize, position_index_offset: usize) {
