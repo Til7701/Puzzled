@@ -8,6 +8,7 @@ use crate::dlx::pruner::Pruner;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
+use log::debug;
 use puzzled_common::Shape;
 use std::num::NonZero;
 use std::thread;
@@ -18,18 +19,22 @@ pub fn solve_all_filling(
     tiles: &[Tile],
     cancel_token: CancellationToken,
 ) -> Result<Solution, UnsolvableReason> {
+    if tiles.is_empty() {
+        return Ok(Solution::new(vec![]));
+    }
     let pruner = Pruner::new(board, tiles);
     let positioned_tiles: Vec<PositionedTile> = tiles
         .iter()
         .map(|tile| PositionedTile::new(tile, &board, &pruner))
         .collect();
+    debug!("Created positioned tiles");
     let index_with_most_options = positioned_tiles.iter().enumerate()
         .max_by(|(_, t1), (_, t2)| t1.all_placements().len().cmp(&t2.all_placements().len()))
         .map(|(i, _)| i)
         .unwrap_or(0);
 
     let solver = prepare_solver(board, &positioned_tiles, index_with_most_options)?;
-
+    debug!("Solver prepared");
     let tile_with_most_options = &positioned_tiles[index_with_most_options];
     let solution = run_multithreaded(solver, &cancel_token, positioned_tiles.len(), index_with_most_options, tile_with_most_options);
 
@@ -61,10 +66,13 @@ fn prepare_solver(board: &Board, positioned_tiles: &[PositionedTile], index_with
 }
 
 fn run_multithreaded(solver: Solver<Opt>, cancel_token: &CancellationToken, max_tile_index: usize, index_with_most_options: usize, tile_with_most_options: &PositionedTile) -> Result<Vec<Opt>, UnsolvableReason> {
-    let parallelism = thread::available_parallelism().unwrap_or(NonZero::new(4).unwrap());
-    let chunk_size = (tile_with_most_options.all_placements().len() / parallelism).max(1);
-    thread::scope(|scope| {
+    let desired_parallelism = (thread::available_parallelism().unwrap_or(NonZero::new(4).unwrap()).get() as f64 * 0.8) as usize;
+    debug!("Desired parallelism: {}", desired_parallelism);
+    let chunk_size = (tile_with_most_options.all_placements().len() / desired_parallelism).max(5);
+    debug!("Chunk size: {}", chunk_size);
+    let solution = thread::scope(|scope| {
         let chunks = tile_with_most_options.all_placements().chunks(chunk_size);
+        debug!("Chunks: {:?}", chunks.len());
         let mut join_handles: Vec<ScopedJoinHandle<Result<Vec<Opt>, UnsolvableReason>>> = Vec::with_capacity(chunks.len());
         for (i, chunk) in chunks.into_iter().enumerate() {
             let join_handle = scope.spawn({
@@ -78,17 +86,19 @@ fn run_multithreaded(solver: Solver<Opt>, cancel_token: &CancellationToken, max_
             join_handles.push(join_handle);
         }
 
-        let mut solution: Result<Vec<Opt>, UnsolvableReason> = Err(UnsolvableReason::NoFit);
+        let mut solution = Err(UnsolvableReason::NoFit);
         for join_handle in join_handles {
-            let result = join_handle.join().map_err(|_| UnsolvableReason::NoFit);
-            if result.is_ok() {
-                cancel_token.cancel();
-                solution = result?;
+            let result = join_handle.join().map_err(|_| UnsolvableReason::NoFit).flatten();
+            if let Ok(s) = result {
+                debug!("Found Solution");
+                solution = Ok(s);
                 break;
             }
         }
         solution
-    })
+    });
+    debug!("Scope left");
+    solution
 }
 
 fn add_placements(solver: &mut Solver<Opt>, placements: &[Shape], tile_index: usize, max_tile_index: usize, position_index_offset: usize) {
