@@ -109,7 +109,7 @@ fn run_multithreaded(
         let join_handle = thread::spawn({
             let mut solver = solver.clone();
             let cancel_token = cancel_token.clone();
-            let chunk = chunk.iter().cloned().collect::<Vec<Shape>>();
+            let chunk = chunk.to_vec();
             let main_thread = thread::current();
             move || {
                 add_placements(
@@ -187,7 +187,7 @@ fn create_solution(
     Solution::new(
         solution
             .iter()
-            .map(|opt| {
+            .filter_map(|opt| {
                 if let Opt::Tile {
                     tile_index,
                     position_index,
@@ -206,7 +206,6 @@ fn create_solution(
                     None
                 }
             })
-            .flatten()
             .collect(),
     )
 }
