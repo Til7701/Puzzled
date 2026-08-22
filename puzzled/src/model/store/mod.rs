@@ -196,8 +196,7 @@ mod tests {
 
     #[test]
     fn test_load_core_collections() {
-        let predefined_json_str =
-            fs::read_to_string("resources/predefined.json").unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
@@ -212,8 +211,7 @@ mod tests {
     /// Ensures solvability of puzzles in core collections that are not known to be unsolvable or take too long to solve.
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
     async fn test_solve_core_collections() {
-        let predefined_json_str =
-            fs::read_to_string("resources/predefined.json").unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
@@ -267,7 +265,7 @@ mod tests {
                             &tiles,
                             CancellationToken::new(),
                         )
-                            .await;
+                        .await;
                         assert!(
                             result.is_ok(),
                             "Failed to solve puzzle '{}' in collection '{}'",
@@ -292,8 +290,7 @@ mod tests {
     /// Ensures unique collection ids
     #[test]
     fn test_core_collections_ids() {
-        let predefined_json_str =
-            fs::read_to_string("resources/predefined.json").unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
@@ -318,8 +315,7 @@ mod tests {
     /// Ensures unique puzzle names in collections
     #[test]
     fn test_core_collections_names() {
-        let predefined_json_str =
-            fs::read_to_string("resources/predefined.json").unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
@@ -344,8 +340,7 @@ mod tests {
     /// Ensures unique puzzle ids in collections
     #[test]
     fn test_core_collections_unique_puzzles() {
-        let predefined_json_str =
-            fs::read_to_string("resources/predefined.json").unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
