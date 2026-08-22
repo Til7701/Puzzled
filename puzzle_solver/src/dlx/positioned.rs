@@ -1,4 +1,5 @@
 use crate::board::Board;
+use crate::dlx::pruner::Pruner;
 use crate::tile::Tile;
 use puzzled_common::Shape;
 
@@ -24,11 +25,12 @@ impl PositionedTile {
     /// * `board`: The Board on which the Tile will be placed.
     ///
     /// returns: PositionedTile
-    pub(crate) fn new(tile: &Tile, board: &Board) -> Self {
+    pub(crate) fn new(tile: &Tile, board: &Board, pruner: &Pruner) -> Self {
         let all_placements: Vec<Shape> = tile
             .all_rotations
             .iter()
             .flat_map(|rotation| board.get_shape().place_on_all_positions(rotation))
+            .filter(|shape| !pruner.prune_positioned_tile_with_board(shape))
             .map(|array| {
                 let mut array = array.clone();
                 array.remove_parent(board.get_shape());
