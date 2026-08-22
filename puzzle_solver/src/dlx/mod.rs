@@ -23,16 +23,15 @@ pub fn solve_all_filling(
         .iter()
         .map(|tile| PositionedTile::new(tile, &board, &pruner))
         .collect();
-    let option_count = board.get_shape().len() + positioned_tiles.len();
     let index_with_most_options = positioned_tiles.iter().enumerate()
         .max_by(|(_, t1), (_, t2)| t1.all_placements().len().cmp(&t2.all_placements().len()))
         .map(|(i, _)| i)
         .unwrap_or(0);
 
-    let solver = prepare_solver(board, &positioned_tiles, option_count, index_with_most_options)?;
+    let solver = prepare_solver(board, &positioned_tiles, index_with_most_options)?;
 
     let tile_with_most_options = &positioned_tiles[index_with_most_options];
-    let solution = run_multithreaded(solver, &cancel_token, option_count, index_with_most_options, tile_with_most_options);
+    let solution = run_multithreaded(solver, &cancel_token, positioned_tiles.len(), index_with_most_options, tile_with_most_options);
 
     if solution.is_err() && cancel_token.is_cancelled() {
         return Err(UnsolvableReason::Cancelled);
@@ -40,7 +39,8 @@ pub fn solve_all_filling(
     Ok(create_solution(&tiles, &positioned_tiles, solution?))
 }
 
-fn prepare_solver(board: &Board, positioned_tiles: &[PositionedTile], option_count: usize, index_with_most_options: usize) -> Result<Solver<Opt>, UnsolvableReason> {
+fn prepare_solver(board: &Board, positioned_tiles: &[PositionedTile], index_with_most_options: usize) -> Result<Solver<Opt>, UnsolvableReason> {
+    let option_count = board.get_shape().len() + positioned_tiles.len();
     let mut solver = Solver::new(option_count);
     solver.add_option(
         Opt::Board,
@@ -51,7 +51,7 @@ fn prepare_solver(board: &Board, positioned_tiles: &[PositionedTile], option_cou
         if tile_index == index_with_most_options {
             continue;
         }
-        add_placements(&mut solver, positioned_tile.all_placements(), tile_index, option_count, 0);
+        add_placements(&mut solver, positioned_tile.all_placements(), tile_index, positioned_tiles.len(), 0);
     }
 
     solver
@@ -60,9 +60,9 @@ fn prepare_solver(board: &Board, positioned_tiles: &[PositionedTile], option_cou
     Ok(solver)
 }
 
-fn run_multithreaded(solver: Solver<Opt>, cancel_token: &CancellationToken, option_count: usize, index_with_most_options: usize, tile_with_most_options: &PositionedTile) -> Result<Vec<Opt>, UnsolvableReason> {
+fn run_multithreaded(solver: Solver<Opt>, cancel_token: &CancellationToken, max_tile_index: usize, index_with_most_options: usize, tile_with_most_options: &PositionedTile) -> Result<Vec<Opt>, UnsolvableReason> {
     let parallelism = thread::available_parallelism().unwrap_or(NonZero::new(4).unwrap());
-    let chunk_size = tile_with_most_options.all_placements().len() / parallelism;
+    let chunk_size = (tile_with_most_options.all_placements().len() / parallelism).max(1);
     thread::scope(|scope| {
         let chunks = tile_with_most_options.all_placements().chunks(chunk_size);
         let mut join_handles: Vec<ScopedJoinHandle<Result<Vec<Opt>, UnsolvableReason>>> = Vec::with_capacity(chunks.len());
@@ -71,7 +71,7 @@ fn run_multithreaded(solver: Solver<Opt>, cancel_token: &CancellationToken, opti
                 let mut solver = solver.clone();
                 let cancel_token = cancel_token.clone();
                 move || {
-                    add_placements(&mut solver, chunk, index_with_most_options, option_count, chunk_size * i);
+                    add_placements(&mut solver, chunk, index_with_most_options, max_tile_index, chunk_size * i);
                     solver.solve_cancelable(&|| cancel_token.is_cancelled()).ok_or(UnsolvableReason::NoFit)
                 }
             });
@@ -91,18 +91,18 @@ fn run_multithreaded(solver: Solver<Opt>, cancel_token: &CancellationToken, opti
     })
 }
 
-fn add_placements(solver: &mut Solver<Opt>, placements: &[Shape], tile_index: usize, option_count: usize, position_index_offset: usize) {
+fn add_placements(solver: &mut Solver<Opt>, placements: &[Shape], tile_index: usize, max_tile_index: usize, position_index_offset: usize) {
     for (position_index, placement) in placements.iter().enumerate() {
         solver.add_option(Opt::Tile {
             tile_index,
             position_index: position_index_offset + position_index,
-        }, &tile_to_filled_indices(placement, tile_index, option_count));
+        }, &tile_to_filled_indices(placement, tile_index, max_tile_index));
     }
 }
 
 fn tile_to_filled_indices(tile: &Shape, tile_index: usize, max_tile_index: usize) -> Vec<usize> {
     let mut tile_indices = shape_to_filled_indices(tile, max_tile_index);
-    tile_indices.push(tile_index + 1);
+    tile_indices.insert(0, tile_index + 1);
     tile_indices
 }
 
