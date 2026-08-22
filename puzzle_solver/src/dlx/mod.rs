@@ -146,6 +146,10 @@ fn run_multithreaded(
     Err(UnsolvableReason::NoFit)
 }
 
+/// Adds the given placements to the solver.
+/// The given placement shapes have to be a consecutive slice of the original placements
+/// list for the tile with the given index. The position index offset is original index of the
+/// first placement in the slice.
 fn add_placements(
     solver: &mut Solver<Opt>,
     placements: &[Shape],
@@ -164,12 +168,15 @@ fn add_placements(
     }
 }
 
+/// Creates a list of indices where the tile has cells and prepends the list with the index of
+/// the tile. This list can be given to the DLX solver.
 fn tile_to_filled_indices(tile: &Shape, tile_index: usize, max_tile_index: usize) -> Vec<usize> {
     let mut tile_indices = shape_to_filled_indices(tile, max_tile_index);
     tile_indices.insert(0, tile_index + 1);
     tile_indices
 }
 
+/// Creates a list of indices where the shape is true.
 fn shape_to_filled_indices(shape: &Shape, index_offset: usize) -> Vec<usize> {
     shape
         .iter()
