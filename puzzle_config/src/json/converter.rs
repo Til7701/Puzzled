@@ -4,9 +4,9 @@ use crate::config::preview::PreviewConfig;
 use crate::json::model::*;
 use crate::json::predefined::{Custom, Predefined};
 use crate::{
-    validation, AreaConfig, AreaValueFormatter, BoardConfig, ProgressionConfig,
-    PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate,
-    TileConfig,
+    AreaConfig, AreaValueFormatter, BoardConfig, ProgressionConfig, PuzzleConfig,
+    PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate, TileConfig,
+    validation,
 };
 use ndarray::Array2;
 use puzzled_common::Shape;

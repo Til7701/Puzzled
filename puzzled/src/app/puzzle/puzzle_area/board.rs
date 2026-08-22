@@ -4,8 +4,8 @@ use crate::model::extension::PuzzleTypeExtension;
 use crate::offset::PixelOffset;
 use adw::prelude::Cast;
 use adw::subclass::prelude::ObjectSubclassIsExt;
-use gtk::prelude::{FixedExt, GridExt, WidgetExt};
 use gtk::Widget;
+use gtk::prelude::{FixedExt, GridExt, WidgetExt};
 use puzzle_config::{PuzzleConfig, TargetIndex};
 
 const TARGET_SELECTION_CLASS: &str = "target-selection";

@@ -15,8 +15,8 @@ mod imp {
     use super::*;
     use crate::app::components::info_pill::InfoPill;
     use crate::model::puzzle::PuzzleModel;
-    use adw::glib::subclass::Signal;
     use adw::glib::VariantTy;
+    use adw::glib::subclass::Signal;
     use std::cell::RefCell;
     use std::sync::OnceLock;
 
