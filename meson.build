@@ -21,7 +21,7 @@ cargo_env  = [ 'CARGO_HOME=' + meson.project_build_root() / 'puzzled' / 'cargo-h
 
 test('cargo-test',
   cargo_bin,
-  args: [ 'test' ] + cargo_manifest_path_opt + cargo_target_dir_opt,
+  args: [ 'test', '--locked' ] + cargo_manifest_path_opt + cargo_target_dir_opt,
   env: cargo_env,
   timeout: 600000,
 )
