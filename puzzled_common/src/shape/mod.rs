@@ -1056,7 +1056,7 @@ mod test {
         let child = shape_square(&[[true, false], [false, true]]);
         let placements = parent.place_on_all_positions(&child);
         assert_eq!(placements.len(), 1);
-        assert!(placements.contains(&shape_square(&[[true, false], [false, true], ])));
+        assert!(placements.contains(&shape_square(&[[true, false], [false, true],])));
     }
 
     #[test]

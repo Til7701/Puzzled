@@ -20,9 +20,7 @@ impl Pruner {
             .min()
             .unwrap_or(0);
 
-        Pruner {
-            min_tile_size
-        }
+        Pruner { min_tile_size }
     }
 
     /// This method takes a shape where one tile or more have been placed and determines, whether
