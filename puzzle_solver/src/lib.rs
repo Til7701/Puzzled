@@ -7,10 +7,10 @@ use log::debug;
 
 pub mod board;
 pub mod cancellation_token;
+mod dlx;
 mod plausibility;
 pub mod result;
 pub mod tile;
-mod dlx;
 
 /// Tries to place all given tiles on the board, filling it completely.
 /// If successful, returns a Solution; otherwise, returns an UnsolvableReason.
@@ -131,7 +131,8 @@ mod tests {
             [true, true, true, true, true, true, true],
             [true, true, true, true, true, true, true],
             [true, true, true, true, true, true, true],
-        ]).into();
+        ])
+        .into();
         let tiles = vec![
             Tile::new(shape_square(&[[true, true, true], [true, true, false]])),
             Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
@@ -262,7 +263,8 @@ mod tests {
             [true, true, true, false, false],
             [true, false, false, true, true],
             [false, false, false, true, true],
-        ]).into();
+        ])
+        .into();
         let tiles = vec![
             Tile::new(shape_square(&[[false, true, true], [true, true, true]])),
             Tile::new(shape_square(&[
@@ -316,7 +318,8 @@ mod tests {
             [true, false, false],
             [false, true, false],
             [false, false, true],
-        ]).into();
+        ])
+        .into();
         let tiles = vec![
             Tile::new(shape_square(&[[false, true], [true, true]])),
             Tile::new(shape_square(&[[false, true], [true, true]])),

@@ -26,7 +26,7 @@ pub fn solve_all_filling(
     let pruner = Pruner::new(board, tiles);
     let positioned_tiles: Vec<PositionedTile> = tiles
         .iter()
-        .map(|tile| PositionedTile::new(tile, &board, &pruner))
+        .map(|tile| PositionedTile::new(tile, board, &pruner))
         .collect();
     debug!("Created positioned tiles");
     let index_with_most_options = positioned_tiles.iter().enumerate()

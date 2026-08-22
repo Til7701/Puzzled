@@ -65,3 +65,9 @@ impl CancellationToken {
         self.cancelled.load(Ordering::Relaxed)
     }
 }
+
+impl Default for CancellationToken {
+    fn default() -> Self {
+        CancellationToken::new()
+    }
+}

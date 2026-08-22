@@ -43,4 +43,10 @@ jobs:
           bundle: de.til7701.Puzzled_${{ github.sha }}_${{ matrix.arch }}.flatpak
       - name: Run Lint on Repo
         run: |
-          flatpak-builder-lint repo repo || true
+          # Exclude some errors as they only appear in the Actions Build. 
+          # They usually aren't a problem with FlatHub builds.
+          echo '{"de.til7701.Puzzled": [
+            "appstream-screenshots-not-mirrored-in-ostree",
+            "appstream-external-screenshot-url"
+          ]}' >> exceptions.json
+          flatpak-builder-lint --exceptions --user-exceptions exceptions.json repo repo

@@ -6,8 +6,8 @@ use adw::prelude::{
 };
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppearance};
-use gtk::prelude::{ButtonExt, WidgetExt};
 use gtk::StringList;
+use gtk::prelude::{ButtonExt, WidgetExt};
 use ndarray::Array2;
 use puzzle_config::{AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
 

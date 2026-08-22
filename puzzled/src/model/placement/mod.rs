@@ -30,8 +30,8 @@ mod imp {
     use crate::model::placement::grid::GridConfig;
     use crate::model::placement::tile::PlacedTile;
     use crate::offset::PixelOffset;
-    use adw::glib::subclass::Signal;
     use adw::glib::Properties;
+    use adw::glib::subclass::Signal;
     use std::cell::{Cell, RefCell};
     use std::sync::OnceLock;
 

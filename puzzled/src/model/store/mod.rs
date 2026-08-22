@@ -196,14 +196,13 @@ mod tests {
 
     #[test]
     fn test_load_core_collections() {
-        let predefined_json_str =
-            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(format!("resources/puzzles/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
             assert!(!collection.puzzles().is_empty());
         }
@@ -212,8 +211,7 @@ mod tests {
     /// Ensures solvability of puzzles in core collections that are not known to be unsolvable or take too long to solve.
     #[test]
     fn test_solve_core_collections() {
-        let predefined_json_str =
-            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
@@ -226,7 +224,7 @@ mod tests {
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(format!("resources/puzzles/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
 
             for puzzle in collection.puzzles() {
@@ -291,14 +289,13 @@ mod tests {
     /// Ensures unique collection ids
     #[test]
     fn test_core_collections_ids() {
-        let predefined_json_str =
-            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(format!("resources/puzzles/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
             assert!(!collection.puzzles().is_empty());
             let mut set: HashSet<PuzzleId> = HashSet::new();
@@ -317,14 +314,13 @@ mod tests {
     /// Ensures unique puzzle names in collections
     #[test]
     fn test_core_collections_names() {
-        let predefined_json_str =
-            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(format!("resources/puzzles/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
             assert!(!collection.puzzles().is_empty());
             let mut set: HashSet<&str> = HashSet::new();
@@ -343,15 +339,14 @@ mod tests {
     /// Ensures unique puzzle ids in collections
     #[test]
     fn test_core_collections_unique_puzzles() {
-        let predefined_json_str =
-            fs::read_to_string(&"resources/predefined.json".to_string()).unwrap();
+        let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         let mut set: HashMap<u64, String> = HashMap::new();
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
-                fs::read_to_string(&format!("resources/puzzles/{}.json", collection_name)).unwrap();
+                fs::read_to_string(format!("resources/puzzles/{}.json", collection_name)).unwrap();
             let collection = json_loader.load_puzzle_collection(&json).unwrap();
             for puzzle in collection.puzzles() {
                 let puzzle_identifier = format!("{}:{}", collection_name, puzzle.id());

@@ -21,7 +21,7 @@ run_command(
 )
 
 cargo_bin  = find_program('cargo')
-cargo_opt  = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml', '--package', 'puzzled' ]
+cargo_opt  = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml', '--locked', '--package', 'puzzled' ]
 cargo_opt += [ '--target-dir', meson.project_build_root() / 'puzzled' / 'src' ]
 cargo_env  = [ 'CARGO_HOME=' + meson.project_build_root() / 'puzzled' / 'cargo-home' ]
 

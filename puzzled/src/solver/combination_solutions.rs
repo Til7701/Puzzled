@@ -29,17 +29,12 @@ impl CombinationsSolver {
         thread::spawn({
             let self_clone = self.clone();
             move || {
-                self_clone
-                    .find_solutions(puzzle_state, cancellation_token);
+                self_clone.find_solutions(puzzle_state, cancellation_token);
             }
         });
     }
 
-    fn find_solutions(
-        &self,
-        puzzle_state: PuzzleState,
-        cancellation_token: CancellationToken,
-    ) {
+    fn find_solutions(&self, puzzle_state: PuzzleState, cancellation_token: CancellationToken) {
         let tiles = puzzle_state.unused_tiles;
         let mut grid = puzzle_state.grid;
         let mut iter = TileCombinationsIter::new(&tiles);
