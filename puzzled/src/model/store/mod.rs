@@ -217,7 +217,7 @@ mod tests {
 
         // (collection_id, puzzle_name) pairs to skip because they are known to be unsolvable or take too long
         let skip_list = [
-            ("de.til7701.Puzzled.PuzzleADay", "4-Digit Year"),      // Unknown if solvable
+            ("de.til7701.Puzzled.PuzzleADay", "4-Digit Year"), // Unknown if solvable
         ];
 
         for collection_name in CORE_COLLECTIONS.iter() {
