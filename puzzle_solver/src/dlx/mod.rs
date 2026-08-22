@@ -12,7 +12,7 @@ use log::debug;
 use puzzled_common::Shape;
 use std::num::NonZero;
 use std::thread;
-use std::thread::ScopedJoinHandle;
+use std::thread::JoinHandle;
 
 pub fn solve_all_filling(
     board: &Board,
@@ -70,34 +70,31 @@ fn run_multithreaded(solver: Solver<Opt>, cancel_token: &CancellationToken, max_
     debug!("Desired parallelism: {}", desired_parallelism);
     let chunk_size = (tile_with_most_options.all_placements().len() / desired_parallelism).max(5);
     debug!("Chunk size: {}", chunk_size);
-    let solution = thread::scope(|scope| {
-        let chunks = tile_with_most_options.all_placements().chunks(chunk_size);
-        debug!("Chunks: {:?}", chunks.len());
-        let mut join_handles: Vec<ScopedJoinHandle<Result<Vec<Opt>, UnsolvableReason>>> = Vec::with_capacity(chunks.len());
-        for (i, chunk) in chunks.into_iter().enumerate() {
-            let join_handle = scope.spawn({
-                let mut solver = solver.clone();
-                let cancel_token = cancel_token.clone();
-                move || {
-                    add_placements(&mut solver, chunk, index_with_most_options, max_tile_index, chunk_size * i);
-                    solver.solve_cancelable(&|| cancel_token.is_cancelled()).ok_or(UnsolvableReason::NoFit)
-                }
-            });
-            join_handles.push(join_handle);
-        }
-
-        let mut solution = Err(UnsolvableReason::NoFit);
-        for join_handle in join_handles {
-            let result = join_handle.join().map_err(|_| UnsolvableReason::NoFit).flatten();
-            if let Ok(s) = result {
-                debug!("Found Solution");
-                solution = Ok(s);
-                break;
+    let chunks = tile_with_most_options.all_placements().chunks(chunk_size);
+    debug!("Chunks: {:?}", chunks.len());
+    let mut join_handles: Vec<JoinHandle<Result<Vec<Opt>, UnsolvableReason>>> = Vec::with_capacity(chunks.len());
+    for (i, chunk) in chunks.into_iter().enumerate() {
+        let join_handle = thread::spawn({
+            let mut solver = solver.clone();
+            let cancel_token = cancel_token.clone();
+            let chunk = chunk.iter().cloned().collect::<Vec<Shape>>();
+            move || {
+                add_placements(&mut solver, &chunk, index_with_most_options, max_tile_index, chunk_size * i);
+                solver.solve_cancelable(&|| cancel_token.is_cancelled()).ok_or(UnsolvableReason::NoFit)
             }
+        });
+        join_handles.push(join_handle);
+    }
+
+    let mut solution = Err(UnsolvableReason::NoFit);
+    for join_handle in join_handles {
+        let result = join_handle.join().map_err(|_| UnsolvableReason::NoFit).flatten();
+        if let Ok(s) = result {
+            debug!("Found Solution");
+            solution = Ok(s);
+            break;
         }
-        solution
-    });
-    debug!("Scope left");
+    }
     solution
 }
 
