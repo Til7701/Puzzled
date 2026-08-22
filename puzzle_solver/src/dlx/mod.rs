@@ -2,6 +2,7 @@ mod positioned;
 mod pruner;
 
 use crate::board::Board;
+use crate::cancellation_token::CancellationToken;
 use crate::dlx::positioned::PositionedTile;
 use crate::dlx::pruner::Pruner;
 use crate::result::{Solution, TilePlacement, UnsolvableReason};
@@ -11,9 +12,8 @@ use puzzled_common::Shape;
 use std::num::NonZero;
 use std::thread;
 use std::thread::ScopedJoinHandle;
-use tokio_util::sync::CancellationToken;
 
-pub async fn solve_all_filling(
+pub fn solve_all_filling(
     board: &Board,
     tiles: &[Tile],
     cancel_token: CancellationToken,

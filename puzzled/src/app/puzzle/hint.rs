@@ -7,9 +7,9 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{Toast, glib};
 use gtk::prelude::{BoxExt, ButtonExt, WidgetExt};
 use gtk::{Image, Label, Widget};
+use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use std::sync::mpsc;
-use tokio_util::sync::CancellationToken;
 
 pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;
 
@@ -125,12 +125,6 @@ impl PuzzlePage {
                 vec![
                     icon,
                     build_label("The remaining tiles do not fit on the board!"),
-                ]
-            }
-            UnsolvableReason::BoardTooLarge => {
-                vec![
-                    icon,
-                    build_label("The board of this puzzle is too large for the solver!"),
                 ]
             }
             UnsolvableReason::PlausibilityCheckFailed => {
