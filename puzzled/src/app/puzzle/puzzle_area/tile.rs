@@ -25,10 +25,12 @@ impl PuzzleArea {
 
         drag.connect_drag_begin({
             let self_clone = self.clone();
+            let tile_view = draggable.clone();
             move |_, _x, _y| {
                 let placement_model_borrow = self_clone.imp().placement_model.borrow();
                 let placement_model = placement_model_borrow.as_ref().unwrap();
                 placement_model.update_tile_dragged(tile_view_index, true);
+                tile_view.insert_before(&self_clone, None::<&Widget>);
                 self_clone.run_on_tile_moved();
             }
         });
@@ -164,7 +166,6 @@ impl PuzzleArea {
         let tiles = self.imp().tiles.borrow();
         if let Some(tile_view) = tiles.get(tile_view_index) {
             self.move_(tile_view, pos_pixel.0, pos_pixel.1);
-            tile_view.insert_before(self, None::<&Widget>); // Bring to front
         }
     }
 }
