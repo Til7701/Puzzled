@@ -56,7 +56,7 @@
                                             </object>
                                         </child>
                                         <child>
-                                            <object class="GtkListBox" id="puzzle_list">
+                                            <object class="GtkListView" id="puzzle_list">
                                                 <style>
                                                     <class name="boxed-list-separate"/>
                                                 </style>
