@@ -4,12 +4,12 @@ use crate::model::extension::PuzzleTypeExtension;
 use crate::solver::Solver;
 use adw::prelude::Cast;
 use adw::subclass::prelude::ObjectSubclassIsExt;
-use adw::{glib, Toast};
+use adw::{Toast, glib};
 use gtk::prelude::{BoxExt, ButtonExt, WidgetExt};
 use gtk::{Image, Label, Widget};
+use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use std::sync::mpsc;
-use tokio_util::sync::CancellationToken;
 
 pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;
 
@@ -27,7 +27,11 @@ impl PuzzlePage {
                     self_clone.imp().hint_count.replace(hint_count + 1);
                     match result {
                         Ok(solution) => {
-                            if let Some(placement) = solution.placements().last() {
+                            if let Some(placement) = solution.placements().iter().max_by(|a, b| {
+                                let a_dim = a.base().dim();
+                                let b_dim = b.base().dim();
+                                (a_dim.0 * a_dim.1).cmp(&(b_dim.0 * b_dim.1))
+                            }) {
                                 self_clone.imp().grid.show_hint_tile(placement)
                             }
                         }
@@ -125,20 +129,6 @@ impl PuzzlePage {
                 vec![
                     icon,
                     build_label("The remaining tiles do not fit on the board!"),
-                ]
-            }
-            UnsolvableReason::BoardTooLarge => {
-                vec![
-                    icon,
-                    build_label("The board of this puzzle is too large for the solver!"),
-                ]
-            }
-            UnsolvableReason::TileCannotBePlaced { .. } => {
-                vec![
-                    icon,
-                    build_label(
-                        "At least one of the remaining tiles does not fit in the remaining space!",
-                    ),
                 ]
             }
             UnsolvableReason::PlausibilityCheckFailed => {

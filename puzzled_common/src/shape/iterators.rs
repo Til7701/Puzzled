@@ -1,6 +1,6 @@
 use crate::Shape;
-use ndarray::iter::{IndexedIter, Iter};
 use ndarray::Ix2;
+use ndarray::iter::{IndexedIter, Iter};
 
 impl Shape {
     /// Iterates over the values of the shape.

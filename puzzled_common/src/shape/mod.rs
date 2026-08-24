@@ -1,7 +1,7 @@
 mod iterators;
 
 use crate::ShapeType::*;
-use ndarray::{arr2, s, Array2, Axis};
+use ndarray::{Array2, Axis, arr2, s};
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 
@@ -426,6 +426,47 @@ impl Shape {
         }
 
         max_area
+    }
+
+    pub fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+        let mut visited = Array2::from_elem(self.dim(), false);
+        let mut min_area = usize::MAX;
+
+        for ((x, y), value) in self.indexed_iter() {
+            if *value == target_value && !visited[[x, y]] {
+                let mut area = 0;
+                let mut stack = vec![(x, y)];
+
+                while let Some((cx, cy)) = stack.pop() {
+                    if cx < self.data.nrows()
+                        && cy < self.data.ncols()
+                        && !visited[[cx, cy]]
+                        && self[(cx, cy)] == target_value
+                    {
+                        visited[[cx, cy]] = true;
+                        area += 1;
+
+                        // Add neighbors to the stack
+                        if cx > 0 {
+                            stack.push((cx - 1, cy));
+                        }
+                        if cx < self.data.nrows() - 1 {
+                            stack.push((cx + 1, cy));
+                        }
+                        if cy > 0 {
+                            stack.push((cx, cy - 1));
+                        }
+                        if cy < self.data.ncols() - 1 {
+                            stack.push((cx, cy + 1));
+                        }
+                    }
+                }
+
+                min_area = min_area.min(area);
+            }
+        }
+
+        min_area
     }
 
     /// Places the `child` array onto `self` at the specified offsets using a logical OR
@@ -1097,6 +1138,19 @@ mod test {
         let count_true = array.count_biggest_connected_area_of_cells_matching(true);
         let count_false = array.count_biggest_connected_area_of_cells_matching(false);
         assert_eq!(count_true, 4);
+        assert_eq!(count_false, 1);
+    }
+
+    #[test]
+    fn test_count_smallest_connected_area_of_cells_matching() {
+        let array = shape_square(&[
+            [true, false, false],
+            [true, false, true],
+            [false, true, true],
+        ]);
+        let count_true = array.count_smallest_connected_area_of_cells_matching(true);
+        let count_false = array.count_smallest_connected_area_of_cells_matching(false);
+        assert_eq!(count_true, 2);
         assert_eq!(count_false, 1);
     }
 }

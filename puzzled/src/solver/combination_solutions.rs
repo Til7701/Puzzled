@@ -1,10 +1,10 @@
 use crate::app::puzzle::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
-use crate::global::runtime::get_runtime;
 use crate::solver::Solver;
 use log::{debug, info};
+use puzzle_solver::cancellation_token::CancellationToken;
 use std::collections::HashSet;
 use std::sync::{Arc, RwLock};
-use tokio_util::sync::CancellationToken;
+use std::thread;
 
 /// The CombinationsSolver can be used to find solutions finding any combination of tiles on the
 /// board. You can start it and cancel it any time. If it is running when it is started,
@@ -26,21 +26,15 @@ impl CombinationsSolver {
             .unwrap()
             .replace(cancellation_token.clone());
 
-        get_runtime().spawn({
+        thread::spawn({
             let self_clone = self.clone();
-            async move {
-                self_clone
-                    .find_solutions(puzzle_state, cancellation_token)
-                    .await;
+            move || {
+                self_clone.find_solutions(puzzle_state, cancellation_token);
             }
         });
     }
 
-    async fn find_solutions(
-        &self,
-        puzzle_state: PuzzleState,
-        cancellation_token: CancellationToken,
-    ) {
+    fn find_solutions(&self, puzzle_state: PuzzleState, cancellation_token: CancellationToken) {
         let tiles = puzzle_state.unused_tiles;
         let mut grid = puzzle_state.grid;
         let mut iter = TileCombinationsIter::new(&tiles);

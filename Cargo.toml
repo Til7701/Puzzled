@@ -3,24 +3,23 @@ resolver = "3"
 members = ["puzzle_solver", "puzzle_config", "puzzled", "puzzled_common"]
 
 [workspace.package]
-version = "1.2.1"
+version = "1.2.2"
 edition = "2024"
 
 [workspace.dependencies]
 puzzled_common = { path = "./puzzled_common" }
 puzzle_solver = { path = "./puzzle_solver" }
 puzzle_config = { path = "./puzzle_config" }
-gettext-rs = { version = "0.7", features = ["gettext-system"] }
+gettext-rs = { version = "0.8", features = ["gettext-system"] }
 gtk = { version = "0.11.2", package = "gtk4", features = ["gnome_50"] }
 adw = { version = "0.9.1", package = "libadwaita", features = ["v1_9"] }
 ndarray = "0.17.2"
 log = "0.4.30"
 simple_logger = "5.2.0"
 time = { version = "0.3.47", features = ["local-offset"] }
-tokio = { version = "1.52.3", features = ["rt", "rt-multi-thread", "macros"] }
-tokio-util = "0.7.18"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.150" }
 semver = "1.0.28"
 regex = "1.12.4"
 rand = "0.10.1"
+dlx-rs = { git = "https://github.com/Til7701/dlx-rs", rev = "342d7dda487f1465af67a082e04abd5543214866" }

@@ -5,7 +5,7 @@ use adw::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::*;
 use log::debug;
-use puzzle_config::random::{random_puzzle, Algorithm, RandomPuzzleSettings};
+use puzzle_config::random::{Algorithm, RandomPuzzleSettings, random_puzzle};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 const CREATE_RANDOM_PUZZLE_SIGNAL_NAME: &str = "random-puzzle-created";

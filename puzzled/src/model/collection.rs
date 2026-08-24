@@ -13,8 +13,8 @@ const DELETED_SIGNAL_NAME: &str = "deleted";
 mod imp {
     use super::*;
     use crate::model::puzzle::PuzzleModel;
-    use adw::glib::subclass::Signal;
     use adw::glib::Properties;
+    use adw::glib::subclass::Signal;
     use std::cell::OnceCell;
     use std::sync::OnceLock;
 

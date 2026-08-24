@@ -14,7 +14,7 @@ use crate::window::PuzzledWindow;
 use adw::gio;
 use adw::subclass::prelude::*;
 use gtk::prelude::*;
-use gtk::{glib, Widget};
+use gtk::{Widget, glib};
 use log::debug;
 
 const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";

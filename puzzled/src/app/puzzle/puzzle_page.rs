@@ -1,7 +1,7 @@
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::puzzle::PuzzleModel;
 use crate::solver::Solver;
-use crate::window::{PuzzledWindow, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
+use crate::window::{MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH, PuzzledWindow};
 use adw::gio;
 use adw::prelude::NavigationPageExt;
 use adw::subclass::prelude::*;

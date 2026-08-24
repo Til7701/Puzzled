@@ -1,7 +1,7 @@
 use log::debug;
-use puzzled_common::shape::TrimSides;
 use puzzled_common::Shape;
 use puzzled_common::ShapeType::Square;
+use puzzled_common::shape::TrimSides;
 use std::ops::{Index, IndexMut};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
@@ -19,6 +19,7 @@ use std::ops::{Index, IndexMut};
 /// board[[2, 3]] = true;
 /// assert_eq!(board[[2, 3]], true);
 /// ```
+#[derive(Clone)]
 pub struct Board(Shape);
 
 impl Board {
@@ -112,6 +113,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::bool_comparison)]
     fn test_new_3_4() {
         let board = Board::new((3, 4));
         assert_eq!(board.get_shape().dim(), (3, 4));
@@ -119,6 +121,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::bool_assert_comparison)]
     fn test_trim() {
         let mut board = Board::new((5, 5));
         // Set edges

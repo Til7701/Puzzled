@@ -2,7 +2,7 @@ use crate::app::puzzle::puzzle_page::PuzzlePage;
 use crate::application::PuzzledApplication;
 use adw::prelude::{ActionMapExtManual, AdwDialogExt, Cast, PreferencesGroupExt};
 use adw::subclass::prelude::ObjectSubclassIsExt;
-use adw::{gio, ActionRow, Dialog};
+use adw::{ActionRow, Dialog, gio};
 use gtk::prelude::WidgetExt;
 use puzzle_config::PuzzleConfig;
 use std::ops::Deref;

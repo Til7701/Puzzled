@@ -2,8 +2,8 @@ use crate::model::stars::Stars;
 use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;
-use gtk::prelude::*;
 use gtk::Widget;
+use gtk::prelude::*;
 
 mod imp {
     use super::*;

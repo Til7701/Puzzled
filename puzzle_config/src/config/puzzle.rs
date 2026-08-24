@@ -1,6 +1,6 @@
+use crate::TileConfig;
 use crate::config::board::BoardConfig;
 use crate::config::difficulty::PuzzleDifficultyConfig;
-use crate::TileConfig;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 

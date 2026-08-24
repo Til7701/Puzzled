@@ -1,7 +1,7 @@
 use crate::json::converter::Convertable;
 use crate::json::model::PuzzleCollection;
 use crate::json::predefined::{Custom, Predefined};
-use crate::{PuzzleConfigCollection, ReadError, PUZZLED_VERSION_FIELD};
+use crate::{PUZZLED_VERSION_FIELD, PuzzleConfigCollection, ReadError};
 use semver::{Version, VersionReq};
 use serde_json::Value;
 

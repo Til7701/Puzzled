@@ -1,17 +1,17 @@
 pub mod combination_solutions;
 
 use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
-use crate::global::runtime::get_runtime;
 use log::debug;
 use puzzle_solver::board::Board;
+use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
 use std::cmp::PartialEq;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, LazyLock, RwLock};
+use std::thread;
 use std::time::Instant;
-use tokio_util::sync::CancellationToken;
 
 /// Represents the current state of the puzzle solver.
 #[derive(Debug, Default, Clone)]
@@ -86,17 +86,16 @@ impl Solver {
         let tiles: Vec<Tile> = puzzle_state
             .unused_tiles
             .iter()
-            .map(|tile_state| Tile::new(tile_state.base.clone()))
+            .map(|tile_state| Tile::new(tile_state.id, tile_state.base.clone()))
             .collect();
 
-        let runtime = get_runtime();
         let now = Instant::now();
-        runtime.spawn({
+        thread::spawn({
             let self_clone = self.clone();
             let cancel_token = cancel_token.clone();
-            async move {
+            move || {
                 debug!("Starting Solver task. Solver call id: {:?}", solver_call_id);
-                let result = puzzle_solver::solve_all_filling(board, &tiles, cancel_token).await;
+                let result = puzzle_solver::solve_all_filling(board, &tiles, cancel_token);
                 let end = Instant::now();
                 let duration = end.duration_since(now);
                 debug!(

@@ -13,8 +13,8 @@ const MARKED_UNSOLVED_SIGNAL_NAME: &str = "marked-unsolved";
 
 mod imp {
     use super::*;
-    use adw::glib::subclass::Signal;
     use adw::glib::Properties;
+    use adw::glib::subclass::Signal;
     use std::cell::{OnceCell, RefCell};
     use std::collections::HashMap;
     use std::sync::OnceLock;
