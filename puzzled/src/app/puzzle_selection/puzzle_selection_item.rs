@@ -4,12 +4,14 @@ use crate::app::puzzle_selection::puzzle_mod::PuzzleModState;
 use crate::model::puzzle::PuzzleModel;
 use adw::gio;
 use adw::glib;
-use adw::prelude::{ObjectExt, ToVariant};
+use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
-use gtk::prelude::{ActionableExt, BoxExt, FixedExt, ListBoxRowExt, WidgetExt};
+use gtk::prelude::{BoxExt, FixedExt, WidgetExt};
 use gtk::{Align, Fixed, Widget};
-use log::error;
+use log::{debug, error};
 use puzzle_config::{BoardConfig, ProgressionConfig, TileConfig};
+use std::thread::sleep;
+use std::time::Duration;
 
 /// How many pixels a cell should have in the preview of tiles and boards.
 /// This is NOT the total size of the preview.
@@ -19,14 +21,13 @@ mod imp {
     use super::*;
     use crate::app::components::info_pill::InfoPill;
     use crate::app::puzzle_selection::puzzle_mod::PuzzleMod;
-    use std::cell::OnceCell;
+    use adw::glib::{Properties, derived_properties};
+    use std::cell::Cell;
 
-    #[derive(Debug, Default, gtk::CompositeTemplate)]
+    #[derive(Debug, Default, gtk::CompositeTemplate, Properties)]
     #[template(resource = "/de/til7701/Puzzled/ui/widget/puzzle-selection-item.ui")]
+    #[properties(wrapper_type = super::PuzzleSelectionItem)]
     pub struct PuzzledPuzzleSelectionItem {
-        #[template_child]
-        pub outer_box: TemplateChild<gtk::Box>,
-
         #[template_child]
         pub name: TemplateChild<gtk::Label>,
         #[template_child]
@@ -53,7 +54,8 @@ mod imp {
         #[template_child]
         pub board_preview_box: TemplateChild<gtk::Box>,
 
-        pub(super) puzzle: OnceCell<PuzzleModel>,
+        #[property(name = "locked", get, set)]
+        locked: Cell<bool>,
     }
 
     #[glib::object_subclass]
@@ -71,6 +73,7 @@ mod imp {
         }
     }
 
+    #[derived_properties]
     impl ObjectImpl for PuzzledPuzzleSelectionItem {}
     impl WidgetImpl for PuzzledPuzzleSelectionItem {}
     impl BoxImpl for PuzzledPuzzleSelectionItem {}
@@ -94,25 +97,23 @@ impl PuzzleSelectionItem {
     ///
     /// # Arguments
     ///
-    /// * `puzzle`: the puzzle to display
-    ///
     /// returns: PuzzleSelectionItem
-    pub fn new(puzzle: &PuzzleModel) -> Self {
-        let obj: PuzzleSelectionItem = glib::Object::builder().build();
-        let imp = obj.imp();
-        obj.imp()
-            .puzzle
-            .set(puzzle.clone())
-            .expect("Failed to set puzzle");
+    pub fn new() -> Self {
+        glib::Object::builder().build()
+    }
 
+    pub fn update(&self, puzzle: &PuzzleModel) {
+        debug!("Updating PuzzleSelectionItem: {}", puzzle.config().name());
+        sleep(Duration::from_secs(1));
+        let imp = self.imp();
         imp.name.set_text(puzzle.config().name());
 
-        obj.update_data();
+        self.update_data(puzzle);
 
         if let Some(description) = puzzle.config().description() {
             imp.description.set_text(description);
         } else {
-            imp.outer_box.remove(&imp.description.get());
+            self.remove(&imp.description.get());
         }
 
         if let Some(difficulty) = puzzle.config().difficulty() {
@@ -126,29 +127,26 @@ impl PuzzleSelectionItem {
         Self::create_board_preview(puzzle.config().board_config(), &imp.board_preview_box.get());
 
         puzzle.connect_progress_improved({
-            let obj = obj.clone();
+            let obj = self.clone();
+            let puzzle = puzzle.clone();
             move || {
-                obj.update_data();
+                obj.update_data(&puzzle);
             }
         });
         puzzle.connect_marked_unsolved({
-            let obj = obj.clone();
+            let obj = self.clone();
+            let puzzle = puzzle.clone();
             move || {
-                obj.update_data();
+                obj.update_data(&puzzle);
             }
         });
-
-        obj.set_action_target_value(Some(&(puzzle.config().index() as i32).to_variant()));
-
-        obj
     }
 
     /// Updates dynamic data of the puzzle.
     /// This should be called, if the puzzle emits signals for relevant changes.
-    fn update_data(&self) {
+    fn update_data(&self, puzzle: &PuzzleModel) {
         let imp = self.imp();
-        let puzzle = imp.puzzle.get().unwrap();
-        let collection = imp.puzzle.get().unwrap().collection();
+        let collection = puzzle.collection();
         let stars = puzzle.stars_default();
         let solved = puzzle.is_solved_default();
 
@@ -173,20 +171,7 @@ impl PuzzleSelectionItem {
             }
         };
         imp.puzzle_mod.set_state(&state);
-        match state {
-            PuzzleModState::Stars(_) => {
-                self.set_activatable(true);
-                self.remove_css_class("dimmed");
-            }
-            PuzzleModState::Locked => {
-                self.set_activatable(false);
-                self.add_css_class("dimmed");
-            }
-            PuzzleModState::Unsolvable => {
-                self.set_activatable(true);
-                self.remove_css_class("dimmed");
-            }
-        }
+        self.set_locked(state == PuzzleModState::Locked);
 
         if state != PuzzleModState::Locked || collection.config().preview().show_board_size() {
             let (width, height) = puzzle.config().board_config().layout().dim();
@@ -266,10 +251,5 @@ impl PuzzleSelectionItem {
                 error!("Failed to create board preview: {}", e);
             }
         }
-    }
-
-    /// Returns the puzzle shown by this item.
-    pub fn puzzle(&self) -> &PuzzleModel {
-        self.imp().puzzle.get().unwrap()
     }
 }
