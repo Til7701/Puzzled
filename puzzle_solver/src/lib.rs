@@ -357,7 +357,10 @@ mod tests {
             shape_square(&[[true, true], [false, true]]),
             (0, 1),
         );
-        assert!(placements.contains(&expected_placement_1_1) || placements.contains(&expected_placement_1_2));
+        assert!(
+            placements.contains(&expected_placement_1_1)
+                || placements.contains(&expected_placement_1_2)
+        );
         let expected_placement_2_1 = TilePlacement::new(
             43,
             shape_square(&[[false, true], [true, true]]),
@@ -370,6 +373,9 @@ mod tests {
             shape_square(&[[true, false], [true, true]]),
             (1, 0),
         );
-        assert!(placements.contains(&expected_placement_2_1) || placements.contains(&expected_placement_2_2));
+        assert!(
+            placements.contains(&expected_placement_2_1)
+                || placements.contains(&expected_placement_2_2)
+        );
     }
 }

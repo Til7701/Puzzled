@@ -39,8 +39,14 @@ mod tests {
     #[test]
     fn test_check_passing() {
         let board = Board::new((3, 3));
-        let tile1 = Tile::new(42, shape_square(&[[true, true], [true, true], [true, false]]));
-        let tile2 = Tile::new(43, shape_square(&[[false, true], [false, true], [true, true]]));
+        let tile1 = Tile::new(
+            42,
+            shape_square(&[[true, true], [true, true], [true, false]]),
+        );
+        let tile2 = Tile::new(
+            43,
+            shape_square(&[[false, true], [false, true], [true, true]]),
+        );
         let tiles = vec![tile1, tile2];
 
         assert!(check(&board, &tiles));
