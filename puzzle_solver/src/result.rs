@@ -21,6 +21,8 @@ impl Solution {
 /// Represents the placement of a tile at a specific position in the puzzle.
 #[derive(Debug, Eq, PartialEq)]
 pub struct TilePlacement {
+    /// The index of the tile in the original list of tiles.
+    tile_id: usize,
     /// The base of the tile being placed.
     base: Shape,
     /// The rotation in which the tile is placed.
@@ -31,12 +33,23 @@ pub struct TilePlacement {
 
 impl TilePlacement {
     /// Creates a new `TilePlacement` with the given base, rotation, and position.
-    pub(crate) fn new(base: Shape, rotation: Shape, position: (usize, usize)) -> Self {
+    pub(crate) fn new(
+        tile_id: usize,
+        base: Shape,
+        rotation: Shape,
+        position: (usize, usize),
+    ) -> Self {
         Self {
+            tile_id,
             base,
             rotation,
             position,
         }
+    }
+
+    /// Returns the index of the tile in the original tile list.
+    pub fn tile_id(&self) -> usize {
+        self.tile_id
     }
 
     /// Returns a reference to the base layout of the tile.

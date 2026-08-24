@@ -256,7 +256,8 @@ mod tests {
                         let tiles: Vec<Tile> = puzzle
                             .tiles()
                             .iter()
-                            .map(|tile_config| Tile::new(tile_config.base().clone()))
+                            .enumerate()
+                            .map(|(i, tile_config)| Tile::new(i, tile_config.base().clone()))
                             .collect();
                         let result = puzzle_solver::solve_all_filling(
                             board,

@@ -86,7 +86,7 @@ impl Solver {
         let tiles: Vec<Tile> = puzzle_state
             .unused_tiles
             .iter()
-            .map(|tile_state| Tile::new(tile_state.base.clone()))
+            .map(|tile_state| Tile::new(tile_state.id, tile_state.base.clone()))
             .collect();
 
         let now = Instant::now();
