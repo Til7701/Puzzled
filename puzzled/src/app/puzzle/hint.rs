@@ -27,7 +27,11 @@ impl PuzzlePage {
                     self_clone.imp().hint_count.replace(hint_count + 1);
                     match result {
                         Ok(solution) => {
-                            if let Some(placement) = solution.placements().last() {
+                            if let Some(placement) = solution.placements().iter().max_by(|a, b| {
+                                let a_dim = a.base().dim();
+                                let b_dim = b.base().dim();
+                                (a_dim.0 * a_dim.1).cmp(&(b_dim.0 * b_dim.1))
+                            }) {
                                 self_clone.imp().grid.show_hint_tile(placement)
                             }
                         }
