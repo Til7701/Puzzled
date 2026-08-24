@@ -135,7 +135,7 @@ mod tests {
             [true, true, true, true, true, true, true],
             [true, true, true, true, true, true, true],
         ])
-            .into();
+        .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[true, true, true], [true, true, false]])),
             Tile::new(43, shape_square(&[[true, true, true], [true, true, true]])),
@@ -273,7 +273,7 @@ mod tests {
             [true, false, false, true, true],
             [false, false, false, true, true],
         ])
-            .into();
+        .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[false, true, true], [true, true, true]])),
             Tile::new(
@@ -333,7 +333,7 @@ mod tests {
             [false, true, false],
             [false, false, true],
         ])
-            .into();
+        .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[false, true], [true, true]])),
             Tile::new(43, shape_square(&[[false, true], [true, true]])),
