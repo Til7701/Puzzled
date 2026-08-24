@@ -70,34 +70,37 @@ mod imp {
 
         fn constructed(&self) {
             let factory = SignalListItemFactory::new();
-            factory.connect_setup(
-                |_, list_item| {
-                    let list_item = list_item.downcast_ref::<ListItem>();
-                    if let Some(list_item) = list_item {
-                        let puzzle_list_item = PuzzleSelectionItem::new();
-                        list_item.set_child(Some(&puzzle_list_item));
-                        puzzle_list_item.connect_locked_notify({
-                            let list_item = list_item.clone();
-                            move |item| {
-                                let locked = item.locked();
-                                list_item.set_activatable(!locked);
-                                // if item.locked() {
-                                //     list_item.add_css_class("dimmed");
-                                // } else {
-                                //     list_item.remove_css_class("dimmed");
-                                // }
-                            }
-                        });
-                    }
+            factory.connect_setup(|_, list_item| {
+                let list_item = list_item.downcast_ref::<ListItem>();
+                if let Some(list_item) = list_item {
+                    let puzzle_list_item = PuzzleSelectionItem::new();
+                    list_item.set_child(Some(&puzzle_list_item));
+                    puzzle_list_item.connect_locked_notify({
+                        let list_item = list_item.clone();
+                        move |item| {
+                            let locked = item.locked();
+                            list_item.set_activatable(!locked);
+                            // if item.locked() {
+                            //     list_item.add_css_class("dimmed");
+                            // } else {
+                            //     list_item.remove_css_class("dimmed");
+                            // }
+                        }
+                    });
                 }
-            );
+            });
             factory.connect_bind(|_, list_item| {
                 let list_item = list_item.downcast_ref::<ListItem>();
                 if let Some(list_item) = list_item {
-                    let item = list_item.item().and_then(|c| c.downcast::<PuzzleModel>().ok());
-                    let child = list_item.child().and_then(|c| c.downcast::<PuzzleSelectionItem>().ok());
+                    let item = list_item
+                        .item()
+                        .and_then(|c| c.downcast::<PuzzleModel>().ok());
+                    let child = list_item
+                        .child()
+                        .and_then(|c| c.downcast::<PuzzleSelectionItem>().ok());
                     if let Some(item) = item
-                        && let Some(puzzle_list_item) = child {
+                        && let Some(puzzle_list_item) = child
+                    {
                         puzzle_list_item.update(&item);
                     }
                 }
