@@ -42,8 +42,8 @@ pub mod tile;
 /// let mut board = Board::new((3, 4));
 /// board[[0, 0]] = true;
 /// let tiles = vec![
-///     Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
-///     Tile::new(shape_square(&[[true, true, true], [true, true, false]])),
+///     Tile::new(42, shape_square(&[[true, true, true], [true, true, true]])),
+///     Tile::new(43, shape_square(&[[true, true, true], [true, true, false]])),
 /// ];
 /// let cancel_token = CancellationToken::new();
 ///
@@ -135,7 +135,7 @@ mod tests {
             [true, true, true, true, true, true, true],
             [true, true, true, true, true, true, true],
         ])
-        .into();
+            .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[true, true, true], [true, true, false]])),
             Tile::new(43, shape_square(&[[true, true, true], [true, true, true]])),
@@ -273,7 +273,7 @@ mod tests {
             [true, false, false, true, true],
             [false, false, false, true, true],
         ])
-        .into();
+            .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[false, true, true], [true, true, true]])),
             Tile::new(
@@ -333,7 +333,7 @@ mod tests {
             [false, true, false],
             [false, false, true],
         ])
-        .into();
+            .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[false, true], [true, true]])),
             Tile::new(43, shape_square(&[[false, true], [true, true]])),
@@ -345,19 +345,31 @@ mod tests {
         let placements = solution.placements();
         dbg!(&placements);
         assert_eq!(placements.len(), 2);
-        let expected_placement_1 = TilePlacement::new(
+        let expected_placement_1_1 = TilePlacement::new(
             42,
             shape_square(&[[false, true], [true, true]]),
             shape_square(&[[true, false], [true, true]]),
             (1, 0),
         );
-        assert!(placements.contains(&expected_placement_1));
-        let expected_placement_2 = TilePlacement::new(
+        let expected_placement_1_2 = TilePlacement::new(
+            42,
+            shape_square(&[[false, true], [true, true]]),
+            shape_square(&[[true, true], [false, true]]),
+            (0, 1),
+        );
+        assert!(placements.contains(&expected_placement_1_1) || placements.contains(&expected_placement_1_2));
+        let expected_placement_2_1 = TilePlacement::new(
             43,
             shape_square(&[[false, true], [true, true]]),
             shape_square(&[[true, true], [false, true]]),
             (0, 1),
         );
-        assert!(placements.contains(&expected_placement_2));
+        let expected_placement_2_2 = TilePlacement::new(
+            43,
+            shape_square(&[[false, true], [true, true]]),
+            shape_square(&[[true, false], [true, true]]),
+            (1, 0),
+        );
+        assert!(placements.contains(&expected_placement_2_1) || placements.contains(&expected_placement_2_2));
     }
 }

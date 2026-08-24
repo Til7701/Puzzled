@@ -35,7 +35,7 @@ impl Tile {
     /// use puzzled_common::shape::shape_square;
     ///
     /// let base = shape_square(&[[true, false], [true, true]]);
-    /// let tile = Tile::new(base);
+    /// let tile = Tile::new(42, base);
     /// ```
     pub fn new(id: usize, base: Shape) -> Tile {
         let mut all_rotations_set: HashSet<Shape> = HashSet::new();
@@ -71,7 +71,7 @@ impl Tile {
     /// use puzzled_common::shape::shape_square;
     ///
     /// let base = shape_square(&[[true, false], [true, true]]);
-    /// let tile = Tile::new(base.clone());
+    /// let tile = Tile::new(42, base.clone());
     /// assert_eq!(tile.base(), &base);
     /// ```
     pub fn base(&self) -> &Shape {
