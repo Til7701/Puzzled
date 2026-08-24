@@ -10,19 +10,8 @@ impl PuzzleArea {
     /// Show the placement of a tile as a hint.
     pub fn show_hint_tile(&self, placement: &TilePlacement) {
         let tiles = self.imp().tiles.borrow();
-        let tile_matching_base = {
-            let placement_model = self.imp().placement_model.borrow();
-            let index = placement_model
-                .as_ref()
-                .unwrap()
-                .find_tile_matching_base(placement.base());
-            index.and_then(|i| tiles.get(i))
-        };
-        if tile_matching_base.is_none() {
-            return;
-        }
-        let tile_matching_base = tile_matching_base.unwrap();
-        let color = tile_matching_base.color().with_alpha(0.5);
+        let tile = &tiles[placement.tile_id()];
+        let color = tile.color().with_alpha(0.5);
         let color_config = ColorConfig::new(
             (color.red() * 255.0) as u8,
             (color.green() * 255.0) as u8,

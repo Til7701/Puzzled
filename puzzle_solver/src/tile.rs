@@ -7,6 +7,8 @@ use std::collections::HashSet;
 /// (e.g., part of a puzzle piece) and `false` indicates its absence.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Tile {
+    /// The index of the tile in the original list.
+    id: usize,
     /// The base 2D boolean array representing the tile.
     /// This is kept for convenience to give back to users who want the original base.
     pub(crate) base: Shape,
@@ -35,7 +37,7 @@ impl Tile {
     /// let base = shape_square(&[[true, false], [true, true]]);
     /// let tile = Tile::new(base);
     /// ```
-    pub fn new(base: Shape) -> Tile {
+    pub fn new(id: usize, base: Shape) -> Tile {
         let mut all_rotations_set: HashSet<Shape> = HashSet::new();
 
         base.rotations_flips_iter().for_each(|rotation| {
@@ -44,9 +46,15 @@ impl Tile {
 
         let all_rotations = all_rotations_set.into_iter().collect();
         Tile {
+            id,
             base,
             all_rotations,
         }
+    }
+
+    /// The index of the tile in the original list.
+    pub fn id(&self) -> usize {
+        self.id
     }
 
     /// Returns a reference to the base 2D boolean array of the tile.
@@ -91,8 +99,9 @@ mod tests {
     #[test]
     fn test_new() {
         let base = shape_square(&[[true, false], [true, true]]);
-        let tile = Tile::new(base.clone());
+        let tile = Tile::new(42, base.clone());
 
+        assert_eq!(tile.id(), 42);
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 4);
         assert!(
@@ -116,7 +125,7 @@ mod tests {
     #[test]
     fn test_new_1x1() {
         let base = shape_square(&[[true]]);
-        let tile = Tile::new(base.clone());
+        let tile = Tile::new(42, base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 1);
@@ -126,7 +135,7 @@ mod tests {
     #[test]
     fn test_new_1x2() {
         let base = shape_square(&[[true, false]]);
-        let tile = Tile::new(base.clone());
+        let tile = Tile::new(42, base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 4);
@@ -145,7 +154,7 @@ mod tests {
     #[test]
     fn test_new_2x3() {
         let base = shape_square(&[[true, false], [true, true], [true, true]]);
-        let tile = Tile::new(base.clone());
+        let tile = Tile::new(42, base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 8);

@@ -205,6 +205,7 @@ fn create_solution(
                         positioned_tiles[*tile_index].all_placements()[*position_index].clone();
                     let trim = placed_tile.trim_matching(false);
                     Some(TilePlacement::new(
+                        tile.id(),
                         tile.base.clone(),
                         placed_tile,
                         (trim.lower_x, trim.lower_y),

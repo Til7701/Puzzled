@@ -73,6 +73,7 @@ pub fn solve_all_filling(
                     let (x, y) = placement.position();
                     let (trimmed_x, trimmed_y) = (x + trim_sides.lower_x, y + trim_sides.lower_y);
                     TilePlacement::new(
+                        placement.tile_id(),
                         placement.base().clone(),
                         placement.rotation().clone(),
                         (trimmed_x, trimmed_y),
@@ -95,8 +96,8 @@ mod tests {
         let mut board = Board::new((3, 4));
         board[[0, 0]] = true;
         let tiles = vec![
-            Tile::new(shape_square(&[[true, true, true], [true, true, false]])),
-            Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
+            Tile::new(42, shape_square(&[[true, true, true], [true, true, false]])),
+            Tile::new(43, shape_square(&[[true, true, true], [true, true, true]])),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -105,12 +106,14 @@ mod tests {
         let placements = solution.placements();
         assert_eq!(placements.len(), 2);
         let expected_placement_1 = TilePlacement::new(
+            42,
             shape_square(&[[true, true, true], [true, true, false]]),
             shape_square(&[[false, true], [true, true], [true, true]]),
             (0, 0),
         );
         assert!(placements.contains(&expected_placement_1));
         let expected_placement_2 = TilePlacement::new(
+            43,
             shape_square(&[[true, true, true], [true, true, true]]),
             shape_square(&[[true, true], [true, true], [true, true]]),
             (0, 2),
@@ -134,8 +137,8 @@ mod tests {
         ])
         .into();
         let tiles = vec![
-            Tile::new(shape_square(&[[true, true, true], [true, true, false]])),
-            Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
+            Tile::new(42, shape_square(&[[true, true, true], [true, true, false]])),
+            Tile::new(43, shape_square(&[[true, true, true], [true, true, true]])),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -145,12 +148,14 @@ mod tests {
         dbg!(&placements);
         assert_eq!(placements.len(), 2);
         let expected_placement_1 = TilePlacement::new(
+            42,
             shape_square(&[[true, true, true], [true, true, false]]),
             shape_square(&[[false, true], [true, true], [true, true]]),
             (3, 1),
         );
         assert!(placements.contains(&expected_placement_1));
         let expected_placement_2 = TilePlacement::new(
+            43,
             shape_square(&[[true, true, true], [true, true, true]]),
             shape_square(&[[true, true], [true, true], [true, true]]),
             (3, 3),
@@ -162,10 +167,10 @@ mod tests {
     fn test_solve_all_filling_success_one_tile() {
         let mut board = Board::new((3, 2));
         board[[1, 0]] = true;
-        let tiles = vec![Tile::new(shape_square(&[
-            [true, true, true],
-            [true, false, true],
-        ]))];
+        let tiles = vec![Tile::new(
+            42,
+            shape_square(&[[true, true, true], [true, false, true]]),
+        )];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_ok());
@@ -173,6 +178,7 @@ mod tests {
         let placements = solution.placements();
         assert_eq!(placements.len(), 1);
         let expected_placement_1 = TilePlacement::new(
+            42,
             shape_square(&[[true, true, true], [true, false, true]]),
             shape_square(&[[true, true], [false, true], [true, true]]),
             (0, 0),
@@ -184,8 +190,8 @@ mod tests {
     fn test_solve_all_filling_failure() {
         let board = Board::new((3, 4));
         let tiles = vec![
-            Tile::new(shape_square(&[[true, true, true], [false, true, true]])),
-            Tile::new(shape_square(&[[true, true, true], [true, true, false]])),
+            Tile::new(42, shape_square(&[[true, true, true], [false, true, true]])),
+            Tile::new(43, shape_square(&[[true, true, true], [true, true, false]])),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -204,10 +210,10 @@ mod tests {
     #[test]
     fn test_solve_all_filling_too_few_tiles() {
         let board = Board::new((3, 4));
-        let tiles = vec![Tile::new(shape_square(&[
-            [true, true, true],
-            [true, true, true],
-        ]))];
+        let tiles = vec![Tile::new(
+            42,
+            shape_square(&[[true, true, true], [true, true, true]]),
+        )];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
@@ -217,9 +223,12 @@ mod tests {
     fn test_solve_all_filling_too_many_tiles() {
         let board = Board::new((3, 4));
         let tiles = vec![
-            Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
-            Tile::new(shape_square(&[[true, true, false], [true, false, true]])),
-            Tile::new(shape_square(&[[true, false, true], [true, true, true]])),
+            Tile::new(42, shape_square(&[[true, true, true], [true, true, true]])),
+            Tile::new(
+                43,
+                shape_square(&[[true, true, false], [true, false, true]]),
+            ),
+            Tile::new(44, shape_square(&[[true, false, true], [true, true, true]])),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -231,8 +240,8 @@ mod tests {
         let mut board = Board::new((3, 4));
         board[[0, 0]] = true;
         let tiles = vec![
-            Tile::new(shape_square(&[[true, false, true], [true, true, true]])),
-            Tile::new(shape_square(&[[true, true, true], [true, true, true]])),
+            Tile::new(42, shape_square(&[[true, false, true], [true, true, true]])),
+            Tile::new(43, shape_square(&[[true, true, true], [true, true, true]])),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -266,12 +275,15 @@ mod tests {
         ])
         .into();
         let tiles = vec![
-            Tile::new(shape_square(&[[false, true, true], [true, true, true]])),
-            Tile::new(shape_square(&[
-                [true, true, false],
-                [true, true, false],
-                [false, true, true],
-            ])),
+            Tile::new(42, shape_square(&[[false, true, true], [true, true, true]])),
+            Tile::new(
+                43,
+                shape_square(&[
+                    [true, true, false],
+                    [true, true, false],
+                    [false, true, true],
+                ]),
+            ),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -280,12 +292,14 @@ mod tests {
         let placements = solution.placements();
         assert_eq!(placements.len(), 2);
         let expected_placement_1 = TilePlacement::new(
+            42,
             shape_square(&[[false, true, true], [true, true, true]]),
             shape_square(&[[false, true, true], [true, true, true]]),
             (3, 0),
         );
         assert!(placements.contains(&expected_placement_1));
         let expected_placement_2 = TilePlacement::new(
+            43,
             shape_square(&[
                 [true, true, false],
                 [true, true, false],
@@ -304,7 +318,7 @@ mod tests {
     #[test]
     fn test_solve_tile_can_not_be_placed() {
         let board = shape_square(&[[false, false], [false, false]]).into();
-        let tiles = vec![Tile::new(shape_square(&[[true, true, true, true]]))];
+        let tiles = vec![Tile::new(42, shape_square(&[[true, true, true, true]]))];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
@@ -321,8 +335,8 @@ mod tests {
         ])
         .into();
         let tiles = vec![
-            Tile::new(shape_square(&[[false, true], [true, true]])),
-            Tile::new(shape_square(&[[false, true], [true, true]])),
+            Tile::new(42, shape_square(&[[false, true], [true, true]])),
+            Tile::new(43, shape_square(&[[false, true], [true, true]])),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -332,12 +346,14 @@ mod tests {
         dbg!(&placements);
         assert_eq!(placements.len(), 2);
         let expected_placement_1 = TilePlacement::new(
+            42,
             shape_square(&[[false, true], [true, true]]),
             shape_square(&[[true, false], [true, true]]),
             (1, 0),
         );
         assert!(placements.contains(&expected_placement_1));
         let expected_placement_2 = TilePlacement::new(
+            43,
             shape_square(&[[false, true], [true, true]]),
             shape_square(&[[true, true], [false, true]]),
             (0, 1),
