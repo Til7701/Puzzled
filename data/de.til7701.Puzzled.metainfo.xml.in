@@ -52,20 +52,29 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.2/data/screenshot-start-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.3/data/screenshot-start-light.png</image>
             <caption>Puzzle Selection</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.2/data/screenshot-year-light.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.3/data/screenshot-year-light.png</image>
             <caption>Solving a Puzzle</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.2/data/screenshot-start-dark.png</image>
+            <image>https://raw.githubusercontent.com/Til7701/Puzzled/refs/tags/v1.2.3/data/screenshot-start-dark.png</image>
             <caption>Puzzle Selection in Dark Mode</caption>
         </screenshot>
     </screenshots>
 
     <releases>
+        <release version="1.2.3" date="2026-08-29">
+            <description translate="no">
+                <ul>
+                    <li>Greatly improved the solver performance for hints.</li>
+                    <li>Fixed the color of the hint tile if there are more than one of the same shape.</li>
+                    <li>Fixed recently moved tiles not being on top of other tiles.</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.2.2" date="2026-08-20">
             <description translate="no">
                 <ul>
