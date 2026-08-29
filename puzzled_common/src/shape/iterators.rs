@@ -20,6 +20,7 @@ impl Shape {
     }
 }
 
+#[deprecated]
 pub struct ShapeRotationIterator {
     current: Shape,
     iteration: u8,

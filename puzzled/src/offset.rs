@@ -3,6 +3,7 @@ use std::ops::{Add, Sub};
 /// Represents an offset in x and y directions.
 ///
 /// The offset values are in pixels. For cell-based offsets, use `CellOffset`.
+#[deprecated]
 #[derive(Debug, Default, Clone, Copy)]
 pub struct PixelOffset(pub f64, pub f64);
 
@@ -63,6 +64,7 @@ impl Sub for PixelOffset {
 /// Represents an offset in x and y directions.
 ///
 /// The offset values are in cell units. For pixel-based offsets, use `PixelOffset`.
+#[deprecated]
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
 pub struct CellOffset(pub i32, pub i32);
 

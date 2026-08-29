@@ -5,6 +5,7 @@ use ndarray::{Array2, Axis, arr2, s};
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 
+#[deprecated]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub struct Shape {
     shape_type: ShapeType,
@@ -599,6 +600,7 @@ impl Display for Shape {
     }
 }
 
+#[deprecated]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ShapeType {
     #[default]
@@ -620,6 +622,7 @@ pub struct TrimSides {
     pub upper_y: usize,
 }
 
+#[deprecated]
 pub fn shape_square<const N: usize>(data: &[[bool; N]]) -> Shape {
     Shape::new(Square, arr2(data))
 }
