@@ -34,10 +34,13 @@ pub fn create_json_loader(
     Ok(json_loader)
 }
 
+#[deprecated]
 pub fn get_predefined(predefined_json_str: &str, puzzled_version: &str) -> Predefined {
-    json::read_predefined(predefined_json_str, puzzled_version)
+    // json::read_predefined(predefined_json_str, puzzled_version)
+    unreachable!()
 }
 
+#[deprecated]
 pub struct Predefined {
     tiles: Vec<TileConfig>,
     boards: Vec<BoardConfig>,
@@ -56,7 +59,7 @@ impl Predefined {
 #[cfg(test)]
 mod tests {
     use crate::create_json_loader;
-    use puzzled_common::shape::shape_square;
+    use puzzled_common::polyform::Polyform;
 
     #[test]
     fn test_load_puzzle_collection_from_json() {
@@ -125,17 +128,17 @@ mod tests {
         assert_eq!(2, puzzle.tiles().len());
         assert_eq!(
             puzzle.board_config().layout(),
-            &shape_square(&[[true, true, true], [true, false, true], [true, true, true]])
+            &Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, false, true], [true, true, true]])
         );
         let ref_tile = &puzzle.tiles()[0];
         assert_eq!(
             ref_tile.base(),
-            &shape_square(&[[true, true], [false, true]])
+            &Polyform::polyomino_from_bool_slice(&[[true, true], [false, true]])
         );
         let custom_tile = &puzzle.tiles()[1];
         assert_eq!(
             custom_tile.base(),
-            &shape_square(&[[true, true], [false, true], [true, true]])
+            &Polyform::polyomino_from_bool_slice(&[[true, true], [false, true], [true, true]])
         );
     }
 }

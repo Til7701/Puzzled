@@ -1,35 +1,33 @@
 use crate::polyform::grid::Coord;
-use crate::polyform::prototile::{Orientation, Prototile};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Hexagon<T, C: Coord>
+pub struct Hexagon<T>
 where
     T: Default + Clone,
 {
-    coord: C,
+    coord: Coord,
     orientation: HexagonOrientation,
     data: T,
 }
 
-impl<T, C: Coord> Hexagon<T, C>
+impl<T> Hexagon<T>
 where
     T: Default + Clone,
 {
-    pub fn new(coord: C, orientation: HexagonOrientation, data: T) -> Self {
+    pub fn new(coord: Coord, orientation: HexagonOrientation, data: T) -> Self {
         Hexagon { coord, orientation, data }
     }
-}
 
-impl<T, C: Coord> Prototile<HexagonOrientation, C> for Hexagon<T, C>
-where
-    T: Default + Clone,
-{
-    fn orientation(&self) -> &HexagonOrientation {
-        &self.orientation
+    pub fn coord(&self) -> &Coord {
+        &self.coord
     }
 
-    fn coord(&self) -> &C {
-        &self.coord
+    pub fn orientation(&self) -> HexagonOrientation {
+        self.orientation
+    }
+
+    pub fn data(&self) -> &T {
+        &self.data
     }
 }
 
@@ -38,5 +36,3 @@ pub enum HexagonOrientation {
     OnSide,
     OnCorner,
 }
-
-impl Orientation for HexagonOrientation {}

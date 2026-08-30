@@ -1,11 +1,11 @@
 use crate::config::color::ColorConfig;
-use puzzled_common::Shape;
+use puzzled_common::polyform::Polyform;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 /// Configuration for a tile that can be placed on the board.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TileConfig {
-    base: Shape,
+    base: Polyform<()>,
     color: ColorConfig,
     name: Option<String>,
 }
@@ -18,13 +18,13 @@ impl TileConfig {
     /// * `base`: Base shape of the tile as a 2D boolean array.
     ///
     /// returns: TileConfig
-    pub fn new(base: Shape, color: ColorConfig, name: Option<String>) -> TileConfig {
+    pub fn new(base: Polyform<()>, color: ColorConfig, name: Option<String>) -> TileConfig {
         TileConfig { base, color, name }
     }
 
     /// Base shape of the tile as a 2D boolean array.
     /// True indicates a filled cell, false indicates an empty cell.
-    pub fn base(&self) -> &Shape {
+    pub fn base(&self) -> &Polyform<()> {
         &self.base
     }
 
@@ -69,22 +69,21 @@ impl Hash for TileConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::shape::shape_square;
 
     #[test]
     fn test_hash() {
         let tile1 = TileConfig::new(
-            shape_square(&[[true, false], [false, true]]),
+            Polyform::polyomino_from_bool_slice(&[[true, false], [false, true]]),
             ColorConfig::default_with_index(0),
             None,
         );
         let tile2 = TileConfig::new(
-            shape_square(&[[true, false], [false, true]]),
+            Polyform::polyomino_from_bool_slice(&[[true, false], [false, true]]),
             ColorConfig::default_with_index(1),
             None,
         );
         let tile3 = TileConfig::new(
-            shape_square(&[[false, true], [true, false]]),
+            Polyform::polyomino_from_bool_slice(&[[false, true], [true, false]]),
             ColorConfig::default_with_index(1),
             None,
         );
@@ -108,12 +107,12 @@ mod tests {
     #[test]
     fn test_hash_slice_any_order() {
         let tile1 = TileConfig::new(
-            shape_square(&[[true, false], [false, true]]),
+            Polyform::polyomino_from_bool_slice(&[[true, false], [false, true]]),
             ColorConfig::default_with_index(0),
             None,
         );
         let tile2 = TileConfig::new(
-            shape_square(&[[false, true], [true, false]]),
+            Polyform::polyomino_from_bool_slice(&[[false, true], [true, false]]),
             ColorConfig::default_with_index(1),
             None,
         );

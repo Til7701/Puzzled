@@ -1,4 +1,4 @@
-use crate::polyform::grid::Coord;
+use std::fmt::{Display, Formatter};
 
 /// A regular grid with square elements.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -7,4 +7,31 @@ pub struct RegularCoord {
     y: u32,
 }
 
-impl Coord for RegularCoord {}
+impl RegularCoord {
+    pub fn rotate_counterclockwise(&mut self, viewport: Self) {
+        let old_x = self.x;
+        let old_y = self.y;
+        self.x = old_y;
+        self.y = viewport.y - old_x;
+    }
+
+    pub fn flip_default(&mut self, viewport: Self) {
+        let old_x = self.x;
+        let old_y = self.y;
+        self.x = viewport.x - old_x;
+        self.y = old_y;
+    }
+
+    pub fn transpose(&mut self) {
+        let old_x = self.x;
+        let old_y = self.y;
+        self.x = old_x;
+        self.y = old_y;
+    }
+}
+
+impl Display for RegularCoord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "R({}, {})", self.x, self.y)
+    }
+}

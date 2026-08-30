@@ -1,67 +1,51 @@
-use crate::config::board;
-use crate::config::color::ColorConfig;
-use crate::config::preview::PreviewConfig;
-use crate::json::model::*;
+use crate::config::board::AreaBoardData;
+use crate::json::model::{Area, AreaFormatter, Board, Color, DefaultFactory, Preview, Progression, PuzzleCollection, PuzzleDifficulty, Tile, TileLayout};
 use crate::json::predefined::{Custom, Predefined};
-use crate::{
-    AreaConfig, AreaValueFormatter, BoardConfig, ProgressionConfig, PuzzleConfig,
-    PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate, TileConfig,
-    validation,
-};
-use ndarray::Array2;
-use puzzled_common::Shape;
-use puzzled_common::ShapeType::Square;
+use crate::{AreaConfig, AreaValueFormatter, BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate, TileConfig, validation};
+use puzzled_common::polyform::Polyform;
 use std::num::NonZero;
 use time::OffsetDateTime;
 
-/// Trait for converting JSON model types to config types.
-pub trait Convertable<R> {
-    /// Convert the JSON model type to the config type.
-    ///
-    /// # Arguments
-    ///
-    /// * `predefined`: Predefined tiles and boards
-    /// * `custom`: Instance to store custom tiles and boards. Should initially be empty.
-    ///
-    /// returns: Result<R, ReadError>
-    fn convert(self, predefined: &Predefined, custom: &mut Custom) -> Result<R, ReadError>;
+pub struct Converter<'a> {
+    predefined: &'a Predefined,
+    custom: Custom,
 }
 
-impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
-    fn convert(
-        self,
-        predefined: &Predefined,
-        custom: &mut Custom,
-    ) -> Result<PuzzleConfigCollection, ReadError> {
-        if let Some(tiles) = self.custom_tiles {
+impl Converter {
+    pub fn new(predefined: &Predefined) -> Self {
+        Converter {
+            predefined,
+            custom: Custom::default(),
+        }
+    }
+
+    pub fn convert_collection(&mut self, collection_config: PuzzleCollection) -> Result<PuzzleConfigCollection, ReadError> {
+        if let Some(tiles) = collection_config.custom_tiles {
             for (name, tile) in tiles {
-                custom.add_tile(name, tile);
+                self.custom.add_tile(name, tile);
             }
         }
-
-        if let Some(boards) = self.custom_boards {
+        if let Some(boards) = collection_config.custom_boards {
             for (name, board) in boards {
-                custom.add_board(name, board);
+                self.custom.add_board(name, board);
             }
         }
 
         let mut puzzle_configs = Vec::new();
-        for (i, puzzle) in self.puzzles.into_iter().enumerate() {
-            let difficulty_config = puzzle.difficulty.convert(predefined, custom)?;
+        for (i, puzzle) in collection_config.puzzles.into_iter().enumerate() {
+            let difficulty_config = self.convert_puzzle_difficulty(puzzle.difficulty)?;
 
             let mut tiles = Vec::with_capacity(puzzle.tiles.len());
             let mut index_offset = 0;
-            for tile_with_index in puzzle.tiles.into_iter().enumerate() {
-                let tile_index_with_offset =
-                    (index_offset + tile_with_index.0, tile_with_index.1, None);
-                let converted_tile = tile_index_with_offset.convert(predefined, custom)?;
+            for (tile_index, tile) in puzzle.tiles.into_iter().enumerate() {
+                let converted_tile = self.convert_tile(index_offset + tile_index, tile, None)?;
                 index_offset += converted_tile.len() - 1;
                 tiles.extend(converted_tile);
             }
 
-            let mut board_config = puzzle.board.convert(predefined, custom)?;
-            if self.allow_board_rotation {
-                board_config = rotate_board(board_config);
+            let mut board_config = self.convert_board(puzzle.board)?;
+            if collection_config.allow_board_rotation {
+                board_config = Converter::rotate_board(board_config);
             }
             let puzzle_config = PuzzleConfig::new(
                 i,
@@ -78,84 +62,50 @@ impl Convertable<PuzzleConfigCollection> for PuzzleCollection {
         }
 
         Ok(PuzzleConfigCollection::new(
-            self.name,
-            self.description,
-            self.author,
-            validation::validate_collection_id(self.id)?,
-            self.version,
-            self.progression.convert(predefined, custom)?,
-            self.preview.convert(predefined, custom)?,
+            collection_config.name,
+            collection_config.description,
+            collection_config.author,
+            validation::validate_collection_id(collection_config.id)?,
+            collection_config.version,
+            self.convert_collection_progression(collection_config.progression)?,
+            self.convert_preview(collection_config.preview)?,
             puzzle_configs,
         ))
     }
-}
 
-fn rotate_board_to_landscape<T>(arr: Array2<T>) -> Array2<T> {
-    let dim = arr.dim();
-    if dim.0 < dim.1 {
-        arr.reversed_axes()
-    } else {
-        arr
-    }
-}
-
-fn rotate_board(board: BoardConfig) -> BoardConfig {
-    match board {
-        BoardConfig::Simple { mut layout } => {
-            layout.rotate_to_landscape();
-            BoardConfig::Simple { layout }
-        }
-        BoardConfig::Area {
-            mut layout,
-            area_indices,
-            display_values,
-            value_order,
-            area_configs,
-            target_template,
-        } => {
-            layout.rotate_to_landscape();
-            let area_indices = Box::new(rotate_board_to_landscape(*area_indices));
-            let display_values = Box::new(rotate_board_to_landscape(*display_values));
-            let value_order = Box::new(rotate_board_to_landscape(*value_order));
+    fn rotate_board(mut board: BoardConfig) -> BoardConfig {
+        match &mut board {
+            BoardConfig::Simple { layout } => {
+                layout.rotate_to_landscape();
+            }
             BoardConfig::Area {
                 layout,
-                area_indices,
-                display_values,
-                value_order,
-                area_configs,
-                target_template,
+                ..
+            } => {
+                layout.rotate_to_landscape();
             }
-        }
+        };
+        board
     }
-}
 
-impl Convertable<Option<PuzzleDifficultyConfig>> for Option<PuzzleDifficulty> {
-    fn convert(
-        self,
-        _: &Predefined,
-        _: &mut Custom,
-    ) -> Result<Option<PuzzleDifficultyConfig>, ReadError> {
-        Ok(self.map(|difficulty| match difficulty {
+    fn convert_puzzle_difficulty(&mut self, difficulty: Option<PuzzleDifficulty>) -> Result<Option<PuzzleDifficultyConfig>, ReadError> {
+        Ok(difficulty.map(|d| match d {
             PuzzleDifficulty::Easy => PuzzleDifficultyConfig::Easy,
             PuzzleDifficulty::Medium => PuzzleDifficultyConfig::Medium,
             PuzzleDifficulty::Hard => PuzzleDifficultyConfig::Hard,
             PuzzleDifficulty::Expert => PuzzleDifficultyConfig::Expert,
         }))
     }
-}
 
-impl Convertable<ProgressionConfig> for Progression {
-    fn convert(self, _: &Predefined, _: &mut Custom) -> Result<ProgressionConfig, ReadError> {
-        Ok(match self {
+    fn convert_collection_progression(&mut self, progression: Progression) -> Result<ProgressionConfig, ReadError> {
+        Ok(match progression {
             Progression::Any => ProgressionConfig::Any,
             Progression::Sequential => ProgressionConfig::Sequential,
         })
     }
-}
 
-impl Convertable<PreviewConfig> for Option<Preview> {
-    fn convert(self, _: &Predefined, _: &mut Custom) -> Result<PreviewConfig, ReadError> {
-        match self {
+    fn convert_preview(&mut self, preview: Option<Preview>) -> Result<PreviewConfig, ReadError> {
+        match preview {
             None => Ok(PreviewConfig::default()),
             Some(preview) => Ok(PreviewConfig::new(
                 preview.show_board,
@@ -165,71 +115,57 @@ impl Convertable<PreviewConfig> for Option<Preview> {
             )),
         }
     }
-}
 
-impl Convertable<Vec<TileConfig>> for (usize, Tile, Option<String>) {
-    fn convert(
-        self,
-        predefined: &Predefined,
-        custom: &mut Custom,
-    ) -> Result<Vec<TileConfig>, ReadError> {
-        match self.1 {
+    fn convert_tile(&mut self, tile_id: usize, tile: Tile, name: Option<String>) -> Result<Vec<TileConfig>, ReadError> {
+        match tile {
             Tile::Ref(name) => {
-                if let Some(predefined_tile) = predefined.get_tile(&name) {
-                    (self.0, predefined_tile, Some(name)).convert(predefined, custom)
-                } else if let Some(custom_tile) = custom.get_tile(&name) {
-                    (self.0, custom_tile, Some(name)).convert(predefined, custom)
+                if let Some(custom_tile) = self.custom.get_tile(&name) {
+                    self.convert_tile(tile_id, custom_tile, Some(name))
+                } else if let Some(predefined_tile) = self.predefined.get_tile(&name) {
+                    self.convert_tile(tile_id, predefined_tile, Some(name))
                 } else {
                     Err(ReadError::UnknownPredefinedTile { name })
                 }
             }
             Tile::Layout(layout) => {
-                let (base, name) = (self.0, layout).convert(predefined, custom)?;
-                let color = (self.0, None).convert(predefined, custom)?;
-                Ok(vec![TileConfig::new(base, color, name.or(self.2))])
+                let (base, layout_name) = self.convert_tile_layout(tile_id, layout)?;
+                let color = self.convert_tile_color(tile_id, None)?;
+                Ok(vec![TileConfig::new(base, color, layout_name.or(name))])
             }
             Tile::Custom {
                 layout,
                 color,
                 count,
             } => {
-                let (base, name) = (self.0, layout).convert(predefined, custom)?;
+                let (base, name) = self.convert_tile_layout(tile_id, layout)?;
                 let count = count.unwrap_or_else(|| NonZero::new(1).unwrap());
 
                 let mut tiles = Vec::with_capacity(count.get() as usize);
                 for i in 0..count.get() {
-                    let tile_index = self.0 + i as usize;
-                    let color = (tile_index, color.clone()).convert(predefined, custom)?;
+                    let tile_index = tile_id + i as usize;
+                    let color = self.convert_tile_color(tile_index, color.clone())?;
                     tiles.push(TileConfig::new(base.clone(), color, name.clone()));
                 }
                 Ok(tiles)
             }
         }
     }
-}
 
-impl Convertable<(Shape, Option<String>)> for (usize, TileLayout) {
-    fn convert(
-        self,
-        predefined: &Predefined,
-        custom: &mut Custom,
-    ) -> Result<(Shape, Option<String>), ReadError> {
-        match self.1 {
+    fn convert_tile_layout(&mut self, tile_id: usize, layout: TileLayout) -> Result<(Polyform<()>, Option<String>), ReadError> {
+        match layout {
             TileLayout::Ref(name) => {
-                if let Some(custom_tile) = custom.get_tile(&name) {
+                if let Some(custom_tile) = self.custom.get_tile(&name) {
                     Ok((
-                        (self.0, custom_tile, Some(name.clone()))
-                            .convert(predefined, custom)?
+                        self.convert_tile(tile_id, custom_tile, Some(name.clone()))?
                             .first()
                             .unwrap()
                             .base()
                             .clone(),
                         Some(name),
                     ))
-                } else if let Some(predefined_tile) = predefined.get_tile(&name) {
+                } else if let Some(predefined_tile) = self.predefined.get_tile(&name) {
                     Ok((
-                        (self.0, predefined_tile, Some(name.clone()))
-                            .convert(predefined, custom)?
+                        self.convert_tile(tile_id, predefined_tile, Some(name.clone()))?
                             .first()
                             .unwrap()
                             .base()
@@ -251,43 +187,32 @@ impl Convertable<(Shape, Option<String>)> for (usize, TileLayout) {
                         return Err(ReadError::TileWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut base = Shape::from_elem((height, width), Square, false);
-                for (i, row) in array.iter().enumerate() {
-                    for (j, &value) in row.iter().enumerate() {
-                        base[(i, j)] = value != 0;
-                    }
-                }
+                let mut base = Polyform::polyomino_from_vec(&array, |value, _| {
+                    if value != 0 { Some(()) } else { None }
+                });
                 base.transpose();
                 Ok((base, None))
             }
         }
     }
-}
 
-impl Convertable<ColorConfig> for (usize, Option<Color>) {
-    fn convert(self, _: &Predefined, _: &mut Custom) -> Result<ColorConfig, ReadError> {
-        match self.1 {
-            None => Ok(ColorConfig::default_with_index(self.0)),
+    fn convert_tile_color(&mut self, tile_id: usize, color: Option<Color>) -> Result<ColorConfig, ReadError> {
+        match color {
+            None => Ok(ColorConfig::default_with_index(tile_id)),
             Some(Color::Hex(hex)) => {
                 ColorConfig::try_from(hex).map_err(|e| ReadError::InvalidColor { message: e })
             }
         }
     }
-}
 
-impl Convertable<BoardConfig> for Board {
-    fn convert(
-        self,
-        predefined: &Predefined,
-        custom: &mut Custom,
-    ) -> Result<BoardConfig, ReadError> {
-        match self {
+    fn convert_board(&mut self, board: Board) -> Result<BoardConfig, ReadError> {
+        match board {
             Board::Ref(name) => {
-                if let Some(custom_board) = custom.get_board(&name) {
-                    Ok(custom_board.convert(predefined, custom)?)
-                } else if let Some(predefined_board) = predefined.get_board(&name) {
-                    Ok(predefined_board.convert(predefined, custom)?)
-                } else if let Some(predefined_board) = board::from_predefined_board(&name) {
+                if let Some(custom_board) = self.custom.get_board(&name) {
+                    self.convert_board(custom_board)
+                } else if let Some(predefined_board) = self.predefined.get_board(&name) {
+                    self.convert_board(predefined_board)
+                } else if let Some(predefined_board) = self.predefined.predefined_board_from_str(&name) {
                     Ok(predefined_board)
                 } else {
                     Err(ReadError::UnknownCustomBoard {
@@ -307,14 +232,11 @@ impl Convertable<BoardConfig> for Board {
                         return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut array = Shape::from_elem((height, width), Square, false);
-                for (i, row) in layout.iter().enumerate() {
-                    for (j, &value) in row.iter().enumerate() {
-                        array[(i, j)] = value < 1;
-                    }
-                }
-                array.transpose();
-                Ok(BoardConfig::Simple { layout: array })
+                let mut polyform = Polyform::polyomino_from_vec(&layout, |value, _| {
+                    if value < 1 { Some(()) } else { None }
+                });
+                polyform.transpose();
+                Ok(BoardConfig::Simple { layout: polyform })
             }
             Board::AreaBoard {
                 area_layout,
@@ -325,7 +247,7 @@ impl Convertable<BoardConfig> for Board {
             } => {
                 let area_configs = areas
                     .into_iter()
-                    .map(|a| a.convert(predefined, custom))
+                    .map(|a| self.convert_area(a))
                     .collect::<Result<Vec<AreaConfig>, ReadError>>()?;
 
                 let board_layout = {
@@ -339,49 +261,34 @@ impl Convertable<BoardConfig> for Board {
                             return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                         }
                     }
-                    let mut array = Shape::from_elem((height, width), Square, false);
-                    for (i, row) in area_layout.iter().enumerate() {
-                        for (j, &value) in row.iter().enumerate() {
-                            array[(i, j)] = value >= 0;
-                        }
-                    }
+                    let mut array = Polyform::polyomino_from_vec(&area_layout, |value, (x, y)| {
+                        if value >= 0 {
+                            let area_index = area_layout.get(x).map(|v| v.get(y)).flatten()?;
+                            let display_value = values.get(x).map(|v| v.get(y)).flatten()?;
+                            let value_order = value_order.get(x).map(|v| v.get(y)).flatten()?;
+                            Some(AreaBoardData {
+                                area_index: *area_index,
+                                display_value: *display_value,
+                                value_order: *value_order,
+                            })
+                        } else { None }
+                    });
 
                     array.transpose();
                     array
                 };
 
                 Ok(BoardConfig::Area {
-                    layout: Box::new(board_layout),
-                    area_indices: Box::new(vec_vec_to_array2(&area_layout).reversed_axes()),
-                    display_values: Box::new(vec_vec_to_array2(&values).reversed_axes()),
-                    value_order: Box::new(vec_vec_to_array2(&value_order).reversed_axes()),
+                    layout: board_layout,
                     area_configs,
                     target_template: TargetTemplate::new(&target_template),
                 })
             }
         }
     }
-}
 
-fn vec_vec_to_array2<T: Clone + Default>(data: &[Vec<T>]) -> Array2<T> {
-    let height = data.len();
-    let width = if height > 0 { data[0].len() } else { 0 };
-    let mut array = Array2::<T>::default((height, width));
-    for (i, row) in data.iter().enumerate() {
-        for (j, value) in row.iter().enumerate() {
-            array[(i, j)] = value.clone();
-        }
-    }
-    array
-}
-
-impl Convertable<AreaConfig> for Area {
-    fn convert(
-        self,
-        predefined: &Predefined,
-        custom: &mut Custom,
-    ) -> Result<AreaConfig, ReadError> {
-        let formatter = match self.formatter {
+    fn convert_area(&mut self, area: Area) -> Result<AreaConfig, ReadError> {
+        let formatter = match area.formatter {
             AreaFormatter::Plain => AreaValueFormatter::Plain,
             AreaFormatter::Nth => AreaValueFormatter::Nth,
             AreaFormatter::PrefixSuffix { prefix, suffix } => {
@@ -390,16 +297,14 @@ impl Convertable<AreaConfig> for Area {
         };
 
         Ok(AreaConfig::new(
-            self.name,
+            area.name,
             formatter,
-            self.default_factory.convert(predefined, custom)?,
+            self.convert_default_factory(area.default_factory)?,
         ))
     }
-}
 
-impl Convertable<String> for DefaultFactory {
-    fn convert(self, _: &Predefined, _: &mut Custom) -> Result<String, ReadError> {
-        match self {
+    fn convert_default_factory(&mut self, default_factory: DefaultFactory) -> Result<String, ReadError> {
+        match default_factory {
             DefaultFactory::Fixed { value } => Ok(value),
             DefaultFactory::CurrentDay => {
                 let date =
@@ -441,80 +346,5 @@ impl Convertable<String> for DefaultFactory {
                 Ok(second_digit.to_string())
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use puzzled_common::shape::shape_square;
-
-    #[test]
-    fn test_convert_predefined_tile() {
-        let mut predefined = Predefined::default();
-        predefined.add_tile(
-            "L3".to_string(),
-            Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![1, 1]])),
-        );
-
-        let tile = Tile::Ref("L3".to_string());
-        let converted_tile = (0, tile, Some("L3".to_string()))
-            .convert(&predefined, &mut Custom::default())
-            .unwrap();
-        let expected_tile = TileConfig::new(
-            shape_square(&[[true, false], [true, true]]).transposed(),
-            ColorConfig::default_with_index(0),
-            Some("L3".to_string()),
-        );
-        assert_eq!(*converted_tile.first().unwrap(), expected_tile);
-    }
-
-    #[test]
-    fn test_convert_predefined_tile_unknown() {
-        let tile = Tile::Ref("test".to_string());
-        let converted_tile = (0, tile, Some("L3".to_string()))
-            .convert(&Predefined::default(), &mut Custom::default());
-        assert!(converted_tile.is_err());
-        assert_eq!(
-            converted_tile.err().unwrap(),
-            ReadError::UnknownPredefinedTile {
-                name: "test".to_string()
-            }
-        );
-    }
-
-    #[test]
-    fn test_convert_custom_tile() {
-        let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![1, 1]]));
-        let converted_tile = (0, tile, Some("L3".to_string()))
-            .convert(&Predefined::default(), &mut Custom::default())
-            .unwrap();
-        let expected_tile = TileConfig::new(
-            shape_square(&[[true, false], [true, true]]).transposed(),
-            ColorConfig::default_with_index(0),
-            Some("L3".to_string()),
-        );
-        assert_eq!(*converted_tile.first().unwrap(), expected_tile);
-    }
-
-    #[test]
-    fn test_convert_custom_tile_zero_dimension() {
-        let tile = Tile::Layout(TileLayout::Custom(vec![]));
-        let converted_tile = (0, tile, Some("L3".to_string()))
-            .convert(&Predefined::default(), &mut Custom::default());
-        assert!(converted_tile.is_err());
-        assert_eq!(
-            converted_tile.err().unwrap(),
-            ReadError::TileWidthOrHeightCannotBeZero
-        );
-
-        let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![]]));
-        let converted_tile = (0, tile, Some("L3".to_string()))
-            .convert(&Predefined::default(), &mut Custom::default());
-        assert!(converted_tile.is_err());
-        assert_eq!(
-            converted_tile.err().unwrap(),
-            ReadError::TileWidthOrHeightCannotBeZero
-        );
     }
 }

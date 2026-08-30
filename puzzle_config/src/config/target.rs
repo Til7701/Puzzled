@@ -1,5 +1,7 @@
 use crate::config::area::{AreaConfig, AreaValueFormatter};
-use ndarray::Array2;
+use crate::config::board::AreaBoardData;
+use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::grid::Coord;
 use std::fmt::{Display, Formatter};
 
 /// Template for formatting targets to show in the UI.
@@ -28,15 +30,15 @@ impl TargetTemplate {
     pub(crate) fn format(
         &self,
         target: &Target,
-        board_values: &Array2<String>,
+        layout: &Polyform<AreaBoardData>,
         area_configs: &[AreaConfig],
     ) -> String {
         let values: Vec<String> = target
             .indices
             .iter()
-            .map(|TargetIndex(x, y)| {
-                board_values
-                    .get((*x, *y))
+            .map(|TargetIndex(coord)| {
+                layout
+                    .get(*coord)
                     .cloned()
                     .unwrap_or_else(|| "???".to_string())
             })
@@ -97,16 +99,10 @@ pub struct Target {
 
 /// Represents the index of a target cell on the board.
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
-pub struct TargetIndex(pub usize, pub usize);
-
-impl PartialEq<(i32, i32)> for TargetIndex {
-    fn eq(&self, other: &(i32, i32)) -> bool {
-        self.0 as i32 == other.0 && self.1 as i32 == other.1
-    }
-}
+pub struct TargetIndex(Coord);
 
 impl Display for TargetIndex {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}, {})", self.0, self.1)
+        write!(f, "{}", self.0)
     }
 }

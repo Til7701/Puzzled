@@ -1,9 +1,8 @@
-use crate::json::converter::Convertable;
 use crate::json::model::{Board, Tile};
 use crate::{BoardConfig, TileConfig};
+use puzzled_common::polyform::Polyform;
 use serde::Deserialize;
 use std::collections::HashMap;
-use std::mem::take;
 
 pub type Predefined = ConfigStore;
 pub type Custom = ConfigStore;
@@ -32,27 +31,43 @@ impl ConfigStore {
         self.boards.get(name).cloned()
     }
 
+    #[deprecated]
     pub(crate) fn take_tiles(&mut self) -> Vec<TileConfig> {
-        let tiles: HashMap<String, Tile> = take(&mut self.tiles);
-        tiles
-            .into_iter()
-            .flat_map(|(name, tile)| {
-                (0, tile, Some(name))
-                    .convert(&Predefined::default(), &mut Custom::default())
-                    .unwrap()
-            })
-            .collect()
+        // let tiles: HashMap<String, Tile> = take(&mut self.tiles);
+        // tiles
+        //     .into_iter()
+        //     .flat_map(|(name, tile)| {
+        //         (0, tile, Some(name))
+        //             .convert(&Predefined::default(), &mut Custom::default())
+        //             .unwrap()
+        //     })
+        //     .collect()
+        unreachable!()
     }
 
+    #[deprecated]
     pub(crate) fn take_boards(&mut self) -> Vec<BoardConfig> {
-        let boards: HashMap<String, Board> = take(&mut self.boards);
-        boards
-            .into_values()
-            .map(|board| {
-                board
-                    .convert(&Predefined::default(), &mut Custom::default())
-                    .unwrap()
+        // let boards: HashMap<String, Board> = take(&mut self.boards);
+        // boards
+        //     .into_values()
+        //     .map(|board| {
+        //         board
+        //             .convert(&Predefined::default(), &mut Custom::default())
+        //             .unwrap()
+        //     })
+        //     .collect()
+        unreachable!()
+    }
+
+    pub fn predefined_board_from_str(&self, name: &str) -> Option<BoardConfig> {
+        name
+            .split("x")
+            .filter_map(|part| part.parse::<i32>().ok())
+            .collect::<Vec<i32>>()
+            .get(0..2)
+            .map(|dims| (dims[0], dims[1]))
+            .map(|(rows, cols)| BoardConfig::Simple {
+                layout: Polyform::polyomino_sized(rows as usize, cols as usize),
             })
-            .collect()
     }
 }
