@@ -38,8 +38,8 @@ impl TargetTemplate {
             .iter()
             .map(|TargetIndex(coord)| {
                 layout
-                    .get(*coord)
-                    .cloned()
+                    .get(coord)
+                    .map(|data| data.data().display_value.clone())
                     .unwrap_or_else(|| "???".to_string())
             })
             .collect();
@@ -100,6 +100,12 @@ pub struct Target {
 /// Represents the index of a target cell on the board.
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct TargetIndex(Coord);
+
+impl TargetIndex {
+    pub fn new(coord: Coord) -> Self {
+        TargetIndex(coord)
+    }
+}
 
 impl Display for TargetIndex {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

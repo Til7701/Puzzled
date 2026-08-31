@@ -22,6 +22,10 @@ where
         &self.coord
     }
 
+    pub fn set_coord(&mut self, coord: Coord) {
+        self.coord = coord;
+    }
+
     pub fn orientation(&self) -> SquareOrientation {
         self.orientation
     }
@@ -30,11 +34,15 @@ where
         &self.data
     }
 
-    pub fn rotate_counterclockwise(&mut self, viewport: Coord) {
+    pub fn set_data(&mut self, data: T) {
+        self.data = data;
+    }
+
+    pub fn rotate_counterclockwise(&mut self, viewport: &Coord) {
         self.coord.rotate_counterclockwise(viewport);
     }
 
-    pub fn flip_default(&mut self, viewport: Coord) {
+    pub fn flip_default(&mut self, viewport: &Coord) {
         self.coord.flip_default(viewport);
     }
 

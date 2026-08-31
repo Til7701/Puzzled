@@ -3,7 +3,7 @@ use crate::polyform::grid::Coord;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Hexagon<T>
 where
-    T: Default + Clone,
+    T: Clone,
 {
     coord: Coord,
     orientation: HexagonOrientation,
@@ -12,7 +12,7 @@ where
 
 impl<T> Hexagon<T>
 where
-    T: Default + Clone,
+    T: Clone,
 {
     pub fn new(coord: Coord, orientation: HexagonOrientation, data: T) -> Self {
         Hexagon { coord, orientation, data }
@@ -28,6 +28,22 @@ where
 
     pub fn data(&self) -> &T {
         &self.data
+    }
+
+    pub fn set_data(&mut self, data: T) {
+        self.data = data;
+    }
+
+    pub fn rotate_counterclockwise(&mut self, viewport: &Coord) {
+        self.coord.rotate_counterclockwise(viewport);
+    }
+
+    pub fn flip_default(&mut self, viewport: &Coord) {
+        self.coord.flip_default(viewport);
+    }
+
+    pub fn transpose(&mut self) {
+        self.coord.transpose();
     }
 }
 

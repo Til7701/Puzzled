@@ -1,27 +1,25 @@
 use crate::random::{Algorithm, RandomPuzzleSettings};
-use ndarray::Array2;
-use puzzled_common::Shape;
-use puzzled_common::ShapeType::Square;
+use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::grid::{Coord, RegularCoord};
 use rand::{Rng, RngExt};
 use std::collections::BTreeMap;
 
-pub fn create_puzzle(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> (Shape, Vec<Shape>) {
+pub fn create_puzzle(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> (Polyform<()>, Vec<Polyform<()>>) {
     let tile_count = match settings.algorithm {
         Algorithm::Growing { tile_count, .. } => tile_count,
     };
     let base_board = generate_base_board(settings, rng);
-    let complete_board = grow_until_complete(rng, base_board);
+    let mut complete_board = grow_until_complete(rng, base_board);
 
-    let board = Shape::new(Square, complete_board.map(|x| x.is_some()));
     let tiles = (0..tile_count)
         .map(|i| extract_tile(i as u32, &complete_board))
-        .filter(|tile| tile.iter().any(|&x| x))
         .collect();
+    let board = complete_board.map(|_| ());
 
     (board, tiles)
 }
 
-fn generate_base_board(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> Array2<Option<u32>> {
+fn generate_base_board(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> Polyform<Option<u32>> {
     let (tile_count, board_width, board_height) = match settings.algorithm {
         Algorithm::Growing {
             tile_count,
@@ -29,18 +27,20 @@ fn generate_base_board(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> Ar
             board_height,
         } => (tile_count, board_width, board_height),
     };
-    let mut base = Array2::from_elem((board_width, board_height), None::<u32>);
+    let mut base = Polyform::polyomino_sized(RegularCoord::new(board_width as u32, board_height as u32), None::<u32>);
 
     for i in 0..tile_count {
         loop {
             let x = rng.random_range(0..board_width);
             let y = rng.random_range(0..board_height);
-            if base.get((x, y)).unwrap().is_none() {
-                base[[x, y]] = Some(i as u32);
+            if let Some(mut prototile) = base.get_mut(&RegularCoord::new(x as u32, y as u32).into())
+                && prototile.data().is_none()
+            {
+                prototile.set_data(Some(i as u32));
                 break;
             }
         }
-        if base.iter().all(|&x| x.is_some()) {
+        if base.iter().all(|x| x.data().is_some()) {
             break;
         }
     }
@@ -50,15 +50,15 @@ fn generate_base_board(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> Ar
 
 fn grow_until_complete(
     rng: &mut dyn Rng,
-    mut base_board: Array2<Option<u32>>,
-) -> Array2<Option<u32>> {
-    while base_board.iter().any(|&x| x.is_none()) {
+    mut base_board: Polyform<Option<u32>>,
+) -> Polyform<Option<u32>> {
+    while base_board.iter().any(|x| x.data().is_none()) {
         base_board = grow(rng, base_board);
     }
     base_board
 }
 
-fn grow(rng: &mut dyn Rng, base_board: Array2<Option<u32>>) -> Array2<Option<u32>> {
+fn grow(rng: &mut dyn Rng, base_board: Polyform<Option<u32>>) -> Polyform<Option<u32>> {
     let mut new_board = base_board.clone();
 
     let tile_indices = tile_indices_sorted_by_size(&base_board);
@@ -73,10 +73,10 @@ fn grow(rng: &mut dyn Rng, base_board: Array2<Option<u32>>) -> Array2<Option<u32
     new_board
 }
 
-fn tile_indices_sorted_by_size(board: &Array2<Option<u32>>) -> Vec<u32> {
+fn tile_indices_sorted_by_size(board: &Polyform<Option<u32>>) -> Vec<u32> {
     let map = board
         .iter()
-        .filter_map(|&x| x)
+        .filter_map(|x| *x.data())
         .fold(BTreeMap::new(), |mut acc, x| {
             *acc.entry(x).or_insert(0) += 1;
             acc
@@ -88,35 +88,41 @@ fn tile_indices_sorted_by_size(board: &Array2<Option<u32>>) -> Vec<u32> {
 
 fn grow_tile_index(
     rng: &mut dyn Rng,
-    base_board: Array2<Option<u32>>,
+    base_board: Polyform<Option<u32>>,
     tile_index: u32,
-) -> (bool, Array2<Option<u32>>) {
+) -> (bool, Polyform<Option<u32>>) {
     let mut new_board = base_board.clone();
-    let xs = base_board.dim().0;
-    let ys = base_board.dim().1;
+    let dim = match base_board.dim() {
+        Coord::Regular(dim) => dim,
+        _ => unreachable!()
+    };
+    let xs = dim.x();
+    let ys = dim.y();
     let mut changed = false;
 
+    let new_cell_data = Some(tile_index);
     for _ in 0..100 {
         let x = rng.random_range(0..xs);
         let y = rng.random_range(0..ys);
 
-        if let Some(Some(index)) = base_board.get((x, y))
+        if let Some(prototile) = base_board.get(&RegularCoord::new(x, y).into())
+            && let Some(index) = prototile.data()
             && *index == tile_index
         {
-            if x > 0 && base_board[[x - 1, y]].is_none() {
-                new_board[[x - 1, y]] = base_board[[x, y]];
+            if x > 0 && base_board.get(&RegularCoord::new(x - 1, y).into()).unwrap().data().is_none() {
+                new_board.get_mut(&RegularCoord::new(x - 1, y).into()).unwrap().set_data(new_cell_data.clone());
                 changed = true;
                 break;
-            } else if x + 1 < xs && base_board[[x + 1, y]].is_none() {
-                new_board[[x + 1, y]] = base_board[[x, y]];
+            } else if x + 1 < xs && base_board.get(&RegularCoord::new(x + 1, y).into()).unwrap().data().is_none() {
+                new_board.get_mut(&RegularCoord::new(x + 1, y).into()).unwrap().set_data(new_cell_data.clone());
                 changed = true;
                 break;
-            } else if y > 0 && base_board[[x, y - 1]].is_none() {
-                new_board[[x, y - 1]] = base_board[[x, y]];
+            } else if y > 0 && base_board.get(&RegularCoord::new(x, y - 1).into()).unwrap().data().is_none() {
+                new_board.get_mut(&RegularCoord::new(x, y - 1).into()).unwrap().set_data(new_cell_data.clone());
                 changed = true;
                 break;
-            } else if y + 1 < ys && base_board[[x, y + 1]].is_none() {
-                new_board[[x, y + 1]] = base_board[[x, y]];
+            } else if y + 1 < ys && base_board.get(&RegularCoord::new(x, y + 1).into()).unwrap().data().is_none() {
+                new_board.get_mut(&RegularCoord::new(x, y + 1).into()).unwrap().set_data(new_cell_data.clone());
                 changed = true;
                 break;
             }
@@ -126,9 +132,8 @@ fn grow_tile_index(
     (changed, new_board)
 }
 
-fn extract_tile(tile_index: u32, complete_board: &Array2<Option<u32>>) -> Shape {
-    let base = complete_board.map(|&x| x.filter(|&i| i == tile_index).is_none());
-    let mut shape = Shape::new(Square, base);
-    shape.trim_matching(true);
-    shape.map(|x| !x)
+fn extract_tile(tile_index: u32, complete_board: &Polyform<Option<u32>>) -> Polyform<()> {
+    let mut base = complete_board.clone().filter_map(&|x| x.filter(|i| *i == tile_index));
+    base.trim();
+    base.map(|_| ())
 }

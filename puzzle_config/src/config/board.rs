@@ -4,7 +4,7 @@ use puzzled_common::polyform::Polyform;
 use std::hash::{Hash, Hasher};
 
 pub type SimpleBoardData = ();
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct AreaBoardData {
     pub area_index: i32,
     pub display_value: String,
@@ -57,16 +57,16 @@ impl BoardConfig {
             let data = prototile.data();
             if data.display_value == board_value && data.area_index == area_index {
                 let coord = prototile.coord();
-                return Some(TargetIndex(*coord));
+                return Some(TargetIndex::new(coord.clone()));
             }
         }
         None
     }
 
-    pub fn layout<T>(&self) -> &Polyform<T> {
+    pub fn layout(&self) -> Polyform<()> {
         match self {
-            BoardConfig::Simple { layout } => layout,
-            BoardConfig::Area { layout, .. } => layout,
+            BoardConfig::Simple { layout } => layout.clone(),
+            BoardConfig::Area { layout, .. } => layout.clone().map(|_| ()),
         }
     }
 
@@ -100,11 +100,11 @@ impl BoardConfig {
             .iter()
             .filter_map(|prototile| {
                 let data = prototile.data();
-                let index = data.area_index();
+                let index = data.area_index;
                 if index == area_index {
-                    let value = data.display_value();
-                    let order = data.value_order();
-                    Some((*order, value.clone(), TargetIndex(prototile.coord())))
+                    let value = &data.display_value;
+                    let order = data.value_order;
+                    Some((order, value.clone(), TargetIndex::new(prototile.coord().clone())))
                 } else {
                     None
                 }

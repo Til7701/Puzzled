@@ -11,8 +11,8 @@ pub struct Converter<'a> {
     custom: Custom,
 }
 
-impl Converter {
-    pub fn new(predefined: &Predefined) -> Self {
+impl<'a> Converter<'a> {
+    pub fn new(predefined: &'a Predefined) -> Self {
         Converter {
             predefined,
             custom: Custom::default(),
@@ -187,7 +187,7 @@ impl Converter {
                         return Err(ReadError::TileWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut base = Polyform::polyomino_from_vec(&array, |value, _| {
+                let mut base = Polyform::polyomino_from_vec(&array, &|value, _| {
                     if value != 0 { Some(()) } else { None }
                 });
                 base.transpose();
@@ -232,7 +232,7 @@ impl Converter {
                         return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut polyform = Polyform::polyomino_from_vec(&layout, |value, _| {
+                let mut polyform = Polyform::polyomino_from_vec(&layout, &|value, _| {
                     if value < 1 { Some(()) } else { None }
                 });
                 polyform.transpose();
@@ -261,14 +261,14 @@ impl Converter {
                             return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                         }
                     }
-                    let mut array = Polyform::polyomino_from_vec(&area_layout, |value, (x, y)| {
+                    let mut array = Polyform::polyomino_from_vec(&area_layout, &|value, (x, y)| {
                         if value >= 0 {
                             let area_index = area_layout.get(x).map(|v| v.get(y)).flatten()?;
                             let display_value = values.get(x).map(|v| v.get(y)).flatten()?;
                             let value_order = value_order.get(x).map(|v| v.get(y)).flatten()?;
                             Some(AreaBoardData {
                                 area_index: *area_index,
-                                display_value: *display_value,
+                                display_value: display_value.clone(),
                                 value_order: *value_order,
                             })
                         } else { None }

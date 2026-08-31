@@ -1,6 +1,7 @@
 use crate::json::model::{Board, Tile};
 use crate::{BoardConfig, TileConfig};
 use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::grid::RegularCoord;
 use serde::Deserialize;
 use std::collections::HashMap;
 
@@ -67,7 +68,7 @@ impl ConfigStore {
             .get(0..2)
             .map(|dims| (dims[0], dims[1]))
             .map(|(rows, cols)| BoardConfig::Simple {
-                layout: Polyform::polyomino_sized(rows as usize, cols as usize),
+                layout: Polyform::polyomino_sized(RegularCoord::new(rows as u32, cols as u32), ()),
             })
     }
 }

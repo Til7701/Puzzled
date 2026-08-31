@@ -12,7 +12,7 @@ pub enum Coord {
 }
 
 impl Coord {
-    pub fn rotate_counterclockwise(&mut self, viewport: Coord) {
+    pub fn rotate_counterclockwise(&mut self, viewport: &Coord) {
         match (self, viewport) {
             (Coord::Regular(s), Coord::Regular(v)) => s.rotate_counterclockwise(v),
             (Coord::Hex(s), Coord::Hex(v)) => s.rotate_counterclockwise(v),
@@ -20,7 +20,7 @@ impl Coord {
         }
     }
 
-    pub fn flip_default(&mut self, viewport: Coord) {
+    pub fn flip_default(&mut self, viewport: &Coord) {
         match (self, viewport) {
             (Coord::Regular(s), Coord::Regular(v)) => s.flip_default(v),
             (Coord::Hex(s), Coord::Hex(v)) => s.flip_default(v),
@@ -29,10 +29,22 @@ impl Coord {
     }
 
     pub fn transpose(&mut self) {
-        match (self) {
+        match self {
             Coord::Regular(s) => s.transpose(),
             Coord::Hex(s) => s.transpose(),
         }
+    }
+}
+
+impl<'a> From<RegularCoord> for Coord {
+    fn from(value: RegularCoord) -> Self {
+        Coord::Regular(value)
+    }
+}
+
+impl<'a> From<HexCoord> for Coord {
+    fn from(value: HexCoord) -> Self {
+        Coord::Hex(value)
     }
 }
 

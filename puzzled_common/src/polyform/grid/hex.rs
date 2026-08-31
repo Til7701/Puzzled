@@ -11,11 +11,11 @@ pub struct HexCoord {
 }
 
 impl HexCoord {
-    pub fn rotate_counterclockwise(&mut self, viewport: Self) {
+    pub fn rotate_counterclockwise(&mut self, viewport: &Self) {
         todo!()
     }
 
-    pub fn flip_default(&mut self, viewport: Self) {
+    pub fn flip_default(&mut self, viewport: &Self) {
         todo!()
     }
 
