@@ -2,6 +2,7 @@ mod hex;
 mod regular;
 
 use std::fmt::{Display, Formatter};
+use std::ops::Add;
 pub use hex::HexCoord;
 pub use regular::RegularCoord;
 
@@ -53,6 +54,18 @@ impl Display for Coord {
         match self {
             Coord::Regular(regular) => { regular.fmt(f) }
             Coord::Hex(hex) => { hex.fmt(f) }
+        }
+    }
+}
+
+impl Add for &Coord {
+    type Output = Coord;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Coord::Regular(s), Coord::Regular(r)) => (s + r).into(),
+            (Coord::Hex(s), Coord::Hex(r)) => (s + r).into(),
+            _ => unreachable!()
         }
     }
 }

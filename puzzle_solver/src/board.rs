@@ -1,8 +1,5 @@
 use log::debug;
-use puzzled_common::Shape;
-use puzzled_common::ShapeType::Square;
-use puzzled_common::shape::TrimSides;
-use std::ops::{Index, IndexMut};
+use puzzled_common::polyform::{Polyform, TrimSides};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
 /// A filled cell is either outside the puzzle area or blocked by a placed tile.
@@ -20,7 +17,7 @@ use std::ops::{Index, IndexMut};
 /// assert_eq!(board[[2, 3]], true);
 /// ```
 #[derive(Clone)]
-pub struct Board(Shape);
+pub struct Board(Polyform<()>);
 
 impl Board {
     /// Creates a new Board with the given dimensions, initialized to all false (empty).
@@ -40,8 +37,8 @@ impl Board {
     /// assert_eq!(board.get_shape().dim(), (3, 4));
     /// assert!(board.get_shape().iter().all(|&b| b == false));
     /// ```
-    pub fn new(dims: (usize, usize)) -> Self {
-        Board(Shape::from_elem(dims, Square, false))
+    pub fn new(base: Polyform<()>) -> Self {
+        Board(base)
     }
 
     /// Returns a reference to the internal 2D array representing the board.
@@ -62,7 +59,7 @@ impl Board {
     /// let board = Board::new((3, 4));
     /// assert_eq!(board.get_shape(), &Shape::from_elem((3, 4), Square, false));
     /// ```
-    pub fn get_shape(&self) -> &Shape {
+    pub fn get_polyform(&self) -> &Polyform<()> {
         &self.0
     }
 
@@ -78,26 +75,12 @@ impl Board {
     /// Trims the board by removing any rows or columns on the edges that are entirely
     /// true (filled).
     pub(crate) fn trim(&mut self) -> TrimSides {
-        self.0.trim_matching(true)
+        self.0.trim()
     }
 }
 
-impl Index<[usize; 2]> for Board {
-    type Output = bool;
-
-    fn index(&self, index: [usize; 2]) -> &Self::Output {
-        &self.0[(index[0], index[1])]
-    }
-}
-
-impl IndexMut<[usize; 2]> for Board {
-    fn index_mut(&mut self, index: [usize; 2]) -> &mut Self::Output {
-        &mut self.0[(index[0], index[1])]
-    }
-}
-
-impl From<Shape> for Board {
-    fn from(array: Shape) -> Self {
+impl From<Polyform<()>> for Board {
+    fn from(array: Polyform<()>) -> Self {
         Board(array)
     }
 }

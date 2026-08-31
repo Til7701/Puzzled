@@ -47,6 +47,13 @@ where
         }
     }
 
+    pub fn area(&self) -> usize {
+        match self {
+            Polyform::Polyomino { dim, .. } => dim.area(),
+            Polyform::Hexomino { dim, .. } => dim.area()
+        }
+    }
+
     pub fn rotate_to_landscape(&mut self) {
         todo!()
     }
@@ -157,9 +164,50 @@ where
             upper: upper.into(),
         }
     }
+
+    pub fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+        match self {
+            Polyform::Polyomino { .. } => {
+                self.polyomino_count_biggest_connected_area_of_cells_matching(target_value)
+            }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
+    }
+
+    fn polyomino_count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+        todo!()
+    }
+
+    pub fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+        match self {
+            Polyform::Polyomino { .. } => {
+                self.polyomino_count_smallest_connected_area_of_cells_matching(target_value)
+            }
+            Polyform::Hexomino { .. } => { todo!() }
+        }
+    }
+
+    fn polyomino_count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+        todo!()
+    }
+
+    #[allow(dead_code)]
+    pub fn debug_print(&self) {
+        if cfg!(debug_assertions) {
+            todo!()
+        }
+    }
 }
 
 impl Polyform<()> {
+    pub fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
+        todo!()
+    }
+
+    pub fn remove_parent(&mut self, parent: &Self) {
+        todo!()
+    }
+
     //#[cfg(test)]
     pub fn polyomino_from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self {
         todo!()

@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use std::ops::Add;
 
 /// A regular grid with square elements.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -48,10 +49,25 @@ impl RegularCoord {
         self.x = old_x;
         self.y = old_y;
     }
+
+    pub fn area(&self) -> usize {
+        self.x as usize * self.y as usize
+    }
 }
 
 impl Display for RegularCoord {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "R({}, {})", self.x, self.y)
+    }
+}
+
+impl Add for &RegularCoord {
+    type Output = RegularCoord;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        RegularCoord {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
     }
 }

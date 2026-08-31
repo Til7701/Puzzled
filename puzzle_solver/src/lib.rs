@@ -70,13 +70,12 @@ pub fn solve_all_filling(
                 .placements()
                 .iter()
                 .map(|placement| {
-                    let (x, y) = placement.position();
-                    let (trimmed_x, trimmed_y) = (x + trim_sides.lower_x, y + trim_sides.lower_y);
+                    let position = placement.position() + &trim_sides.lower;
                     TilePlacement::new(
                         placement.tile_id(),
                         placement.base().clone(),
                         placement.rotation().clone(),
-                        (trimmed_x, trimmed_y),
+                        position,
                     )
                 })
                 .collect();
@@ -135,7 +134,7 @@ mod tests {
             [true, true, true, true, true, true, true],
             [true, true, true, true, true, true, true],
         ])
-        .into();
+            .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[true, true, true], [true, true, false]])),
             Tile::new(43, shape_square(&[[true, true, true], [true, true, true]])),
@@ -273,7 +272,7 @@ mod tests {
             [true, false, false, true, true],
             [false, false, false, true, true],
         ])
-        .into();
+            .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[false, true, true], [true, true, true]])),
             Tile::new(
@@ -333,7 +332,7 @@ mod tests {
             [false, true, false],
             [false, false, true],
         ])
-        .into();
+            .into();
         let tiles = vec![
             Tile::new(42, shape_square(&[[false, true], [true, true]])),
             Tile::new(43, shape_square(&[[false, true], [true, true]])),

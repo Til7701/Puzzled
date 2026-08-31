@@ -9,7 +9,7 @@ use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
 use log::debug;
-use puzzled_common::Shape;
+use puzzled_common::polyform::Polyform;
 use std::num::NonZero;
 use std::thread;
 use std::thread::JoinHandle;
@@ -61,11 +61,11 @@ fn prepare_solver(
     positioned_tiles: &[PositionedTile],
     index_with_most_options: usize,
 ) -> Result<Solver<Opt>, UnsolvableReason> {
-    let option_count = board.get_shape().len() + positioned_tiles.len();
+    let option_count = board.get_polyform().area() + positioned_tiles.len();
     let mut solver = Solver::new(option_count);
     solver.add_option(
         Opt::Board,
-        &shape_to_filled_indices(board.get_shape(), positioned_tiles.len()),
+        &shape_to_filled_indices(board.get_polyform(), positioned_tiles.len()),
     );
 
     for (tile_index, positioned_tile) in positioned_tiles.iter().enumerate() {
@@ -152,7 +152,7 @@ fn run_multithreaded(
 /// first placement in the slice.
 fn add_placements(
     solver: &mut Solver<Opt>,
-    placements: &[Shape],
+    placements: &[Polyform<()>],
     tile_index: usize,
     max_tile_index: usize,
     position_index_offset: usize,
@@ -170,18 +170,17 @@ fn add_placements(
 
 /// Creates a list of indices where the tile has cells and prepends the list with the index of
 /// the tile. This list can be given to the DLX solver.
-fn tile_to_filled_indices(tile: &Shape, tile_index: usize, max_tile_index: usize) -> Vec<usize> {
+fn tile_to_filled_indices(tile: &Polyform<()>, tile_index: usize, max_tile_index: usize) -> Vec<usize> {
     let mut tile_indices = shape_to_filled_indices(tile, max_tile_index);
     tile_indices.insert(0, tile_index + 1);
     tile_indices
 }
 
 /// Creates a list of indices where the shape is true.
-fn shape_to_filled_indices(shape: &Shape, index_offset: usize) -> Vec<usize> {
+fn shape_to_filled_indices(shape: &Polyform<()>, index_offset: usize) -> Vec<usize> {
     shape
         .iter()
         .enumerate()
-        .filter(|(_, v)| **v)
         .map(|(i, _)| index_offset + i + 1)
         .collect()
 }
@@ -203,12 +202,12 @@ fn create_solution(
                     let tile = &tiles[*tile_index];
                     let mut placed_tile =
                         positioned_tiles[*tile_index].all_placements()[*position_index].clone();
-                    let trim = placed_tile.trim_matching(false);
+                    let trim = placed_tile.trim();
                     Some(TilePlacement::new(
                         tile.id(),
                         tile.base.clone(),
                         placed_tile,
-                        (trim.lower_x, trim.lower_y),
+                        trim.lower,
                     ))
                 } else {
                     None
