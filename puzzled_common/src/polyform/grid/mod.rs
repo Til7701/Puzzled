@@ -35,6 +35,13 @@ impl Coord {
             Coord::Hex(s) => s.transpose(),
         }
     }
+
+    pub fn area(&self) -> usize {
+        match self {
+            Coord::Regular(regular) => regular.area(),
+            Coord::Hex(hex) => hex.area()
+        }
+    }
 }
 
 impl<'a> From<RegularCoord> for Coord {

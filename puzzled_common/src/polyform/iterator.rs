@@ -93,7 +93,7 @@ where
                 if self.index >= 8 {
                     None
                 } else if self.index == 4 {
-                    polyform.flip_horizontally();
+                    polyform.flip();
                     Some(polyform.clone())
                 } else {
                     polyform.rotate_clockwise();

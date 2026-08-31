@@ -65,7 +65,7 @@ where
         todo!()
     }
 
-    pub fn flip_horizontally(&mut self) {
+    pub fn flip(&mut self) {
         todo!()
     }
 
@@ -212,6 +212,14 @@ where
         todo!()
     }
 
+    pub fn invert_to_empty(&mut self) {
+        todo!()
+    }
+
+    pub fn as_2d_slice(&self) -> String {
+        todo!()
+    }
+
     #[allow(dead_code)]
     pub fn debug_print(&self) {
         if cfg!(debug_assertions) {
@@ -232,6 +240,18 @@ impl Polyform<()> {
     //#[cfg(test)]
     pub fn polyomino_from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self {
         todo!()
+    }
+}
+
+impl<T> Default for Polyform<T>
+where
+    T: Clone,
+{
+    fn default() -> Self {
+        Polyform::Polyomino {
+            dim: RegularCoord::new(0, 0),
+            cells: vec![],
+        }
     }
 }
 

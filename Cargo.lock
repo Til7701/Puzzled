@@ -850,7 +850,6 @@ dependencies = [
  "gtk4",
  "libadwaita",
  "log",
- "ndarray",
  "puzzle_config",
  "puzzle_solver",
  "puzzled_common",

@@ -67,9 +67,8 @@ impl PuzzlePage {
         let board_dimensions = self.create_row(
             "Board Dimensions",
             &format!(
-                "{} x {}",
-                puzzle_config.board_config().layout().dim().0,
-                puzzle_config.board_config().layout().dim().1
+                "{}",
+                puzzle_config.board_config().layout().dim()
             ),
         );
         action_rows.push(board_dimensions);

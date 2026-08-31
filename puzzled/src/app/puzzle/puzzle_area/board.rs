@@ -1,12 +1,12 @@
 use crate::app::components::board::BoardView;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
 use crate::model::extension::PuzzleTypeExtension;
-use crate::offset::PixelOffset;
+use crate::model::placement::PixelPosition;
 use adw::prelude::Cast;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::Widget;
-use gtk::prelude::{FixedExt, GridExt, WidgetExt};
-use puzzle_config::{PuzzleConfig, TargetIndex};
+use gtk::prelude::{FixedExt, WidgetExt};
+use puzzle_config::PuzzleConfig;
 
 const TARGET_SELECTION_CLASS: &str = "target-selection";
 
@@ -15,7 +15,7 @@ impl PuzzleArea {
         let board_view =
             BoardView::new(puzzle_config.board_config()).expect("Failed to initialize board view");
         let widget = board_view.upcast_ref::<Widget>();
-        self.add(widget, &PixelOffset::default());
+        self.add(widget, &PixelPosition::default());
 
         self.imp().board.replace(Some(board_view));
     }
@@ -40,14 +40,13 @@ impl PuzzleArea {
         let puzzle_type_extension = self.imp().puzzle_type_extension.borrow();
         let board = self.imp().board.borrow();
         if let Some(PuzzleTypeExtension::Area {
-            target: Some(target),
-        }) = puzzle_type_extension.as_ref()
+                        target: Some(target),
+                    }) = puzzle_type_extension.as_ref()
             && let Some(board_view) = board.as_ref()
         {
-            target.indices.iter().for_each(|TargetIndex(x, y)| {
-                if let Some(widget) = board_view.child_at(*x as i32, *y as i32) {
-                    widget.add_css_class(TARGET_SELECTION_CLASS);
-                }
+            target.indices.iter().for_each(|target_index| {
+                let coord = target_index.coord();
+                board_view.highlight(coord);
             })
         }
     }
@@ -55,9 +54,7 @@ impl PuzzleArea {
     fn clear_target_selection(&self) {
         let board = self.imp().board.borrow();
         if let Some(board_view) = board.as_ref() {
-            board_view.elements().iter().for_each(|widget| {
-                widget.remove_css_class(TARGET_SELECTION_CLASS);
-            });
+            board_view.remove_highlights();
         }
     }
 

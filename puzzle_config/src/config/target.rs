@@ -105,6 +105,10 @@ impl TargetIndex {
     pub fn new(coord: Coord) -> Self {
         TargetIndex(coord)
     }
+
+    pub fn coord(&self) -> &Coord {
+        &self.0
+    }
 }
 
 impl Display for TargetIndex {

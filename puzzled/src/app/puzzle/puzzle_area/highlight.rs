@@ -22,14 +22,13 @@ impl PuzzleArea {
     pub fn highlight_invalid_tile_parts(&self, puzzle_state: &PuzzleState) {
         let tile_views = self.imp().tiles.borrow();
 
-        puzzle_state.grid.iter().for_each(|cell| match cell {
+        puzzle_state.grid.iter().for_each(|cell| match cell.data() {
             Cell::One(data, tile_cell_placement) => {
                 if !data.allowed
                     && let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id)
                 {
                     tile_view.set_drawing_mode_at(
-                        tile_cell_placement.cell_position.0 as usize,
-                        tile_cell_placement.cell_position.1 as usize,
+                        &tile_cell_placement.cell_position,
                         DrawingMode::OutOfBounds,
                     );
                 }
@@ -38,8 +37,7 @@ impl PuzzleArea {
                 for tile_cell_placement in tile_cell_placements {
                     if let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id) {
                         tile_view.set_drawing_mode_at(
-                            tile_cell_placement.cell_position.0 as usize,
-                            tile_cell_placement.cell_position.1 as usize,
+                            &tile_cell_placement.cell_position,
                             DrawingMode::Overlapping,
                         );
                     }
