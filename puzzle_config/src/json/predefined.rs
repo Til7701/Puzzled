@@ -61,8 +61,7 @@ impl ConfigStore {
     }
 
     pub fn predefined_board_from_str(&self, name: &str) -> Option<BoardConfig> {
-        name
-            .split("x")
+        name.split("x")
             .filter_map(|part| part.parse::<i32>().ok())
             .collect::<Vec<i32>>()
             .get(0..2)

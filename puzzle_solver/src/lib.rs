@@ -38,12 +38,12 @@ pub mod tile;
 /// use puzzle_solver::cancellation_token::CancellationToken;
 /// use puzzled_common::polyform::Polyform::polyomino_from_bool_slice;
 ///
-///    let board = Board::new(Polyform::polyomino_from_bool_slice(&[
-///             [true, false, false],
-///             [false, false, false],
-///             [false, false, false],
-///             [false, false, false]
-///         ]));
+/// let board = Board::new(Polyform::polyomino_from_bool_slice(&[
+///     [true, false, false],
+///     [false, false, false],
+///     [false, false, false],
+///     [false, false, false]
+/// ]));
 /// let tiles = vec![
 ///     Tile::new(42, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]])),
 ///     Tile::new(43, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, false]])),
@@ -100,11 +100,17 @@ mod tests {
             [true, false, false],
             [false, false, false],
             [false, false, false],
-            [false, false, false]
+            [false, false, false],
         ]));
         let tiles = vec![
-            Tile::new(42, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, false]])),
-            Tile::new(43, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]])),
+            Tile::new(
+                42,
+                Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, false]]),
+            ),
+            Tile::new(
+                43,
+                Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]]),
+            ),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -143,8 +149,14 @@ mod tests {
             [true, true, true, true, true, true, true],
         ]));
         let tiles = vec![
-            Tile::new(42, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, false]])),
-            Tile::new(43, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]])),
+            Tile::new(
+                42,
+                Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, false]]),
+            ),
+            Tile::new(
+                43,
+                Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]]),
+            ),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -203,8 +215,14 @@ mod tests {
             [false, false, false],
         ]));
         let tiles = vec![
-            Tile::new(42, Polyform::polyomino_from_bool_slice(&[[true, true, true], [false, true, true]])),
-            Tile::new(43, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, false]])),
+            Tile::new(
+                42,
+                Polyform::polyomino_from_bool_slice(&[[true, true, true], [false, true, true]]),
+            ),
+            Tile::new(
+                43,
+                Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, false]]),
+            ),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -251,12 +269,18 @@ mod tests {
             [false, false, false],
         ]));
         let tiles = vec![
-            Tile::new(42, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]])),
+            Tile::new(
+                42,
+                Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]]),
+            ),
             Tile::new(
                 43,
                 Polyform::polyomino_from_bool_slice(&[[true, true, false], [true, false, true]]),
             ),
-            Tile::new(44, Polyform::polyomino_from_bool_slice(&[[true, false, true], [true, true, true]])),
+            Tile::new(
+                44,
+                Polyform::polyomino_from_bool_slice(&[[true, false, true], [true, true, true]]),
+            ),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -272,8 +296,14 @@ mod tests {
             [false, false, false],
         ]));
         let tiles = vec![
-            Tile::new(42, Polyform::polyomino_from_bool_slice(&[[true, false, true], [true, true, true]])),
-            Tile::new(43, Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]])),
+            Tile::new(
+                42,
+                Polyform::polyomino_from_bool_slice(&[[true, false, true], [true, true, true]]),
+            ),
+            Tile::new(
+                43,
+                Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, true, true]]),
+            ),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -305,7 +335,10 @@ mod tests {
             [false, false, false, true, true],
         ]));
         let tiles = vec![
-            Tile::new(42, Polyform::polyomino_from_bool_slice(&[[false, true, true], [true, true, true]])),
+            Tile::new(
+                42,
+                Polyform::polyomino_from_bool_slice(&[[false, true, true], [true, true, true]]),
+            ),
             Tile::new(
                 43,
                 Polyform::polyomino_from_bool_slice(&[
@@ -348,7 +381,10 @@ mod tests {
     #[test]
     fn test_solve_tile_can_not_be_placed() {
         let board = Polyform::polyomino_from_bool_slice(&[[false, false], [false, false]]).into();
-        let tiles = vec![Tile::new(42, Polyform::polyomino_from_bool_slice(&[[true, true, true, true]]))];
+        let tiles = vec![Tile::new(
+            42,
+            Polyform::polyomino_from_bool_slice(&[[true, true, true, true]]),
+        )];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
         assert!(result.is_err());
@@ -365,8 +401,14 @@ mod tests {
         ])
             .into();
         let tiles = vec![
-            Tile::new(42, Polyform::polyomino_from_bool_slice(&[[false, true], [true, true]])),
-            Tile::new(43, Polyform::polyomino_from_bool_slice(&[[false, true], [true, true]])),
+            Tile::new(
+                42,
+                Polyform::polyomino_from_bool_slice(&[[false, true], [true, true]]),
+            ),
+            Tile::new(
+                43,
+                Polyform::polyomino_from_bool_slice(&[[false, true], [true, true]]),
+            ),
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());

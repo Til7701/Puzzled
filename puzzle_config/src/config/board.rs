@@ -91,10 +91,7 @@ impl BoardConfig {
             BoardConfig::Simple { .. } => {
                 panic!("Simple board config does not have areas");
             }
-            BoardConfig::Area {
-                layout,
-                ..
-            } => layout,
+            BoardConfig::Area { layout, .. } => layout,
         };
         let mut unordered_values = layout
             .iter()
@@ -104,7 +101,11 @@ impl BoardConfig {
                 if index == area_index {
                     let value = &data.display_value;
                     let order = data.value_order;
-                    Some((order, value.clone(), TargetIndex::new(prototile.coord().clone())))
+                    Some((
+                        order,
+                        value.clone(),
+                        TargetIndex::new(prototile.coord().clone()),
+                    ))
                 } else {
                     None
                 }
@@ -147,10 +148,7 @@ impl Hash for BoardConfig {
             BoardConfig::Simple { layout } => {
                 layout.hash(state);
             }
-            BoardConfig::Area {
-                layout,
-                ..
-            } => {
+            BoardConfig::Area { layout, .. } => {
                 layout.hash(state);
             }
         }

@@ -24,21 +24,21 @@ where
     pub fn coord(&self) -> &Coord {
         match self {
             PrototileRef::Square(square) => square.coord(),
-            PrototileRef::Hexagon(hexagon) => hexagon.coord()
+            PrototileRef::Hexagon(hexagon) => hexagon.coord(),
         }
     }
 
     pub fn orientation(&self) -> Orientation {
         match self {
             PrototileRef::Square(square) => square.orientation().into(),
-            PrototileRef::Hexagon(hexagon) => hexagon.orientation().into()
+            PrototileRef::Hexagon(hexagon) => hexagon.orientation().into(),
         }
     }
 
     pub fn data(&self) -> &T {
         match self {
             PrototileRef::Square(square) => square.data(),
-            PrototileRef::Hexagon(hexagon) => hexagon.data()
+            PrototileRef::Hexagon(hexagon) => hexagon.data(),
         }
     }
 }
@@ -77,28 +77,28 @@ where
     pub fn coord(&self) -> &Coord {
         match self {
             PrototileMutRef::Square(square) => square.coord(),
-            PrototileMutRef::Hexagon(hexagon) => hexagon.coord()
+            PrototileMutRef::Hexagon(hexagon) => hexagon.coord(),
         }
     }
 
     pub fn orientation(&self) -> Orientation {
         match self {
             PrototileMutRef::Square(square) => square.orientation().into(),
-            PrototileMutRef::Hexagon(hexagon) => hexagon.orientation().into()
+            PrototileMutRef::Hexagon(hexagon) => hexagon.orientation().into(),
         }
     }
 
     pub fn data(&self) -> &T {
         match self {
             PrototileMutRef::Square(square) => square.data(),
-            PrototileMutRef::Hexagon(hexagon) => hexagon.data()
+            PrototileMutRef::Hexagon(hexagon) => hexagon.data(),
         }
     }
 
     pub fn set_data(&mut self, data: T) {
         match self {
             PrototileMutRef::Square(square) => square.set_data(data),
-            PrototileMutRef::Hexagon(hexagon) => hexagon.set_data(data)
+            PrototileMutRef::Hexagon(hexagon) => hexagon.set_data(data),
         }
     }
 }
@@ -126,15 +126,13 @@ pub enum Orientation {
     Hexagon(HexagonOrientation),
 }
 
-impl From<SquareOrientation> for Orientation
-{
+impl From<SquareOrientation> for Orientation {
     fn from(value: SquareOrientation) -> Self {
         Orientation::Square(value)
     }
 }
 
-impl From<HexagonOrientation> for Orientation
-{
+impl From<HexagonOrientation> for Orientation {
     fn from(value: HexagonOrientation) -> Self {
         Orientation::Hexagon(value)
     }

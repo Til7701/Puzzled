@@ -1,10 +1,10 @@
 mod hex;
 mod regular;
 
-use std::fmt::{Display, Formatter};
-use std::ops::Add;
 pub use hex::HexCoord;
 pub use regular::RegularCoord;
+use std::fmt::{Display, Formatter};
+use std::ops::Add;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Coord {
@@ -17,7 +17,7 @@ impl Coord {
         match (self, viewport) {
             (Coord::Regular(s), Coord::Regular(v)) => s.rotate_counterclockwise(v),
             (Coord::Hex(s), Coord::Hex(v)) => s.rotate_counterclockwise(v),
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 
@@ -25,7 +25,7 @@ impl Coord {
         match (self, viewport) {
             (Coord::Regular(s), Coord::Regular(v)) => s.flip_default(v),
             (Coord::Hex(s), Coord::Hex(v)) => s.flip_default(v),
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 
@@ -52,8 +52,8 @@ impl<'a> From<HexCoord> for Coord {
 impl Display for Coord {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Coord::Regular(regular) => { regular.fmt(f) }
-            Coord::Hex(hex) => { hex.fmt(f) }
+            Coord::Regular(regular) => regular.fmt(f),
+            Coord::Hex(hex) => hex.fmt(f),
         }
     }
 }
@@ -65,7 +65,7 @@ impl Add for &Coord {
         match (self, rhs) {
             (Coord::Regular(s), Coord::Regular(r)) => (s + r).into(),
             (Coord::Hex(s), Coord::Hex(r)) => (s + r).into(),
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }

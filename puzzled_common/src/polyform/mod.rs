@@ -2,8 +2,8 @@ use crate::polyform::grid::{Coord, HexCoord, RegularCoord};
 use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square};
 
 pub mod grid;
-pub mod prototile;
 pub mod iterator;
+pub mod prototile;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Polyform<T>
@@ -28,7 +28,10 @@ where
         todo!()
     }
 
-    pub fn polyomino_from_vec<X>(vec: &Vec<Vec<X>>, mapper: &dyn Fn(X, (usize, usize)) -> Option<T>) -> Self {
+    pub fn polyomino_from_vec<X>(
+        vec: &Vec<Vec<X>>,
+        mapper: &dyn Fn(X, (usize, usize)) -> Option<T>,
+    ) -> Self {
         todo!()
     }
 
@@ -43,14 +46,14 @@ where
     pub fn dim(&self) -> Coord {
         match self {
             Polyform::Polyomino { dim, .. } => dim.clone().into(),
-            Polyform::Hexomino { dim, .. } => dim.clone().into()
+            Polyform::Hexomino { dim, .. } => dim.clone().into(),
         }
     }
 
     pub fn area(&self) -> usize {
         match self {
             Polyform::Polyomino { dim, .. } => dim.area(),
-            Polyform::Hexomino { dim, .. } => dim.area()
+            Polyform::Hexomino { dim, .. } => dim.area(),
         }
     }
 
@@ -86,10 +89,10 @@ where
 
     pub fn trim(&mut self) -> TrimSides {
         let trim_sides = match self {
-            Polyform::Polyomino { dim, cells } => {
-                Self::polyomino_trim(dim, cells)
+            Polyform::Polyomino { dim, cells } => Self::polyomino_trim(dim, cells),
+            Polyform::Hexomino { .. } => {
+                todo!()
             }
-            Polyform::Hexomino { .. } => { todo!() }
         };
 
         trim_sides
@@ -105,57 +108,65 @@ where
             };
         }
 
-        let min_y = cells.iter().map(|square| {
-            match square.coord() {
+        let min_y = cells
+            .iter()
+            .map(|square| match square.coord() {
                 Coord::Regular(coord) => coord.y(),
-                _ => unreachable!()
-            }
-        }).min().unwrap();
-        cells.iter_mut().for_each(|square| {
-            match square.coord().clone() {
+                _ => unreachable!(),
+            })
+            .min()
+            .unwrap();
+        cells
+            .iter_mut()
+            .for_each(|square| match square.coord().clone() {
                 Coord::Regular(mut coord) => {
                     coord.set_y(coord.y() - min_y);
                     square.set_coord(coord.into());
                 }
-                _ => unreachable!()
-            }
-        });
+                _ => unreachable!(),
+            });
         dim.set_y(dim.y() - min_y);
         lower.set_y(lower.y() + min_y);
 
-        let max_y = cells.iter().map(|square| {
-            match square.coord() {
+        let max_y = cells
+            .iter()
+            .map(|square| match square.coord() {
                 Coord::Regular(coord) => coord.y(),
-                _ => unreachable!()
-            }
-        }).max().unwrap();
+                _ => unreachable!(),
+            })
+            .max()
+            .unwrap();
         dim.set_y(dim.y() - max_y);
         upper.set_y(upper.y() + max_y);
 
-        let min_x = cells.iter().map(|square| {
-            match square.coord() {
+        let min_x = cells
+            .iter()
+            .map(|square| match square.coord() {
                 Coord::Regular(coord) => coord.x(),
-                _ => unreachable!()
-            }
-        }).min().unwrap();
-        cells.iter_mut().for_each(|square| {
-            match square.coord().clone() {
+                _ => unreachable!(),
+            })
+            .min()
+            .unwrap();
+        cells
+            .iter_mut()
+            .for_each(|square| match square.coord().clone() {
                 Coord::Regular(mut coord) => {
                     coord.set_x(coord.x() - min_x);
                     square.set_coord(coord.into());
                 }
-                _ => unreachable!()
-            }
-        });
+                _ => unreachable!(),
+            });
         dim.set_x(min_x);
         lower.set_x(lower.x() + min_x);
 
-        let max_x = cells.iter().map(|square| {
-            match square.coord() {
+        let max_x = cells
+            .iter()
+            .map(|square| match square.coord() {
                 Coord::Regular(coord) => coord.x(),
-                _ => unreachable!()
-            }
-        }).max().unwrap();
+                _ => unreachable!(),
+            })
+            .max()
+            .unwrap();
         dim.set_x(max_x);
         upper.set_x(upper.x() + max_x);
 
@@ -170,11 +181,16 @@ where
             Polyform::Polyomino { .. } => {
                 self.polyomino_count_biggest_connected_area_of_cells_matching(target_value)
             }
-            Polyform::Hexomino { .. } => { todo!() }
+            Polyform::Hexomino { .. } => {
+                todo!()
+            }
         }
     }
 
-    fn polyomino_count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+    fn polyomino_count_biggest_connected_area_of_cells_matching(
+        &self,
+        target_value: bool,
+    ) -> usize {
         todo!()
     }
 
@@ -183,11 +199,16 @@ where
             Polyform::Polyomino { .. } => {
                 self.polyomino_count_smallest_connected_area_of_cells_matching(target_value)
             }
-            Polyform::Hexomino { .. } => { todo!() }
+            Polyform::Hexomino { .. } => {
+                todo!()
+            }
         }
     }
 
-    fn polyomino_count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+    fn polyomino_count_smallest_connected_area_of_cells_matching(
+        &self,
+        target_value: bool,
+    ) -> usize {
         todo!()
     }
 

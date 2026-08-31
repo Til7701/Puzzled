@@ -4,7 +4,10 @@ use puzzled_common::polyform::grid::{Coord, RegularCoord};
 use rand::{Rng, RngExt};
 use std::collections::BTreeMap;
 
-pub fn create_puzzle(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> (Polyform<()>, Vec<Polyform<()>>) {
+pub fn create_puzzle(
+    settings: &RandomPuzzleSettings,
+    rng: &mut dyn Rng,
+) -> (Polyform<()>, Vec<Polyform<()>>) {
     let tile_count = match settings.algorithm {
         Algorithm::Growing { tile_count, .. } => tile_count,
     };
@@ -19,7 +22,10 @@ pub fn create_puzzle(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> (Pol
     (board, tiles)
 }
 
-fn generate_base_board(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> Polyform<Option<u32>> {
+fn generate_base_board(
+    settings: &RandomPuzzleSettings,
+    rng: &mut dyn Rng,
+) -> Polyform<Option<u32>> {
     let (tile_count, board_width, board_height) = match settings.algorithm {
         Algorithm::Growing {
             tile_count,
@@ -27,7 +33,10 @@ fn generate_base_board(settings: &RandomPuzzleSettings, rng: &mut dyn Rng) -> Po
             board_height,
         } => (tile_count, board_width, board_height),
     };
-    let mut base = Polyform::polyomino_sized(RegularCoord::new(board_width as u32, board_height as u32), None::<u32>);
+    let mut base = Polyform::polyomino_sized(
+        RegularCoord::new(board_width as u32, board_height as u32),
+        None::<u32>,
+    );
 
     for i in 0..tile_count {
         loop {
@@ -94,7 +103,7 @@ fn grow_tile_index(
     let mut new_board = base_board.clone();
     let dim = match base_board.dim() {
         Coord::Regular(dim) => dim,
-        _ => unreachable!()
+        _ => unreachable!(),
     };
     let xs = dim.x();
     let ys = dim.y();
@@ -109,20 +118,56 @@ fn grow_tile_index(
             && let Some(index) = prototile.data()
             && *index == tile_index
         {
-            if x > 0 && base_board.get(&RegularCoord::new(x - 1, y).into()).unwrap().data().is_none() {
-                new_board.get_mut(&RegularCoord::new(x - 1, y).into()).unwrap().set_data(new_cell_data.clone());
+            if x > 0
+                && base_board
+                    .get(&RegularCoord::new(x - 1, y).into())
+                    .unwrap()
+                    .data()
+                    .is_none()
+            {
+                new_board
+                    .get_mut(&RegularCoord::new(x - 1, y).into())
+                    .unwrap()
+                    .set_data(new_cell_data.clone());
                 changed = true;
                 break;
-            } else if x + 1 < xs && base_board.get(&RegularCoord::new(x + 1, y).into()).unwrap().data().is_none() {
-                new_board.get_mut(&RegularCoord::new(x + 1, y).into()).unwrap().set_data(new_cell_data.clone());
+            } else if x + 1 < xs
+                && base_board
+                    .get(&RegularCoord::new(x + 1, y).into())
+                    .unwrap()
+                    .data()
+                    .is_none()
+            {
+                new_board
+                    .get_mut(&RegularCoord::new(x + 1, y).into())
+                    .unwrap()
+                    .set_data(new_cell_data.clone());
                 changed = true;
                 break;
-            } else if y > 0 && base_board.get(&RegularCoord::new(x, y - 1).into()).unwrap().data().is_none() {
-                new_board.get_mut(&RegularCoord::new(x, y - 1).into()).unwrap().set_data(new_cell_data.clone());
+            } else if y > 0
+                && base_board
+                    .get(&RegularCoord::new(x, y - 1).into())
+                    .unwrap()
+                    .data()
+                    .is_none()
+            {
+                new_board
+                    .get_mut(&RegularCoord::new(x, y - 1).into())
+                    .unwrap()
+                    .set_data(new_cell_data.clone());
                 changed = true;
                 break;
-            } else if y + 1 < ys && base_board.get(&RegularCoord::new(x, y + 1).into()).unwrap().data().is_none() {
-                new_board.get_mut(&RegularCoord::new(x, y + 1).into()).unwrap().set_data(new_cell_data.clone());
+            } else if y + 1 < ys
+                && base_board
+                    .get(&RegularCoord::new(x, y + 1).into())
+                    .unwrap()
+                    .data()
+                    .is_none()
+            {
+                new_board
+                    .get_mut(&RegularCoord::new(x, y + 1).into())
+                    .unwrap()
+                    .set_data(new_cell_data.clone());
                 changed = true;
                 break;
             }
@@ -133,7 +178,9 @@ fn grow_tile_index(
 }
 
 fn extract_tile(tile_index: u32, complete_board: &Polyform<Option<u32>>) -> Polyform<()> {
-    let mut base = complete_board.clone().filter_map(&|x| x.filter(|i| *i == tile_index));
+    let mut base = complete_board
+        .clone()
+        .filter_map(&|x| x.filter(|i| *i == tile_index));
     base.trim();
     base.map(|_| ())
 }

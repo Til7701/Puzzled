@@ -15,12 +15,8 @@ where
 
     pub fn iter_mut(&mut self) -> PolyformIterMut<'_, T> {
         match self {
-            Polyform::Polyomino { cells, .. } => {
-                PolyformIterMut::Squares(cells.iter_mut())
-            }
-            Polyform::Hexomino { cells, .. } => {
-                PolyformIterMut::Hexagons(cells.iter_mut())
-            }
+            Polyform::Polyomino { cells, .. } => PolyformIterMut::Squares(cells.iter_mut()),
+            Polyform::Hexomino { cells, .. } => PolyformIterMut::Hexagons(cells.iter_mut()),
         }
     }
 
@@ -48,12 +44,8 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.polyform {
-            Polyform::Polyomino { cells, .. } => {
-                cells.get(self.index).map(|p| p.into())
-            }
-            Polyform::Hexomino { cells, .. } => {
-                cells.get(self.index).map(|p| p.into())
-            }
+            Polyform::Polyomino { cells, .. } => cells.get(self.index).map(|p| p.into()),
+            Polyform::Hexomino { cells, .. } => cells.get(self.index).map(|p| p.into()),
         }
     }
 }

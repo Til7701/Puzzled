@@ -15,7 +15,11 @@ where
     T: Clone,
 {
     pub fn new(coord: Coord, orientation: HexagonOrientation, data: T) -> Self {
-        Hexagon { coord, orientation, data }
+        Hexagon {
+            coord,
+            orientation,
+            data,
+        }
     }
 
     pub fn coord(&self) -> &Coord {

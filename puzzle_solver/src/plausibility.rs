@@ -18,10 +18,7 @@ use log::debug;
 /// returns: bool
 pub(crate) fn check(board: &Board, tiles: &[Tile]) -> bool {
     let board_area = board.get_polyform().iter().count();
-    let tiles_area: usize = tiles
-        .iter()
-        .map(|tile| tile.base.iter().count())
-        .sum();
+    let tiles_area: usize = tiles.iter().map(|tile| tile.base.iter().count()).sum();
     debug!(
         "Plausibility check: board area = {}, tiles area = {}",
         board_area, tiles_area
@@ -63,8 +60,14 @@ mod tests {
             [false, false, false],
             [false, false, false],
         ]));
-        let tile1 = Tile::new(42, Polyform::polyomino_from_bool_slice(&[[true, true], [true, false]]));
-        let tile2 = Tile::new(43, Polyform::polyomino_from_bool_slice(&[[false, true], [false, true]]));
+        let tile1 = Tile::new(
+            42,
+            Polyform::polyomino_from_bool_slice(&[[true, true], [true, false]]),
+        );
+        let tile2 = Tile::new(
+            43,
+            Polyform::polyomino_from_bool_slice(&[[false, true], [false, true]]),
+        );
         let tiles = vec![tile1, tile2];
 
         assert!(!check(&board, &tiles));

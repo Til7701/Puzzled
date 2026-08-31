@@ -128,7 +128,11 @@ mod tests {
         assert_eq!(2, puzzle.tiles().len());
         assert_eq!(
             puzzle.board_config().layout(),
-            &Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, false, true], [true, true, true]])
+            &Polyform::polyomino_from_bool_slice(&[
+                [true, true, true],
+                [true, false, true],
+                [true, true, true]
+            ])
         );
         let ref_tile = &puzzle.tiles()[0];
         assert_eq!(

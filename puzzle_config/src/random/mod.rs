@@ -172,7 +172,7 @@ mod tests {
         let puzzle = &collection.puzzles()[0];
         assert_eq!(
             BoardConfig::Simple {
-                layout: Polyform::polyomino_from_bool_slice(&[[true, true], [true, true], ])
+                layout: Polyform::polyomino_from_bool_slice(&[[true, true], [true, true],])
             },
             *puzzle.board_config()
         );

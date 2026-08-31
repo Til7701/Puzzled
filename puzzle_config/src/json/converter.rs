@@ -1,7 +1,14 @@
 use crate::config::board::AreaBoardData;
-use crate::json::model::{Area, AreaFormatter, Board, Color, DefaultFactory, Preview, Progression, PuzzleCollection, PuzzleDifficulty, Tile, TileLayout};
+use crate::json::model::{
+    Area, AreaFormatter, Board, Color, DefaultFactory, Preview, Progression, PuzzleCollection,
+    PuzzleDifficulty, Tile, TileLayout,
+};
 use crate::json::predefined::{Custom, Predefined};
-use crate::{AreaConfig, AreaValueFormatter, BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate, TileConfig, validation};
+use crate::{
+    AreaConfig, AreaValueFormatter, BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig,
+    PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate,
+    TileConfig, validation,
+};
 use puzzled_common::polyform::Polyform;
 use std::num::NonZero;
 use time::OffsetDateTime;
@@ -19,7 +26,10 @@ impl<'a> Converter<'a> {
         }
     }
 
-    pub fn convert_collection(&mut self, collection_config: PuzzleCollection) -> Result<PuzzleConfigCollection, ReadError> {
+    pub fn convert_collection(
+        &mut self,
+        collection_config: PuzzleCollection,
+    ) -> Result<PuzzleConfigCollection, ReadError> {
         if let Some(tiles) = collection_config.custom_tiles {
             for (name, tile) in tiles {
                 self.custom.add_tile(name, tile);
@@ -78,17 +88,17 @@ impl<'a> Converter<'a> {
             BoardConfig::Simple { layout } => {
                 layout.rotate_to_landscape();
             }
-            BoardConfig::Area {
-                layout,
-                ..
-            } => {
+            BoardConfig::Area { layout, .. } => {
                 layout.rotate_to_landscape();
             }
         };
         board
     }
 
-    fn convert_puzzle_difficulty(&mut self, difficulty: Option<PuzzleDifficulty>) -> Result<Option<PuzzleDifficultyConfig>, ReadError> {
+    fn convert_puzzle_difficulty(
+        &mut self,
+        difficulty: Option<PuzzleDifficulty>,
+    ) -> Result<Option<PuzzleDifficultyConfig>, ReadError> {
         Ok(difficulty.map(|d| match d {
             PuzzleDifficulty::Easy => PuzzleDifficultyConfig::Easy,
             PuzzleDifficulty::Medium => PuzzleDifficultyConfig::Medium,
@@ -97,7 +107,10 @@ impl<'a> Converter<'a> {
         }))
     }
 
-    fn convert_collection_progression(&mut self, progression: Progression) -> Result<ProgressionConfig, ReadError> {
+    fn convert_collection_progression(
+        &mut self,
+        progression: Progression,
+    ) -> Result<ProgressionConfig, ReadError> {
         Ok(match progression {
             Progression::Any => ProgressionConfig::Any,
             Progression::Sequential => ProgressionConfig::Sequential,
@@ -116,7 +129,12 @@ impl<'a> Converter<'a> {
         }
     }
 
-    fn convert_tile(&mut self, tile_id: usize, tile: Tile, name: Option<String>) -> Result<Vec<TileConfig>, ReadError> {
+    fn convert_tile(
+        &mut self,
+        tile_id: usize,
+        tile: Tile,
+        name: Option<String>,
+    ) -> Result<Vec<TileConfig>, ReadError> {
         match tile {
             Tile::Ref(name) => {
                 if let Some(custom_tile) = self.custom.get_tile(&name) {
@@ -151,7 +169,11 @@ impl<'a> Converter<'a> {
         }
     }
 
-    fn convert_tile_layout(&mut self, tile_id: usize, layout: TileLayout) -> Result<(Polyform<()>, Option<String>), ReadError> {
+    fn convert_tile_layout(
+        &mut self,
+        tile_id: usize,
+        layout: TileLayout,
+    ) -> Result<(Polyform<()>, Option<String>), ReadError> {
         match layout {
             TileLayout::Ref(name) => {
                 if let Some(custom_tile) = self.custom.get_tile(&name) {
@@ -196,7 +218,11 @@ impl<'a> Converter<'a> {
         }
     }
 
-    fn convert_tile_color(&mut self, tile_id: usize, color: Option<Color>) -> Result<ColorConfig, ReadError> {
+    fn convert_tile_color(
+        &mut self,
+        tile_id: usize,
+        color: Option<Color>,
+    ) -> Result<ColorConfig, ReadError> {
         match color {
             None => Ok(ColorConfig::default_with_index(tile_id)),
             Some(Color::Hex(hex)) => {
@@ -212,7 +238,9 @@ impl<'a> Converter<'a> {
                     self.convert_board(custom_board)
                 } else if let Some(predefined_board) = self.predefined.get_board(&name) {
                     self.convert_board(predefined_board)
-                } else if let Some(predefined_board) = self.predefined.predefined_board_from_str(&name) {
+                } else if let Some(predefined_board) =
+                    self.predefined.predefined_board_from_str(&name)
+                {
                     Ok(predefined_board)
                 } else {
                     Err(ReadError::UnknownCustomBoard {
@@ -271,7 +299,9 @@ impl<'a> Converter<'a> {
                                 display_value: display_value.clone(),
                                 value_order: *value_order,
                             })
-                        } else { None }
+                        } else {
+                            None
+                        }
                     });
 
                     array.transpose();
@@ -303,7 +333,10 @@ impl<'a> Converter<'a> {
         ))
     }
 
-    fn convert_default_factory(&mut self, default_factory: DefaultFactory) -> Result<String, ReadError> {
+    fn convert_default_factory(
+        &mut self,
+        default_factory: DefaultFactory,
+    ) -> Result<String, ReadError> {
         match default_factory {
             DefaultFactory::Fixed { value } => Ok(value),
             DefaultFactory::CurrentDay => {

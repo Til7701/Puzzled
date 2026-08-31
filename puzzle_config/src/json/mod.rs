@@ -5,9 +5,9 @@ use crate::{PUZZLED_VERSION_FIELD, PuzzleConfigCollection, ReadError};
 use semver::{Version, VersionReq};
 use serde_json::Value;
 
+mod converter;
 mod model;
 mod predefined;
-mod converter;
 
 /// Loader for puzzle configuration from JSON strings.
 /// Instances can be reused to load multiple collections.

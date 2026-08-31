@@ -170,7 +170,11 @@ fn add_placements(
 
 /// Creates a list of indices where the tile has cells and prepends the list with the index of
 /// the tile. This list can be given to the DLX solver.
-fn tile_to_filled_indices(tile: &Polyform<()>, tile_index: usize, max_tile_index: usize) -> Vec<usize> {
+fn tile_to_filled_indices(
+    tile: &Polyform<()>,
+    tile_index: usize,
+    max_tile_index: usize,
+) -> Vec<usize> {
     let mut tile_indices = shape_to_filled_indices(tile, max_tile_index);
     tile_indices.insert(0, tile_index + 1);
     tile_indices
