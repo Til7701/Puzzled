@@ -50,6 +50,10 @@ where
         }
     }
 
+    pub fn relative_cartesian_dim(&self) -> (f64, f64) {
+        todo!()
+    }
+
     pub fn area(&self) -> usize {
         match self {
             Polyform::Polyomino { dim, .. } => dim.area(),

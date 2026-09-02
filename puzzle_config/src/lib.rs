@@ -7,6 +7,7 @@ mod validation;
 pub use config::area::AreaConfig;
 pub use config::area::AreaValueFormatter;
 pub use config::board::BoardConfig;
+pub use config::board::AreaBoardData;
 pub use config::collection::PuzzleConfigCollection;
 pub use config::color::ColorConfig;
 pub use config::difficulty::PuzzleDifficultyConfig;
@@ -128,7 +129,7 @@ mod tests {
         assert_eq!(2, puzzle.tiles().len());
         assert_eq!(
             puzzle.board_config().layout(),
-            &Polyform::polyomino_from_bool_slice(&[
+            Polyform::polyomino_from_bool_slice(&[
                 [true, true, true],
                 [true, false, true],
                 [true, true, true]
