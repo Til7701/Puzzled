@@ -1,5 +1,5 @@
 use crate::polyform::grid::{Coord, HexCoord, RegularCoord};
-use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square};
+use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square, SquareOrientation};
 
 pub mod grid;
 pub mod iterator;
@@ -25,21 +25,44 @@ where
     T: Clone,
 {
     pub fn polyomino_sized(size: RegularCoord, value: T) -> Self {
-        todo!()
+        let mut squares = Vec::with_capacity((size.x() * size.y()) as usize);
+        for i in 0..size.x() {
+            for j in 0..size.y() {
+                squares.push(Square::new(Coord::Regular(RegularCoord::new(i, j)), SquareOrientation::OnSide, value.clone()))
+            }
+        }
+
+        Self::Polyomino {
+            dim: size,
+            cells: squares,
+        }
     }
 
     pub fn polyomino_from_vec<X>(
-        vec: &Vec<Vec<X>>,
-        mapper: &dyn Fn(X, (usize, usize)) -> Option<T>,
+        vec: &[Vec<X>],
+        mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>,
     ) -> Self {
-        todo!()
+        let size = RegularCoord::new(vec.len() as u32, vec[0].len() as u32);
+        let mut squares = Vec::with_capacity(size.area());
+        for (i, row) in vec.iter().enumerate() {
+            for (j, value) in row.iter().enumerate() {
+                if let Some(data) = mapper(value, (i, j)) {
+                    squares.push(Square::new(Coord::Regular(RegularCoord::new(i as u32, j as u32)), SquareOrientation::OnSide, data))
+                }
+            }
+        }
+
+        Self::Polyomino {
+            dim: size,
+            cells: squares,
+        }
     }
 
-    pub fn get(&self, coord: &Coord) -> Option<PrototileRef<T>> {
+    pub fn get(&self, coord: &Coord) -> Option<PrototileRef<'_, T>> {
         self.iter().find(|p| p.coord() == coord)
     }
 
-    pub fn get_mut(&mut self, coord: &Coord) -> Option<PrototileMutRef<T>> {
+    pub fn get_mut(&mut self, coord: &Coord) -> Option<PrototileMutRef<'_, T>> {
         self.iter_mut().find(|p| p.coord() == coord)
     }
 
@@ -51,7 +74,10 @@ where
     }
 
     pub fn relative_cartesian_dim(&self) -> (f64, f64) {
-        todo!()
+        match self {
+            Polyform::Polyomino { dim, .. } => (dim.x() as f64, dim.y() as f64),
+            Polyform::Hexomino { .. } => todo!(),
+        }
     }
 
     pub fn area(&self) -> usize {
@@ -62,40 +88,155 @@ where
     }
 
     pub fn rotate_to_landscape(&mut self) {
-        todo!()
+        match self {
+            Polyform::Polyomino { dim, .. } => {
+                if dim.x() < dim.y() {
+                    self.transpose();
+                    self.rotate_counterclockwise();
+                    self.rotate_counterclockwise();
+                }
+            }
+            Polyform::Hexomino { .. } => todo!(),
+        }
     }
 
-    pub fn rotate_clockwise(&mut self) {
-        todo!()
+    pub fn rotate_counterclockwise(&mut self) {
+        match self {
+            Polyform::Polyomino { dim, cells } => {
+                let viewport = Coord::Regular(dim.clone());
+                cells.iter_mut().for_each(|s| s.rotate_counterclockwise(&viewport))
+            }
+            Polyform::Hexomino { dim, cells } => {
+                let viewport = Coord::Hex(dim.clone());
+                cells.iter_mut().for_each(|s| s.rotate_counterclockwise(&viewport))
+            }
+        }
     }
 
     pub fn flip(&mut self) {
-        todo!()
+        match self {
+            Polyform::Polyomino { dim, cells } => {
+                let viewport = Coord::Regular(dim.clone());
+                cells.iter_mut().for_each(|s| s.flip_default(&viewport))
+            }
+            Polyform::Hexomino { dim, cells } => {
+                let viewport = Coord::Hex(dim.clone());
+                cells.iter_mut().for_each(|s| s.flip_default(&viewport))
+            }
+        }
     }
 
     pub fn transpose(&mut self) {
-        todo!()
+        match self {
+            Polyform::Polyomino { cells, .. } => {
+                cells.iter_mut().for_each(|s| s.transpose())
+            }
+            Polyform::Hexomino { cells, .. } => {
+                cells.iter_mut().for_each(|s| s.transpose())
+            }
+        }
     }
 
-    pub fn map<R>(&mut self, mapper: fn(T) -> R) -> Polyform<R>
+    pub fn map<R>(&mut self, mapper: fn(&T) -> R) -> Polyform<R>
     where
         R: Clone,
     {
-        todo!()
+        match self {
+            Polyform::Polyomino { dim, cells } => {
+                let squares = cells.iter()
+                    .map(|s| {
+                        let data = s.data();
+                        let new_data = mapper(data);
+                        Square::new(s.coord().clone(), s.orientation(), new_data)
+                    })
+                    .collect();
+                Polyform::Polyomino {
+                    dim: dim.clone(),
+                    cells: squares,
+                }
+            }
+            Polyform::Hexomino { dim, cells } => {
+                let hexagons = cells.iter()
+                    .map(|h| {
+                        let data = h.data();
+                        let new_data = mapper(data);
+                        Hexagon::new(h.coord().clone(), h.orientation(), new_data)
+                    })
+                    .collect();
+                Polyform::Hexomino {
+                    dim: dim.clone(),
+                    cells: hexagons,
+                }
+            }
+        }
     }
 
-    pub fn map_indexed<R>(&mut self, mapper: &dyn Fn(T, &Coord) -> R) -> Polyform<R>
+    pub fn map_indexed<R>(&mut self, mapper: &dyn Fn(&T, &Coord) -> R) -> Polyform<R>
     where
         R: Clone,
     {
-        todo!()
+        match self {
+            Polyform::Polyomino { dim, cells } => {
+                let squares = cells.iter()
+                    .map(|s| {
+                        let data = s.data();
+                        let new_data = mapper(data, s.coord());
+                        Square::new(s.coord().clone(), s.orientation(), new_data)
+                    })
+                    .collect();
+                Polyform::Polyomino {
+                    dim: dim.clone(),
+                    cells: squares,
+                }
+            }
+            Polyform::Hexomino { dim, cells } => {
+                let hexagons = cells.iter()
+                    .map(|h| {
+                        let data = h.data();
+                        let new_data = mapper(data, h.coord());
+                        Hexagon::new(h.coord().clone(), h.orientation(), new_data)
+                    })
+                    .collect();
+                Polyform::Hexomino {
+                    dim: dim.clone(),
+                    cells: hexagons,
+                }
+            }
+        }
     }
 
-    pub fn filter_map<R>(&mut self, mapper: &dyn Fn(T) -> Option<R>) -> Polyform<R>
+    pub fn filter_map<R>(&mut self, mapper: &dyn Fn(&T) -> Option<R>) -> Polyform<R>
     where
         R: Clone,
     {
-        todo!()
+        match self {
+            Polyform::Polyomino { dim, cells } => {
+                let squares = cells.iter()
+                    .filter_map(|s| {
+                        let data = s.data();
+                        let new_data = mapper(data);
+                        new_data.map(|new_data| Square::new(s.coord().clone(), s.orientation(), new_data))
+                    })
+                    .collect();
+                Polyform::Polyomino {
+                    dim: dim.clone(),
+                    cells: squares,
+                }
+            }
+            Polyform::Hexomino { dim, cells } => {
+                let hexagons = cells.iter()
+                    .filter_map(|h| {
+                        let data = h.data();
+                        let new_data = mapper(data);
+                        new_data.map(|new_data| Hexagon::new(h.coord().clone(), h.orientation(), new_data))
+                    })
+                    .collect();
+                Polyform::Hexomino {
+                    dim: dim.clone(),
+                    cells: hexagons,
+                }
+            }
+        }
     }
 
     pub fn extend_adjacent(&self, value: T) {
@@ -103,17 +244,15 @@ where
     }
 
     pub fn trim(&mut self) -> TrimSides {
-        let trim_sides = match self {
+        match self {
             Polyform::Polyomino { dim, cells } => Self::polyomino_trim(dim, cells),
             Polyform::Hexomino { .. } => {
                 todo!()
             }
-        };
-
-        trim_sides
+        }
     }
 
-    fn polyomino_trim(dim: &mut RegularCoord, cells: &mut Vec<Square<T>>) -> TrimSides {
+    fn polyomino_trim(dim: &mut RegularCoord, cells: &mut [Square<T>]) -> TrimSides {
         let mut lower = RegularCoord::new(0, 0);
         let mut upper = RegularCoord::new(0, 0);
         if dim.x() == 0 || dim.y() == 0 {

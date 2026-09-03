@@ -96,7 +96,7 @@ where
                     polyform.flip();
                     Some(polyform.clone())
                 } else {
-                    polyform.rotate_clockwise();
+                    polyform.rotate_counterclockwise();
                     Some(polyform.clone())
                 }
             }
