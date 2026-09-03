@@ -1,7 +1,7 @@
 use crate::board::Board;
 use crate::dlx::pruner::Pruner;
 use crate::tile::Tile;
-use puzzled_common::Shape;
+use puzzled_common::polyform::Polyform;
 
 /// A tile with all its possible placements on the board represented as bitmasks.
 ///
@@ -10,7 +10,7 @@ use puzzled_common::Shape;
 /// The board itself is not represented in the bitmask.
 #[derive(Clone)]
 pub struct PositionedTile {
-    all_placements: Vec<Shape>,
+    all_placements: Vec<Polyform<()>>,
 }
 
 impl PositionedTile {
@@ -26,14 +26,14 @@ impl PositionedTile {
     ///
     /// returns: PositionedTile
     pub(crate) fn new(tile: &Tile, board: &Board, pruner: &Pruner) -> Self {
-        let all_placements: Vec<Shape> = tile
+        let all_placements = tile
             .all_rotations
             .iter()
-            .flat_map(|rotation| board.get_shape().place_on_all_positions(rotation))
+            .flat_map(|rotation| board.get_polyform().place_on_all_positions(rotation))
             .filter(|shape| !pruner.prune_positioned_tile_with_board(shape))
             .map(|array| {
                 let mut array = array.clone();
-                array.remove_parent(board.get_shape());
+                array.remove_parent(board.get_polyform());
                 array
             })
             .collect();
@@ -42,7 +42,7 @@ impl PositionedTile {
     }
 
     /// Returns a reference to Bitmasks representing all possible placements of the Tile on the Board.
-    pub fn all_placements(&self) -> &[Shape] {
+    pub fn all_placements(&self) -> &[Polyform<()>] {
         &self.all_placements
     }
 }

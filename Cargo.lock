@@ -824,7 +824,6 @@ dependencies = [
 name = "puzzle_config"
 version = "1.2.3"
 dependencies = [
- "ndarray",
  "puzzled_common",
  "rand",
  "regex",
@@ -851,7 +850,6 @@ dependencies = [
  "gtk4",
  "libadwaita",
  "log",
- "ndarray",
  "puzzle_config",
  "puzzle_solver",
  "puzzled_common",

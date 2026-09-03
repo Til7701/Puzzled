@@ -7,9 +7,8 @@ mod tile;
 
 use crate::app::puzzle::puzzle_area::puzzle_state::PuzzleState;
 use crate::model::extension::PuzzleTypeExtension;
-use crate::model::placement::PlacementModel;
+use crate::model::placement::{PixelPosition, PlacementModel};
 use crate::model::puzzle::PuzzleModel;
-use crate::offset::PixelOffset;
 use crate::window::PuzzledWindow;
 use adw::gio;
 use adw::subclass::prelude::*;
@@ -78,7 +77,7 @@ impl PuzzleArea {
             .expect("Failed to set window for PuzzlePage");
     }
 
-    pub(super) fn add(&self, widget: &Widget, pos: &PixelOffset) {
+    pub(super) fn add(&self, widget: &Widget, pos: &PixelPosition) {
         self.put(widget, pos.0, pos.1);
         self.imp()
             .elements_in_fixed

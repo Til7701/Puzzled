@@ -189,16 +189,9 @@ impl PuzzleSelectionItem {
         }
 
         if state != PuzzleModState::Locked || collection.config().preview().show_board_size() {
-            let (width, height) = puzzle.config().board_config().layout().dim();
-            imp.board_size_pill
-                .set_label(format!("{} x {}", width, height));
-            let cell_count = puzzle
-                .config()
-                .board_config()
-                .layout()
-                .iter()
-                .filter(|c| **c)
-                .count();
+            let size = puzzle.config().board_config().layout().dim();
+            imp.board_size_pill.set_label(format!("{}", size));
+            let cell_count = puzzle.config().board_config().layout().iter().count();
             imp.cell_count_pill.set_label(format!("{}", cell_count));
         } else {
             imp.info_box.remove(&imp.board_size_pill.get());
@@ -224,26 +217,30 @@ impl PuzzleSelectionItem {
     fn create_tiles_preview(tiles: &[TileConfig], fixed: &Fixed) {
         let max_tile_cell_height = tiles
             .iter()
-            .map(|tile| tile.base().dim().1)
-            .max()
-            .unwrap_or(1) as i32;
-        let mut current_x_offset_cells = 0;
+            .map(|tile| tile.base().relative_cartesian_dim().1)
+            .max_by(|a, b| a.partial_cmp(b).unwrap())
+            .unwrap_or(1f64);
+        let mut current_x_offset_cells = 0f64;
 
         for (i, tile) in tiles.iter().enumerate() {
             let tile_view = TileView::new(i, tile.base().clone(), tile.color());
 
-            let tile_height = tile.base().dim().1 as i32;
-            let y_offset = (max_tile_cell_height - tile_height) as f64 / 2.0;
+            let tile_height = tile.base().relative_cartesian_dim().1;
+            let y_offset = (max_tile_cell_height - tile_height) / 2.0;
 
             fixed.put(
                 &tile_view,
-                current_x_offset_cells as f64 * PREVIEW_CELL_SIZE,
+                current_x_offset_cells * PREVIEW_CELL_SIZE,
                 y_offset * PREVIEW_CELL_SIZE,
             );
-            tile_view.set_width_request((PREVIEW_CELL_SIZE * tile.base().dim().0 as f64) as i32);
-            tile_view.set_height_request((PREVIEW_CELL_SIZE * tile.base().dim().1 as f64) as i32);
-            let tile_width = tile.base().dim().0;
-            let next_x_offset = current_x_offset_cells + tile_width + 1;
+            tile_view.set_width_request(
+                (PREVIEW_CELL_SIZE * tile.base().relative_cartesian_dim().0) as i32,
+            );
+            tile_view.set_height_request(
+                (PREVIEW_CELL_SIZE * tile.base().relative_cartesian_dim().1) as i32,
+            );
+            let tile_width = tile.base().relative_cartesian_dim().0;
+            let next_x_offset = current_x_offset_cells + tile_width + 1f64;
             current_x_offset_cells = next_x_offset;
         }
     }
@@ -259,8 +256,12 @@ impl PuzzleSelectionItem {
                 let min_element_width = bv.get_min_element_size();
                 let size_per_cell = PREVIEW_CELL_SIZE.max(min_element_width as f64);
 
-                bv.set_width_request(size_per_cell as i32 * board.layout().dim().0 as i32);
-                bv.set_height_request(size_per_cell as i32 * board.layout().dim().1 as i32);
+                bv.set_width_request(
+                    (size_per_cell * board.layout().relative_cartesian_dim().0) as i32,
+                );
+                bv.set_height_request(
+                    (size_per_cell * board.layout().relative_cartesian_dim().1) as i32,
+                );
             }
             Err(e) => {
                 error!("Failed to create board preview: {}", e);

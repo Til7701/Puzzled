@@ -156,7 +156,7 @@ impl Solver {
     /// returns: bool
     pub fn is_solved(&self, puzzle_state: &PuzzleState) -> bool {
         let board = self.create_board(puzzle_state);
-        board.get_shape().iter().all(|cell| *cell)
+        board.get_polyform().iter().count() > 0
     }
 
     /// Creates a board representation from the given puzzle state and target to give to the solver.
@@ -168,20 +168,19 @@ impl Solver {
     ///
     /// returns: Board
     fn create_board(&self, puzzle_state: &PuzzleState) -> Board {
-        let dims = puzzle_state.grid.dim();
-        let mut board = Board::new(dims);
-
-        puzzle_state.grid.indexed_iter().for_each(|((x, y), cell)| {
-            let is_filled = match cell {
-                Cell::Empty(cell_data) => !cell_data.is_on_board,
-                Cell::One(_, _) => true,
-                Cell::Many(_, _) => true,
-            };
-
-            board[[x, y]] = is_filled;
+        let board = puzzle_state.grid.clone().filter_map(&|cell| match cell {
+            Cell::Empty(cell_data) => {
+                if cell_data.allowed {
+                    Some(())
+                } else {
+                    None
+                }
+            }
+            Cell::One(_, _) => None,
+            Cell::Many(_, _) => None,
         });
 
-        board
+        Board::new(board)
     }
 }
 
