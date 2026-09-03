@@ -1,11 +1,12 @@
 use crate::offset::{CellOffset, PixelOffset};
-use puzzled_common::Shape;
+use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::grid::Coord;
 
 #[derive(Clone, Debug, Default)]
 pub struct PlacedTile {
     name: Option<String>,
-    base: Shape,
-    current_rotation: Shape,
+    base: Polyform<()>,
+    current_rotation: Polyform<()>,
     cell_size: CellOffset,
     pixel_size: PixelOffset,
     position_cells: CellOffset,
@@ -16,31 +17,32 @@ pub struct PlacedTile {
 impl PlacedTile {
     pub fn new(
         name: Option<String>,
-        base: Shape,
-        cell_size: CellOffset,
-        position_cells: CellOffset,
+        base: Polyform<()>,
+        cell_size: Coord,
+        position_cells: Coord,
     ) -> Self {
-        PlacedTile {
-            name,
-            base: base.clone(),
-            current_rotation: base,
-            cell_size,
-            pixel_size: PixelOffset::default(),
-            position_cells,
-            position_pixels: PixelOffset::default(),
-            dragged: false,
-        }
+        // PlacedTile {
+        //     name,
+        //     base: base.clone(),
+        //     current_rotation: base,
+        //     cell_size,
+        //     pixel_size: PixelOffset::default(),
+        //     position_cells,
+        //     position_pixels: PixelOffset::default(),
+        //     dragged: false,
+        // }
+        todo!()
     }
 
     pub fn name(&self) -> &Option<String> {
         &self.name
     }
 
-    pub fn base(&self) -> &Shape {
+    pub fn base(&self) -> &Polyform<()> {
         &self.base
     }
 
-    pub fn current_rotation(&self) -> &Shape {
+    pub fn current_rotation(&self) -> &Polyform<()> {
         &self.current_rotation
     }
 
@@ -64,7 +66,7 @@ impl PlacedTile {
         self.dragged
     }
 
-    pub fn set_current_rotation(&mut self, current_rotation: Shape) {
+    pub fn set_current_rotation(&mut self, current_rotation: Polyform<()>) {
         self.current_rotation = current_rotation;
     }
 

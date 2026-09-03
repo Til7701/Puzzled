@@ -1,13 +1,12 @@
 use crate::model::extension::PuzzleTypeExtension;
-use crate::offset::CellOffset;
-use ndarray::Array2;
-use puzzle_config::PuzzleConfig;
-use puzzled_common::Shape;
+use puzzle_config::{BoardConfig, PuzzleConfig};
+use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::grid::Coord;
 use std::cell::Ref;
 use std::collections::HashSet;
 
 /// Represents data associated with a cell in the puzzle grid.
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct CellData {
     /// Indicates whether the cell is part of the playable board area.
     pub is_on_board: bool,
@@ -19,11 +18,11 @@ pub struct CellData {
 ///
 /// The tile_id is used to identify which tile is present, and the cell_position indicates
 /// the position of the cell of the tile inside the tile.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TileCellPlacement {
     pub tile_id: usize,
     /// The position of the cell of the tile inside the tile.
-    pub cell_position: CellOffset,
+    pub cell_position: Coord,
 }
 
 /// Represents a cell in the puzzle grid.
@@ -33,7 +32,7 @@ pub struct TileCellPlacement {
 /// A cell is not always a part of the playable board area.
 /// It may be part of the border area used to indicate out-of-bounds or the board design blocks
 /// placing a tile there.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Cell {
     Empty(CellData),
     One(CellData, TileCellPlacement),
@@ -51,7 +50,7 @@ impl Default for Cell {
 pub struct UnusedTile {
     /// Used to identify the tile when having multiple identical tiles.
     pub id: usize,
-    pub base: Shape,
+    pub base: Polyform<()>,
     pub name: Option<String>,
 }
 
@@ -61,7 +60,7 @@ pub struct UnusedTile {
 /// not been placed yet.
 #[derive(Debug)]
 pub struct PuzzleState {
-    pub grid: Array2<Cell>,
+    pub grid: Polyform<Cell>,
     pub unused_tiles: HashSet<UnusedTile>,
 }
 
@@ -71,73 +70,43 @@ impl PuzzleState {
         puzzle_type_extension: Ref<Option<PuzzleTypeExtension>>,
     ) -> Self {
         let board_config = &puzzle_config.board_config();
-        let layout = &board_config.layout();
 
-        let dim = layout.dim();
-        // Add border to have a zone where tiles are not allowed to be placed to indicate out-of-bounds
-        let dim = (dim.0 + 2, dim.1 + 2);
-        let mut grid: Array2<Cell> = Array2::default(dim);
+        let mut grid = match (board_config, puzzle_type_extension.as_ref()) {
+            (BoardConfig::Simple { layout }, _) => {
+                layout.clone().map(|_| {
+                    CellData {
+                        is_on_board: true,
+                        allowed: true,
+                    }
+                })
+            }
+            (BoardConfig::Area { layout, .. }, Some(PuzzleTypeExtension::Area { target: Some(target) })) => {
+                layout.clone().map_indexed(&|_, coord| {
+                    let allowed = target.indices.iter().any(|t| t.coord() == coord);
+                    CellData {
+                        is_on_board: true,
+                        allowed,
+                    }
+                })
+            }
+            (BoardConfig::Area { layout, .. }, _) => {
+                layout.clone().map(|_| {
+                    CellData {
+                        is_on_board: true,
+                        allowed: true,
+                    }
+                })
+            }
+        }.map(|cell_data| Cell::Empty(cell_data));
+        grid.extend_adjacent(Cell::Empty(CellData {
+            is_on_board: false,
+            allowed: false,
+        }));
 
-        for ((x, y), cell) in grid.indexed_iter_mut() {
-            let board_index: (i32, i32) = (x as i32 - 1, y as i32 - 1);
-            let on_board = *layout
-                .get((board_index.0 as usize, board_index.1 as usize))
-                .unwrap_or(&false);
-            let is_adjacent = Self::is_adjacent_to_board(board_index, puzzle_config);
-            let allowed = !is_adjacent;
-            *cell = Cell::Empty(CellData {
-                is_on_board: on_board,
-                allowed,
-            });
-        }
-
-        let mut puzzle_state = PuzzleState {
+        let puzzle_state = PuzzleState {
             grid,
             unused_tiles: HashSet::new(),
         };
-        if let Some(extension) = puzzle_type_extension.as_ref() {
-            puzzle_state.handle_extension(extension);
-        }
         puzzle_state
-    }
-
-    fn is_adjacent_to_board(position: (i32, i32), puzzle_config: &PuzzleConfig) -> bool {
-        const DELTAS: [(i32, i32); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
-        let this_is_on_board = puzzle_config
-            .board_config()
-            .layout()
-            .get((position.0 as usize, position.1 as usize))
-            .unwrap_or(&false);
-        for (dr, dc) in DELTAS.iter() {
-            let neighbor_pos = ((position.0 + dr) as usize, (position.1 + dc) as usize);
-            if let Some(neighbour_on_board) =
-                puzzle_config.board_config().layout().get(neighbor_pos)
-                && !this_is_on_board
-                && *neighbour_on_board
-            {
-                return true;
-            }
-        }
-        false
-    }
-
-    fn handle_extension(&mut self, puzzle_type_extension: &PuzzleTypeExtension) {
-        if let PuzzleTypeExtension::Area {
-            target: Some(target),
-        } = puzzle_type_extension
-        {
-            for index in &target.indices {
-                let cell = self.grid.get_mut((index.0 + 1, index.1 + 1));
-                if let Some(cell) = cell {
-                    let data = match cell {
-                        Cell::Empty(data) => data,
-                        Cell::One(data, _) => data,
-                        Cell::Many(data, _) => data,
-                    };
-                    data.allowed = false;
-                    data.is_on_board = false;
-                }
-            }
-        }
     }
 }

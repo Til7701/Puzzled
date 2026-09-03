@@ -12,6 +12,18 @@ pub struct HexCoord {
 }
 
 impl HexCoord {
+    pub fn x(&self) -> u32 {
+        self.x
+    }
+
+    pub fn y(&self) -> u32 {
+        self.y
+    }
+
+    pub fn z(&self) -> u32 {
+        self.z
+    }
+
     pub fn rotate_counterclockwise(&mut self, viewport: &Self) {
         todo!()
     }

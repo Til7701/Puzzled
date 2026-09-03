@@ -84,10 +84,21 @@ where
         todo!()
     }
 
+    pub fn map_indexed<R>(&mut self, mapper: &dyn Fn(T, &Coord) -> R) -> Polyform<R>
+    where
+        R: Clone,
+    {
+        todo!()
+    }
+
     pub fn filter_map<R>(&mut self, mapper: &dyn Fn(T) -> Option<R>) -> Polyform<R>
     where
         R: Clone,
     {
+        todo!()
+    }
+
+    pub fn extend_adjacent(&self, value: T) {
         todo!()
     }
 

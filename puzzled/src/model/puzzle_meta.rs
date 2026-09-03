@@ -4,6 +4,7 @@ use adw::glib::{Variant, VariantDict, VariantTy};
 use adw::prelude::{SettingsExt, SettingsExtManual};
 use log::{debug, error};
 use puzzle_config::{BoardConfig, PuzzleConfigCollection, Target};
+use puzzled_common::polyform::grid::Coord;
 
 const SOLVED_KEY: &str = "solved";
 const HINTS_KEY: &str = "hints";
@@ -198,7 +199,11 @@ fn extension_key(
 fn target_key(target: &Target) -> String {
     let mut key = "".to_string();
     for index in &target.indices {
-        key = format!("{}x{}-{}", key, index.0, index.1);
+        let coord = index.coord();
+        key = match coord {
+            Coord::Regular(r) => format!("{}x{}-{}", key, r.x(), r.y()),
+            Coord::Hex(h) => format!("{}x{}-{}-{}", key, h.x(), h.y(), h.z()),
+        };
     }
     key
 }
