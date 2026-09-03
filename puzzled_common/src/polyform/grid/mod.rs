@@ -39,7 +39,7 @@ impl Coord {
     pub fn area(&self) -> usize {
         match self {
             Coord::Regular(regular) => regular.area(),
-            Coord::Hex(hex) => hex.area()
+            Coord::Hex(hex) => hex.area(),
         }
     }
 }

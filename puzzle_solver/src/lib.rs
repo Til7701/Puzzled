@@ -399,7 +399,7 @@ mod tests {
             [false, true, false],
             [false, false, true],
         ])
-            .into();
+        .into();
         let tiles = vec![
             Tile::new(
                 42,

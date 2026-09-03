@@ -134,7 +134,11 @@ impl PlacementModel {
     /// * `min_cell_size_pixel`: the min cell size for calculating the min area size
     ///
     /// returns: ()
-    pub fn update_pixel_size(&self, total_view_size_pixel: PixelPosition, min_cell_size_pixel: u32) {
+    pub fn update_pixel_size(
+        &self,
+        total_view_size_pixel: PixelPosition,
+        min_cell_size_pixel: u32,
+    ) {
         // if total_view_size_pixel.0 < 100.0 || total_view_size_pixel.1 < 100.0 {
         //     return;
         // }

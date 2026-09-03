@@ -168,14 +168,16 @@ impl Solver {
     ///
     /// returns: Board
     fn create_board(&self, puzzle_state: &PuzzleState) -> Board {
-        let board = puzzle_state.grid.clone().filter_map(&|cell| {
-            match cell {
-                Cell::Empty(cell_data) => if cell_data.allowed {
+        let board = puzzle_state.grid.clone().filter_map(&|cell| match cell {
+            Cell::Empty(cell_data) => {
+                if cell_data.allowed {
                     Some(())
-                } else { None },
-                Cell::One(_, _) => None,
-                Cell::Many(_, _) => None,
+                } else {
+                    None
+                }
             }
+            Cell::One(_, _) => None,
+            Cell::Many(_, _) => None,
         });
 
         Board::new(board)

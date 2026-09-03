@@ -246,7 +246,10 @@ impl PuzzledApplication {
             Polyform::polyomino_from_bool_slice(&[[true, false], [true, true]]),
             ColorConfig::default_with_index(0),
         );
-        left_tile.set_drawing_mode_at(&Coord::Regular(RegularCoord::new(1, 1)), DrawingMode::Overlapping);
+        left_tile.set_drawing_mode_at(
+            &Coord::Regular(RegularCoord::new(1, 1)),
+            DrawingMode::Overlapping,
+        );
         left_tile.set_width_request(CELL_SIZE * 2);
         left_tile.set_height_request(CELL_SIZE * 2);
 
@@ -257,7 +260,10 @@ impl PuzzledApplication {
         );
         right_tile.set_width_request(CELL_SIZE * 2);
         right_tile.set_height_request(CELL_SIZE * 2);
-        right_tile.set_drawing_mode_at(&Coord::Regular(RegularCoord::new(0, 0)), DrawingMode::Overlapping);
+        right_tile.set_drawing_mode_at(
+            &Coord::Regular(RegularCoord::new(0, 0)),
+            DrawingMode::Overlapping,
+        );
 
         overlapping_fixed.put(&left_tile, 0.0, 0.0);
         overlapping_fixed.put(&right_tile, CELL_SIZE as f64, CELL_SIZE as f64);
@@ -270,7 +276,10 @@ impl PuzzledApplication {
             Polyform::polyomino_from_bool_slice(&[[true, true], [false, true]]),
             ColorConfig::default_with_index(0),
         );
-        tile.set_drawing_mode_at(&Coord::Regular(RegularCoord::new(1, 1)), DrawingMode::OutOfBounds);
+        tile.set_drawing_mode_at(
+            &Coord::Regular(RegularCoord::new(1, 1)),
+            DrawingMode::OutOfBounds,
+        );
         tile.set_width_request(CELL_SIZE * 2);
         tile.set_height_request(CELL_SIZE * 2);
         outside_fixed.put(&tile, 0.0, 0.0);

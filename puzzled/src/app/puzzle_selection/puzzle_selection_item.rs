@@ -190,14 +190,8 @@ impl PuzzleSelectionItem {
 
         if state != PuzzleModState::Locked || collection.config().preview().show_board_size() {
             let size = puzzle.config().board_config().layout().dim();
-            imp.board_size_pill
-                .set_label(format!("{}", size));
-            let cell_count = puzzle
-                .config()
-                .board_config()
-                .layout()
-                .iter()
-                .count();
+            imp.board_size_pill.set_label(format!("{}", size));
+            let cell_count = puzzle.config().board_config().layout().iter().count();
             imp.cell_count_pill.set_label(format!("{}", cell_count));
         } else {
             imp.info_box.remove(&imp.board_size_pill.get());
@@ -239,8 +233,12 @@ impl PuzzleSelectionItem {
                 current_x_offset_cells * PREVIEW_CELL_SIZE,
                 y_offset * PREVIEW_CELL_SIZE,
             );
-            tile_view.set_width_request((PREVIEW_CELL_SIZE * tile.base().relative_cartesian_dim().0) as i32);
-            tile_view.set_height_request((PREVIEW_CELL_SIZE * tile.base().relative_cartesian_dim().1) as i32);
+            tile_view.set_width_request(
+                (PREVIEW_CELL_SIZE * tile.base().relative_cartesian_dim().0) as i32,
+            );
+            tile_view.set_height_request(
+                (PREVIEW_CELL_SIZE * tile.base().relative_cartesian_dim().1) as i32,
+            );
             let tile_width = tile.base().relative_cartesian_dim().0;
             let next_x_offset = current_x_offset_cells + tile_width + 1f64;
             current_x_offset_cells = next_x_offset;
@@ -258,8 +256,12 @@ impl PuzzleSelectionItem {
                 let min_element_width = bv.get_min_element_size();
                 let size_per_cell = PREVIEW_CELL_SIZE.max(min_element_width as f64);
 
-                bv.set_width_request((size_per_cell * board.layout().relative_cartesian_dim().0) as i32);
-                bv.set_height_request((size_per_cell * board.layout().relative_cartesian_dim().1) as i32);
+                bv.set_width_request(
+                    (size_per_cell * board.layout().relative_cartesian_dim().0) as i32,
+                );
+                bv.set_height_request(
+                    (size_per_cell * board.layout().relative_cartesian_dim().1) as i32,
+                );
             }
             Err(e) => {
                 error!("Failed to create board preview: {}", e);

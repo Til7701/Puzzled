@@ -110,7 +110,7 @@ impl PuzzlePage {
                 (cancel_id, "Cancel"),
                 (clear_id, "Clear"),
             ]
-                .as_ref(),
+            .as_ref(),
         );
         dialog.set_default_response(Some(accept_id));
         dialog.set_close_response(cancel_id);

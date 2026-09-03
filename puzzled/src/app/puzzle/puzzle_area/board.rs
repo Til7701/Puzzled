@@ -40,8 +40,8 @@ impl PuzzleArea {
         let puzzle_type_extension = self.imp().puzzle_type_extension.borrow();
         let board = self.imp().board.borrow();
         if let Some(PuzzleTypeExtension::Area {
-                        target: Some(target),
-                    }) = puzzle_type_extension.as_ref()
+            target: Some(target),
+        }) = puzzle_type_extension.as_ref()
             && let Some(board_view) = board.as_ref()
         {
             target.indices.iter().for_each(|target_index| {

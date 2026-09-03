@@ -72,32 +72,28 @@ impl PuzzleState {
         let board_config = &puzzle_config.board_config();
 
         let mut grid = match (board_config, puzzle_type_extension.as_ref()) {
-            (BoardConfig::Simple { layout }, _) => {
-                layout.clone().map(|_| {
-                    CellData {
-                        is_on_board: true,
-                        allowed: true,
-                    }
-                })
-            }
-            (BoardConfig::Area { layout, .. }, Some(PuzzleTypeExtension::Area { target: Some(target) })) => {
-                layout.clone().map_indexed(&|_, coord| {
-                    let allowed = target.indices.iter().any(|t| t.coord() == coord);
-                    CellData {
-                        is_on_board: true,
-                        allowed,
-                    }
-                })
-            }
-            (BoardConfig::Area { layout, .. }, _) => {
-                layout.clone().map(|_| {
-                    CellData {
-                        is_on_board: true,
-                        allowed: true,
-                    }
-                })
-            }
-        }.map(|cell_data| Cell::Empty(cell_data));
+            (BoardConfig::Simple { layout }, _) => layout.clone().map(|_| CellData {
+                is_on_board: true,
+                allowed: true,
+            }),
+            (
+                BoardConfig::Area { layout, .. },
+                Some(PuzzleTypeExtension::Area {
+                    target: Some(target),
+                }),
+            ) => layout.clone().map_indexed(&|_, coord| {
+                let allowed = target.indices.iter().any(|t| t.coord() == coord);
+                CellData {
+                    is_on_board: true,
+                    allowed,
+                }
+            }),
+            (BoardConfig::Area { layout, .. }, _) => layout.clone().map(|_| CellData {
+                is_on_board: true,
+                allowed: true,
+            }),
+        }
+        .map(|cell_data| Cell::Empty(cell_data));
         grid.extend_adjacent(Cell::Empty(CellData {
             is_on_board: false,
             allowed: false,

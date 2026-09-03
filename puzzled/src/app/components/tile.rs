@@ -79,9 +79,13 @@ mod imp {
                     let cell_x = (x / cell_width) as u32;
                     let cell_y = (y / cell_height) as u32;
 
-                    current_rotation.get(&Coord::Regular(RegularCoord::new(cell_x, cell_y))).is_some()
+                    current_rotation
+                        .get(&Coord::Regular(RegularCoord::new(cell_x, cell_y)))
+                        .is_some()
                 }
-                Polyform::Hexomino { .. } => { todo!() }
+                Polyform::Hexomino { .. } => {
+                    todo!()
+                }
             }
         }
     }
@@ -103,7 +107,9 @@ impl TileView {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
-        obj.imp().current_rotation.replace(base.map(|_| DrawingMode::Normal));
+        obj.imp()
+            .current_rotation
+            .replace(base.map(|_| DrawingMode::Normal));
         obj.init_color(color);
 
         obj.set_draw_func({
@@ -136,16 +142,25 @@ impl TileView {
             Polyform::Polyomino { dim, cells } => {
                 self.draw_polyomino(cr, width, height, dim, cells);
             }
-            Polyform::Hexomino { .. } => { todo!() }
+            Polyform::Hexomino { .. } => {
+                todo!()
+            }
         }
     }
 
-    fn draw_polyomino(&self, cr: &Context, width: i32, height: i32, dim: &RegularCoord, squares: &[Square<DrawingMode>]) {
+    fn draw_polyomino(
+        &self,
+        cr: &Context,
+        width: i32,
+        height: i32,
+        dim: &RegularCoord,
+        squares: &[Square<DrawingMode>],
+    ) {
         let color_map = self.imp().color.borrow();
         for cell in squares.iter() {
             let coord = match cell.coord() {
                 Coord::Regular(coord) => coord,
-                _ => unreachable!()
+                _ => unreachable!(),
             };
             let x = coord.x();
             let y = coord.y();
@@ -208,10 +223,7 @@ impl TileView {
     /// Rotates the tile one step clockwise.
     pub fn rotate_clockwise(&self) {
         // We are calling counterclockwise here, since the tile is drawn transposed.
-        self.imp()
-            .current_rotation
-            .borrow_mut()
-            .rotate_clockwise();
+        self.imp().current_rotation.borrow_mut().rotate_clockwise();
     }
 
     /// Flips the tile horizontally.
