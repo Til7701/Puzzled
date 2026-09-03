@@ -1,4 +1,4 @@
-use crate::offset::{CellOffset, PixelOffset};
+use crate::model::placement::PixelPosition;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::grid::Coord;
 
@@ -7,10 +7,10 @@ pub struct PlacedTile {
     name: Option<String>,
     base: Polyform<()>,
     current_rotation: Polyform<()>,
-    cell_size: CellOffset,
-    pixel_size: PixelOffset,
-    position_cells: CellOffset,
-    position_pixels: PixelOffset,
+    // cell_size: Coord,
+    pixel_size: PixelPosition,
+    // position_cells: Coord,
+    position_pixels: PixelPosition,
     dragged: bool,
 }
 
@@ -46,19 +46,21 @@ impl PlacedTile {
         &self.current_rotation
     }
 
-    pub fn cell_size(&self) -> CellOffset {
-        self.cell_size
+    pub fn cell_size(&self) -> Coord {
+        // self.cell_size
+        todo!()
     }
 
-    pub fn pixel_size(&self) -> PixelOffset {
+    pub fn pixel_size(&self) -> PixelPosition {
         self.pixel_size
     }
 
-    pub fn position_cells(&self) -> CellOffset {
-        self.position_cells
+    pub fn position_cells(&self) -> Coord {
+        // self.position_cells
+        todo!()
     }
 
-    pub fn position_pixels(&self) -> PixelOffset {
+    pub fn position_pixels(&self) -> PixelPosition {
         self.position_pixels
     }
 
@@ -70,19 +72,19 @@ impl PlacedTile {
         self.current_rotation = current_rotation;
     }
 
-    pub fn set_cell_size(&mut self, cell_size: CellOffset) {
-        self.cell_size = cell_size;
+    pub fn set_cell_size(&mut self, cell_size: Coord) {
+        // self.cell_size = cell_size;
     }
 
-    pub fn set_pixel_size(&mut self, pixel_size: PixelOffset) {
+    pub fn set_pixel_size(&mut self, pixel_size: PixelPosition) {
         self.pixel_size = pixel_size;
     }
 
-    pub fn set_position_cells(&mut self, position_cells: CellOffset) {
-        self.position_cells = position_cells;
+    pub fn set_position_cells(&mut self, position_cells: Coord) {
+        // self.position_cells = position_cells;
     }
 
-    pub fn set_position_pixels(&mut self, position_pixels: PixelOffset) {
+    pub fn set_position_pixels(&mut self, position_pixels: PixelPosition) {
         self.position_pixels = position_pixels;
     }
 

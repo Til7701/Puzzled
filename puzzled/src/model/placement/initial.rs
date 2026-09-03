@@ -1,4 +1,3 @@
-use crate::offset::CellOffset;
 use puzzle_config::{PuzzleConfig, TileConfig};
 use puzzled_common::polyform::grid::Coord;
 
@@ -47,10 +46,10 @@ pub fn calculate_tile_start_positions(
 }
 
 fn place_in_column(
-    start: CellOffset,
+    start: Coord,
     end: i32,
     tiles: &[TileConfig],
-    positions: &mut Vec<CellOffset>,
+    positions: &mut Vec<Coord>,
 ) {
     // if tiles.len() != positions.len() {
     //     let mut next_pos = start;
@@ -68,10 +67,10 @@ fn place_in_column(
 }
 
 fn place_in_row(
-    start: CellOffset,
+    start: Coord,
     end: i32,
     tiles: &[TileConfig],
-    positions: &mut Vec<CellOffset>,
+    positions: &mut Vec<Coord>,
 ) -> i32 {
     // let mut highest_tile: i32 = 0;
     // if tiles.len() != positions.len() {

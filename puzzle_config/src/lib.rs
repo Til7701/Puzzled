@@ -35,28 +35,6 @@ pub fn create_json_loader(
     Ok(json_loader)
 }
 
-#[deprecated]
-pub fn get_predefined(predefined_json_str: &str, puzzled_version: &str) -> Predefined {
-    // json::read_predefined(predefined_json_str, puzzled_version)
-    unreachable!()
-}
-
-#[deprecated]
-pub struct Predefined {
-    tiles: Vec<TileConfig>,
-    boards: Vec<BoardConfig>,
-}
-
-impl Predefined {
-    pub fn tiles(&self) -> &[TileConfig] {
-        &self.tiles
-    }
-
-    pub fn boards(&self) -> &[BoardConfig] {
-        &self.boards
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::create_json_loader;
