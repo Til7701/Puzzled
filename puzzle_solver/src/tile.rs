@@ -1,5 +1,5 @@
 use log::debug;
-use puzzled_common::Shape;
+use puzzled_common::polyform::Polyform;
 use std::collections::HashSet;
 
 /// Represents a tile to place on a board.
@@ -11,9 +11,9 @@ pub struct Tile {
     id: usize,
     /// The base 2D boolean array representing the tile.
     /// This is kept for convenience to give back to users who want the original base.
-    pub(crate) base: Shape,
+    pub(crate) base: Polyform<()>,
     /// All unique rotations and flips of the tile, containing the base orientation as well.
-    pub(crate) all_rotations: Vec<Shape>,
+    pub(crate) all_rotations: Vec<Polyform<()>>,
 }
 
 impl Tile {
@@ -37,8 +37,8 @@ impl Tile {
     /// let base = shape_square(&[[true, false], [true, true]]);
     /// let tile = Tile::new(42, base);
     /// ```
-    pub fn new(id: usize, base: Shape) -> Tile {
-        let mut all_rotations_set: HashSet<Shape> = HashSet::new();
+    pub fn new(id: usize, base: Polyform<()>) -> Tile {
+        let mut all_rotations_set: HashSet<Polyform<()>> = HashSet::new();
 
         base.rotations_flips_iter().for_each(|rotation| {
             all_rotations_set.insert(rotation);
@@ -74,7 +74,7 @@ impl Tile {
     /// let tile = Tile::new(42, base.clone());
     /// assert_eq!(tile.base(), &base);
     /// ```
-    pub fn base(&self) -> &Shape {
+    pub fn base(&self) -> &Polyform<()> {
         &self.base
     }
 

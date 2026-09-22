@@ -8,8 +8,8 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppearance};
 use gtk::StringList;
 use gtk::prelude::{ButtonExt, WidgetExt};
-use ndarray::Array2;
-use puzzle_config::{AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
+use puzzle_config::{AreaBoardData, AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
+use puzzled_common::polyform::Polyform;
 
 #[derive(Debug, Clone, PartialEq)]
 struct TargetIndexListItem {
@@ -166,20 +166,20 @@ impl PuzzlePage {
                 target_index: target_index.clone(),
             })
             .collect();
-        let value_order: &Array2<i32> = match puzzle_config.board_config() {
+        let layout: &Polyform<AreaBoardData> = match puzzle_config.board_config() {
             BoardConfig::Simple { .. } => {
                 return (Vec::new(), ComboRow::builder().build());
             }
-            BoardConfig::Area { value_order, .. } => value_order,
+            BoardConfig::Area { layout, .. } => layout,
         };
         items.sort_by(|a, b| {
-            let first = value_order
-                .get((a.target_index.0, a.target_index.1))
-                .cloned()
+            let first = layout
+                .get(a.target_index.coord())
+                .map(|prototile| prototile.data().area_index)
                 .unwrap_or(i32::MAX);
-            let second = value_order
-                .get((b.target_index.0, b.target_index.1))
-                .cloned()
+            let second = layout
+                .get(b.target_index.coord())
+                .map(|prototile| prototile.data().area_index)
                 .unwrap_or(i32::MAX);
 
             first.cmp(&second)

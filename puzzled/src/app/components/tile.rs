@@ -6,11 +6,12 @@ use adw::prelude::GdkCairoContextExt;
 use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
-use ndarray::Array2;
 use puzzle_config::ColorConfig;
-use puzzled_common::Shape;
-use std::cell::Ref;
+use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::grid::{Coord, RegularCoord};
+use puzzled_common::polyform::prototile::Square;
 use std::collections::HashMap;
+use std::ops::Deref;
 
 const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = adw_ext::ERROR_BG_LIGHT;
 const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
@@ -29,16 +30,16 @@ pub enum DrawingMode {
 
 mod imp {
     use super::*;
-    use puzzled_common::Shape;
+    use puzzled_common::polyform::grid::{Coord, RegularCoord};
     use std::cell::{Cell, RefCell};
     use std::collections::HashMap;
+    use std::ops::Deref;
 
     #[derive(Debug, Default)]
     pub struct PuzzledTileView {
         pub id: Cell<usize>,
-        pub current_rotation: RefCell<Shape>,
+        pub current_rotation: RefCell<Polyform<DrawingMode>>,
         pub color: RefCell<HashMap<DrawingMode, RGBA>>,
-        pub drawing_modes: RefCell<Array2<DrawingMode>>,
     }
 
     #[glib::object_subclass]
@@ -70,15 +71,22 @@ mod imp {
             }
 
             let current_rotation = self.current_rotation.borrow();
-            let tile_dims = current_rotation.dim();
+            match current_rotation.deref() {
+                Polyform::Polyomino { dim: tile_dims, .. } => {
+                    let cell_width = width / tile_dims.x() as f64;
+                    let cell_height = height / tile_dims.y() as f64;
 
-            let cell_width = width / tile_dims.0 as f64;
-            let cell_height = height / tile_dims.1 as f64;
+                    let cell_x = (x / cell_width) as u32;
+                    let cell_y = (y / cell_height) as u32;
 
-            let cell_x = (x / cell_width) as usize;
-            let cell_y = (y / cell_height) as usize;
-
-            *current_rotation.get((cell_x, cell_y)).unwrap_or(&false)
+                    current_rotation
+                        .get(&Coord::Regular(RegularCoord::new(cell_x, cell_y)))
+                        .is_some()
+                }
+                Polyform::Hexomino { .. } => {
+                    todo!()
+                }
+            }
         }
     }
     impl DrawingAreaImpl for PuzzledTileView {}
@@ -95,12 +103,13 @@ impl TileView {
     /// Creates a new TileView with the given id and base layout.
     /// The name is used to refer to the tile layout when calculating possible solutions for given
     /// tiles.
-    pub fn new(id: usize, base: Shape, color: ColorConfig) -> Self {
+    pub fn new(id: usize, mut base: Polyform<()>, color: ColorConfig) -> Self {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
-        obj.imp().drawing_modes.replace(Array2::default(base.dim()));
-        obj.imp().current_rotation.replace(base);
+        obj.imp()
+            .current_rotation
+            .replace(base.map(|_| DrawingMode::Normal));
         obj.init_color(color);
 
         obj.set_draw_func({
@@ -128,55 +137,76 @@ impl TileView {
 
     fn draw(&self, cr: &Context, width: i32, height: i32) {
         let current_rotation = self.imp().current_rotation.borrow();
-        let drawing_modes = self.imp().drawing_modes.borrow();
 
+        match current_rotation.deref() {
+            Polyform::Polyomino { dim, cells } => {
+                self.draw_polyomino(cr, width, height, dim, cells);
+            }
+            Polyform::Hexomino { .. } => {
+                todo!()
+            }
+        }
+    }
+
+    fn draw_polyomino(
+        &self,
+        cr: &Context,
+        width: i32,
+        height: i32,
+        dim: &RegularCoord,
+        squares: &[Square<DrawingMode>],
+    ) {
         let color_map = self.imp().color.borrow();
-        for ((x, y), cell) in current_rotation.indexed_iter() {
-            if *cell {
-                let cell_width = width as f64 / current_rotation.dim().0 as f64;
-                let cell_height = height as f64 / current_rotation.dim().1 as f64;
-                let cell_x = x as f64 * cell_width;
-                let cell_y = y as f64 * cell_height;
+        for cell in squares.iter() {
+            let coord = match cell.coord() {
+                Coord::Regular(coord) => coord,
+                _ => unreachable!(),
+            };
+            let x = coord.x();
+            let y = coord.y();
+            let cell_width = width as f64 / dim.x() as f64;
+            let cell_height = height as f64 / dim.y() as f64;
+            let cell_x = x as f64 * cell_width;
+            let cell_y = y as f64 * cell_height;
 
-                let drawing_mode = &drawing_modes[(x, y)];
-                let color = &color_map[drawing_mode];
-                cr.set_source_color(color);
-                cr.rectangle(cell_x, cell_y, cell_width, cell_height);
-                cr.fill().expect("Failed to fill");
-                // Due to floating point inaccuracies, there might be 2px gaps between cells, so
-                // additional rectangles are drawn to fill those gaps if the adjacent cells are filled.
-                // This only solves the problem, if the color is not transparent, otherwise there
-                // would be visible lines between the cells of the tile.
-                if color.alpha() == 1.0 {
-                    if *current_rotation.get((x + 1, y)).unwrap_or(&false) {
-                        cr.rectangle(cell_x + cell_width - 1.0, cell_y, 2.0, cell_height);
-                        cr.fill().expect("Failed to fill");
-                    }
-                    if *current_rotation.get((x, y + 1)).unwrap_or(&false) {
-                        cr.rectangle(cell_x, cell_y + cell_height - 1.0, cell_width, 2.0);
-                        cr.fill().expect("Failed to fill");
-                    }
-                }
+            let drawing_mode = cell.data();
+            let color = &color_map[drawing_mode];
+            cr.set_source_color(color);
+            cr.rectangle(cell_x, cell_y, cell_width, cell_height);
+            cr.fill().expect("Failed to fill");
+            // Due to floating point inaccuracies, there might be 2px gaps between cells, so
+            // additional rectangles are drawn to fill those gaps if the adjacent cells are filled.
+            // This only solves the problem, if the color is not transparent, otherwise there
+            // would be visible lines between the cells of the tile.
+            // if color.alpha() == 1.0 {
+            //     if current_rotation.get((x + 1, y)).unwrap_or(&false) {
+            //         cr.rectangle(cell_x + cell_width - 1.0, cell_y, 2.0, cell_height);
+            //         cr.fill().expect("Failed to fill");
+            //     }
+            //     if current_rotation.get((x, y + 1)).unwrap_or(&false) {
+            //         cr.rectangle(cell_x, cell_y + cell_height - 1.0, cell_width, 2.0);
+            //         cr.fill().expect("Failed to fill");
+            //     }
+            // }
 
-                // Border
-                let border_color = match drawing_mode {
-                    DrawingMode::Normal => None,
-                    DrawingMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
-                    DrawingMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
-                };
-                if let Some(border_color) = border_color {
-                    cr.set_source_color(&border_color);
-                    const BORDER_WIDTH: f64 = 3.0;
-                    const HALF_BORDER_WIDTH: f64 = BORDER_WIDTH / 2.0;
-                    cr.set_line_width(BORDER_WIDTH);
-                    cr.rectangle(
-                        cell_x + HALF_BORDER_WIDTH,
-                        cell_y + HALF_BORDER_WIDTH,
-                        cell_width - BORDER_WIDTH,
-                        cell_height - BORDER_WIDTH,
-                    );
-                    cr.stroke().expect("Failed to stroke");
-                }
+            // Border
+            let border_color = match drawing_mode {
+                DrawingMode::Normal => None,
+                DrawingMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
+                DrawingMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
+            };
+            if let Some(border_color) = border_color {
+                cr.set_source_color(&border_color);
+                const BORDER_WIDTH: f64 = 3.0;
+                const HALF_BORDER_WIDTH: f64 = BORDER_WIDTH / 2.0;
+                cr.set_line_width(BORDER_WIDTH);
+                cr.rectangle(
+                    cell_x + HALF_BORDER_WIDTH,
+                    cell_y + HALF_BORDER_WIDTH,
+                    cell_width - BORDER_WIDTH,
+                    cell_height - BORDER_WIDTH,
+                );
+                cr.stroke().expect("Failed to stroke");
             }
         }
     }
@@ -193,44 +223,33 @@ impl TileView {
     /// Rotates the tile one step clockwise.
     pub fn rotate_clockwise(&self) {
         // We are calling counterclockwise here, since the tile is drawn transposed.
-        self.imp()
-            .current_rotation
-            .borrow_mut()
-            .rotate_counterclockwise();
-        self.update_drawing_modes();
+        self.imp().current_rotation.borrow_mut().rotate_counterclockwise();
     }
 
     /// Flips the tile horizontally.
-    pub fn flip_horizontal(&self) {
-        self.imp().current_rotation.borrow_mut().flip_default();
-        self.update_drawing_modes();
-    }
-
-    fn update_drawing_modes(&self) {
-        let rotation = self.imp().current_rotation.borrow();
-        self.imp()
-            .drawing_modes
-            .replace(Array2::default(rotation.dim()));
-        self.queue_draw();
+    pub fn flip(&self) {
+        self.imp().current_rotation.borrow_mut().flip();
     }
 
     /// Returns the current layout of the tile, which changes when the tile is rotated or flipped.
-    pub fn current_rotation(&self) -> Ref<'_, Shape> {
-        self.imp().current_rotation.borrow()
+    pub fn current_rotation(&self) -> Polyform<()> {
+        self.imp().current_rotation.borrow().clone().map(|_| ())
     }
 
     /// Sets the drawing mode for the cell at the given coordinates.
-    pub fn set_drawing_mode_at(&self, x: usize, y: usize, drawing_mode: DrawingMode) {
-        self.imp().drawing_modes.borrow_mut()[(x, y)] = drawing_mode;
+    pub fn set_drawing_mode_at(&self, coord: &Coord, drawing_mode: DrawingMode) {
+        if let Some(mut prototile) = self.imp().current_rotation.borrow_mut().get_mut(coord) {
+            prototile.set_data(drawing_mode);
+        }
         self.queue_draw();
     }
 
     /// Resets the drawing mode for all cells to [DrawingMode::Normal].
     pub fn reset_drawing_modes(&self) {
         self.imp()
-            .drawing_modes
+            .current_rotation
             .borrow_mut()
-            .fill(DrawingMode::Normal);
+            .map(|_| DrawingMode::Normal);
         self.queue_draw();
     }
 }

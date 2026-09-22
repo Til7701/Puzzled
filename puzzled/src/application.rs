@@ -30,7 +30,8 @@ use gettextrs::gettext;
 use gtk::{CssProvider, License, STYLE_PROVIDER_PRIORITY_APPLICATION, Settings, gio, glib};
 use log::info;
 use puzzle_config::ColorConfig;
-use puzzled_common::shape::shape_square;
+use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::grid::{Coord, RegularCoord};
 use std::fmt::Debug;
 
 mod imp {
@@ -242,21 +243,27 @@ impl PuzzledApplication {
             .expect("Missing `overlapping_fixed` in resource");
         let left_tile = TileView::new(
             0,
-            shape_square(&[[true, false], [true, true]]),
+            Polyform::polyomino_from_bool_slice(&[[true, false], [true, true]]),
             ColorConfig::default_with_index(0),
         );
-        left_tile.set_drawing_mode_at(1, 1, DrawingMode::Overlapping);
+        left_tile.set_drawing_mode_at(
+            &Coord::Regular(RegularCoord::new(1, 1)),
+            DrawingMode::Overlapping,
+        );
         left_tile.set_width_request(CELL_SIZE * 2);
         left_tile.set_height_request(CELL_SIZE * 2);
 
         let right_tile = TileView::new(
             0,
-            shape_square(&[[true, true], [false, true]]),
+            Polyform::polyomino_from_bool_slice(&[[true, true], [false, true]]),
             ColorConfig::default_with_index(5),
         );
         right_tile.set_width_request(CELL_SIZE * 2);
         right_tile.set_height_request(CELL_SIZE * 2);
-        right_tile.set_drawing_mode_at(0, 0, DrawingMode::Overlapping);
+        right_tile.set_drawing_mode_at(
+            &Coord::Regular(RegularCoord::new(0, 0)),
+            DrawingMode::Overlapping,
+        );
 
         overlapping_fixed.put(&left_tile, 0.0, 0.0);
         overlapping_fixed.put(&right_tile, CELL_SIZE as f64, CELL_SIZE as f64);
@@ -266,10 +273,13 @@ impl PuzzledApplication {
             .expect("Missing `outside_fixed` in resource");
         let tile = TileView::new(
             0,
-            shape_square(&[[true, true], [false, true]]),
+            Polyform::polyomino_from_bool_slice(&[[true, true], [false, true]]),
             ColorConfig::default_with_index(0),
         );
-        tile.set_drawing_mode_at(1, 1, DrawingMode::OutOfBounds);
+        tile.set_drawing_mode_at(
+            &Coord::Regular(RegularCoord::new(1, 1)),
+            DrawingMode::OutOfBounds,
+        );
         tile.set_width_request(CELL_SIZE * 2);
         tile.set_height_request(CELL_SIZE * 2);
         outside_fixed.put(&tile, 0.0, 0.0);
@@ -286,7 +296,7 @@ impl PuzzledApplication {
         );
         let tile = TileView::new(
             0,
-            shape_square(&[[true, true], [false, true]]),
+            Polyform::polyomino_from_bool_slice(&[[true, true], [false, true]]),
             color_config,
         );
         tile.set_width_request(CELL_SIZE * 2);

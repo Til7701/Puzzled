@@ -1,4 +1,3 @@
-use crate::global::settings::{Preferences, ShowBoardGridLines};
 use adw::gio;
 use adw::glib;
 use adw::prelude::Cast;
@@ -6,6 +5,7 @@ use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{Frame, Label, Widget};
 use puzzle_config::BoardConfig;
+use puzzled_common::polyform::grid::Coord;
 use std::cell::Ref;
 
 const SHOW_GRID_LINES_CLASS: &str = "show-grid-lines";
@@ -52,58 +52,55 @@ impl BoardView {
     pub fn new(board_config: &BoardConfig) -> Result<BoardView, String> {
         let obj: BoardView = glib::Object::builder().build();
 
-        let board_layout = &board_config.layout();
-
-        obj.add_css_class("board-grid");
-        obj.set_row_homogeneous(true);
-        obj.set_column_homogeneous(true);
-
-        let mut elements: Vec<Widget> = Vec::new();
-
-        for ((x, y), value) in board_layout.indexed_iter() {
-            let cell = if *value {
-                match board_config {
-                    BoardConfig::Simple { .. } => {
-                        let css_classes: Vec<String> =
-                            vec!["board-cell".to_string(), "board-cell-simple".to_string()];
-
-                        Frame::builder().css_classes(css_classes).build()
-                    }
-                    BoardConfig::Area {
-                        area_indices,
-                        display_values,
-                        ..
-                    } => {
-                        let css_classes: Vec<String> = vec![
-                            "board-cell".to_string(),
-                            format!("board-cell-{}", area_indices[[x, y]]),
-                        ];
-                        let cell = Frame::builder().css_classes(css_classes).build();
-
-                        let label = Label::new(Some(&display_values[[x, y]]));
-                        cell.set_child(Some(&label));
-                        cell
-                    }
-                }
-            } else {
-                let css_classes: Vec<String> =
-                    vec!["board-cell".to_string(), "board-cell-outside".to_string()];
-                Frame::builder().css_classes(css_classes).build()
-            };
-            obj.attach(&cell, x as i32, y as i32, 1, 1);
-            elements.push(cell.upcast::<Widget>());
-        }
-        obj.imp().elements.replace(elements);
-
-        let preferences = Preferences::default();
-        preferences.bind(ShowBoardGridLines, &obj, "show-grid-lines");
-        obj.update_grid_lines(preferences.get(ShowBoardGridLines));
-        obj.connect_show_grid_lines_notify({
-            move |obj| {
-                let show_grid_lines = preferences.get(ShowBoardGridLines);
-                obj.update_grid_lines(show_grid_lines);
-            }
-        });
+        // obj.add_css_class("board-grid");
+        // obj.set_row_homogeneous(true);
+        // obj.set_column_homogeneous(true);
+        //
+        // let mut elements: Vec<Widget> = Vec::new();
+        //
+        // for ((x, y), value) in board_layout.indexed_iter() {
+        //     let cell = if *value {
+        //         match board_config {
+        //             BoardConfig::Simple { .. } => {
+        //                 let css_classes: Vec<String> =
+        //                     vec!["board-cell".to_string(), "board-cell-simple".to_string()];
+        //
+        //                 Frame::builder().css_classes(css_classes).build()
+        //             }
+        //             BoardConfig::Area {
+        //                 layout,
+        //                 ..
+        //             } => {
+        //                 let css_classes: Vec<String> = vec![
+        //                     "board-cell".to_string(),
+        //                     format!("board-cell-{}", area_indices[[x, y]]),
+        //                 ];
+        //                 let cell = Frame::builder().css_classes(css_classes).build();
+        //
+        //                 let label = Label::new(Some(&display_values[[x, y]]));
+        //                 cell.set_child(Some(&label));
+        //                 cell
+        //             }
+        //         }
+        //     } else {
+        //         let css_classes: Vec<String> =
+        //             vec!["board-cell".to_string(), "board-cell-outside".to_string()];
+        //         Frame::builder().css_classes(css_classes).build()
+        //     };
+        //     obj.attach(&cell, x as i32, y as i32, 1, 1);
+        //     elements.push(cell.upcast::<Widget>());
+        // }
+        // obj.imp().elements.replace(elements);
+        //
+        // let preferences = Preferences::default();
+        // preferences.bind(ShowBoardGridLines, &obj, "show-grid-lines");
+        // obj.update_grid_lines(preferences.get(ShowBoardGridLines));
+        // obj.connect_show_grid_lines_notify({
+        //     move |obj| {
+        //         let show_grid_lines = preferences.get(ShowBoardGridLines);
+        //         obj.update_grid_lines(show_grid_lines);
+        //     }
+        // });
 
         Ok(obj)
     }
@@ -143,5 +140,13 @@ impl BoardView {
         } else {
             self.remove_css_class(SHOW_GRID_LINES_CLASS);
         }
+    }
+
+    pub fn highlight(&self, coord: &Coord) {
+        todo!()
+    }
+
+    pub fn remove_highlights(&self) {
+        todo!()
     }
 }

@@ -1,6 +1,6 @@
 use crate::board::Board;
 use crate::tile::Tile;
-use puzzled_common::Shape;
+use puzzled_common::polyform::Polyform;
 
 /// The pruner provides some functions to exclude various positions from evaluation.
 pub struct Pruner {
@@ -27,7 +27,7 @@ impl Pruner {
     /// there are spaces, where no tiles can be placed. This means that if this method returns true,
     /// the given path can be abandoned.
     #[inline(always)]
-    pub fn prune_positioned_tile_with_board(&self, shape: &Shape) -> bool {
+    pub fn prune_positioned_tile_with_board(&self, shape: &Polyform<()>) -> bool {
         shape.count_smallest_connected_area_of_cells_matching(false) < self.min_tile_size
     }
 }

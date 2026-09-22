@@ -1,4 +1,5 @@
-use puzzled_common::Shape;
+use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::grid::Coord;
 
 /// Represents a successful solution to the puzzle.
 #[derive(Debug)]
@@ -24,20 +25,20 @@ pub struct TilePlacement {
     /// The index of the tile in the original list of tiles.
     tile_id: usize,
     /// The base of the tile being placed.
-    base: Shape,
+    base: Polyform<()>,
     /// The rotation in which the tile is placed.
-    rotation: Shape,
+    rotation: Polyform<()>,
     /// The (x, y) position where the tile is placed.
-    position: (usize, usize),
+    position: Coord,
 }
 
 impl TilePlacement {
     /// Creates a new `TilePlacement` with the given base, rotation, and position.
     pub(crate) fn new(
         tile_id: usize,
-        base: Shape,
-        rotation: Shape,
-        position: (usize, usize),
+        base: Polyform<()>,
+        rotation: Polyform<()>,
+        position: Coord,
     ) -> Self {
         Self {
             tile_id,
@@ -53,18 +54,18 @@ impl TilePlacement {
     }
 
     /// Returns a reference to the base layout of the tile.
-    pub fn base(&self) -> &Shape {
+    pub fn base(&self) -> &Polyform<()> {
         &self.base
     }
 
     /// Returns a reference to the rotation of the tile as placed.
-    pub fn rotation(&self) -> &Shape {
+    pub fn rotation(&self) -> &Polyform<()> {
         &self.rotation
     }
 
     /// Returns the (x, y) position of the tile.
-    pub fn position(&self) -> (usize, usize) {
-        self.position
+    pub fn position(&self) -> &Coord {
+        &self.position
     }
 }
 

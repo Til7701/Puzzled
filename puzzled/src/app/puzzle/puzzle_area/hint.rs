@@ -1,6 +1,5 @@
 use crate::app::components::tile::TileView;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
-use crate::offset::CellOffset;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{FixedExt, WidgetExt};
 use puzzle_config::ColorConfig;
@@ -34,7 +33,7 @@ impl PuzzleArea {
             .as_ref()
             .unwrap()
             .init_hint_tile(
-                CellOffset::from(placement.position()) - CellOffset(1, 1), // Plus 1, 1 because the puzzle state has a border of one cell to provide information for highlighting
+                placement.position(), //FIXME - CellOffset(1, 1), // Plus 1, 1 because the puzzle state has a border of one cell to provide information for highlighting
                 placement.rotation().clone(),
             );
 

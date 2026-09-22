@@ -84,7 +84,7 @@ impl CombinationsSolver {
         if let Some(name) = name {
             format!("\"{}\"", name)
         } else {
-            unused_tile.base.to_string()
+            unused_tile.base.as_2d_slice()
         }
     }
 

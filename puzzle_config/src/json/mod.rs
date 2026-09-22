@@ -1,6 +1,6 @@
-use crate::json::converter::Convertable;
+use crate::json::converter::Converter;
 use crate::json::model::PuzzleCollection;
-use crate::json::predefined::{Custom, Predefined};
+use crate::json::predefined::Predefined;
 use crate::{PUZZLED_VERSION_FIELD, PuzzleConfigCollection, ReadError};
 use semver::{Version, VersionReq};
 use serde_json::Value;
@@ -67,17 +67,11 @@ impl JsonLoader {
     fn load(&self, json_data: Value) -> Result<PuzzleConfigCollection, ReadError> {
         let result = serde_json::from_value::<PuzzleCollection>(json_data);
         match result {
-            Ok(collection) => collection.convert(&self.predefined, &mut Custom::default()),
+            Ok(collection) => {
+                let mut converter = Converter::new(&self.predefined);
+                converter.convert_collection(collection)
+            }
             Err(e) => Err(ReadError::JsonError(e.to_string())),
         }
-    }
-}
-
-pub fn read_predefined(json_data: &str, _: &str) -> crate::Predefined {
-    let mut predefined: Predefined =
-        serde_json::from_str(json_data).expect("Failed to parse predefined JSON");
-    crate::Predefined {
-        tiles: predefined.take_tiles(),
-        boards: predefined.take_boards(),
     }
 }
