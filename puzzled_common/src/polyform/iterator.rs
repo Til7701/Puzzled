@@ -43,10 +43,12 @@ where
     type Item = PrototileRef<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.polyform {
+        let v = match self.polyform {
             Polyform::Polyomino { cells, .. } => cells.get(self.index).map(|p| p.into()),
             Polyform::Hexomino { cells, .. } => cells.get(self.index).map(|p| p.into()),
-        }
+        };
+        self.index += 1;
+        v
     }
 }
 
@@ -90,7 +92,7 @@ where
         match &mut self.polyform {
             Polyform::Polyomino { .. } => {
                 let polyform = &mut self.polyform;
-                if self.index >= 8 {
+                let v = if self.index >= 8 {
                     None
                 } else if self.index == 4 {
                     polyform.flip();
@@ -98,7 +100,9 @@ where
                 } else {
                     polyform.rotate_counterclockwise();
                     Some(polyform.clone())
-                }
+                };
+                self.index += 1;
+                v
             }
             Polyform::Hexomino { .. } => {
                 todo!()

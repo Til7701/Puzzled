@@ -210,7 +210,7 @@ impl<'a> Converter<'a> {
                     }
                 }
                 let mut base = Polyform::polyomino_from_vec(&array, &|value, _| {
-                    if value != 0 { Some(()) } else { None }
+                    if *value != 0 { Some(()) } else { None }
                 });
                 base.transpose();
                 Ok((base, None))
@@ -261,7 +261,7 @@ impl<'a> Converter<'a> {
                     }
                 }
                 let mut polyform = Polyform::polyomino_from_vec(&layout, &|value, _| {
-                    if value < 1 { Some(()) } else { None }
+                    if *value < 1 { Some(()) } else { None }
                 });
                 polyform.transpose();
                 Ok(BoardConfig::Simple { layout: polyform })
@@ -290,7 +290,7 @@ impl<'a> Converter<'a> {
                         }
                     }
                     let mut array = Polyform::polyomino_from_vec(&area_layout, &|value, (x, y)| {
-                        if value >= 0 {
+                        if *value >= 0 {
                             let area_index = area_layout.get(x).map(|v| v.get(y)).flatten()?;
                             let display_value = values.get(x).map(|v| v.get(y)).flatten()?;
                             let value_order = value_order.get(x).map(|v| v.get(y)).flatten()?;
