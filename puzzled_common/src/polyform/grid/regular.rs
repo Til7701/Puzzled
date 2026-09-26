@@ -46,8 +46,8 @@ impl RegularCoord {
     pub fn transpose(&mut self) {
         let old_x = self.x;
         let old_y = self.y;
-        self.x = old_x;
-        self.y = old_y;
+        self.x = old_y;
+        self.y = old_x;
     }
 
     pub fn area(&self) -> usize {

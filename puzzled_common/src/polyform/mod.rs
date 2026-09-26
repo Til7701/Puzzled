@@ -103,10 +103,12 @@ where
     pub fn rotate_counterclockwise(&mut self) {
         match self {
             Polyform::Polyomino { dim, cells } => {
+                dim.transpose();
                 let viewport = Coord::Regular(dim.clone());
                 cells.iter_mut().for_each(|s| s.rotate_counterclockwise(&viewport))
             }
             Polyform::Hexomino { dim, cells } => {
+                todo!("Update dim");
                 let viewport = Coord::Hex(dim.clone());
                 cells.iter_mut().for_each(|s| s.rotate_counterclockwise(&viewport))
             }
@@ -128,10 +130,12 @@ where
 
     pub fn transpose(&mut self) {
         match self {
-            Polyform::Polyomino { cells, .. } => {
+            Polyform::Polyomino { dim, cells } => {
+                dim.transpose();
                 cells.iter_mut().for_each(|s| s.transpose())
             }
-            Polyform::Hexomino { cells, .. } => {
+            Polyform::Hexomino { dim, cells } => {
+                dim.transpose();
                 cells.iter_mut().for_each(|s| s.transpose())
             }
         }
