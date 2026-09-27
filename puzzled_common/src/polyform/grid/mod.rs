@@ -1,10 +1,11 @@
 mod hex;
 mod regular;
 
+use std::cmp::Ordering;
 pub use hex::HexCoord;
 pub use regular::RegularCoord;
 use std::fmt::{Display, Formatter};
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Coord {
@@ -42,6 +43,20 @@ impl Coord {
             Coord::Hex(hex) => hex.area(),
         }
     }
+
+    pub fn zero(&self) -> Self {
+        match self {
+            Coord::Regular(_) => RegularCoord::zero().into(),
+            Coord::Hex(_) => todo!(),
+        }
+    }
+
+    pub fn one(&self) -> Self {
+        match self {
+            Coord::Regular(_) => RegularCoord::one().into(),
+            Coord::Hex(_) => todo!(),
+        }
+    }
 }
 
 impl<'a> From<RegularCoord> for Coord {
@@ -72,6 +87,28 @@ impl Add for &Coord {
         match (self, rhs) {
             (Coord::Regular(s), Coord::Regular(r)) => (s + r).into(),
             (Coord::Hex(s), Coord::Hex(r)) => (s + r).into(),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl Sub for &Coord {
+    type Output = Coord;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Coord::Regular(s), Coord::Regular(r)) => (s - r).into(),
+            (Coord::Hex(s), Coord::Hex(r)) => (s - r).into(),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl PartialOrd for &Coord {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match (self, other) {
+            (Coord::Regular(s), Coord::Regular(r)) => s.partial_cmp(&r),
+            (Coord::Hex(s), Coord::Hex(r)) => todo!(),
             _ => unreachable!(),
         }
     }

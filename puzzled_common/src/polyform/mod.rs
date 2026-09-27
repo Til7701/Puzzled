@@ -243,7 +243,7 @@ where
         }
     }
 
-    pub fn extend_adjacent(&self, value: T) {
+    pub fn extend_adjacent(&mut self, value: T) {
         todo!()
     }
 

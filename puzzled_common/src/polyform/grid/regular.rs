@@ -1,5 +1,6 @@
+use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 /// A regular grid with square elements.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -9,6 +10,14 @@ pub struct RegularCoord {
 }
 
 impl RegularCoord {
+    pub fn zero() -> Self {
+        Self::new(0, 0)
+    }
+
+    pub fn one() -> Self {
+        Self::new(1, 1)
+    }
+
     pub fn new(x: u32, y: u32) -> Self {
         Self { x, y }
     }
@@ -71,3 +80,21 @@ impl Add for &RegularCoord {
         }
     }
 }
+
+impl Sub for &RegularCoord {
+    type Output = RegularCoord;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        RegularCoord {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl PartialOrd for &RegularCoord {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.x.cmp(&other.x).then(self.y.cmp(&other.y)).into()
+    }
+}
+

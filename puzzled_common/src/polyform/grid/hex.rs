@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 /// A grid for hexagons.
 ///
@@ -55,6 +55,18 @@ impl Add for &HexCoord {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
             z: self.z + rhs.z,
+        }
+    }
+}
+
+impl Sub for &HexCoord {
+    type Output = HexCoord;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        HexCoord {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
         }
     }
 }
