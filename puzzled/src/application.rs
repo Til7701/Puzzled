@@ -17,7 +17,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-use crate::app::components::tile::{DrawingMode, TileView};
+use crate::app::components::tile::{PrototileDrawingMode, TileView};
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
 use crate::model::store;
@@ -248,7 +248,7 @@ impl PuzzledApplication {
         );
         left_tile.set_drawing_mode_at(
             &Coord::Regular(RegularCoord::new(1, 1)),
-            DrawingMode::Overlapping,
+            PrototileDrawingMode::Overlapping,
         );
         left_tile.set_width_request(CELL_SIZE * 2);
         left_tile.set_height_request(CELL_SIZE * 2);
@@ -262,7 +262,7 @@ impl PuzzledApplication {
         right_tile.set_height_request(CELL_SIZE * 2);
         right_tile.set_drawing_mode_at(
             &Coord::Regular(RegularCoord::new(0, 0)),
-            DrawingMode::Overlapping,
+            PrototileDrawingMode::Overlapping,
         );
 
         overlapping_fixed.put(&left_tile, 0.0, 0.0);
@@ -278,7 +278,7 @@ impl PuzzledApplication {
         );
         tile.set_drawing_mode_at(
             &Coord::Regular(RegularCoord::new(1, 1)),
-            DrawingMode::OutOfBounds,
+            PrototileDrawingMode::OutOfBounds,
         );
         tile.set_width_request(CELL_SIZE * 2);
         tile.set_height_request(CELL_SIZE * 2);

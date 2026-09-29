@@ -1,4 +1,5 @@
 use crate::adw_ext;
+use crate::app::components::polyform_drawing::mode::PrototileDrawingMode;
 use adw::gdk::RGBA;
 use adw::gio;
 use adw::glib;
@@ -16,18 +17,6 @@ use std::ops::Deref;
 const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = adw_ext::ERROR_BG_LIGHT;
 const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
 
-/// Defines how a cell of a tile should be drawn, based on its state in the puzzle area.
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq)]
-pub enum DrawingMode {
-    /// Draw normally
-    #[default]
-    Normal,
-    /// Draw with a highlight indicating that this cell overlaps with another tile
-    Overlapping,
-    /// Draw with a highlight indicating that this cell is out of bounds of the board
-    OutOfBounds,
-}
-
 mod imp {
     use super::*;
     use puzzled_common::polyform::grid::{Coord, RegularCoord};
@@ -38,8 +27,8 @@ mod imp {
     #[derive(Debug, Default)]
     pub struct PuzzledTileView {
         pub id: Cell<usize>,
-        pub current_rotation: RefCell<Polyform<DrawingMode>>,
-        pub color: RefCell<HashMap<DrawingMode, RGBA>>,
+        pub current_rotation: RefCell<Polyform<PrototileDrawingMode>>,
+        pub color: RefCell<HashMap<PrototileDrawingMode, RGBA>>,
     }
 
     #[glib::object_subclass]
@@ -109,7 +98,7 @@ impl TileView {
         obj.imp().id.replace(id);
         obj.imp()
             .current_rotation
-            .replace(base.map(|_| DrawingMode::Normal));
+            .replace(base.map(|_| PrototileDrawingMode::Normal));
         obj.init_color(color);
 
         obj.set_draw_func({
@@ -129,9 +118,9 @@ impl TileView {
         );
 
         let mut color_map = HashMap::new();
-        color_map.insert(DrawingMode::Normal, color);
-        color_map.insert(DrawingMode::Overlapping, color.with_alpha(0.5));
-        color_map.insert(DrawingMode::OutOfBounds, color.with_alpha(0.5));
+        color_map.insert(PrototileDrawingMode::Normal, color);
+        color_map.insert(PrototileDrawingMode::Overlapping, color.with_alpha(0.5));
+        color_map.insert(PrototileDrawingMode::OutOfBounds, color.with_alpha(0.5));
         self.imp().color.replace(color_map);
     }
 
@@ -154,7 +143,7 @@ impl TileView {
         width: i32,
         height: i32,
         dim: &RegularCoord,
-        squares: &[Square<DrawingMode>],
+        squares: &[Square<PrototileDrawingMode>],
     ) {
         let color_map = self.imp().color.borrow();
         for cell in squares.iter() {
@@ -191,9 +180,10 @@ impl TileView {
 
             // Border
             let border_color = match drawing_mode {
-                DrawingMode::Normal => None,
-                DrawingMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
-                DrawingMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
+                PrototileDrawingMode::Normal => None,
+                PrototileDrawingMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
+                PrototileDrawingMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
+                PrototileDrawingMode::Highlighted => None,
             };
             if let Some(border_color) = border_color {
                 cr.set_source_color(&border_color);
@@ -217,7 +207,7 @@ impl TileView {
     }
 
     pub fn color(&self) -> RGBA {
-        self.imp().color.borrow()[&DrawingMode::Normal]
+        self.imp().color.borrow()[&PrototileDrawingMode::Normal]
     }
 
     /// Rotates the tile one step clockwise.
@@ -237,19 +227,19 @@ impl TileView {
     }
 
     /// Sets the drawing mode for the cell at the given coordinates.
-    pub fn set_drawing_mode_at(&self, coord: &Coord, drawing_mode: DrawingMode) {
+    pub fn set_drawing_mode_at(&self, coord: &Coord, drawing_mode: PrototileDrawingMode) {
         if let Some(mut prototile) = self.imp().current_rotation.borrow_mut().get_mut(coord) {
             prototile.set_data(drawing_mode);
         }
         self.queue_draw();
     }
 
-    /// Resets the drawing mode for all cells to [DrawingMode::Normal].
+    /// Resets the drawing mode for all cells to [PrototileDrawingMode::Normal].
     pub fn reset_drawing_modes(&self) {
         self.imp()
             .current_rotation
             .borrow_mut()
-            .map(|_| DrawingMode::Normal);
+            .map(|_| PrototileDrawingMode::Normal);
         self.queue_draw();
     }
 }

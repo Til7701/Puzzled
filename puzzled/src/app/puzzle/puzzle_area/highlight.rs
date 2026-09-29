@@ -1,4 +1,4 @@
-use crate::app::components::tile::DrawingMode;
+use crate::app::components::tile::PrototileDrawingMode;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
 use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use adw::subclass::prelude::ObjectSubclassIsExt;
@@ -29,7 +29,7 @@ impl PuzzleArea {
                 {
                     tile_view.set_drawing_mode_at(
                         &tile_cell_placement.cell_position,
-                        DrawingMode::OutOfBounds,
+                        PrototileDrawingMode::OutOfBounds,
                     );
                 }
             }
@@ -38,7 +38,7 @@ impl PuzzleArea {
                     if let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id) {
                         tile_view.set_drawing_mode_at(
                             &tile_cell_placement.cell_position,
-                            DrawingMode::Overlapping,
+                            PrototileDrawingMode::Overlapping,
                         );
                     }
                 }
