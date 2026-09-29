@@ -30,7 +30,7 @@ impl PuzzlePage {
                             if let Some(placement) = solution.placements().iter().max_by(|a, b| {
                                 let a_dim = a.base().dim();
                                 let b_dim = b.base().dim();
-                                (a_dim.0 * a_dim.1).cmp(&(b_dim.0 * b_dim.1))
+                                a_dim.area().cmp(&(b_dim.area()))
                             }) {
                                 self_clone.imp().grid.show_hint_tile(placement)
                             }

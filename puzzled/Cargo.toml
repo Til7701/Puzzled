@@ -10,7 +10,6 @@ puzzle_config = { workspace = true }
 gettext-rs = { workspace = true }
 gtk = { workspace = true }
 adw = { workspace = true }
-ndarray = { workspace = true }
 log = { workspace = true }
 simple_logger = { workspace = true }
 rand = { workspace = true }

@@ -26,7 +26,6 @@ mod application;
 mod config;
 mod global;
 mod model;
-mod offset;
 mod solver;
 mod window;
 
