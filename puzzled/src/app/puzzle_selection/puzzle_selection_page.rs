@@ -182,6 +182,8 @@ impl PuzzleSelectionPage {
             }
         }
 
-        self.imp().scroll_window.set_vadjustment(None::<&Adjustment>);
+        self.imp()
+            .scroll_window
+            .set_vadjustment(None::<&Adjustment>);
     }
 }
