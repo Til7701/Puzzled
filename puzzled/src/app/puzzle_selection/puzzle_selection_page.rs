@@ -4,8 +4,8 @@ use crate::model::puzzle::PuzzleModel;
 use adw::gio;
 use adw::prelude::NavigationPageExt;
 use adw::subclass::prelude::*;
-use gtk::glib;
 use gtk::prelude::*;
+use gtk::{Adjustment, glib};
 use log::debug;
 use puzzle_config::ProgressionConfig;
 
@@ -35,6 +35,8 @@ mod imp {
         pub version_pill: TemplateChild<InfoPill>,
         #[template_child]
         pub puzzle_list: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub scroll_window: TemplateChild<gtk::ScrolledWindow>,
 
         pub collection: RefCell<Option<CollectionModel>>,
     }
@@ -179,5 +181,9 @@ impl PuzzleSelectionPage {
                     .remove_css_class("boxed-list-separate");
             }
         }
+
+        self.imp()
+            .scroll_window
+            .set_vadjustment(None::<&Adjustment>);
     }
 }

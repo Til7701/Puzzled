@@ -29,13 +29,13 @@ jobs:
       - name: Set up QEMU
         if: ${{ matrix.arch != 'x86_64' }}
         id: qemu
-        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
         with:
           platforms: arm64
       - name: Run Lint on Manifest
         run: |
           flatpak-builder-lint manifest de.til7701.Puzzled.json
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@401fe28a8384095fc1531b9d320b292f0ee45adb # v6.7
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3 # v6.8
         with:
           arch: ${{ matrix.arch }}
           manifest-path: de.til7701.Puzzled.json
