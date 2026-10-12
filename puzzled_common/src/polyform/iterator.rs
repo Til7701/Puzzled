@@ -1,4 +1,5 @@
 use crate::polyform::Polyform;
+use crate::polyform::poly::Poly;
 use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square};
 use std::slice::IterMut;
 

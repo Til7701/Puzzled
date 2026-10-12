@@ -10,6 +10,8 @@ use gtk::StringList;
 use gtk::prelude::{ButtonExt, WidgetExt};
 use puzzle_config::{AreaBoardData, AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
 use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::prototile::Prototile;
 
 #[derive(Debug, Clone, PartialEq)]
 struct TargetIndexListItem {
@@ -110,7 +112,7 @@ impl PuzzlePage {
                 (cancel_id, "Cancel"),
                 (clear_id, "Clear"),
             ]
-            .as_ref(),
+                .as_ref(),
         );
         dialog.set_default_response(Some(accept_id));
         dialog.set_close_response(cancel_id);

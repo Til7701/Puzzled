@@ -6,7 +6,9 @@ use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use log::debug;
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::Coord;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::prototile::Prototile;
 use std::cell::Ref;
 
 mod board;
@@ -192,7 +194,7 @@ impl PlacementModel {
     }
 
     /// The board position in cells.
-    fn board_cell_position(&self) -> &Coord {
+    fn board_cell_position(&self) -> &CoordBox {
         // let board = self.imp().board.borrow();
         // board.position_cells()
         todo!()
@@ -226,7 +228,7 @@ impl PlacementModel {
     /// None, if the tile is being dragged.
     ///
     /// The index is the same as the index of the tile in the [PuzzleModel].
-    fn tile_cell_position(&self, idx: usize) -> Option<Coord> {
+    fn tile_cell_position(&self, idx: usize) -> Option<CoordBox> {
         // let list = self.imp().tiles.borrow();
         // let tile = list.get(idx).unwrap();
         // if tile.dragged() {
@@ -314,7 +316,7 @@ impl PlacementModel {
     /// * `shape`: the shape of the hint tile
     ///
     /// returns: ()
-    pub fn init_hint_tile(&self, position_on_board: &Coord, shape: Polyform<()>) {
+    pub fn init_hint_tile(&self, position_on_board: &CoordBox, shape: Polyform<()>) {
         // let position = self.imp().board.borrow().position_cells() + position_on_board;
         // let size = shape.dim().into();
         // self.imp()
@@ -367,7 +369,7 @@ impl PlacementModel {
     /// * `position`: the position to convert
     ///
     /// returns: CellOffset
-    fn translate_pixels_to_cells(&self, position: PixelPosition) -> Coord {
+    fn translate_pixels_to_cells(&self, position: PixelPosition) -> CoordBox {
         // let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
         // position.div_scalar(cell_size as f64).round().into()
         todo!()
@@ -380,7 +382,7 @@ impl PlacementModel {
     /// * `position`: the position to convert
     ///
     /// returns: PixelOffset
-    fn translate_cells_to_pixels(&self, position: Coord) -> PixelPosition {
+    fn translate_cells_to_pixels(&self, position: CoordBox) -> PixelPosition {
         // let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
         // position.mul_scalar(cell_size as f64).into()
         todo!()

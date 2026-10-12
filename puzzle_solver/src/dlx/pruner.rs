@@ -1,6 +1,7 @@
 use crate::board::Board;
 use crate::tile::Tile;
 use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::poly::Poly;
 
 /// The pruner provides some functions to exclude various positions from evaluation.
 pub struct Pruner {

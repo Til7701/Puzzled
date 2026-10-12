@@ -9,6 +9,8 @@ use gtk::prelude::{BoxExt, ButtonExt, WidgetExt};
 use gtk::{Image, Label, Widget};
 use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
+use puzzled_common::polyform::coord::Coord;
+use puzzled_common::polyform::poly::Poly;
 use std::sync::mpsc;
 
 pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;

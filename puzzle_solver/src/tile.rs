@@ -32,9 +32,9 @@ impl Tile {
     ///
     /// ```rust
     /// use puzzle_solver::tile::Tile;
-    /// use puzzled_common::shape::shape_square;
+    /// use puzzled_common::shape::Polyomino::from_bool_slice;
     ///
-    /// let base = shape_square(&[[true, false], [true, true]]);
+    /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]);
     /// let tile = Tile::new(42, base);
     /// ```
     pub fn new(id: usize, base: Polyform<()>) -> Tile {
@@ -68,9 +68,9 @@ impl Tile {
     ///
     /// ```rust
     /// use puzzle_solver::tile::Tile;
-    /// use puzzled_common::shape::shape_square;
+    /// use puzzled_common::shape::Polyomino::from_bool_slice;
     ///
-    /// let base = shape_square(&[[true, false], [true, true]]);
+    /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]);
     /// let tile = Tile::new(42, base.clone());
     /// assert_eq!(tile.base(), &base);
     /// ```
@@ -82,7 +82,6 @@ impl Tile {
     #[allow(dead_code)]
     pub(crate) fn debug_print(&self) {
         debug!("Tile Base: ");
-        self.base.debug_print();
         debug!("All Rotations: ");
         for rotation in &self.all_rotations {
             debug!("Rotation:");
@@ -94,11 +93,12 @@ impl Tile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::shape::shape_square;
+    use puzzled_common::polyform::poly::UnitPoly;
+    use puzzled_common::polyform::poly::polyomino::Polyomino;
 
     #[test]
     fn test_new() {
-        let base = shape_square(&[[true, false], [true, true]]);
+        let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
         let tile = Tile::new(42, base.clone());
 
         assert_eq!(tile.id(), 42);
@@ -106,93 +106,93 @@ mod tests {
         assert_eq!(tile.all_rotations.len(), 4);
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[true, false], [true, true]]))
+                .contains(&Polyomino::from_bool_slice(&[[true, false], [true, true]]).into())
         );
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[true, true], [true, false]]))
+                .contains(&Polyomino::from_bool_slice(&[[true, true], [true, false]]).into())
         );
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[true, true], [false, true]]))
+                .contains(&Polyomino::from_bool_slice(&[[true, true], [false, true]]).into())
         );
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[false, true], [true, true]]))
+                .contains(&Polyomino::from_bool_slice(&[[false, true], [true, true]]).into())
         );
     }
 
     #[test]
     fn test_new_1x1() {
-        let base = shape_square(&[[true]]);
+        let base: Polyform<()> = Polyomino::from_bool_slice(&[[true]]).into();
         let tile = Tile::new(42, base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 1);
-        assert!(tile.all_rotations.contains(&shape_square(&[[true]])));
+        assert!(tile.all_rotations.contains(&Polyomino::from_bool_slice(&[[true]]).into()));
     }
 
     #[test]
     fn test_new_1x2() {
-        let base = shape_square(&[[true, false]]);
+        let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false]]).into();
         let tile = Tile::new(42, base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 4);
-        assert!(tile.all_rotations.contains(&shape_square(&[[true, false]])));
+        assert!(tile.all_rotations.contains(&Polyomino::from_bool_slice(&[[true, false]]).into()));
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[false], [true]]))
+                .contains(&Polyomino::from_bool_slice(&[[false], [true]]).into())
         );
-        assert!(tile.all_rotations.contains(&shape_square(&[[false, true]])));
+        assert!(tile.all_rotations.contains(&Polyomino::from_bool_slice(&[[false, true]]).into()));
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[true], [false]]))
+                .contains(&Polyomino::from_bool_slice(&[[true], [false]]).into())
         );
     }
 
     #[test]
     fn test_new_2x3() {
-        let base = shape_square(&[[true, false], [true, true], [true, true]]);
+        let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false], [true, true], [true, true]]).into();
         let tile = Tile::new(42, base.clone());
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 8);
-        assert!(tile.all_rotations.contains(&shape_square(&[
+        assert!(tile.all_rotations.contains(&Polyomino::from_bool_slice(&[
             [true, false],
             [true, true],
             [true, true]
-        ])));
-        assert!(tile.all_rotations.contains(&shape_square(&[
+        ]).into()));
+        assert!(tile.all_rotations.contains(&Polyomino::from_bool_slice(&[
             [true, true],
             [true, true],
             [false, true]
-        ])));
-        assert!(tile.all_rotations.contains(&shape_square(&[
+        ]).into()));
+        assert!(tile.all_rotations.contains(&Polyomino::from_bool_slice(&[
             [true, true],
             [true, true],
             [true, false]
-        ])));
-        assert!(tile.all_rotations.contains(&shape_square(&[
+        ]).into()));
+        assert!(tile.all_rotations.contains(&Polyomino::from_bool_slice(&[
             [false, true],
             [true, true],
             [true, true]
-        ])));
+        ]).into()));
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[false, true, true], [true, true, true]]))
+                .contains(&Polyomino::from_bool_slice(&[[false, true, true], [true, true, true]]).into())
         );
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[true, true, true], [false, true, true]]))
+                .contains(&Polyomino::from_bool_slice(&[[true, true, true], [false, true, true]]).into())
         );
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[true, true, false], [true, true, true]]))
+                .contains(&Polyomino::from_bool_slice(&[[true, true, false], [true, true, true]]).into())
         );
         assert!(
             tile.all_rotations
-                .contains(&shape_square(&[[true, true, true], [true, true, false]]))
+                .contains(&Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]]).into())
         );
     }
 }

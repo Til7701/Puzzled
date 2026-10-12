@@ -1,6 +1,10 @@
 use crate::random::{Algorithm, RandomPuzzleSettings};
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::{Coord, RegularCoord};
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::coord::regular::RegularCoord;
+use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::poly::polyomino::Polyomino;
+use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
 use rand::{Rng, RngExt};
 use std::collections::BTreeMap;
 
@@ -17,7 +21,7 @@ pub fn create_puzzle(
     let tiles = (0..tile_count)
         .map(|i| extract_tile(i as u32, &complete_board))
         .collect();
-    let board = complete_board.map(|_| ());
+    let board = complete_board.mapped(|_| ());
 
     (board, tiles)
 }
@@ -33,7 +37,7 @@ fn generate_base_board(
             board_height,
         } => (tile_count, board_width, board_height),
     };
-    let mut base = Polyform::polyomino_sized(
+    let mut base = Polyomino::sized(
         RegularCoord::new(board_width as u32, board_height as u32),
         None::<u32>,
     );
@@ -49,7 +53,7 @@ fn generate_base_board(
                 break;
             }
         }
-        if base.iter().all(|x| x.data().is_some()) {
+        if base.into().iter().all(|x| x.data().is_some()) {
             break;
         }
     }
@@ -102,7 +106,7 @@ fn grow_tile_index(
 ) -> (bool, Polyform<Option<u32>>) {
     let mut new_board = base_board.clone();
     let dim = match base_board.dim() {
-        Coord::Regular(dim) => dim,
+        CoordBox::Regular(dim) => dim,
         _ => unreachable!(),
     };
     let xs = dim.x();
@@ -120,10 +124,10 @@ fn grow_tile_index(
         {
             if x > 0
                 && base_board
-                    .get(&RegularCoord::new(x - 1, y).into())
-                    .unwrap()
-                    .data()
-                    .is_none()
+                .get(&RegularCoord::new(x - 1, y).into())
+                .unwrap()
+                .data()
+                .is_none()
             {
                 new_board
                     .get_mut(&RegularCoord::new(x - 1, y).into())
@@ -133,10 +137,10 @@ fn grow_tile_index(
                 break;
             } else if x + 1 < xs
                 && base_board
-                    .get(&RegularCoord::new(x + 1, y).into())
-                    .unwrap()
-                    .data()
-                    .is_none()
+                .get(&RegularCoord::new(x + 1, y).into())
+                .unwrap()
+                .data()
+                .is_none()
             {
                 new_board
                     .get_mut(&RegularCoord::new(x + 1, y).into())
@@ -146,10 +150,10 @@ fn grow_tile_index(
                 break;
             } else if y > 0
                 && base_board
-                    .get(&RegularCoord::new(x, y - 1).into())
-                    .unwrap()
-                    .data()
-                    .is_none()
+                .get(&RegularCoord::new(x, y - 1).into())
+                .unwrap()
+                .data()
+                .is_none()
             {
                 new_board
                     .get_mut(&RegularCoord::new(x, y - 1).into())
@@ -159,10 +163,10 @@ fn grow_tile_index(
                 break;
             } else if y + 1 < ys
                 && base_board
-                    .get(&RegularCoord::new(x, y + 1).into())
-                    .unwrap()
-                    .data()
-                    .is_none()
+                .get(&RegularCoord::new(x, y + 1).into())
+                .unwrap()
+                .data()
+                .is_none()
             {
                 new_board
                     .get_mut(&RegularCoord::new(x, y + 1).into())

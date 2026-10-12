@@ -1,3 +1,4 @@
+use crate::polyform::coord::Coord;
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
@@ -10,16 +11,8 @@ pub struct RegularCoord {
 }
 
 impl RegularCoord {
-    pub fn zero() -> Self {
-        Self::new(0, 0)
-    }
-
-    pub fn one() -> Self {
-        Self::new(1, 1)
-    }
-
     pub fn new(x: u32, y: u32) -> Self {
-        Self { x, y }
+        RegularCoord { x, y }
     }
 
     pub fn x(&self) -> u32 {
@@ -37,29 +30,39 @@ impl RegularCoord {
     pub fn set_y(&mut self, y: u32) {
         self.y = y;
     }
+}
 
-    pub fn rotate_counterclockwise(&mut self, viewport: &Self) {
+impl Coord for RegularCoord {
+    fn zero() -> Self {
+        Self::new(0, 0)
+    }
+
+    fn one() -> Self {
+        Self::new(1, 1)
+    }
+
+    fn rotate_counterclockwise(&mut self, viewport: &Self) {
         let old_x = self.x;
         let old_y = self.y;
         self.x = old_y;
         self.y = viewport.y - old_x;
     }
 
-    pub fn flip_default(&mut self, viewport: &Self) {
+    fn flip_default(&mut self, viewport: &Self) {
         let old_x = self.x;
         let old_y = self.y;
         self.x = viewport.x - old_x;
         self.y = old_y;
     }
 
-    pub fn transpose(&mut self) {
+    fn transpose(&mut self) {
         let old_x = self.x;
         let old_y = self.y;
         self.x = old_y;
         self.y = old_x;
     }
 
-    pub fn area(&self) -> usize {
+    fn area(&self) -> usize {
         self.x as usize * self.y as usize
     }
 }

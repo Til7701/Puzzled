@@ -1,6 +1,7 @@
 use crate::model::placement::PlacementModel;
 use puzzle_config::PuzzleConfig;
-use puzzled_common::polyform::grid::{Coord, RegularCoord};
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::coord::regular::RegularCoord;
 
 pub(super) const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;
 pub(super) const MIN_CELLS_TO_THE_SIDES_OF_BOARD: i32 = 6;
@@ -9,16 +10,16 @@ pub(super) const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 6;
 /// Configuration for the puzzle grid layout.
 #[derive(Debug, Eq, PartialEq)]
 pub struct GridConfig {
-    pub grid_cells: Coord,
-    pub min_grid_cells: Coord,
+    pub grid_cells: CoordBox,
+    pub min_grid_cells: CoordBox,
     pub cell_size_pixel: u32,
 }
 
 impl Default for GridConfig {
     fn default() -> Self {
         GridConfig {
-            grid_cells: Coord::Regular(RegularCoord::new(1, 1)),
-            min_grid_cells: Coord::Regular(RegularCoord::new(1, 1)),
+            grid_cells: CoordBox::Regular(RegularCoord::new(1, 1)),
+            min_grid_cells: CoordBox::Regular(RegularCoord::new(1, 1)),
             cell_size_pixel: 1,
         }
     }
@@ -87,7 +88,7 @@ impl PlacementModel {
     }
 
     /// Calculates the dimensions required to fit all tiles in their current positions.
-    fn tiles_required_cells(&self) -> Coord {
+    fn tiles_required_cells(&self) -> CoordBox {
         // let tiles = self.imp().tiles.borrow();
         // let mut required_cells = CellOffset(0, 0);
         // let mut lowest_position_cells = CellOffset(0, 0);
@@ -101,7 +102,7 @@ impl PlacementModel {
     }
 
     /// Update the grid configuration and move all elements in case the board offset has changed.
-    fn update_grid_config(&self, grid_config: GridConfig, board_position_cells: Coord) {
+    fn update_grid_config(&self, grid_config: GridConfig, board_position_cells: CoordBox) {
         // let old_grid_config = self.imp().grid_config.borrow();
         // let old_board_position_cells = self.imp().board.borrow().position_cells();
         //
@@ -124,7 +125,7 @@ impl PlacementModel {
     ///
     /// If the new position of an element would be negative, it is set to 0 to ensure that all
     /// elements remain visible.
-    fn move_all_elements_by(&self, offset_cells: Coord) {
+    fn move_all_elements_by(&self, offset_cells: CoordBox) {
         // let mut tiles = self.imp().tiles.borrow_mut();
         // for tile in tiles.iter_mut() {
         //     let position_cells = tile.position_cells();

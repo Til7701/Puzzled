@@ -69,21 +69,23 @@ impl Hash for TileConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use puzzled_common::polyform::poly::UnitPoly;
+    use puzzled_common::polyform::poly::polyomino::Polyomino;
 
     #[test]
     fn test_hash() {
         let tile1 = TileConfig::new(
-            Polyform::polyomino_from_bool_slice(&[[true, false], [false, true]]),
+            Polyomino::from_bool_slice(&[[true, false], [false, true]]).into(),
             ColorConfig::default_with_index(0),
             None,
         );
         let tile2 = TileConfig::new(
-            Polyform::polyomino_from_bool_slice(&[[true, false], [false, true]]),
+            Polyomino::from_bool_slice(&[[true, false], [false, true]]).into(),
             ColorConfig::default_with_index(1),
             None,
         );
         let tile3 = TileConfig::new(
-            Polyform::polyomino_from_bool_slice(&[[false, true], [true, false]]),
+            Polyomino::from_bool_slice(&[[false, true], [true, false]]).into(),
             ColorConfig::default_with_index(1),
             None,
         );
@@ -107,12 +109,12 @@ mod tests {
     #[test]
     fn test_hash_slice_any_order() {
         let tile1 = TileConfig::new(
-            Polyform::polyomino_from_bool_slice(&[[true, false], [false, true]]),
+            Polyomino::from_bool_slice(&[[true, false], [false, true]]).into(),
             ColorConfig::default_with_index(0),
             None,
         );
         let tile2 = TileConfig::new(
-            Polyform::polyomino_from_bool_slice(&[[false, true], [true, false]]),
+            Polyomino::from_bool_slice(&[[false, true], [true, false]]).into(),
             ColorConfig::default_with_index(1),
             None,
         );

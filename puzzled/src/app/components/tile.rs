@@ -9,8 +9,10 @@ use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
 use puzzle_config::ColorConfig;
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::{Coord, RegularCoord};
-use puzzled_common::polyform::prototile::Square;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::coord::regular::RegularCoord;
+use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::prototile::{MutPrototile, Prototile, Square};
 use std::collections::HashMap;
 use std::ops::Deref;
 
@@ -19,7 +21,6 @@ const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
 
 mod imp {
     use super::*;
-    use puzzled_common::polyform::grid::{Coord, RegularCoord};
     use std::cell::{Cell, RefCell};
     use std::collections::HashMap;
     use std::ops::Deref;
@@ -69,7 +70,7 @@ mod imp {
                     let cell_y = (y / cell_height) as u32;
 
                     current_rotation
-                        .get(&Coord::Regular(RegularCoord::new(cell_x, cell_y)))
+                        .get(&CoordBox::Regular(RegularCoord::new(cell_x, cell_y)))
                         .is_some()
                 }
                 Polyform::Hexomino { .. } => {
@@ -148,7 +149,7 @@ impl TileView {
         let color_map = self.imp().color.borrow();
         for cell in squares.iter() {
             let coord = match cell.coord() {
-                Coord::Regular(coord) => coord,
+                CoordBox::Regular(coord) => coord,
                 _ => unreachable!(),
             };
             let x = coord.x();
@@ -227,7 +228,7 @@ impl TileView {
     }
 
     /// Sets the drawing mode for the cell at the given coordinates.
-    pub fn set_drawing_mode_at(&self, coord: &Coord, drawing_mode: PrototileDrawingMode) {
+    pub fn set_drawing_mode_at(&self, coord: &CoordBox, drawing_mode: PrototileDrawingMode) {
         if let Some(mut prototile) = self.imp().current_rotation.borrow_mut().get_mut(coord) {
             prototile.set_data(drawing_mode);
         }

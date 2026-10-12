@@ -31,22 +31,23 @@ mod tests {
     use super::*;
     use crate::board::Board;
     use crate::tile::Tile;
-    use puzzled_common::polyform::Polyform;
+    use puzzled_common::polyform::poly::UnitPoly;
+    use puzzled_common::polyform::poly::polyomino::Polyomino;
 
     #[test]
     fn test_check_passing() {
-        let board = Board::new(Polyform::polyomino_from_bool_slice(&[
+        let board = Board::new(Polyomino::from_bool_slice(&[
             [false, false, false],
             [false, false, false],
             [false, false, false],
-        ]));
+        ]).into());
         let tile1 = Tile::new(
             42,
-            Polyform::polyomino_from_bool_slice(&[[true, true], [true, true], [true, false]]),
+            Polyomino::from_bool_slice(&[[true, true], [true, true], [true, false]]).into(),
         );
         let tile2 = Tile::new(
             43,
-            Polyform::polyomino_from_bool_slice(&[[false, true], [false, true], [true, true]]),
+            Polyomino::from_bool_slice(&[[false, true], [false, true], [true, true]]).into(),
         );
         let tiles = vec![tile1, tile2];
 
@@ -55,18 +56,18 @@ mod tests {
 
     #[test]
     fn test_check_failing() {
-        let board = Board::new(Polyform::polyomino_from_bool_slice(&[
+        let board = Board::new(Polyomino::from_bool_slice(&[
             [false, false, false],
             [false, false, false],
             [false, false, false],
-        ]));
+        ]).into());
         let tile1 = Tile::new(
             42,
-            Polyform::polyomino_from_bool_slice(&[[true, true], [true, false]]),
+            Polyomino::from_bool_slice(&[[true, true], [true, false]]).into(),
         );
         let tile2 = Tile::new(
             43,
-            Polyform::polyomino_from_bool_slice(&[[false, true], [false, true]]),
+            Polyomino::from_bool_slice(&[[false, true], [false, true]]).into(),
         );
         let tiles = vec![tile1, tile2];
 

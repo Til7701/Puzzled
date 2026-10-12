@@ -1,6 +1,7 @@
 use crate::config::area::AreaConfig;
 use crate::{Target, TargetIndex, TargetTemplate};
 use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::prototile::Prototile;
 use std::hash::{Hash, Hasher};
 
 pub type SimpleBoardData = ();
@@ -66,7 +67,7 @@ impl BoardConfig {
     pub fn layout(&self) -> Polyform<()> {
         match self {
             BoardConfig::Simple { layout } => layout.clone(),
-            BoardConfig::Area { layout, .. } => layout.clone().map(|_| ()),
+            BoardConfig::Area { layout, .. } => layout.clone().mapped(|_| ()),
         }
     }
 

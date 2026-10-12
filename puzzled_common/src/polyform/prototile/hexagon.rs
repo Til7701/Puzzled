@@ -1,11 +1,13 @@
-use crate::polyform::grid::Coord;
+use crate::polyform::coord::Coord;
+use crate::polyform::coord::coord_box::CoordBox;
+use crate::polyform::prototile::{MutPrototile, Prototile};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Hexagon<T>
 where
     T: Clone,
 {
-    coord: Coord,
+    coord: CoordBox,
     orientation: HexagonOrientation,
     data: T,
 }
@@ -14,39 +16,53 @@ impl<T> Hexagon<T>
 where
     T: Clone,
 {
-    pub fn new(coord: Coord, orientation: HexagonOrientation, data: T) -> Self {
+    pub fn new(coord: CoordBox, orientation: HexagonOrientation, data: T) -> Self {
         Hexagon {
             coord,
             orientation,
             data,
         }
     }
+}
 
-    pub fn coord(&self) -> &Coord {
+impl<T> Prototile<T, CoordBox, HexagonOrientation> for Hexagon<T>
+where
+    T: Clone,
+{
+    fn coord(&self) -> &CoordBox {
         &self.coord
     }
 
-    pub fn orientation(&self) -> HexagonOrientation {
+    fn orientation(&self) -> HexagonOrientation {
         self.orientation
     }
 
-    pub fn data(&self) -> &T {
+    fn data(&self) -> &T {
         &self.data
     }
+}
 
-    pub fn set_data(&mut self, data: T) {
+impl<T> MutPrototile<T, CoordBox, HexagonOrientation> for Hexagon<T>
+where
+    T: Clone,
+{
+    fn set_coord(&mut self, coord: CoordBox) {
+        todo!()
+    }
+
+    fn set_data(&mut self, data: T) {
         self.data = data;
     }
 
-    pub fn rotate_counterclockwise(&mut self, viewport: &Coord) {
+    fn rotate_counterclockwise(&mut self, viewport: &CoordBox) {
         self.coord.rotate_counterclockwise(viewport);
     }
 
-    pub fn flip_default(&mut self, viewport: &Coord) {
+    fn flip_default(&mut self, viewport: &CoordBox) {
         self.coord.flip_default(viewport);
     }
 
-    pub fn transpose(&mut self) {
+    fn transpose(&mut self) {
         self.coord.transpose();
     }
 }

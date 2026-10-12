@@ -10,6 +10,8 @@ use crate::{
     TileConfig, validation,
 };
 use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::poly::polyomino::Polyomino;
 use std::num::NonZero;
 use time::OffsetDateTime;
 
@@ -209,11 +211,11 @@ impl<'a> Converter<'a> {
                         return Err(ReadError::TileWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut base = Polyform::polyomino_from_vec(&array, &|value, _| {
+                let mut base = Polyomino::from_vec(&array, &|value, _| {
                     if *value != 0 { Some(()) } else { None }
                 });
                 base.transpose();
-                Ok((base, None))
+                Ok((base.into(), None))
             }
         }
     }
@@ -260,11 +262,11 @@ impl<'a> Converter<'a> {
                         return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut polyform = Polyform::polyomino_from_vec(&layout, &|value, _| {
+                let mut polyform = Polyomino::from_vec(&layout, &|value, _| {
                     if *value < 1 { Some(()) } else { None }
                 });
                 polyform.transpose();
-                Ok(BoardConfig::Simple { layout: polyform })
+                Ok(BoardConfig::Simple { layout: polyform.into() })
             }
             Board::AreaBoard {
                 area_layout,
@@ -289,7 +291,7 @@ impl<'a> Converter<'a> {
                             return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                         }
                     }
-                    let mut array = Polyform::polyomino_from_vec(&area_layout, &|value, (x, y)| {
+                    let mut array = Polyomino::from_vec(&area_layout, &|value, (x, y)| {
                         if *value >= 0 {
                             let area_index = area_layout.get(x).map(|v| v.get(y)).flatten()?;
                             let display_value = values.get(x).map(|v| v.get(y)).flatten()?;
@@ -309,7 +311,7 @@ impl<'a> Converter<'a> {
                 };
 
                 Ok(BoardConfig::Area {
-                    layout: board_layout,
+                    layout: board_layout.into(),
                     area_configs,
                     target_template: TargetTemplate::new(&target_template),
                 })

@@ -1,7 +1,8 @@
 use crate::config::area::{AreaConfig, AreaValueFormatter};
 use crate::config::board::AreaBoardData;
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::Coord;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::prototile::Prototile;
 use std::fmt::{Display, Formatter};
 
 /// Template for formatting targets to show in the UI.
@@ -99,14 +100,14 @@ pub struct Target {
 
 /// Represents the index of a target cell on the board.
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
-pub struct TargetIndex(Coord);
+pub struct TargetIndex(CoordBox);
 
 impl TargetIndex {
-    pub fn new(coord: Coord) -> Self {
+    pub fn new(coord: CoordBox) -> Self {
         TargetIndex(coord)
     }
 
-    pub fn coord(&self) -> &Coord {
+    pub fn coord(&self) -> &CoordBox {
         &self.0
     }
 }

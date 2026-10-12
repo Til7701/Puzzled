@@ -2,6 +2,7 @@ use crate::board::Board;
 use crate::dlx::pruner::Pruner;
 use crate::tile::Tile;
 use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::poly::UnitPoly;
 
 /// A tile with all its possible placements on the board represented as bitmasks.
 ///

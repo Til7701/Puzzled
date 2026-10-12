@@ -1,5 +1,5 @@
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::Coord;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
 
 /// Represents a successful solution to the puzzle.
 #[derive(Debug)]
@@ -29,7 +29,7 @@ pub struct TilePlacement {
     /// The rotation in which the tile is placed.
     rotation: Polyform<()>,
     /// The (x, y) position where the tile is placed.
-    position: Coord,
+    position: CoordBox,
 }
 
 impl TilePlacement {
@@ -38,7 +38,7 @@ impl TilePlacement {
         tile_id: usize,
         base: Polyform<()>,
         rotation: Polyform<()>,
-        position: Coord,
+        position: CoordBox,
     ) -> Self {
         Self {
             tile_id,
@@ -64,7 +64,7 @@ impl TilePlacement {
     }
 
     /// Returns the (x, y) position of the tile.
-    pub fn position(&self) -> &Coord {
+    pub fn position(&self) -> &CoordBox {
         &self.position
     }
 }

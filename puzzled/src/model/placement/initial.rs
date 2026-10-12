@@ -1,11 +1,11 @@
 use puzzle_config::{PuzzleConfig, TileConfig};
-use puzzled_common::polyform::grid::Coord;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
 
 pub fn calculate_tile_start_positions(
     tiles: &[TileConfig],
     puzzle_config: &PuzzleConfig,
-    board_offset_cells: Coord,
-) -> Vec<Coord> {
+    board_offset_cells: CoordBox,
+) -> Vec<CoordBox> {
     // let mut positions: Vec<Coord> = Vec::new();
     //
     // // Left
@@ -46,10 +46,10 @@ pub fn calculate_tile_start_positions(
 }
 
 fn place_in_column(
-    start: Coord,
+    start: CoordBox,
     end: i32,
     tiles: &[TileConfig],
-    positions: &mut Vec<Coord>,
+    positions: &mut Vec<CoordBox>,
 ) {
     // if tiles.len() != positions.len() {
     //     let mut next_pos = start;
@@ -67,10 +67,10 @@ fn place_in_column(
 }
 
 fn place_in_row(
-    start: Coord,
+    start: CoordBox,
     end: i32,
     tiles: &[TileConfig],
-    positions: &mut Vec<Coord>,
+    positions: &mut Vec<CoordBox>,
 ) -> i32 {
     // let mut highest_tile: i32 = 0;
     // if tiles.len() != positions.len() {

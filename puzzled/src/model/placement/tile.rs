@@ -1,6 +1,6 @@
 use crate::model::placement::PixelPosition;
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::Coord;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
 
 #[derive(Clone, Debug, Default)]
 pub struct PlacedTile {
@@ -18,8 +18,8 @@ impl PlacedTile {
     pub fn new(
         name: Option<String>,
         base: Polyform<()>,
-        cell_size: Coord,
-        position_cells: Coord,
+        cell_size: CoordBox,
+        position_cells: CoordBox,
     ) -> Self {
         // PlacedTile {
         //     name,
@@ -46,7 +46,7 @@ impl PlacedTile {
         &self.current_rotation
     }
 
-    pub fn cell_size(&self) -> Coord {
+    pub fn cell_size(&self) -> CoordBox {
         // self.cell_size
         todo!()
     }
@@ -55,7 +55,7 @@ impl PlacedTile {
         self.pixel_size
     }
 
-    pub fn position_cells(&self) -> Coord {
+    pub fn position_cells(&self) -> CoordBox {
         // self.position_cells
         todo!()
     }
@@ -72,7 +72,7 @@ impl PlacedTile {
         self.current_rotation = current_rotation;
     }
 
-    pub fn set_cell_size(&mut self, cell_size: Coord) {
+    pub fn set_cell_size(&mut self, cell_size: CoordBox) {
         // self.cell_size = cell_size;
     }
 
@@ -80,7 +80,7 @@ impl PlacedTile {
         self.pixel_size = pixel_size;
     }
 
-    pub fn set_position_cells(&mut self, position_cells: Coord) {
+    pub fn set_position_cells(&mut self, position_cells: CoordBox) {
         // self.position_cells = position_cells;
     }
 

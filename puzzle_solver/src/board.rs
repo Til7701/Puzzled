@@ -1,4 +1,6 @@
 use log::debug;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::{Polyform, TrimSides};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
@@ -68,13 +70,12 @@ impl Board {
     pub(crate) fn debug_print(&self) {
         if log::log_enabled!(log::Level::Debug) {
             debug!("Board:");
-            self.0.debug_print();
         }
     }
 
     /// Trims the board by removing any rows or columns on the edges that are entirely
     /// true (filled).
-    pub(crate) fn trim(&mut self) -> TrimSides {
+    pub(crate) fn trim(&mut self) -> TrimSides<CoordBox> {
         self.0.trim()
     }
 }

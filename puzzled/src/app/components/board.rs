@@ -8,8 +8,10 @@ use gtk::Widget;
 use gtk::prelude::*;
 use puzzle_config::BoardConfig;
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::{Coord, RegularCoord};
-use puzzled_common::polyform::prototile::Square;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::coord::regular::RegularCoord;
+use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::prototile::{Prototile, Square};
 use std::ops::Deref;
 
 const SHOW_GRID_LINES_CLASS: &str = "show-grid-lines";
@@ -110,7 +112,7 @@ impl BoardView {
         let color_map = self.imp().color.borrow();
         for cell in squares.iter() {
             let coord = match cell.coord() {
-                Coord::Regular(coord) => coord,
+                CoordBox::Regular(coord) => coord,
                 _ => unreachable!(),
             };
             let x = coord.x();
@@ -175,7 +177,7 @@ impl BoardView {
         }
     }
 
-    pub fn highlight(&self, coord: &Coord) {
+    pub fn highlight(&self, coord: &CoordBox) {
         let mut layout = self.imp().layout.borrow_mut();
         if let Some(l) = layout.as_mut() {
             let prototile = l.get_mut(coord);

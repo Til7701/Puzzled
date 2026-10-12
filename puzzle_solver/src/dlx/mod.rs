@@ -10,6 +10,7 @@ use crate::tile::Tile;
 use dlx_rs::Solver;
 use log::debug;
 use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::poly::Poly;
 use std::num::NonZero;
 use std::thread;
 use std::thread::JoinHandle;

@@ -17,7 +17,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-use crate::app::components::tile::{PrototileDrawingMode, TileView};
+use crate::app::components::tile::TileView;
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
 use crate::model::store;
@@ -31,7 +31,10 @@ use gtk::{CssProvider, License, STYLE_PROVIDER_PRIORITY_APPLICATION, Settings, g
 use log::info;
 use puzzle_config::ColorConfig;
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::{Coord, RegularCoord};
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::coord::regular::RegularCoord;
+use puzzled_common::polyform::poly::UnitPoly;
+use puzzled_common::polyform::poly::polyomino::Polyomino;
 use std::fmt::Debug;
 
 mod imp {
@@ -243,11 +246,11 @@ impl PuzzledApplication {
             .expect("Missing `overlapping_fixed` in resource");
         let left_tile = TileView::new(
             0,
-            Polyform::polyomino_from_bool_slice(&[[true, false], [true, true]]),
+            Polyomino::from_bool_slice(&[[true, false], [true, true]]).into(),
             ColorConfig::default_with_index(0),
         );
         left_tile.set_drawing_mode_at(
-            &Coord::Regular(RegularCoord::new(1, 1)),
+            &CoordBox::Regular(RegularCoord::new(1, 1)),
             PrototileDrawingMode::Overlapping,
         );
         left_tile.set_width_request(CELL_SIZE * 2);
@@ -255,13 +258,13 @@ impl PuzzledApplication {
 
         let right_tile = TileView::new(
             0,
-            Polyform::polyomino_from_bool_slice(&[[true, true], [false, true]]),
+            Polyomino::from_bool_slice(&[[true, true], [false, true]]).into(),
             ColorConfig::default_with_index(5),
         );
         right_tile.set_width_request(CELL_SIZE * 2);
         right_tile.set_height_request(CELL_SIZE * 2);
         right_tile.set_drawing_mode_at(
-            &Coord::Regular(RegularCoord::new(0, 0)),
+            &CoordBox::Regular(RegularCoord::new(0, 0)),
             PrototileDrawingMode::Overlapping,
         );
 
@@ -273,11 +276,11 @@ impl PuzzledApplication {
             .expect("Missing `outside_fixed` in resource");
         let tile = TileView::new(
             0,
-            Polyform::polyomino_from_bool_slice(&[[true, true], [false, true]]),
+            Polyomino::from_bool_slice(&[[true, true], [false, true]]).into(),
             ColorConfig::default_with_index(0),
         );
         tile.set_drawing_mode_at(
-            &Coord::Regular(RegularCoord::new(1, 1)),
+            &CoordBox::Regular(RegularCoord::new(1, 1)),
             PrototileDrawingMode::OutOfBounds,
         );
         tile.set_width_request(CELL_SIZE * 2);
@@ -296,7 +299,7 @@ impl PuzzledApplication {
         );
         let tile = TileView::new(
             0,
-            Polyform::polyomino_from_bool_slice(&[[true, true], [false, true]]),
+            Polyomino::from_bool_slice(&[[true, true], [false, true]]).into(),
             color_config,
         );
         tile.set_width_request(CELL_SIZE * 2);

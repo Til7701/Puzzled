@@ -1,7 +1,8 @@
 use crate::model::extension::PuzzleTypeExtension;
 use puzzle_config::{BoardConfig, PuzzleConfig};
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::grid::Coord;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::poly::Poly;
 use std::cell::Ref;
 use std::collections::HashSet;
 
@@ -22,7 +23,7 @@ pub struct CellData {
 pub struct TileCellPlacement {
     pub tile_id: usize,
     /// The position of the cell of the tile inside the tile.
-    pub cell_position: Coord,
+    pub cell_position: CoordBox,
 }
 
 /// Represents a cell in the puzzle grid.
@@ -81,14 +82,14 @@ impl PuzzleState {
                 Some(PuzzleTypeExtension::Area {
                          target: Some(target),
                      }),
-            ) => layout.clone().map_indexed(&|_, coord| {
+            ) => layout.clone().mapped_indexed(&|_, coord| {
                 let allowed = target.indices.iter().any(|t| t.coord() == coord);
                 CellData {
                     is_on_board: true,
                     allowed,
                 }
             }),
-            (BoardConfig::Area { layout, .. }, _) => layout.clone().map(|_| CellData {
+            (BoardConfig::Area { layout, .. }, _) => layout.clone().mapped(|_| CellData {
                 is_on_board: true,
                 allowed: true,
             }),

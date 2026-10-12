@@ -4,6 +4,7 @@ use adw::glib::{Variant, VariantDict, VariantTy};
 use adw::prelude::{SettingsExt, SettingsExtManual};
 use log::{debug, error};
 use puzzle_config::{BoardConfig, PuzzleConfigCollection, Target};
+use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::grid::Coord;
 
 const SOLVED_KEY: &str = "solved";
@@ -201,8 +202,8 @@ fn target_key(target: &Target) -> String {
     for index in &target.indices {
         let coord = index.coord();
         key = match coord {
-            Coord::Regular(r) => format!("{}x{}-{}", key, r.x(), r.y()),
-            Coord::Hex(h) => format!("{}x{}-{}-{}", key, h.x(), h.y(), h.z()),
+            CoordBox::Regular(r) => format!("{}x{}-{}", key, r.x(), r.y()),
+            CoordBox::Hex(h) => format!("{}x{}-{}-{}", key, h.x(), h.y(), h.z()),
         };
     }
     key

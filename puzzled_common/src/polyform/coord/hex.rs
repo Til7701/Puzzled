@@ -1,3 +1,4 @@
+use crate::polyform::coord::Coord;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
@@ -23,20 +24,30 @@ impl HexCoord {
     pub fn z(&self) -> u32 {
         self.z
     }
+}
 
-    pub fn rotate_counterclockwise(&mut self, viewport: &Self) {
+impl Coord for HexCoord {
+    fn zero() -> Self {
         todo!()
     }
 
-    pub fn flip_default(&mut self, viewport: &Self) {
+    fn one() -> Self {
         todo!()
     }
 
-    pub fn transpose(&mut self) {
+    fn rotate_counterclockwise(&mut self, viewport: &Self) {
         todo!()
     }
 
-    pub fn area(&self) -> usize {
+    fn flip_default(&mut self, viewport: &Self) {
+        todo!()
+    }
+
+    fn transpose(&mut self) {
+        todo!()
+    }
+
+    fn area(&self) -> usize {
         todo!()
     }
 }

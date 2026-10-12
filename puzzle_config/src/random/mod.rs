@@ -76,6 +76,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use puzzled_common::polyform::poly::UnitPoly;
+    use puzzled_common::polyform::poly::polyomino::Polyomino;
 
     #[test]
     fn test_normal() {
@@ -93,24 +95,24 @@ mod tests {
         let puzzle = &collection.puzzles()[0];
         assert_eq!(
             BoardConfig::Simple {
-                layout: Polyform::polyomino_from_bool_slice(&[
+                layout: Polyomino::from_bool_slice(&[
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
-                ])
+                ]).into()
             },
             *puzzle.board_config()
         );
         assert_eq!(5, puzzle.tiles().len());
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[
+                Polyomino::from_bool_slice(&[
                     [false, true, true, true, true],
                     [true, true, true, true, true]
-                ]),
+                ]).into(),
                 ColorConfig::default_with_index(0),
                 None
             ),
@@ -118,13 +120,13 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[
+                Polyomino::from_bool_slice(&[
                     [true, true, false],
                     [true, false, false],
                     [true, false, false],
                     [true, true, true],
                     [true, false, false]
-                ]),
+                ]).into(),
                 ColorConfig::default_with_index(1),
                 None
             ),
@@ -132,7 +134,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[[true, true, true, true]]),
+                Polyomino::from_bool_slice(&[[true, true, true, true]]).into(),
                 ColorConfig::default_with_index(2),
                 None
             ),
@@ -140,7 +142,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[[true, true, true], [true, false, false]]),
+                Polyomino::from_bool_slice(&[[true, true, true], [true, false, false]]).into(),
                 ColorConfig::default_with_index(3),
                 None
             ),
@@ -148,7 +150,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[[true], [true], [true], [true], [true]]),
+                Polyomino::from_bool_slice(&[[true], [true], [true], [true], [true]]).into(),
                 ColorConfig::default_with_index(4),
                 None
             ),
@@ -172,14 +174,14 @@ mod tests {
         let puzzle = &collection.puzzles()[0];
         assert_eq!(
             BoardConfig::Simple {
-                layout: Polyform::polyomino_from_bool_slice(&[[true, true], [true, true],])
+                layout: Polyomino::from_bool_slice(&[[true, true], [true, true], ]).into()
             },
             *puzzle.board_config()
         );
         assert_eq!(4, puzzle.tiles().len());
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[[true]]),
+                Polyomino::from_bool_slice(&[[true]]).into(),
                 ColorConfig::default_with_index(0),
                 None
             ),
@@ -187,7 +189,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[[true]]),
+                Polyomino::from_bool_slice(&[[true]]).into(),
                 ColorConfig::default_with_index(1),
                 None
             ),
@@ -195,7 +197,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[[true]]),
+                Polyomino::from_bool_slice(&[[true]]).into(),
                 ColorConfig::default_with_index(2),
                 None
             ),
@@ -203,7 +205,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                Polyform::polyomino_from_bool_slice(&[[true]]),
+                Polyomino::from_bool_slice(&[[true]]).into(),
                 ColorConfig::default_with_index(3),
                 None
             ),
