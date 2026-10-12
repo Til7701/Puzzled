@@ -2,7 +2,7 @@ use crate::{
     BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig,
     PuzzleConfigCollection, TileConfig,
 };
-use puzzled_common::Shape;
+use puzzled_common::polyform::Polyform;
 use rand::rngs::Xoshiro256PlusPlus;
 use rand::{Rng, RngExt, SeedableRng};
 
@@ -63,8 +63,11 @@ pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection 
     )
 }
 
-fn random_orientation(rng: &mut dyn Rng, shape: Shape) -> Shape {
-    shape
+fn random_orientation<T>(rng: &mut dyn Rng, polyform: Polyform<T>) -> Polyform<T>
+where
+    T: Default + Clone,
+{
+    polyform
         .rotations_flips_iter()
         .nth(rng.random_range(0..8))
         .unwrap()
@@ -73,7 +76,8 @@ fn random_orientation(rng: &mut dyn Rng, shape: Shape) -> Shape {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::shape::shape_square;
+    use puzzled_common::polyform::poly::UnitPoly;
+    use puzzled_common::polyform::poly::polyomino::Polyomino;
 
     #[test]
     fn test_normal() {
@@ -91,24 +95,24 @@ mod tests {
         let puzzle = &collection.puzzles()[0];
         assert_eq!(
             BoardConfig::Simple {
-                layout: shape_square(&[
+                layout: Polyomino::from_bool_slice(&[
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
-                ])
+                ]).into()
             },
             *puzzle.board_config()
         );
         assert_eq!(5, puzzle.tiles().len());
         assert_eq!(
             TileConfig::new(
-                shape_square(&[
+                Polyomino::from_bool_slice(&[
                     [false, true, true, true, true],
                     [true, true, true, true, true]
-                ]),
+                ]).into(),
                 ColorConfig::default_with_index(0),
                 None
             ),
@@ -116,13 +120,13 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                shape_square(&[
+                Polyomino::from_bool_slice(&[
                     [true, true, false],
                     [true, false, false],
                     [true, false, false],
                     [true, true, true],
                     [true, false, false]
-                ]),
+                ]).into(),
                 ColorConfig::default_with_index(1),
                 None
             ),
@@ -130,7 +134,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                shape_square(&[[true, true, true, true]]),
+                Polyomino::from_bool_slice(&[[true, true, true, true]]).into(),
                 ColorConfig::default_with_index(2),
                 None
             ),
@@ -138,7 +142,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                shape_square(&[[true, true, true], [true, false, false]]),
+                Polyomino::from_bool_slice(&[[true, true, true], [true, false, false]]).into(),
                 ColorConfig::default_with_index(3),
                 None
             ),
@@ -146,7 +150,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                shape_square(&[[true], [true], [true], [true], [true]]),
+                Polyomino::from_bool_slice(&[[true], [true], [true], [true], [true]]).into(),
                 ColorConfig::default_with_index(4),
                 None
             ),
@@ -170,14 +174,14 @@ mod tests {
         let puzzle = &collection.puzzles()[0];
         assert_eq!(
             BoardConfig::Simple {
-                layout: shape_square(&[[true, true], [true, true],])
+                layout: Polyomino::from_bool_slice(&[[true, true], [true, true], ]).into()
             },
             *puzzle.board_config()
         );
         assert_eq!(4, puzzle.tiles().len());
         assert_eq!(
             TileConfig::new(
-                shape_square(&[[true]]),
+                Polyomino::from_bool_slice(&[[true]]).into(),
                 ColorConfig::default_with_index(0),
                 None
             ),
@@ -185,7 +189,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                shape_square(&[[true]]),
+                Polyomino::from_bool_slice(&[[true]]).into(),
                 ColorConfig::default_with_index(1),
                 None
             ),
@@ -193,7 +197,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                shape_square(&[[true]]),
+                Polyomino::from_bool_slice(&[[true]]).into(),
                 ColorConfig::default_with_index(2),
                 None
             ),
@@ -201,7 +205,7 @@ mod tests {
         );
         assert_eq!(
             TileConfig::new(
-                shape_square(&[[true]]),
+                Polyomino::from_bool_slice(&[[true]]).into(),
                 ColorConfig::default_with_index(3),
                 None
             ),

@@ -2,6 +2,7 @@ use crate::app::puzzle::puzzle_area::puzzle_state::{PuzzleState, UnusedTile};
 use crate::solver::Solver;
 use log::{debug, info};
 use puzzle_solver::cancellation_token::CancellationToken;
+use puzzled_common::polyform::poly::Poly;
 use std::collections::HashSet;
 use std::sync::{Arc, RwLock};
 use std::thread;
@@ -84,7 +85,7 @@ impl CombinationsSolver {
         if let Some(name) = name {
             format!("\"{}\"", name)
         } else {
-            unused_tile.base.to_string()
+            unused_tile.base.as_2d_slice()
         }
     }
 

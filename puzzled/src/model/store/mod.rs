@@ -252,7 +252,9 @@ mod tests {
                 let board_config = &puzzle.board_config();
                 match board_config {
                     BoardConfig::Simple { layout } => {
-                        let board: Board = layout.map(|e| !e).clone().into();
+                        let mut board_polyform = layout.clone();
+                        board_polyform.invert_to_empty();
+                        let board = Board::new(board_polyform);
                         let tiles: Vec<Tile> = puzzle
                             .tiles()
                             .iter()

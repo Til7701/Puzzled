@@ -1,0 +1,83 @@
+use crate::polyform::coord::Coord;
+use std::fmt::{Display, Formatter};
+use std::ops::{Add, Sub};
+
+/// A grid for hexagons.
+///
+/// Could maybe be used for triangles as well.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct HexCoord {
+    x: u32,
+    y: u32,
+    z: u32,
+}
+
+impl HexCoord {
+    pub fn x(&self) -> u32 {
+        self.x
+    }
+
+    pub fn y(&self) -> u32 {
+        self.y
+    }
+
+    pub fn z(&self) -> u32 {
+        self.z
+    }
+}
+
+impl Coord for HexCoord {
+    fn zero() -> Self {
+        todo!()
+    }
+
+    fn one() -> Self {
+        todo!()
+    }
+
+    fn rotate_counterclockwise(&mut self, viewport: &Self) {
+        todo!()
+    }
+
+    fn flip_default(&mut self, viewport: &Self) {
+        todo!()
+    }
+
+    fn transpose(&mut self) {
+        todo!()
+    }
+
+    fn area(&self) -> usize {
+        todo!()
+    }
+}
+
+impl Display for HexCoord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "H({}, {}, {})", self.x, self.y, self.z)
+    }
+}
+
+impl Add for &HexCoord {
+    type Output = HexCoord;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        HexCoord {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl Sub for &HexCoord {
+    type Output = HexCoord;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        HexCoord {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
