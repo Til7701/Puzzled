@@ -1,6 +1,5 @@
 use crate::random::{Algorithm, RandomPuzzleSettings};
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::poly::polyomino::Polyomino;
@@ -20,16 +19,17 @@ pub fn create_puzzle(
 
     let tiles = (0..tile_count)
         .map(|i| extract_tile(i as u32, &complete_board))
+        .map(|t| Polyform::Polyomino(t))
         .collect();
     let board = complete_board.mapped(|_| ());
 
-    (board, tiles)
+    (Polyform::Polyomino(board), tiles)
 }
 
 fn generate_base_board(
     settings: &RandomPuzzleSettings,
     rng: &mut dyn Rng,
-) -> Polyform<Option<u32>> {
+) -> Polyomino<Option<u32>> {
     let (tile_count, board_width, board_height) = match settings.algorithm {
         Algorithm::Growing {
             tile_count,
@@ -53,7 +53,7 @@ fn generate_base_board(
                 break;
             }
         }
-        if base.into().iter().all(|x| x.data().is_some()) {
+        if base.cells().iter().all(|x| x.data().is_some()) {
             break;
         }
     }
@@ -63,15 +63,15 @@ fn generate_base_board(
 
 fn grow_until_complete(
     rng: &mut dyn Rng,
-    mut base_board: Polyform<Option<u32>>,
-) -> Polyform<Option<u32>> {
-    while base_board.iter().any(|x| x.data().is_none()) {
+    mut base_board: Polyomino<Option<u32>>,
+) -> Polyomino<Option<u32>> {
+    while base_board.cells_mut().iter().any(|x| x.data().is_none()) {
         base_board = grow(rng, base_board);
     }
     base_board
 }
 
-fn grow(rng: &mut dyn Rng, base_board: Polyform<Option<u32>>) -> Polyform<Option<u32>> {
+fn grow(rng: &mut dyn Rng, base_board: Polyomino<Option<u32>>) -> Polyomino<Option<u32>> {
     let mut new_board = base_board.clone();
 
     let tile_indices = tile_indices_sorted_by_size(&base_board);
@@ -86,8 +86,8 @@ fn grow(rng: &mut dyn Rng, base_board: Polyform<Option<u32>>) -> Polyform<Option
     new_board
 }
 
-fn tile_indices_sorted_by_size(board: &Polyform<Option<u32>>) -> Vec<u32> {
-    let map = board
+fn tile_indices_sorted_by_size(board: &Polyomino<Option<u32>>) -> Vec<u32> {
+    let map = board.cells()
         .iter()
         .filter_map(|x| *x.data())
         .fold(BTreeMap::new(), |mut acc, x| {
@@ -101,14 +101,11 @@ fn tile_indices_sorted_by_size(board: &Polyform<Option<u32>>) -> Vec<u32> {
 
 fn grow_tile_index(
     rng: &mut dyn Rng,
-    base_board: Polyform<Option<u32>>,
+    base_board: Polyomino<Option<u32>>,
     tile_index: u32,
-) -> (bool, Polyform<Option<u32>>) {
+) -> (bool, Polyomino<Option<u32>>) {
     let mut new_board = base_board.clone();
-    let dim = match base_board.dim() {
-        CoordBox::Regular(dim) => dim,
-        _ => unreachable!(),
-    };
+    let dim = base_board.dim();
     let xs = dim.x();
     let ys = dim.y();
     let mut changed = false;
@@ -181,10 +178,9 @@ fn grow_tile_index(
     (changed, new_board)
 }
 
-fn extract_tile(tile_index: u32, complete_board: &Polyform<Option<u32>>) -> Polyform<()> {
+fn extract_tile(tile_index: u32, complete_board: &Polyomino<Option<u32>>) -> Polyomino<()> {
     let mut base = complete_board
-        .clone()
-        .filter_map(&|x| x.filter(|i| *i == tile_index));
+        .filter_mapped(&|x| x.filter(|i| *i == tile_index));
     base.trim();
-    base.map(|_| ())
+    base.mapped(|_| ())
 }

@@ -73,7 +73,7 @@ impl PuzzleState {
         let board_config = &puzzle_config.board_config();
 
         let mut grid = match (board_config, puzzle_type_extension.as_ref()) {
-            (BoardConfig::Simple { layout }, _) => layout.clone().map(|_| CellData {
+            (BoardConfig::Simple { layout }, _) => layout.mapped(|_| CellData {
                 is_on_board: true,
                 allowed: true,
             }),
@@ -94,7 +94,7 @@ impl PuzzleState {
                 allowed: true,
             }),
         }
-            .map(|cell_data| Cell::Empty(cell_data.clone()));
+            .mapped(|cell_data| Cell::Empty(cell_data.clone()));
         grid.extend_adjacent(Cell::Empty(CellData {
             is_on_board: false,
             allowed: false,

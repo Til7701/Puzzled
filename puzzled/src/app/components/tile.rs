@@ -12,7 +12,8 @@ use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::prototile::{MutPrototile, Prototile, Square};
+use puzzled_common::polyform::poly::polyomino::Polyomino;
+use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
 use std::collections::HashMap;
 use std::ops::Deref;
 
@@ -62,7 +63,8 @@ mod imp {
 
             let current_rotation = self.current_rotation.borrow();
             match current_rotation.deref() {
-                Polyform::Polyomino { dim: tile_dims, .. } => {
+                Polyform::Polyomino(polyomino) => {
+                    let tile_dims = polyomino.dim();
                     let cell_width = width / tile_dims.x() as f64;
                     let cell_height = height / tile_dims.y() as f64;
 
@@ -99,7 +101,7 @@ impl TileView {
         obj.imp().id.replace(id);
         obj.imp()
             .current_rotation
-            .replace(base.map(|_| PrototileDrawingMode::Normal));
+            .replace(base.mapped(|_| PrototileDrawingMode::Normal));
         obj.init_color(color);
 
         obj.set_draw_func({
@@ -129,8 +131,8 @@ impl TileView {
         let current_rotation = self.imp().current_rotation.borrow();
 
         match current_rotation.deref() {
-            Polyform::Polyomino { dim, cells } => {
-                self.draw_polyomino(cr, width, height, dim, cells);
+            Polyform::Polyomino(polyomino) => {
+                self.draw_polyomino(cr, width, height, polyomino);
             }
             Polyform::Hexomino { .. } => {
                 todo!()
@@ -143,9 +145,10 @@ impl TileView {
         cr: &Context,
         width: i32,
         height: i32,
-        dim: &RegularCoord,
-        squares: &[Square<PrototileDrawingMode>],
+        polyomino: &Polyomino<PrototileDrawingMode>,
     ) {
+        let dim = polyomino.dim();
+        let squares = polyomino.cells();
         let color_map = self.imp().color.borrow();
         for cell in squares.iter() {
             let coord = match cell.coord() {
@@ -224,7 +227,7 @@ impl TileView {
 
     /// Returns the current layout of the tile, which changes when the tile is rotated or flipped.
     pub fn current_rotation(&self) -> Polyform<()> {
-        self.imp().current_rotation.borrow().clone().map(|_| ())
+        self.imp().current_rotation.borrow().mapped(|_| ())
     }
 
     /// Sets the drawing mode for the cell at the given coordinates.
@@ -237,10 +240,10 @@ impl TileView {
 
     /// Resets the drawing mode for all cells to [PrototileDrawingMode::Normal].
     pub fn reset_drawing_modes(&self) {
+        let new_rotation = self.imp().current_rotation.borrow().mapped(|_| PrototileDrawingMode::Normal);
         self.imp()
             .current_rotation
-            .borrow_mut()
-            .map(|_| PrototileDrawingMode::Normal);
+            .replace(new_rotation);
         self.queue_draw();
     }
 }

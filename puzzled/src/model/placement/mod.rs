@@ -8,7 +8,7 @@ use log::debug;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::prototile::Prototile;
+use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
 use std::cell::Ref;
 
 mod board;

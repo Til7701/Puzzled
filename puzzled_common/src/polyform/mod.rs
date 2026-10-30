@@ -94,8 +94,12 @@ where
         R: Clone,
     {
         match self {
-            Polyform::Polyomino(p) => Polyform::Polyomino(p.mapped_indexed(mapper)),
-            Polyform::Hexomino(h) => Polyform::Hexomino(h.mapped_indexed(mapper)),
+            Polyform::Polyomino(p) => Polyform::Polyomino(p.mapped_indexed(&|data, coord| {
+                mapper(data, &CoordBox::Regular(coord.clone()))
+            })),
+            Polyform::Hexomino(h) => Polyform::Hexomino(h.mapped_indexed(&|data, coord| {
+                mapper(data, &CoordBox::Hex(coord.clone()))
+            })),
         }
     }
 
@@ -118,8 +122,20 @@ where
 
     fn trim(&mut self) -> TrimSides<CoordBox> {
         match self {
-            Polyform::Polyomino(p) => p.trim().into(),
-            Polyform::Hexomino(h) => h.trim().into(),
+            Polyform::Polyomino(p) => {
+                let trim = p.trim();
+                TrimSides {
+                    lower: trim.lower.into(),
+                    upper: trim.upper.into(),
+                }
+            }
+            Polyform::Hexomino(h) => {
+                let trim = h.trim();
+                TrimSides {
+                    lower: trim.lower.into(),
+                    upper: trim.upper.into(),
+                }
+            }
         }
     }
 
@@ -172,5 +188,17 @@ where
 {
     fn default() -> Self {
         Polyform::Polyomino(Polyomino::default())
+    }
+}
+
+impl<T: Clone> From<Polyomino<T>> for Polyform<T> {
+    fn from(value: Polyomino<T>) -> Self {
+        Polyform::Polyomino(value)
+    }
+}
+
+impl<T: Clone> From<Hexomino<T>> for Polyform<T> {
+    fn from(value: Hexomino<T>) -> Self {
+        Polyform::Hexomino(value)
     }
 }

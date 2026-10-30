@@ -1,6 +1,6 @@
 use crate::polyform::coord::hex::HexCoord;
 use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
-use crate::polyform::prototile::{PrototileMutRef, PrototileRef, Square};
+use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Hexomino<T>
@@ -8,7 +8,7 @@ where
     T: Clone,
 {
     dim: HexCoord,
-    cells: Vec<Square<T>>,
+    cells: Vec<Hexagon<T>>,
 }
 
 impl<T> Hexomino<T>
@@ -24,6 +24,14 @@ where
         mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>,
     ) -> Self {
         todo!()
+    }
+
+    pub fn cells(&self) -> &[Hexagon<T>] {
+        &self.cells
+    }
+
+    pub fn cells_mut(&mut self) -> &mut [Hexagon<T>] {
+        &mut self.cells
     }
 }
 

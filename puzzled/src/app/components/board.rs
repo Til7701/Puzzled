@@ -1,3 +1,4 @@
+use crate::adw_ext;
 use crate::app::components::polyform_drawing::mode::PrototileDrawingMode;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
 use adw::gdk::cairo::Context;
@@ -9,9 +10,9 @@ use gtk::prelude::*;
 use puzzle_config::BoardConfig;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::prototile::{Prototile, Square};
+use puzzled_common::polyform::poly::polyomino::Polyomino;
+use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
 use std::ops::Deref;
 
 const SHOW_GRID_LINES_CLASS: &str = "show-grid-lines";
@@ -60,12 +61,10 @@ impl BoardView {
 
         let layout = match board_config {
             BoardConfig::Simple { layout } => {
-                layout.clone()
-                    .map(|_| (None, PrototileDrawingMode::Normal))
+                layout.mapped(|_| (None, PrototileDrawingMode::Normal))
             }
             BoardConfig::Area { layout, .. } => {
-                layout.clone()
-                    .map(|value| (Some(value.display_value.clone()), PrototileDrawingMode::Normal))
+                layout.mapped(|value| (Some(value.display_value.clone()), PrototileDrawingMode::Normal))
             }
         };
         obj.imp().layout.replace(Some(layout));
@@ -91,8 +90,8 @@ impl BoardView {
         let layout = self.imp().layout.borrow();
         if let Some(l) = layout.deref() {
             match l {
-                Polyform::Polyomino { dim, cells } => {
-                    self.draw_polyomino(cr, width, height, dim, cells);
+                Polyform::Polyomino(polyomino) => {
+                    self.draw_polyomino(cr, width, height, polyomino);
                 }
                 Polyform::Hexomino { .. } => {
                     todo!()
@@ -106,10 +105,10 @@ impl BoardView {
         cr: &Context,
         width: i32,
         height: i32,
-        dim: &RegularCoord,
-        squares: &[Square<(Option<String>, PrototileDrawingMode)>],
+        polyomino: &Polyomino<(Option<String>, PrototileDrawingMode)>,
     ) {
-        let color_map = self.imp().color.borrow();
+        let dim = polyomino.dim();
+        let squares = polyomino.cells();
         for cell in squares.iter() {
             let coord = match cell.coord() {
                 CoordBox::Regular(coord) => coord,
@@ -123,7 +122,7 @@ impl BoardView {
             let cell_y = y as f64 * cell_height;
 
             let (display_value, drawing_mode) = cell.data();
-            let color = &color_map[drawing_mode];
+            let color = &adw_ext::DARK_1; // FIXME chose based on area
             cr.set_source_color(color);
             cr.rectangle(cell_x, cell_y, cell_width, cell_height);
             cr.fill().expect("Failed to fill");
@@ -147,7 +146,7 @@ impl BoardView {
                 PrototileDrawingMode::Normal => None,
                 PrototileDrawingMode::Overlapping => None,
                 PrototileDrawingMode::OutOfBounds => None,
-                PrototileDrawingMode::Highlighted => None,
+                PrototileDrawingMode::Highlighted => Some(adw_ext::BLUE_1), // FIXME change to current accent color
             };
             if let Some(border_color) = border_color {
                 cr.set_source_color(&border_color);
@@ -191,7 +190,7 @@ impl BoardView {
     pub fn remove_highlights(&self) {
         let mut layout = self.imp().layout.borrow_mut();
         if let Some(l) = layout.as_mut() {
-            let new = l.map(|(value, _)| (value.clone(), PrototileDrawingMode::Normal));
+            let new = l.mapped(|(value, _)| (value.clone(), PrototileDrawingMode::Normal));
             layout.replace(new);
         }
     }

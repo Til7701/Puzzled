@@ -2,6 +2,7 @@ use crate::config::area::{AreaConfig, AreaValueFormatter};
 use crate::config::board::AreaBoardData;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::prototile::Prototile;
 use std::fmt::{Display, Formatter};
 

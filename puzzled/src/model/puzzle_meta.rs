@@ -5,7 +5,6 @@ use adw::prelude::{SettingsExt, SettingsExtManual};
 use log::{debug, error};
 use puzzle_config::{BoardConfig, PuzzleConfigCollection, Target};
 use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::grid::Coord;
 
 const SOLVED_KEY: &str = "solved";
 const HINTS_KEY: &str = "hints";

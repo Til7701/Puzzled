@@ -50,6 +50,14 @@ where
             cells: squares,
         }
     }
+
+    pub fn cells(&self) -> &[Square<T>] {
+        &self.cells
+    }
+
+    pub fn cells_mut(&mut self) -> &mut [Square<T>] {
+        &mut self.cells
+    }
 }
 
 impl<T> Poly<T, RegularCoord> for Polyomino<T>
@@ -124,7 +132,11 @@ where
         let squares = self.cells.iter()
             .map(|s| {
                 let data = s.data();
-                let new_data = mapper(data, s.coord());
+                let coord = match s.coord() {
+                    CoordBox::Regular(regular) => regular,
+                    _ => unreachable!()
+                };
+                let new_data = mapper(data, coord);
                 Square::new(s.coord().clone(), s.orientation(), new_data)
             })
             .collect();

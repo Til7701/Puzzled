@@ -21,19 +21,33 @@ impl Coord for CoordBox {
     }
 
     fn rotate_counterclockwise(&mut self, viewport: &Self) {
-        todo!()
+        match (self, viewport) {
+            (CoordBox::Regular(regular), CoordBox::Regular(v)) => regular.rotate_counterclockwise(v),
+            (CoordBox::Hex(hex), CoordBox::Hex(v)) => hex.rotate_counterclockwise(v),
+            _ => unreachable!()
+        }
     }
 
     fn flip_default(&mut self, viewport: &Self) {
-        todo!()
+        match (self, viewport) {
+            (CoordBox::Regular(regular), CoordBox::Regular(v)) => regular.flip_default(v),
+            (CoordBox::Hex(hex), CoordBox::Hex(v)) => hex.flip_default(v),
+            _ => unreachable!()
+        }
     }
 
     fn transpose(&mut self) {
-        todo!()
+        match self {
+            CoordBox::Regular(regular) => regular.transpose(),
+            CoordBox::Hex(hex) => hex.transpose(),
+        }
     }
 
     fn area(&self) -> usize {
-        todo!()
+        match self {
+            CoordBox::Regular(regular) => regular.area(),
+            CoordBox::Hex(hex) => hex.area(),
+        }
     }
 }
 

@@ -1,4 +1,3 @@
-use log::debug;
 use puzzled_common::polyform::Polyform;
 use std::collections::HashSet;
 
@@ -76,17 +75,6 @@ impl Tile {
     /// ```
     pub fn base(&self) -> &Polyform<()> {
         &self.base
-    }
-
-    /// Debug prints the tile's base and all its rotations.
-    #[allow(dead_code)]
-    pub(crate) fn debug_print(&self) {
-        debug!("Tile Base: ");
-        debug!("All Rotations: ");
-        for rotation in &self.all_rotations {
-            debug!("Rotation:");
-            rotation.debug_print();
-        }
     }
 }
 
