@@ -91,6 +91,7 @@ pub fn solve_all_filling(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use puzzled_common::polyform::Polyform;
     use puzzled_common::polyform::coord::coord_box::CoordBox;
     use puzzled_common::polyform::coord::regular::RegularCoord;
     use puzzled_common::polyform::poly::UnitPoly;
@@ -382,13 +383,13 @@ mod tests {
 
     #[test]
     fn test_solve_tile_can_not_be_placed() {
-        let board = Polyomino::from_bool_slice(&[[false, false], [false, false]]).into();
+        let board: Polyform<()> = Polyomino::from_bool_slice(&[[false, false], [false, false]]).into();
         let tiles = vec![Tile::new(
             42,
             Polyomino::from_bool_slice(&[[true, true, true, true]]).into(),
         )];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new());
+        let result = solve_all_filling(board.into(), &tiles, CancellationToken::new());
         assert!(result.is_err());
         let error = result.unwrap_err();
         assert_eq!(error, UnsolvableReason::NoFit);
@@ -396,7 +397,7 @@ mod tests {
 
     #[test]
     fn test_solve_all_filling_same_tiles() {
-        let board = Polyomino::from_bool_slice(&[
+        let board: Polyform<()> = Polyomino::from_bool_slice(&[
             [true, false, false],
             [false, true, false],
             [false, false, true],
@@ -413,7 +414,7 @@ mod tests {
             ),
         ];
 
-        let result = solve_all_filling(board, &tiles, CancellationToken::new());
+        let result = solve_all_filling(board.into(), &tiles, CancellationToken::new());
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();
