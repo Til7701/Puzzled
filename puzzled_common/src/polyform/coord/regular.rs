@@ -100,4 +100,3 @@ impl PartialOrd for &RegularCoord {
         self.x.cmp(&other.x).then(self.y.cmp(&other.y)).into()
     }
 }
-

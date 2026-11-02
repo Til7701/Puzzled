@@ -1,8 +1,8 @@
 use std::ops::{Add, Mul, Sub};
 
-pub mod regular;
-pub mod hex;
 pub mod coord_box;
+pub mod hex;
+pub mod regular;
 
 pub trait Coord {
     fn zero() -> Self;

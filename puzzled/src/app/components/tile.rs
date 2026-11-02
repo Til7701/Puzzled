@@ -217,7 +217,10 @@ impl TileView {
     /// Rotates the tile one step clockwise.
     pub fn rotate_clockwise(&self) {
         // We are calling counterclockwise here, since the tile is drawn transposed.
-        self.imp().current_rotation.borrow_mut().rotate_counterclockwise();
+        self.imp()
+            .current_rotation
+            .borrow_mut()
+            .rotate_counterclockwise();
     }
 
     /// Flips the tile horizontally.
@@ -240,10 +243,12 @@ impl TileView {
 
     /// Resets the drawing mode for all cells to [PrototileDrawingMode::Normal].
     pub fn reset_drawing_modes(&self) {
-        let new_rotation = self.imp().current_rotation.borrow().mapped(|_| PrototileDrawingMode::Normal);
-        self.imp()
+        let new_rotation = self
+            .imp()
             .current_rotation
-            .replace(new_rotation);
+            .borrow()
+            .mapped(|_| PrototileDrawingMode::Normal);
+        self.imp().current_rotation.replace(new_rotation);
         self.queue_draw();
     }
 }

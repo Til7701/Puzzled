@@ -1,4 +1,6 @@
-use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState, TileCellPlacement, UnusedTile};
+use crate::app::puzzle::puzzle_area::puzzle_state::{
+    Cell, PuzzleState, TileCellPlacement, UnusedTile,
+};
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::puzzle::PuzzleModel;
 use adw::glib;
@@ -430,9 +432,7 @@ impl PlacementModel {
             let mut any_cell_on_board = false;
             for mut prototile in tile.current_rotation().iter() {
                 let cell_position = &tile_position + prototile.coord();
-                if &cell_position >= board_position
-                    && &cell_position < &board_size
-                {
+                if &cell_position >= board_position && &cell_position < &board_size {
                     match state.grid.get_mut(&cell_position) {
                         None => return Err("Index out of bounds".to_string()),
                         Some(mut cell_ref) => {

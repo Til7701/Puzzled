@@ -112,7 +112,8 @@ mod tests {
                 [true, true, true],
                 [true, false, true],
                 [true, true, true]
-            ]).into()
+            ])
+            .into()
         );
         let ref_tile = &puzzle.tiles()[0];
         assert_eq!(

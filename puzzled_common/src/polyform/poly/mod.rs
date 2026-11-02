@@ -1,8 +1,8 @@
 use crate::polyform::coord::Coord;
 use crate::polyform::prototile::{PrototileMutRef, PrototileRef};
 
-pub mod polyomino;
 pub mod hexomino;
+pub mod polyomino;
 
 pub trait Poly<T, C: Coord>
 where

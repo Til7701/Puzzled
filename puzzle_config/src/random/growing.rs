@@ -87,7 +87,8 @@ fn grow(rng: &mut dyn Rng, base_board: Polyomino<Option<u32>>) -> Polyomino<Opti
 }
 
 fn tile_indices_sorted_by_size(board: &Polyomino<Option<u32>>) -> Vec<u32> {
-    let map = board.cells()
+    let map = board
+        .cells()
         .iter()
         .filter_map(|x| *x.data())
         .fold(BTreeMap::new(), |mut acc, x| {
@@ -121,10 +122,10 @@ fn grow_tile_index(
         {
             if x > 0
                 && base_board
-                .get(&RegularCoord::new(x - 1, y).into())
-                .unwrap()
-                .data()
-                .is_none()
+                    .get(&RegularCoord::new(x - 1, y).into())
+                    .unwrap()
+                    .data()
+                    .is_none()
             {
                 new_board
                     .get_mut(&RegularCoord::new(x - 1, y).into())
@@ -134,10 +135,10 @@ fn grow_tile_index(
                 break;
             } else if x + 1 < xs
                 && base_board
-                .get(&RegularCoord::new(x + 1, y).into())
-                .unwrap()
-                .data()
-                .is_none()
+                    .get(&RegularCoord::new(x + 1, y).into())
+                    .unwrap()
+                    .data()
+                    .is_none()
             {
                 new_board
                     .get_mut(&RegularCoord::new(x + 1, y).into())
@@ -147,10 +148,10 @@ fn grow_tile_index(
                 break;
             } else if y > 0
                 && base_board
-                .get(&RegularCoord::new(x, y - 1).into())
-                .unwrap()
-                .data()
-                .is_none()
+                    .get(&RegularCoord::new(x, y - 1).into())
+                    .unwrap()
+                    .data()
+                    .is_none()
             {
                 new_board
                     .get_mut(&RegularCoord::new(x, y - 1).into())
@@ -160,10 +161,10 @@ fn grow_tile_index(
                 break;
             } else if y + 1 < ys
                 && base_board
-                .get(&RegularCoord::new(x, y + 1).into())
-                .unwrap()
-                .data()
-                .is_none()
+                    .get(&RegularCoord::new(x, y + 1).into())
+                    .unwrap()
+                    .data()
+                    .is_none()
             {
                 new_board
                     .get_mut(&RegularCoord::new(x, y + 1).into())
@@ -179,8 +180,7 @@ fn grow_tile_index(
 }
 
 fn extract_tile(tile_index: u32, complete_board: &Polyomino<Option<u32>>) -> Polyomino<()> {
-    let mut base = complete_board
-        .filter_mapped(&|x| x.filter(|i| *i == tile_index));
+    let mut base = complete_board.filter_mapped(&|x| x.filter(|i| *i == tile_index));
     base.trim();
     base.mapped(|_| ())
 }

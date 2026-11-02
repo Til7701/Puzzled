@@ -45,12 +45,7 @@ pub fn calculate_tile_start_positions(
     todo!()
 }
 
-fn place_in_column(
-    start: CoordBox,
-    end: i32,
-    tiles: &[TileConfig],
-    positions: &mut Vec<CoordBox>,
-) {
+fn place_in_column(start: CoordBox, end: i32, tiles: &[TileConfig], positions: &mut Vec<CoordBox>) {
     // if tiles.len() != positions.len() {
     //     let mut next_pos = start;
     //     let mut next_tile_index = positions.len();

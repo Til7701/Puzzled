@@ -22,9 +22,11 @@ impl Coord for CoordBox {
 
     fn rotate_counterclockwise(&mut self, viewport: &Self) {
         match (self, viewport) {
-            (CoordBox::Regular(regular), CoordBox::Regular(v)) => regular.rotate_counterclockwise(v),
+            (CoordBox::Regular(regular), CoordBox::Regular(v)) => {
+                regular.rotate_counterclockwise(v)
+            }
             (CoordBox::Hex(hex), CoordBox::Hex(v)) => hex.rotate_counterclockwise(v),
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 
@@ -32,7 +34,7 @@ impl Coord for CoordBox {
         match (self, viewport) {
             (CoordBox::Regular(regular), CoordBox::Regular(v)) => regular.flip_default(v),
             (CoordBox::Hex(hex), CoordBox::Hex(v)) => hex.flip_default(v),
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 

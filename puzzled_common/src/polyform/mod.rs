@@ -4,10 +4,10 @@ use crate::polyform::poly::polyomino::Polyomino;
 use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 use crate::polyform::prototile::{Prototile, PrototileMutRef, PrototileRef};
 
-pub mod iterator;
-pub mod prototile;
-pub mod poly;
 pub mod coord;
+pub mod iterator;
+pub mod poly;
+pub mod prototile;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Polyform<T>
@@ -94,12 +94,12 @@ where
         R: Clone,
     {
         match self {
-            Polyform::Polyomino(p) => Polyform::Polyomino(p.mapped_indexed(&|data, coord| {
-                mapper(data, &CoordBox::Regular(coord.clone()))
-            })),
-            Polyform::Hexomino(h) => Polyform::Hexomino(h.mapped_indexed(&|data, coord| {
-                mapper(data, &CoordBox::Hex(coord.clone()))
-            })),
+            Polyform::Polyomino(p) => Polyform::Polyomino(
+                p.mapped_indexed(&|data, coord| mapper(data, &CoordBox::Regular(coord.clone()))),
+            ),
+            Polyform::Hexomino(h) => Polyform::Hexomino(
+                h.mapped_indexed(&|data, coord| mapper(data, &CoordBox::Hex(coord.clone()))),
+            ),
         }
     }
 
@@ -141,15 +141,21 @@ where
 
     fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
         match self {
-            Polyform::Polyomino(p) => p.count_biggest_connected_area_of_cells_matching(target_value),
+            Polyform::Polyomino(p) => {
+                p.count_biggest_connected_area_of_cells_matching(target_value)
+            }
             Polyform::Hexomino(h) => h.count_biggest_connected_area_of_cells_matching(target_value),
         }
     }
 
     fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
         match self {
-            Polyform::Polyomino(p) => p.count_smallest_connected_area_of_cells_matching(target_value),
-            Polyform::Hexomino(h) => h.count_smallest_connected_area_of_cells_matching(target_value),
+            Polyform::Polyomino(p) => {
+                p.count_smallest_connected_area_of_cells_matching(target_value)
+            }
+            Polyform::Hexomino(h) => {
+                h.count_smallest_connected_area_of_cells_matching(target_value)
+            }
         }
     }
 

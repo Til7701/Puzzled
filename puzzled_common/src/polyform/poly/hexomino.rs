@@ -19,10 +19,7 @@ where
         todo!()
     }
 
-    pub fn from_vec<X>(
-        vec: &[Vec<X>],
-        mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>,
-    ) -> Self {
+    pub fn from_vec<X>(vec: &[Vec<X>], mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>) -> Self {
         todo!()
     }
 

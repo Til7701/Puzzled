@@ -1,16 +1,16 @@
 use crate::polyform::coord::Coord;
 
 mod hexagon;
-mod square;
-mod reference;
 mod mut_reference;
 mod orientation;
+mod reference;
+mod square;
 
-pub use reference::PrototileRef;
-pub use mut_reference::PrototileMutRef;
-pub use orientation::Orientation;
 pub use hexagon::Hexagon;
 pub use hexagon::HexagonOrientation;
+pub use mut_reference::PrototileMutRef;
+pub use orientation::Orientation;
+pub use reference::PrototileRef;
 pub use square::Square;
 pub use square::SquareOrientation;
 

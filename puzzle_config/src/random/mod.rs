@@ -102,7 +102,8 @@ mod tests {
                     [true, true, true, true, true],
                     [true, true, true, true, true],
                     [true, true, true, true, true],
-                ]).into()
+                ])
+                .into()
             },
             *puzzle.board_config()
         );
@@ -112,7 +113,8 @@ mod tests {
                 Polyomino::from_bool_slice(&[
                     [false, true, true, true, true],
                     [true, true, true, true, true]
-                ]).into(),
+                ])
+                .into(),
                 ColorConfig::default_with_index(0),
                 None
             ),
@@ -126,7 +128,8 @@ mod tests {
                     [true, false, false],
                     [true, true, true],
                     [true, false, false]
-                ]).into(),
+                ])
+                .into(),
                 ColorConfig::default_with_index(1),
                 None
             ),
@@ -174,7 +177,7 @@ mod tests {
         let puzzle = &collection.puzzles()[0];
         assert_eq!(
             BoardConfig::Simple {
-                layout: Polyomino::from_bool_slice(&[[true, true], [true, true], ]).into()
+                layout: Polyomino::from_bool_slice(&[[true, true], [true, true],]).into()
             },
             *puzzle.board_config()
         );

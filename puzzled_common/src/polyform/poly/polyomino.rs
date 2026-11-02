@@ -2,7 +2,9 @@ use crate::polyform::coord::Coord;
 use crate::polyform::coord::coord_box::CoordBox;
 use crate::polyform::coord::regular::RegularCoord;
 use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
-use crate::polyform::prototile::{MutPrototile, Prototile, PrototileMutRef, PrototileRef, Square, SquareOrientation};
+use crate::polyform::prototile::{
+    MutPrototile, Prototile, PrototileMutRef, PrototileRef, Square, SquareOrientation,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Polyomino<T>
@@ -21,7 +23,11 @@ where
         let mut squares = Vec::with_capacity((size.x() * size.y()) as usize);
         for i in 0..size.x() {
             for j in 0..size.y() {
-                squares.push(Square::new(CoordBox::Regular(RegularCoord::new(i, j)), SquareOrientation::OnSide, value.clone()))
+                squares.push(Square::new(
+                    CoordBox::Regular(RegularCoord::new(i, j)),
+                    SquareOrientation::OnSide,
+                    value.clone(),
+                ))
             }
         }
 
@@ -31,16 +37,17 @@ where
         }
     }
 
-    pub fn from_vec<X>(
-        vec: &[Vec<X>],
-        mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>,
-    ) -> Self {
+    pub fn from_vec<X>(vec: &[Vec<X>], mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>) -> Self {
         let size = RegularCoord::new(vec.len() as u32, vec[0].len() as u32);
         let mut squares = Vec::with_capacity(size.area());
         for (i, row) in vec.iter().enumerate() {
             for (j, value) in row.iter().enumerate() {
                 if let Some(data) = mapper(value, (i, j)) {
-                    squares.push(Square::new(CoordBox::Regular(RegularCoord::new(i as u32, j as u32)), SquareOrientation::OnSide, data))
+                    squares.push(Square::new(
+                        CoordBox::Regular(RegularCoord::new(i as u32, j as u32)),
+                        SquareOrientation::OnSide,
+                        data,
+                    ))
                 }
             }
         }
@@ -65,13 +72,15 @@ where
     T: Clone,
 {
     fn get(&self, coord: &RegularCoord) -> Option<PrototileRef<'_, T>> {
-        self.cells.iter()
+        self.cells
+            .iter()
             .find(|p| p.coord() == &CoordBox::Regular(coord.clone()))
             .map(|s| s.into())
     }
 
     fn get_mut(&mut self, coord: &RegularCoord) -> Option<PrototileMutRef<'_, T>> {
-        self.cells.iter_mut()
+        self.cells
+            .iter_mut()
             .find(|p| p.coord() == &CoordBox::Regular(coord.clone()))
             .map(|s| s.into())
     }
@@ -99,12 +108,16 @@ where
     fn rotate_counterclockwise(&mut self) {
         self.dim.transpose();
         let viewport = CoordBox::Regular(self.dim.clone());
-        self.cells.iter_mut().for_each(|s| s.rotate_counterclockwise(&viewport))
+        self.cells
+            .iter_mut()
+            .for_each(|s| s.rotate_counterclockwise(&viewport))
     }
 
     fn flip(&mut self) {
         let viewport = CoordBox::Regular(self.dim.clone());
-        self.cells.iter_mut().for_each(|s| s.flip_default(&viewport))
+        self.cells
+            .iter_mut()
+            .for_each(|s| s.flip_default(&viewport))
     }
 
     fn transpose(&mut self) {
@@ -114,7 +127,9 @@ where
 
     #[allow(refining_impl_trait)]
     fn mapped<R: Clone>(&self, mapper: fn(&T) -> R) -> Polyomino<R> {
-        let squares = self.cells.iter()
+        let squares = self
+            .cells
+            .iter()
             .map(|s| {
                 let data = s.data();
                 let new_data = mapper(data);
@@ -129,12 +144,14 @@ where
 
     #[allow(refining_impl_trait)]
     fn mapped_indexed<R: Clone>(&self, mapper: &dyn Fn(&T, &RegularCoord) -> R) -> Polyomino<R> {
-        let squares = self.cells.iter()
+        let squares = self
+            .cells
+            .iter()
             .map(|s| {
                 let data = s.data();
                 let coord = match s.coord() {
                     CoordBox::Regular(regular) => regular,
-                    _ => unreachable!()
+                    _ => unreachable!(),
                 };
                 let new_data = mapper(data, coord);
                 Square::new(s.coord().clone(), s.orientation(), new_data)
@@ -148,7 +165,9 @@ where
 
     #[allow(refining_impl_trait)]
     fn filter_mapped<R: Clone>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Polyomino<R> {
-        let squares = self.cells.iter()
+        let squares = self
+            .cells
+            .iter()
             .filter_map(|s| {
                 let data = s.data();
                 let new_data = mapper(data);
@@ -175,7 +194,8 @@ where
             };
         }
 
-        let min_y = self.cells
+        let min_y = self
+            .cells
             .iter()
             .map(|square| match square.coord() {
                 CoordBox::Regular(coord) => coord.y(),
@@ -195,7 +215,8 @@ where
         self.dim.set_y(self.dim.y() - min_y);
         lower.set_y(lower.y() + min_y);
 
-        let max_y = self.cells
+        let max_y = self
+            .cells
             .iter()
             .map(|square| match square.coord() {
                 CoordBox::Regular(coord) => coord.y(),
@@ -206,7 +227,8 @@ where
         self.dim.set_y(self.dim.y() - max_y);
         upper.set_y(upper.y() + max_y);
 
-        let min_x = self.cells
+        let min_x = self
+            .cells
             .iter()
             .map(|square| match square.coord() {
                 CoordBox::Regular(coord) => coord.x(),
@@ -226,7 +248,8 @@ where
         self.dim.set_x(min_x);
         lower.set_x(lower.x() + min_x);
 
-        let max_x = self.cells
+        let max_x = self
+            .cells
             .iter()
             .map(|square| match square.coord() {
                 CoordBox::Regular(coord) => coord.x(),
@@ -270,9 +293,7 @@ impl UnitPoly for Polyomino<()> {
     }
 
     fn from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self {
-        let vec: Vec<Vec<bool>> = slice.iter()
-            .map(|&v| v.to_vec())
-            .collect();
+        let vec: Vec<Vec<bool>> = slice.iter().map(|&v| v.to_vec()).collect();
         Polyomino::from_vec(&vec, &|b, _| if *b { Some(()) } else { None })
     }
 }
@@ -573,7 +594,11 @@ mod test {
 
     #[test]
     fn test_count_biggest_connected_area_of_cells_matching_ring() {
-        let shape = Polyomino::from_bool_slice(&[[true, true, true], [true, false, true], [true, true, true]]);
+        let shape = Polyomino::from_bool_slice(&[
+            [true, true, true],
+            [true, false, true],
+            [true, true, true],
+        ]);
 
         let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
         let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
@@ -721,7 +746,9 @@ mod test {
         let child = Polyomino::from_bool_slice(&[[true, false], [false, true]]);
         let placements = parent.place_on_all_positions(&child);
         assert_eq!(placements.len(), 1);
-        assert!(placements.contains(&Polyomino::from_bool_slice(&[[true, false], [false, true], ])));
+        assert!(placements.contains(&Polyomino::from_bool_slice(
+            &[[true, false], [false, true],]
+        )));
     }
 
     #[test]
@@ -761,7 +788,11 @@ mod test {
             [false, true, false],
             [true, true, true],
         ]);
-        let mut child = Polyomino::from_bool_slice(&[[true, true, true], [true, true, true], [true, true, true]]);
+        let mut child = Polyomino::from_bool_slice(&[
+            [true, true, true],
+            [true, true, true],
+            [true, true, true],
+        ]);
         child.remove_parent(&parent);
         let expected = Polyomino::from_bool_slice(&[
             [false, true, false],
@@ -774,10 +805,17 @@ mod test {
     #[test]
     fn test_remove_parent_smaller_parent() {
         let parent = Polyomino::from_bool_slice(&[[true, false], [false, true]]);
-        let mut child = Polyomino::from_bool_slice(&[[true, true, true], [true, true, true], [true, true, true]]);
+        let mut child = Polyomino::from_bool_slice(&[
+            [true, true, true],
+            [true, true, true],
+            [true, true, true],
+        ]);
         child.remove_parent(&parent);
-        let expected =
-            Polyomino::from_bool_slice(&[[false, true, true], [true, false, true], [true, true, true]]);
+        let expected = Polyomino::from_bool_slice(&[
+            [false, true, true],
+            [true, false, true],
+            [true, true, true],
+        ]);
         assert_eq!(expected, child);
     }
 

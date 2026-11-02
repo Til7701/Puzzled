@@ -1,7 +1,7 @@
 use log::debug;
+use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::poly::{Poly, TrimSides};
-use puzzled_common::polyform::Polyform;
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
 /// A filled cell is either outside the puzzle area or blocked by a placed tile.

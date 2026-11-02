@@ -36,11 +36,14 @@ mod tests {
 
     #[test]
     fn test_check_passing() {
-        let board = Board::new(Polyomino::from_bool_slice(&[
-            [false, false, false],
-            [false, false, false],
-            [false, false, false],
-        ]).into());
+        let board = Board::new(
+            Polyomino::from_bool_slice(&[
+                [false, false, false],
+                [false, false, false],
+                [false, false, false],
+            ])
+            .into(),
+        );
         let tile1 = Tile::new(
             42,
             Polyomino::from_bool_slice(&[[true, true], [true, true], [true, false]]).into(),
@@ -56,11 +59,14 @@ mod tests {
 
     #[test]
     fn test_check_failing() {
-        let board = Board::new(Polyomino::from_bool_slice(&[
-            [false, false, false],
-            [false, false, false],
-            [false, false, false],
-        ]).into());
+        let board = Board::new(
+            Polyomino::from_bool_slice(&[
+                [false, false, false],
+                [false, false, false],
+                [false, false, false],
+            ])
+            .into(),
+        );
         let tile1 = Tile::new(
             42,
             Polyomino::from_bool_slice(&[[true, true], [true, false]]).into(),

@@ -63,9 +63,12 @@ impl BoardView {
             BoardConfig::Simple { layout } => {
                 layout.mapped(|_| (None, PrototileDrawingMode::Normal))
             }
-            BoardConfig::Area { layout, .. } => {
-                layout.mapped(|value| (Some(value.display_value.clone()), PrototileDrawingMode::Normal))
-            }
+            BoardConfig::Area { layout, .. } => layout.mapped(|value| {
+                (
+                    Some(value.display_value.clone()),
+                    PrototileDrawingMode::Normal,
+                )
+            }),
         };
         obj.imp().layout.replace(Some(layout));
 

@@ -80,8 +80,8 @@ impl PuzzleState {
             (
                 BoardConfig::Area { layout, .. },
                 Some(PuzzleTypeExtension::Area {
-                         target: Some(target),
-                     }),
+                    target: Some(target),
+                }),
             ) => layout.clone().mapped_indexed(&|_, coord| {
                 let allowed = target.indices.iter().any(|t| t.coord() == coord);
                 CellData {
@@ -94,7 +94,7 @@ impl PuzzleState {
                 allowed: true,
             }),
         }
-            .mapped(|cell_data| Cell::Empty(cell_data.clone()));
+        .mapped(|cell_data| Cell::Empty(cell_data.clone()));
         grid.extend_adjacent(Cell::Empty(CellData {
             is_on_board: false,
             allowed: false,

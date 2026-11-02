@@ -16,8 +16,12 @@ where
 
     pub fn iter_mut(&mut self) -> PolyformIterMut<'_, T> {
         match self {
-            Polyform::Polyomino(polyomino) => PolyformIterMut::Squares(polyomino.cells_mut().iter_mut()),
-            Polyform::Hexomino(hexomino) => PolyformIterMut::Hexagons(hexomino.cells_mut().iter_mut()),
+            Polyform::Polyomino(polyomino) => {
+                PolyformIterMut::Squares(polyomino.cells_mut().iter_mut())
+            }
+            Polyform::Hexomino(hexomino) => {
+                PolyformIterMut::Hexagons(hexomino.cells_mut().iter_mut())
+            }
         }
     }
 

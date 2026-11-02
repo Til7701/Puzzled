@@ -266,7 +266,9 @@ impl<'a> Converter<'a> {
                     if *value < 1 { Some(()) } else { None }
                 });
                 polyform.transpose();
-                Ok(BoardConfig::Simple { layout: polyform.into() })
+                Ok(BoardConfig::Simple {
+                    layout: polyform.into(),
+                })
             }
             Board::AreaBoard {
                 area_layout,
