@@ -5,7 +5,7 @@ use std::hash::Hash;
 pub mod hexomino;
 pub mod polyomino;
 
-pub trait Poly<T, C: Coord>
+pub trait Poly<T, C: Coord>: Clone
 where
     T: Clone + Hash,
 {
@@ -38,7 +38,7 @@ where
     fn trim(&mut self) -> TrimSides<C>;
 }
 
-pub trait UnitPoly: Sized {
+pub trait UnitPoly: Sized + Clone {
     fn place_on_all_positions(&self, child: &Self) -> Vec<Self>;
 
     fn remove_parent(&mut self, parent: &Self);

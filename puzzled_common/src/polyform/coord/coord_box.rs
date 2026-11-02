@@ -107,3 +107,9 @@ impl PartialOrd for &CoordBox {
         }
     }
 }
+
+impl Default for CoordBox {
+    fn default() -> Self {
+        CoordBox::Regular(RegularCoord::new(0, 0))
+    }
+}

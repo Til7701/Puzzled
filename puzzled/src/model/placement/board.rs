@@ -1,46 +1,49 @@
+use crate::model::placement::PixelPosition;
+use puzzled_common::polyform::coord::Coord;
+
 #[derive(Clone, Debug, Default)]
-pub struct PlacedBoard {
-    // cell_size: Coord,
-    // pixel_size: PixelPosition,
-    // position_cells: Coord,
-    // position_pixel: PixelPosition,
+pub struct PlacedBoard<C: Coord> {
+    cell_size: C,
+    pixel_size: PixelPosition,
+    position_cells: C,
+    position_pixel: PixelPosition,
 }
 
-impl PlacedBoard {
-    // pub fn new(size: CellOffset, position_pixel: PixelOffset, position_cells: CellOffset) -> Self {
-    //     PlacedBoard {
-    //         cell_size: size,
-    //         pixel_size: PixelOffset::default(),
-    //         position_pixel,
-    //         position_cells,
-    //     }
-    // }
-    //
-    // pub fn cell_size(&self) -> CellOffset {
-    //     self.cell_size
-    // }
-    //
-    // pub fn pixel_size(&self) -> PixelOffset {
-    //     self.pixel_size
-    // }
-    //
-    // pub fn position_cells(&self) -> CellOffset {
-    //     self.position_cells
-    // }
-    //
-    // pub fn position_pixel(&self) -> PixelOffset {
-    //     self.position_pixel
-    // }
-    //
-    // pub fn set_position_cells(&mut self, position_cells: CellOffset) {
-    //     self.position_cells = position_cells;
-    // }
-    //
-    // pub fn set_position_pixel(&mut self, position_pixel: PixelOffset) {
-    //     self.position_pixel = position_pixel;
-    // }
-    //
-    // pub fn set_pixel_size(&mut self, pixel_size: PixelOffset) {
-    //     self.pixel_size = pixel_size;
-    // }
+impl<C: Coord> PlacedBoard<C> {
+    pub fn new(size: C, position_pixel: PixelPosition, position_cells: C) -> Self {
+        PlacedBoard {
+            cell_size: size,
+            pixel_size: PixelPosition::default(),
+            position_pixel,
+            position_cells,
+        }
+    }
+
+    pub fn cell_size(&self) -> &C {
+        &self.cell_size
+    }
+
+    pub fn pixel_size(&self) -> PixelPosition {
+        self.pixel_size
+    }
+
+    pub fn position_cells(&self) -> &C {
+        &self.position_cells
+    }
+
+    pub fn position_pixel(&self) -> PixelPosition {
+        self.position_pixel
+    }
+
+    pub fn set_position_cells(&mut self, position_cells: C) {
+        self.position_cells = position_cells;
+    }
+
+    pub fn set_position_pixel(&mut self, position_pixel: PixelPosition) {
+        self.position_pixel = position_pixel;
+    }
+
+    pub fn set_pixel_size(&mut self, pixel_size: PixelPosition) {
+        self.pixel_size = pixel_size;
+    }
 }

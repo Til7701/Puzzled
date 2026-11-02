@@ -2,6 +2,8 @@ use crate::app::puzzle::puzzle_area::puzzle_state::{
     Cell, PuzzleState, TileCellPlacement, UnusedTile,
 };
 use crate::model::extension::PuzzleTypeExtension;
+use crate::model::placement::board::PlacedBoard;
+use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
 use adw::glib;
 use adw::prelude::ObjectExt;
@@ -16,7 +18,9 @@ use std::cell::Ref;
 mod board;
 mod grid;
 mod initial;
+mod model;
 mod tile;
+mod translation;
 
 const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 
@@ -37,9 +41,9 @@ mod imp {
         pub(super) area_pixel_size: Cell<PixelPosition>,
         pub(super) min_area_pixel_size: Cell<PixelPosition>,
         pub(super) grid_config: RefCell<GridConfig>,
-        pub(super) board: RefCell<PlacedBoard>,
-        pub(super) tiles: RefCell<Vec<PlacedTile>>,
-        pub(super) hint_tile: RefCell<Option<PlacedTile>>,
+        pub(super) board: RefCell<PlacedBoard<CoordBox>>,
+        pub(super) tiles: RefCell<Vec<PlacedTile<Polyform<()>, CoordBox>>>,
+        pub(super) hint_tile: RefCell<Option<PlacedTile<Polyform<()>, CoordBox>>>,
     }
 
     #[glib::object_subclass]
@@ -82,45 +86,45 @@ impl PlacementModel {
     /// returns: PlacementModel
     pub fn new(puzzle_model: &PuzzleModel) -> Self {
         let obj: PlacementModel = glib::Object::builder().build();
-        // obj.imp().puzzle.replace(Some(puzzle_model.clone()));
-        // let puzzle_config = puzzle_model.config();
-        //
-        // obj.imp()
-        //     .grid_config
-        //     .replace(Self::initial_grid_config(puzzle_config));
-        //
-        // let board_config = puzzle_config.board_config();
-        // let board = PlacedBoard::new(
-        //     board_config.layout().dim().into(),
-        //     PixelPosition::default(),
-        //     CellOffset(
-        //         MIN_CELLS_TO_THE_SIDES_OF_BOARD,
-        //         MIN_CELLS_TO_THE_TOP_OF_BOARD,
-        //     ),
-        // );
-        // obj.imp().board.replace(board);
-        //
-        // let start_positions = initial::calculate_tile_start_positions(
-        //     puzzle_config.tiles(),
-        //     puzzle_config,
-        //     CellOffset(
-        //         MIN_CELLS_TO_THE_SIDES_OF_BOARD,
-        //         MIN_CELLS_TO_THE_TOP_OF_BOARD,
-        //     ),
-        // );
-        // let tiles: Vec<PlacedTile> = start_positions
-        //     .iter()
-        //     .enumerate()
-        //     .map(move |(i, pos)| {
-        //         let config = &puzzle_model.config().tiles()[i];
-        //         let shape = config.base().clone();
-        //         let cell_size = shape.dim().into();
-        //         PlacedTile::new(config.name().clone(), shape, cell_size, *pos)
-        //     })
-        //     .collect();
-        // obj.imp().tiles.replace(tiles);
-        //
-        // obj.update_pixel_size(PixelOffset(100.0, 100.0), 10);
+        obj.imp().puzzle.replace(Some(puzzle_model.clone()));
+        let puzzle_config = puzzle_model.config();
+
+        obj.imp()
+            .grid_config
+            .replace(Self::initial_grid_config(puzzle_config));
+
+        let board_config = puzzle_config.board_config();
+        let board = PlacedBoard::new(
+            board_config.layout().dim().into(),
+            PixelPosition::default(),
+            CellOffset(
+                MIN_CELLS_TO_THE_SIDES_OF_BOARD,
+                MIN_CELLS_TO_THE_TOP_OF_BOARD,
+            ),
+        );
+        obj.imp().board.replace(board);
+
+        let start_positions = initial::calculate_tile_start_positions(
+            puzzle_config.tiles(),
+            puzzle_config,
+            CellOffset(
+                MIN_CELLS_TO_THE_SIDES_OF_BOARD,
+                MIN_CELLS_TO_THE_TOP_OF_BOARD,
+            ),
+        );
+        let tiles: Vec<PlacedTile> = start_positions
+            .iter()
+            .enumerate()
+            .map(move |(i, pos)| {
+                let config = &puzzle_model.config().tiles()[i];
+                let shape = config.base().clone();
+                let cell_size = shape.dim().into();
+                PlacedTile::new(config.name().clone(), shape, cell_size, *pos)
+            })
+            .collect();
+        obj.imp().tiles.replace(tiles);
+
+        obj.update_pixel_size(PixelPosition(100.0, 100.0), 10);
         obj
     }
 
@@ -362,32 +366,6 @@ impl PlacementModel {
     fn emit_tile_moved(&self) {
         debug!("Emitting tile moved signal");
         self.emit_by_name::<()>(TILE_MOVED_SIGNAL_NAME, &[]);
-    }
-
-    /// Converts a PixelOffset to a CellOffset respecting the current grid layout.
-    ///
-    /// # Arguments
-    ///
-    /// * `position`: the position to convert
-    ///
-    /// returns: CellOffset
-    fn translate_pixels_to_cells(&self, position: PixelPosition) -> CoordBox {
-        // let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
-        // position.div_scalar(cell_size as f64).round().into()
-        todo!()
-    }
-
-    /// Converts a CellOffset to a PixelOffset respecting the current grid layout.
-    ///
-    /// # Arguments
-    ///
-    /// * `position`: the position to convert
-    ///
-    /// returns: PixelOffset
-    fn translate_cells_to_pixels(&self, position: CoordBox) -> PixelPosition {
-        // let cell_size = self.imp().grid_config.borrow().cell_size_pixel;
-        // position.mul_scalar(cell_size as f64).into()
-        todo!()
     }
 
     /// Finds the index of a tile that has the same base shape.
