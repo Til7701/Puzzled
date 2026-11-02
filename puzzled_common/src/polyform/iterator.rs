@@ -1,11 +1,12 @@
 use crate::polyform::Polyform;
 use crate::polyform::poly::Poly;
 use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square};
+use std::hash::Hash;
 use std::slice::IterMut;
 
 impl<T> Polyform<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     pub fn iter(&self) -> PolyformIter<'_, T> {
         PolyformIter {
@@ -35,7 +36,7 @@ where
 
 pub struct PolyformIter<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     index: usize,
     polyform: &'a Polyform<T>,
@@ -43,7 +44,7 @@ where
 
 impl<'a, T> Iterator for PolyformIter<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     type Item = PrototileRef<'a, T>;
 
@@ -59,7 +60,7 @@ where
 
 pub enum PolyformIterMut<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     Squares(IterMut<'a, Square<T>>),
     Hexagons(IterMut<'a, Hexagon<T>>),
@@ -67,7 +68,7 @@ where
 
 impl<'a, T> Iterator for PolyformIterMut<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     type Item = PrototileMutRef<'a, T>;
 
@@ -81,7 +82,7 @@ where
 
 pub struct PolyformRotationFlipsIter<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     index: usize,
     polyform: Polyform<T>,
@@ -89,7 +90,7 @@ where
 
 impl<T> Iterator for PolyformRotationFlipsIter<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     type Item = Polyform<T>;
 

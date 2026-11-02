@@ -1,11 +1,12 @@
 use crate::polyform::coord::Coord;
 use crate::polyform::coord::coord_box::CoordBox;
 use crate::polyform::prototile::{MutPrototile, Prototile};
+use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Square<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     coord: CoordBox,
     orientation: SquareOrientation,
@@ -14,7 +15,7 @@ where
 
 impl<T> Square<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     pub fn new(coord: CoordBox, orientation: SquareOrientation, data: T) -> Self {
         Square {
@@ -27,7 +28,7 @@ where
 
 impl<T> Prototile<T, CoordBox, SquareOrientation> for Square<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn coord(&self) -> &CoordBox {
         &self.coord
@@ -44,7 +45,7 @@ where
 
 impl<T> MutPrototile<T, CoordBox, SquareOrientation> for Square<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn set_coord(&mut self, coord: CoordBox) {
         self.coord = coord;

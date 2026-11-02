@@ -1,17 +1,18 @@
 use crate::polyform::coord::coord_box::CoordBox;
 use crate::polyform::prototile::{Hexagon, MutPrototile, Orientation, Prototile, Square};
+use std::hash::Hash;
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum PrototileMutRef<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     Square(&'a mut Square<T>),
     Hexagon(&'a mut Hexagon<T>),
 }
 impl<'a, T> Prototile<T, CoordBox, Orientation> for PrototileMutRef<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn coord(&self) -> &CoordBox {
         match self {
@@ -36,7 +37,7 @@ where
 }
 impl<'a, T> MutPrototile<T, CoordBox, Orientation> for PrototileMutRef<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn set_coord(&mut self, coord: CoordBox) {
         todo!()
@@ -64,7 +65,7 @@ where
 
 impl<'a, T> From<&'a mut Square<T>> for PrototileMutRef<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn from(value: &'a mut Square<T>) -> Self {
         PrototileMutRef::Square(value)
@@ -73,7 +74,7 @@ where
 
 impl<'a, T> From<&'a mut Hexagon<T>> for PrototileMutRef<'a, T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn from(value: &'a mut Hexagon<T>) -> Self {
         PrototileMutRef::Hexagon(value)

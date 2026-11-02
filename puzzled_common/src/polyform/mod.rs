@@ -3,6 +3,7 @@ use crate::polyform::poly::hexomino::Hexomino;
 use crate::polyform::poly::polyomino::Polyomino;
 use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 use crate::polyform::prototile::{Prototile, PrototileMutRef, PrototileRef};
+use std::hash::Hash;
 
 pub mod coord;
 pub mod iterator;
@@ -12,7 +13,7 @@ pub mod prototile;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Polyform<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     Polyomino(Polyomino<T>),
     Hexomino(Hexomino<T>),
@@ -20,7 +21,7 @@ where
 
 impl<T> Poly<T, CoordBox> for Polyform<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn get(&self, coord: &CoordBox) -> Option<PrototileRef<'_, T>> {
         self.iter().find(|p| p.coord() == coord)
@@ -81,7 +82,7 @@ where
 
     fn mapped<R>(&self, mapper: fn(&T) -> R) -> Polyform<R>
     where
-        R: Clone,
+        R: Clone + Hash,
     {
         match self {
             Polyform::Polyomino(p) => Polyform::Polyomino(p.mapped(mapper)),
@@ -91,7 +92,7 @@ where
 
     fn mapped_indexed<R>(&self, mapper: &dyn Fn(&T, &CoordBox) -> R) -> Polyform<R>
     where
-        R: Clone,
+        R: Clone + Hash,
     {
         match self {
             Polyform::Polyomino(p) => Polyform::Polyomino(
@@ -105,7 +106,7 @@ where
 
     fn filter_mapped<R>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Polyform<R>
     where
-        R: Clone,
+        R: Clone + Hash,
     {
         match self {
             Polyform::Polyomino(p) => Polyform::Polyomino(p.filter_mapped(mapper)),
@@ -190,20 +191,20 @@ impl UnitPoly for Polyform<()> {
 
 impl<T> Default for Polyform<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn default() -> Self {
         Polyform::Polyomino(Polyomino::default())
     }
 }
 
-impl<T: Clone> From<Polyomino<T>> for Polyform<T> {
+impl<T: Clone + Hash> From<Polyomino<T>> for Polyform<T> {
     fn from(value: Polyomino<T>) -> Self {
         Polyform::Polyomino(value)
     }
 }
 
-impl<T: Clone> From<Hexomino<T>> for Polyform<T> {
+impl<T: Clone + Hash> From<Hexomino<T>> for Polyform<T> {
     fn from(value: Hexomino<T>) -> Self {
         Polyform::Hexomino(value)
     }

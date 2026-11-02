@@ -1,4 +1,5 @@
 use crate::polyform::coord::Coord;
+use std::hash::Hash;
 
 mod hexagon;
 mod mut_reference;
@@ -14,7 +15,7 @@ pub use reference::PrototileRef;
 pub use square::Square;
 pub use square::SquareOrientation;
 
-pub trait Prototile<T, C, O>
+pub trait Prototile<T, C, O>: Hash
 where
     T: Clone,
     C: Coord,

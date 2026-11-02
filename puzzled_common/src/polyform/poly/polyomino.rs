@@ -5,11 +5,12 @@ use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 use crate::polyform::prototile::{
     MutPrototile, Prototile, PrototileMutRef, PrototileRef, Square, SquareOrientation,
 };
+use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Polyomino<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     dim: RegularCoord,
     cells: Vec<Square<T>>,
@@ -17,7 +18,7 @@ where
 
 impl<T> Polyomino<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     pub fn sized(size: RegularCoord, value: T) -> Self {
         let mut squares = Vec::with_capacity((size.x() * size.y()) as usize);
@@ -69,7 +70,7 @@ where
 
 impl<T> Poly<T, RegularCoord> for Polyomino<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn get(&self, coord: &RegularCoord) -> Option<PrototileRef<'_, T>> {
         self.cells
@@ -126,7 +127,7 @@ where
     }
 
     #[allow(refining_impl_trait)]
-    fn mapped<R: Clone>(&self, mapper: fn(&T) -> R) -> Polyomino<R> {
+    fn mapped<R: Clone + Hash>(&self, mapper: fn(&T) -> R) -> Polyomino<R> {
         let squares = self
             .cells
             .iter()
@@ -143,7 +144,10 @@ where
     }
 
     #[allow(refining_impl_trait)]
-    fn mapped_indexed<R: Clone>(&self, mapper: &dyn Fn(&T, &RegularCoord) -> R) -> Polyomino<R> {
+    fn mapped_indexed<R: Clone + Hash>(
+        &self,
+        mapper: &dyn Fn(&T, &RegularCoord) -> R,
+    ) -> Polyomino<R> {
         let squares = self
             .cells
             .iter()
@@ -164,7 +168,7 @@ where
     }
 
     #[allow(refining_impl_trait)]
-    fn filter_mapped<R: Clone>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Polyomino<R> {
+    fn filter_mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Polyomino<R> {
         let squares = self
             .cells
             .iter()
@@ -300,7 +304,7 @@ impl UnitPoly for Polyomino<()> {
 
 impl<T> Default for Polyomino<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn default() -> Self {
         Polyomino {

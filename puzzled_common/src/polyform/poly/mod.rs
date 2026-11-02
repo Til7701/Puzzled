@@ -1,12 +1,13 @@
 use crate::polyform::coord::Coord;
 use crate::polyform::prototile::{PrototileMutRef, PrototileRef};
+use std::hash::Hash;
 
 pub mod hexomino;
 pub mod polyomino;
 
 pub trait Poly<T, C: Coord>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn get(&self, coord: &C) -> Option<PrototileRef<'_, T>>;
 
@@ -26,11 +27,11 @@ where
 
     fn transpose(&mut self);
 
-    fn mapped<R: Clone>(&self, mapper: fn(&T) -> R) -> impl Poly<R, C>;
+    fn mapped<R: Clone + Hash>(&self, mapper: fn(&T) -> R) -> impl Poly<R, C>;
 
-    fn mapped_indexed<R: Clone>(&self, mapper: &dyn Fn(&T, &C) -> R) -> impl Poly<R, C>;
+    fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, &C) -> R) -> impl Poly<R, C>;
 
-    fn filter_mapped<R: Clone>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> impl Poly<R, C>;
+    fn filter_mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> impl Poly<R, C>;
 
     fn extend_adjacent(&mut self, value: T);
 

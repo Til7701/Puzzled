@@ -1,11 +1,12 @@
 use crate::polyform::coord::hex::HexCoord;
 use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef};
+use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Hexomino<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     dim: HexCoord,
     cells: Vec<Hexagon<T>>,
@@ -13,7 +14,7 @@ where
 
 impl<T> Hexomino<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     pub fn sized(size: HexCoord, value: T) -> Self {
         todo!()
@@ -34,7 +35,7 @@ where
 
 impl<T> Poly<T, HexCoord> for Hexomino<T>
 where
-    T: Clone,
+    T: Clone + Hash,
 {
     fn get(&self, coord: &HexCoord) -> Option<PrototileRef<'_, T>> {
         todo!()
@@ -72,15 +73,15 @@ where
         todo!()
     }
 
-    fn mapped<R: Clone>(&self, mapper: fn(&T) -> R) -> Hexomino<R> {
+    fn mapped<R: Clone + Hash>(&self, mapper: fn(&T) -> R) -> Hexomino<R> {
         todo!()
     }
 
-    fn mapped_indexed<R: Clone>(&self, mapper: &dyn Fn(&T, &HexCoord) -> R) -> Hexomino<R> {
+    fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, &HexCoord) -> R) -> Hexomino<R> {
         todo!()
     }
 
-    fn filter_mapped<R: Clone>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Hexomino<R> {
+    fn filter_mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Hexomino<R> {
         todo!()
     }
 
