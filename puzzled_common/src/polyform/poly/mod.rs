@@ -43,7 +43,7 @@ pub trait UnitPoly: Sized {
 
     fn remove_parent(&mut self, parent: &Self);
 
-    fn invert(&mut self);
+    fn inverted(&self) -> Self;
 
     fn as_2d_slice(&self) -> String;
 

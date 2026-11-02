@@ -111,7 +111,7 @@ impl UnitPoly for Hexomino<()> {
         todo!()
     }
 
-    fn invert(&mut self) {
+    fn inverted(&self) -> Self {
         todo!()
     }
 

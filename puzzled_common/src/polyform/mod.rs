@@ -170,10 +170,10 @@ impl UnitPoly for Polyform<()> {
         }
     }
 
-    fn invert(&mut self) {
+    fn inverted(&self) -> Self {
         match self {
-            Polyform::Polyomino(p) => p.invert(),
-            Polyform::Hexomino(h) => h.invert(),
+            Polyform::Polyomino(p) => p.inverted().into(),
+            Polyform::Hexomino(h) => h.inverted().into(),
         }
     }
 

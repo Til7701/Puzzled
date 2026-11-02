@@ -253,8 +253,7 @@ mod tests {
                 let board_config = &puzzle.board_config();
                 match board_config {
                     BoardConfig::Simple { layout } => {
-                        let mut board_polyform = layout.clone();
-                        board_polyform.invert();
+                        let board_polyform = layout.inverted();
                         let board = Board::new(board_polyform);
                         let tiles: Vec<Tile> = puzzle
                             .tiles()

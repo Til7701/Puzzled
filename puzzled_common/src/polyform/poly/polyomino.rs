@@ -324,12 +324,49 @@ impl UnitPoly for Polyomino<()> {
         self.cells.retain(|c| !parent.cells.contains(c));
     }
 
-    fn invert(&mut self) {
-        todo!()
+    fn inverted(&self) -> Self {
+        let mut result = Self {
+            dim: self.dim.clone(),
+            cells: Vec::with_capacity((self.dim.x() * self.dim.y()) as usize - self.cells.len()),
+        };
+
+        for i in 0..self.dim.x() {
+            for j in 0..self.dim.y() {
+                let coord = CoordBox::Regular(RegularCoord::new(i, j));
+                if self.cells.iter().any(|c| c.coord() == &coord) {
+                    result
+                        .cells
+                        .push(Square::new(coord, SquareOrientation::OnSide, ()));
+                }
+            }
+        }
+
+        result
     }
 
     fn as_2d_slice(&self) -> String {
-        todo!()
+        let mut result = String::new();
+        result.push_str("[");
+        for i in 0..self.dim.x() {
+            result.push_str("[");
+            for j in 0..self.dim.y() {
+                let cell = self.get(&RegularCoord::new(i, j));
+                if cell.is_some() {
+                    result.push_str("1");
+                } else {
+                    result.push_str("0");
+                }
+                if j < self.dim.y() - 1 {
+                    result.push_str(",");
+                }
+            }
+            result.push_str("]");
+            if i < self.dim.x() - 1 {
+                result.push_str(",");
+            }
+        }
+        result.push_str("]");
+        result
     }
 
     fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
