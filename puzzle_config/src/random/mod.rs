@@ -5,6 +5,7 @@ use crate::{
 use puzzled_common::polyform::Polyform;
 use rand::rngs::Xoshiro256PlusPlus;
 use rand::{Rng, RngExt, SeedableRng};
+use std::hash::Hash;
 
 mod growing;
 
@@ -65,7 +66,7 @@ pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection 
 
 fn random_orientation<T>(rng: &mut dyn Rng, polyform: Polyform<T>) -> Polyform<T>
 where
-    T: Default + Clone,
+    T: Default + Clone + Hash,
 {
     polyform
         .rotations_flips_iter()

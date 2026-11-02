@@ -7,7 +7,7 @@ use std::cell::Ref;
 use std::collections::HashSet;
 
 /// Represents data associated with a cell in the puzzle grid.
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Hash)]
 pub struct CellData {
     /// Indicates whether the cell is part of the playable board area.
     pub is_on_board: bool,
@@ -19,7 +19,7 @@ pub struct CellData {
 ///
 /// The tile_id is used to identify which tile is present, and the cell_position indicates
 /// the position of the cell of the tile inside the tile.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct TileCellPlacement {
     pub tile_id: usize,
     /// The position of the cell of the tile inside the tile.
@@ -33,7 +33,7 @@ pub struct TileCellPlacement {
 /// A cell is not always a part of the playable board area.
 /// It may be part of the border area used to indicate out-of-bounds or the board design blocks
 /// placing a tile there.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub enum Cell {
     Empty(CellData),
     One(CellData, TileCellPlacement),
