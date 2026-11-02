@@ -92,6 +92,16 @@ where
     fn trim(&mut self) -> TrimSides<HexCoord> {
         todo!()
     }
+}
+
+impl UnitPoly for Hexomino<()> {
+    fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
+        todo!()
+    }
+
+    fn remove_parent(&mut self, parent: &Self) {
+        todo!()
+    }
 
     fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
         todo!()
@@ -101,21 +111,11 @@ where
         todo!()
     }
 
-    fn invert_to_empty(&mut self) {
+    fn invert(&mut self) {
         todo!()
     }
 
     fn as_2d_slice(&self) -> String {
-        todo!()
-    }
-}
-
-impl UnitPoly for Hexomino<()> {
-    fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
-        todo!()
-    }
-
-    fn remove_parent(&mut self, parent: &Self) {
         todo!()
     }
 

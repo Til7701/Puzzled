@@ -139,6 +139,16 @@ where
             }
         }
     }
+}
+
+impl UnitPoly for Polyform<()> {
+    fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
+        todo!()
+    }
+
+    fn remove_parent(&mut self, parent: &Self) {
+        todo!()
+    }
 
     fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
         match self {
@@ -160,10 +170,10 @@ where
         }
     }
 
-    fn invert_to_empty(&mut self) {
+    fn invert(&mut self) {
         match self {
-            Polyform::Polyomino(p) => p.invert_to_empty(),
-            Polyform::Hexomino(h) => h.invert_to_empty(),
+            Polyform::Polyomino(p) => p.invert(),
+            Polyform::Hexomino(h) => h.invert(),
         }
     }
 
@@ -172,16 +182,6 @@ where
             Polyform::Polyomino(p) => p.as_2d_slice(),
             Polyform::Hexomino(h) => h.as_2d_slice(),
         }
-    }
-}
-
-impl UnitPoly for Polyform<()> {
-    fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
-        todo!()
-    }
-
-    fn remove_parent(&mut self, parent: &Self) {
-        todo!()
     }
 
     fn from_bool_slice<const N: usize>(_: &[[bool; N]]) -> Self {

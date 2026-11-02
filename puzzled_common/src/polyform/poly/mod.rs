@@ -36,20 +36,20 @@ where
     fn extend_adjacent(&mut self, value: T);
 
     fn trim(&mut self) -> TrimSides<C>;
-
-    fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize;
-
-    fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize;
-
-    fn invert_to_empty(&mut self);
-
-    fn as_2d_slice(&self) -> String;
 }
 
 pub trait UnitPoly: Sized {
     fn place_on_all_positions(&self, child: &Self) -> Vec<Self>;
 
     fn remove_parent(&mut self, parent: &Self);
+
+    fn invert(&mut self);
+
+    fn as_2d_slice(&self) -> String;
+
+    fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize;
+
+    fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize;
 
     fn from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self;
 }

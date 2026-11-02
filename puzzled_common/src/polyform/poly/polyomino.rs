@@ -269,30 +269,74 @@ where
             upper: upper.into(),
         }
     }
+}
 
-    fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
-        todo!()
+impl UnitPoly for Polyomino<()> {
+    fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
+        let mut placements = Vec::new();
+        let parent_rows = self.dim.x();
+        let parent_cols = self.dim.y();
+        let child_rows = child.dim.x();
+        let child_cols = child.dim.y();
+
+        if child_rows > parent_rows || child_cols > parent_cols {
+            return placements;
+        }
+
+        for row_offset in 0..=(parent_rows - child_rows) {
+            for col_offset in 0..=(parent_cols - child_cols) {
+                let mut new_array = self.clone();
+                let mut valid = true;
+                for r in 0..child_rows {
+                    for c in 0..child_cols {
+                        let child_cell = child.get(&RegularCoord::new(r, c));
+                        let parent_cell =
+                            self.get(&RegularCoord::new(row_offset + r, col_offset + c));
+                        match (parent_cell, child_cell) {
+                            (Some(_), Some(_)) => {
+                                valid = false;
+                                break;
+                            }
+                            (Some(PrototileRef::Square(parent_c)), None) => {
+                                new_array.cells.push(parent_c.clone())
+                            }
+                            (None, Some(PrototileRef::Square(child_c))) => {
+                                new_array.cells.push(child_c.clone())
+                            }
+                            (None, None) => {}
+                            (_, _) => unreachable!(),
+                        }
+                    }
+                    if !valid {
+                        break;
+                    }
+                }
+                if valid {
+                    placements.push(new_array);
+                }
+            }
+        }
+
+        placements
     }
 
-    fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
-        todo!()
+    fn remove_parent(&mut self, parent: &Self) {
+        self.cells.retain(|c| !parent.cells.contains(c));
     }
 
-    fn invert_to_empty(&mut self) {
+    fn invert(&mut self) {
         todo!()
     }
 
     fn as_2d_slice(&self) -> String {
         todo!()
     }
-}
 
-impl UnitPoly for Polyomino<()> {
-    fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
+    fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
         todo!()
     }
 
-    fn remove_parent(&mut self, parent: &Self) {
+    fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
         todo!()
     }
 
