@@ -1,3 +1,5 @@
+pub mod polyomino;
+
 use crate::model::placement::PixelPosition;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 

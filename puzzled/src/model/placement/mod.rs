@@ -3,7 +3,9 @@ use crate::app::puzzle::puzzle_area::puzzle_state::{
 };
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::placement::board::PlacedBoard;
+use crate::model::placement::model::PlacementModel;
 use crate::model::placement::tile::PlacedTile;
+use crate::model::placement::translation::polyomino::PolyominoPlacementModel;
 use crate::model::puzzle::PuzzleModel;
 use adw::glib;
 use adw::prelude::ObjectExt;
@@ -26,30 +28,23 @@ const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 
 mod imp {
     use super::*;
-    use crate::model::placement::board::PlacedBoard;
-    use crate::model::placement::grid::GridConfig;
-    use crate::model::placement::tile::PlacedTile;
+    use crate::model::placement::model::PlacementModel;
     use adw::glib::Properties;
     use adw::glib::subclass::Signal;
-    use std::cell::{Cell, RefCell};
+    use std::cell::RefCell;
     use std::sync::OnceLock;
 
     #[derive(Debug, Default, Properties)]
-    #[properties(wrapper_type = super::PlacementModel)]
+    #[properties(wrapper_type = super::PlacementModelWrapper)]
     pub struct PuzzledPlacementModel {
         pub(super) puzzle: RefCell<Option<PuzzleModel>>,
-        pub(super) area_pixel_size: Cell<PixelPosition>,
-        pub(super) min_area_pixel_size: Cell<PixelPosition>,
-        pub(super) grid_config: RefCell<GridConfig>,
-        pub(super) board: RefCell<PlacedBoard<CoordBox>>,
-        pub(super) tiles: RefCell<Vec<PlacedTile<Polyform<()>, CoordBox>>>,
-        pub(super) hint_tile: RefCell<Option<PlacedTile<Polyform<()>, CoordBox>>>,
+        pub(super) placement_model: RefCell<PlacementModel>,
     }
 
     #[glib::object_subclass]
     impl ObjectSubclass for PuzzledPlacementModel {
         const NAME: &'static str = "PuzzledPlacementModel";
-        type Type = PlacementModel;
+        type Type = PlacementModelWrapper;
         type ParentType = glib::Object;
     }
 
@@ -63,10 +58,10 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct PlacementModel(ObjectSubclass<imp::PuzzledPlacementModel>);
+    pub struct PlacementModelWrapper(ObjectSubclass<imp::PuzzledPlacementModel>);
 }
 
-impl PlacementModel {
+impl PlacementModelWrapper {
     /// Creates a new PlacementModel.
     ///
     /// This calculates initial placements of tiles and the board.
@@ -85,46 +80,17 @@ impl PlacementModel {
     ///
     /// returns: PlacementModel
     pub fn new(puzzle_model: &PuzzleModel) -> Self {
-        let obj: PlacementModel = glib::Object::builder().build();
+        let obj: PlacementModelWrapper = glib::Object::builder().build();
         obj.imp().puzzle.replace(Some(puzzle_model.clone()));
         let puzzle_config = puzzle_model.config();
 
-        obj.imp()
-            .grid_config
-            .replace(Self::initial_grid_config(puzzle_config));
+        match puzzle_config.board_config().layout() {
+            Polyform::Polyomino(p) => obj.imp().placement_model.replace(PlacementModel::Polyomino(
+                PolyominoPlacementModel::new(puzzle_model),
+            )),
+            Polyform::Hexomino(_) => todo!(),
+        }
 
-        let board_config = puzzle_config.board_config();
-        let board = PlacedBoard::new(
-            board_config.layout().dim().into(),
-            PixelPosition::default(),
-            CellOffset(
-                MIN_CELLS_TO_THE_SIDES_OF_BOARD,
-                MIN_CELLS_TO_THE_TOP_OF_BOARD,
-            ),
-        );
-        obj.imp().board.replace(board);
-
-        let start_positions = initial::calculate_tile_start_positions(
-            puzzle_config.tiles(),
-            puzzle_config,
-            CellOffset(
-                MIN_CELLS_TO_THE_SIDES_OF_BOARD,
-                MIN_CELLS_TO_THE_TOP_OF_BOARD,
-            ),
-        );
-        let tiles: Vec<PlacedTile> = start_positions
-            .iter()
-            .enumerate()
-            .map(move |(i, pos)| {
-                let config = &puzzle_model.config().tiles()[i];
-                let shape = config.base().clone();
-                let cell_size = shape.dim().into();
-                PlacedTile::new(config.name().clone(), shape, cell_size, *pos)
-            })
-            .collect();
-        obj.imp().tiles.replace(tiles);
-
-        obj.update_pixel_size(PixelPosition(100.0, 100.0), 10);
         obj
     }
 
@@ -189,7 +155,7 @@ impl PlacementModel {
     /// Returns the minimum size the view needs to place all tiles and board while respecting
     /// the minimum cell size.
     pub fn min_area_size(&self) -> PixelPosition {
-        self.imp().min_area_pixel_size.get()
+        self.imp().placement_model.borrow().min_area_size()
     }
 
     /// The board position in pixels.
@@ -285,7 +251,7 @@ impl PlacementModel {
     ///
     /// returns: ()
     pub fn update_tile_dragged(&self, idx: usize, dragged: bool) {
-        let mut list = self.imp().tiles.borrow_mut();
+        let mut list = self.imp().placement_model.borrow_mut().tiles_mut();
         let tile = list.get_mut(idx).unwrap();
         tile.set_dragged(dragged);
     }
@@ -351,7 +317,7 @@ impl PlacementModel {
     /// Removes the hint tile from the placement model.
     /// Positions will no longer be calculated for the old hint tile.
     pub fn remove_hint_tile(&self) {
-        self.imp().hint_tile.replace(None);
+        self.imp().placement_model.borrow().remove_hint_tile();
     }
 
     /// Connects to the `tile_moved` signal which is emitted when a tile changes positon
@@ -378,7 +344,7 @@ impl PlacementModel {
     ///
     /// returns: Option<usize>
     pub fn find_tile_matching_base(&self, base: &Polyform<()>) -> Option<usize> {
-        let tiles = self.imp().tiles.borrow();
+        let tiles = self.imp().placement_model.borrow().tiles();
         tiles
             .iter()
             .enumerate()
@@ -399,7 +365,7 @@ impl PlacementModel {
 
         let mut state = PuzzleState::new(puzzle_config, puzzle_type_extension);
 
-        let tiles = self.imp().tiles.borrow();
+        let tiles = self.imp().placement_model.borrow().tiles();
         let board_position = self.board_cell_position();
         let board_size = puzzle_config.board_config().layout().dim();
 

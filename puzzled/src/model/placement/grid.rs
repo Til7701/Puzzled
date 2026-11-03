@@ -1,5 +1,6 @@
-use crate::model::placement::PlacementModel;
+use crate::model::placement::PlacementModelWrapper;
 use puzzle_config::PuzzleConfig;
+use puzzled_common::polyform::coord::Coord;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::coord::regular::RegularCoord;
 
@@ -9,13 +10,13 @@ pub(super) const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 6;
 
 /// Configuration for the puzzle grid layout.
 #[derive(Debug, Eq, PartialEq)]
-pub struct GridConfig {
-    pub grid_cells: CoordBox,
-    pub min_grid_cells: CoordBox,
+pub struct GridConfig<C: Coord> {
+    pub grid_cells: C,
+    pub min_grid_cells: C,
     pub cell_size_pixel: u32,
 }
 
-impl Default for GridConfig {
+impl Default for GridConfig<CoordBox> {
     fn default() -> Self {
         GridConfig {
             grid_cells: CoordBox::Regular(RegularCoord::new(1, 1)),
@@ -25,7 +26,7 @@ impl Default for GridConfig {
     }
 }
 
-impl PlacementModel {
+impl PlacementModelWrapper {
     pub fn initial_grid_config(puzzle_config: &PuzzleConfig) -> GridConfig {
         // let board_cell_width = puzzle_config.board_config().layout().dim().0 as i32;
         // let board_cell_height = puzzle_config.board_config().layout().dim().1 as i32;

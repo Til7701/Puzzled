@@ -1,11 +1,21 @@
-use crate::app::puzzle::puzzle_area::puzzle_state::PuzzleState;
-use crate::model::extension::PuzzleTypeExtension;
 use crate::model::placement::PixelPosition;
-use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
-use std::cell::Ref;
+use crate::model::placement::grid::GridConfig;
+use crate::model::placement::tile::PlacedTile;
+use crate::model::placement::translation::polyomino::PolyominoPlacementModel;
+use puzzle_config::PuzzleConfig;
+use puzzled_common::polyform::coord::Coord;
+use puzzled_common::polyform::poly::UnitPoly;
 
-pub trait PlacementModel {
+#[derive(Debug, Default)]
+pub enum PlacementModel {
+    #[default]
+    Polyomino(PolyominoPlacementModel),
+}
+
+impl PlacementModel {
+    fn tiles<'a>(&self) -> &'a [impl UnitPoly];
+    fn tiles_mut<'a>(&mut self) -> &'a mut [PlacedTile<impl UnitPoly, impl Coord>];
+
     /// Recalculates tile and board positions for the new area size.
     ///
     /// The given `total_view_size_pixel` must be the actual size of the view the tiles
@@ -30,7 +40,7 @@ pub trait PlacementModel {
     fn board_pixel_position(&self) -> PixelPosition;
 
     /// The board position in cells.
-    fn board_cell_position(&self) -> &CoordBox;
+    fn board_cell_position(&self) -> &C;
 
     /// The board size in pixels.
     fn board_size(&self) -> PixelPosition;
@@ -47,7 +57,7 @@ pub trait PlacementModel {
     /// None, if the tile is being dragged.
     ///
     /// The index is the same as the index of the tile in the [PuzzleModel].
-    fn tile_cell_position(&self, idx: usize) -> Option<CoordBox>;
+    fn tile_cell_position(&self, idx: usize) -> Option<C>;
 
     /// The size of the tile in pixels.
     fn tile_size(&self, idx: usize) -> PixelPosition;
@@ -64,18 +74,6 @@ pub trait PlacementModel {
     /// returns: ()
     fn update_tile_pixel_position(&self, idx: usize, position: PixelPosition);
 
-    /// Marks the tile as being dragged or not.
-    ///
-    /// If a tile is marked as dragged, its position is not valid and should not be recalculated.
-    ///
-    /// # Arguments
-    ///
-    /// * `idx`: the index of the tile
-    /// * `dragged`: true, if the tile is being dragged, otherwise false
-    ///
-    /// returns: ()
-    fn update_tile_dragged(&self, idx: usize, dragged: bool);
-
     /// Updates the shape for the given tile. This must be called, if the tile rotated
     /// or flipped. The given shape must be a valid result of flipping or rotating the base
     /// shape.
@@ -86,7 +84,7 @@ pub trait PlacementModel {
     /// * `shape`: the new rotation
     ///
     /// returns: ()
-    fn update_tile_shape(&self, idx: usize, shape: Polyform<()>);
+    fn update_tile_shape(&self, idx: usize, shape: P);
 
     /// Initializes a new hint tile at the given position on the board and with the
     /// given shape.
@@ -100,7 +98,7 @@ pub trait PlacementModel {
     /// * `shape`: the shape of the hint tile
     ///
     /// returns: ()
-    fn init_hint_tile(&self, position_on_board: &CoordBox, shape: Polyform<()>);
+    fn init_hint_tile(&self, position_on_board: &C, shape: P);
 
     /// Returns the position of the hint tile in pixels.
     ///
@@ -122,19 +120,25 @@ pub trait PlacementModel {
 
     fn emit_tile_moved(&self);
 
-    /// Finds the index of a tile that has the same base shape.
-    ///
-    /// None, if no tile was found.
-    ///
-    /// # Arguments
-    ///
-    /// * `base`: the base shape to search for
-    ///
-    /// returns: Option<usize>
-    fn find_tile_matching_base(&self, base: &Polyform<()>) -> Option<usize>;
+    fn initial_grid_config(puzzle_config: &PuzzleConfig) -> GridConfig<C>;
 
-    fn extract_puzzle_state(
-        &self,
-        puzzle_type_extension: Ref<Option<PuzzleTypeExtension>>,
-    ) -> Result<PuzzleState, String>;
+    /// Calculates how the grid should be laid out based on the current positions of the tiles
+    /// and the size of the board.
+    ///
+    /// This function should ensure, that all tiles are visible and the board is centered.
+    /// [Self::update_grid_config()] is called if the grid layout needs to be updated based on the
+    /// new calculations.
+    fn update_grid_layout(&self);
+
+    /// Calculates the dimensions required to fit all tiles in their current positions.
+    fn tiles_required_cells(&self) -> C;
+
+    /// Update the grid configuration and move all elements in case the board offset has changed.
+    fn update_grid_config(&self, grid_config: GridConfig<C>, board_position_cells: C);
+
+    /// Moves all elements by the given offset in cells.
+    ///
+    /// If the new position of an element would be negative, it is set to 0 to ensure that all
+    /// elements remain visible.
+    fn move_all_elements_by(&self, offset_cells: C);
 }
