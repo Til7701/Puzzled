@@ -29,7 +29,7 @@ impl PuzzleArea {
                     && let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id)
                 {
                     tile_view.set_drawing_mode_at(
-                        &tile_cell_placement.cell_position,
+                        tile_cell_placement.cell_position,
                         PrototileDrawingMode::OutOfBounds,
                     );
                 }
@@ -38,7 +38,7 @@ impl PuzzleArea {
                 for tile_cell_placement in tile_cell_placements {
                     if let Some(tile_view) = tile_views.get(tile_cell_placement.tile_id) {
                         tile_view.set_drawing_mode_at(
-                            &tile_cell_placement.cell_position,
+                            tile_cell_placement.cell_position,
                             PrototileDrawingMode::Overlapping,
                         );
                     }

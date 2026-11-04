@@ -23,11 +23,11 @@ impl<T> Poly<T, CoordBox> for Polyform<T>
 where
     T: Clone + Hash,
 {
-    fn get(&self, coord: &CoordBox) -> Option<PrototileRef<'_, T>> {
+    fn get(&self, coord: CoordBox) -> Option<PrototileRef<'_, T>> {
         self.iter().find(|p| p.coord() == coord)
     }
 
-    fn get_mut(&mut self, coord: &CoordBox) -> Option<PrototileMutRef<'_, T>> {
+    fn get_mut(&mut self, coord: CoordBox) -> Option<PrototileMutRef<'_, T>> {
         self.iter_mut().find(|p| p.coord() == coord)
     }
 
@@ -90,16 +90,16 @@ where
         }
     }
 
-    fn mapped_indexed<R>(&self, mapper: &dyn Fn(&T, &CoordBox) -> R) -> Polyform<R>
+    fn mapped_indexed<R>(&self, mapper: &dyn Fn(&T, CoordBox) -> R) -> Polyform<R>
     where
         R: Clone + Hash,
     {
         match self {
             Polyform::Polyomino(p) => Polyform::Polyomino(
-                p.mapped_indexed(&|data, coord| mapper(data, &CoordBox::Regular(coord.clone()))),
+                p.mapped_indexed(&|data, coord| mapper(data, CoordBox::Regular(coord.clone()))),
             ),
             Polyform::Hexomino(h) => Polyform::Hexomino(
-                h.mapped_indexed(&|data, coord| mapper(data, &CoordBox::Hex(coord.clone()))),
+                h.mapped_indexed(&|data, coord| mapper(data, CoordBox::Hex(coord.clone()))),
             ),
         }
     }

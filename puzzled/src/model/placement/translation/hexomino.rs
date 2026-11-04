@@ -66,11 +66,19 @@ impl SimplePlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
         todo!()
     }
 
-    fn init_hint_tile(&mut self, position_on_board: &HexCoord, shape: Hexomino<()>) {
+    fn init_hint_tile(&mut self, position_on_board: HexCoord, shape: Hexomino<()>) {
         todo!()
     }
 
     fn remove_hint_tile(&mut self) {
+        todo!()
+    }
+
+    fn translate_pixels_to_cells(&self, position: PixelPosition) -> HexCoord {
+        todo!()
+    }
+
+    fn translate_cells_to_pixels(&self, position: HexCoord) -> PixelPosition {
         todo!()
     }
 }

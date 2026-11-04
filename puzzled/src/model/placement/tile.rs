@@ -40,16 +40,16 @@ impl<P: UnitPoly, C: Coord> PlacedTile<P, C> {
         &self.current_rotation
     }
 
-    pub fn cell_size(&self) -> &C {
-        &self.cell_size
+    pub fn cell_size(&self) -> C {
+        self.cell_size
     }
 
     pub fn pixel_size(&self) -> PixelPosition {
         self.pixel_size
     }
 
-    pub fn position_cells(&self) -> &C {
-        &self.position_cells
+    pub fn position_cells(&self) -> C {
+        self.position_cells
     }
 
     pub fn position_pixels(&self) -> PixelPosition {

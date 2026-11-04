@@ -15,7 +15,7 @@ impl<'a, T> Prototile<T, CoordBox, Orientation> for PrototileRef<'a, T>
 where
     T: Clone + Hash,
 {
-    fn coord(&self) -> &CoordBox {
+    fn coord(&self) -> CoordBox {
         match self {
             PrototileRef::Square(square) => square.coord(),
             PrototileRef::Hexagon(hexagon) => hexagon.coord(),

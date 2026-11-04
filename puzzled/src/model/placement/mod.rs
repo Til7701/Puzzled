@@ -4,9 +4,10 @@ use crate::app::puzzle::puzzle_area::puzzle_state::{
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::model::PlacementModel;
-use crate::model::placement::pixel::PixelPosition;
+pub(crate) use crate::model::placement::pixel::PixelPosition;
 use crate::model::placement::t::{FullPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
+use crate::model::placement::translation::hexomino::HexominoPlacementModel;
 use crate::model::placement::translation::polyomino::PolyominoPlacementModel;
 use crate::model::puzzle::PuzzleModel;
 use adw::glib;
@@ -92,7 +93,9 @@ impl PlacementModelWrapper {
             Polyform::Polyomino(_) => obj.imp().placement_model.replace(PlacementModel::Polyomino(
                 PolyominoPlacementModel::new(puzzle_model),
             )),
-            Polyform::Hexomino(_) => todo!(),
+            Polyform::Hexomino(_) => obj.imp().placement_model.replace(PlacementModel::Hexomino(
+                HexominoPlacementModel::new(puzzle_model),
+            )),
         };
 
         obj
@@ -135,8 +138,12 @@ impl PlacementModelWrapper {
     }
 
     /// The board position in cells.
-    fn board_cell_position(&self) -> &CoordBox {
-        self.imp().placement_model.borrow().board_cell_position()
+    fn board_cell_position(&self) -> CoordBox {
+        self.imp()
+            .placement_model
+            .borrow()
+            .board_cell_position()
+            .clone()
     }
 
     /// The board size in pixels.
@@ -232,7 +239,7 @@ impl PlacementModelWrapper {
     /// * `shape`: the shape of the hint tile
     ///
     /// returns: ()
-    pub fn init_hint_tile(&self, position_on_board: &CoordBox, shape: Polyform<()>) {
+    pub fn init_hint_tile(&self, position_on_board: CoordBox, shape: Polyform<()>) {
         self.imp()
             .placement_model
             .borrow_mut()

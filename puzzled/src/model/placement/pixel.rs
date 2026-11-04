@@ -10,6 +10,14 @@ impl PixelPosition {
     pub fn mul_scalar(&self, scalar: f64) -> PixelPosition {
         PixelPosition(self.0 * scalar, self.1 * scalar)
     }
+
+    pub fn div_scalar(&self, quotient: f64) -> PixelPosition {
+        PixelPosition(self.0 / quotient, self.1 / quotient)
+    }
+
+    pub fn round(&self) -> PixelPosition {
+        PixelPosition(self.0.round(), self.1.round())
+    }
 }
 
 impl From<(f64, f64)> for PixelPosition {

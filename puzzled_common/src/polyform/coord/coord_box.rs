@@ -5,7 +5,7 @@ use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CoordBox {
     Regular(RegularCoord),
     Hex(HexCoord),
@@ -20,7 +20,7 @@ impl Coord for CoordBox {
         panic!("Not allowed");
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: &Self) {
+    fn rotate_counterclockwise(&mut self, viewport: Self) {
         match (self, viewport) {
             (CoordBox::Regular(regular), CoordBox::Regular(v)) => {
                 regular.rotate_counterclockwise(v)
@@ -30,7 +30,7 @@ impl Coord for CoordBox {
         }
     }
 
-    fn flip_default(&mut self, viewport: &Self) {
+    fn flip_default(&mut self, viewport: Self) {
         match (self, viewport) {
             (CoordBox::Regular(regular), CoordBox::Regular(v)) => regular.flip_default(v),
             (CoordBox::Hex(hex), CoordBox::Hex(v)) => hex.flip_default(v),
@@ -53,13 +53,13 @@ impl Coord for CoordBox {
     }
 }
 
-impl<'a> From<RegularCoord> for CoordBox {
+impl From<RegularCoord> for CoordBox {
     fn from(value: RegularCoord) -> Self {
         CoordBox::Regular(value)
     }
 }
 
-impl<'a> From<HexCoord> for CoordBox {
+impl From<HexCoord> for CoordBox {
     fn from(value: HexCoord) -> Self {
         CoordBox::Hex(value)
     }
@@ -74,7 +74,7 @@ impl Display for CoordBox {
     }
 }
 
-impl Add for &CoordBox {
+impl Add for CoordBox {
     type Output = CoordBox;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -86,7 +86,7 @@ impl Add for &CoordBox {
     }
 }
 
-impl Sub for &CoordBox {
+impl Sub for CoordBox {
     type Output = CoordBox;
 
     fn sub(self, rhs: Self) -> Self::Output {

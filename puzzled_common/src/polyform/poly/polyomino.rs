@@ -72,17 +72,17 @@ impl<T> Poly<T, RegularCoord> for Polyomino<T>
 where
     T: Clone + Hash,
 {
-    fn get(&self, coord: &RegularCoord) -> Option<PrototileRef<'_, T>> {
+    fn get(&self, coord: RegularCoord) -> Option<PrototileRef<'_, T>> {
         self.cells
             .iter()
-            .find(|p| p.coord() == &CoordBox::Regular(coord.clone()))
+            .find(|p| p.coord() == CoordBox::Regular(coord.clone()))
             .map(|s| s.into())
     }
 
-    fn get_mut(&mut self, coord: &RegularCoord) -> Option<PrototileMutRef<'_, T>> {
+    fn get_mut(&mut self, coord: RegularCoord) -> Option<PrototileMutRef<'_, T>> {
         self.cells
             .iter_mut()
-            .find(|p| p.coord() == &CoordBox::Regular(coord.clone()))
+            .find(|p| p.coord() == CoordBox::Regular(coord.clone()))
             .map(|s| s.into())
     }
 
@@ -111,14 +111,12 @@ where
         let viewport = CoordBox::Regular(self.dim.clone());
         self.cells
             .iter_mut()
-            .for_each(|s| s.rotate_counterclockwise(&viewport))
+            .for_each(|s| s.rotate_counterclockwise(viewport))
     }
 
     fn flip(&mut self) {
         let viewport = CoordBox::Regular(self.dim.clone());
-        self.cells
-            .iter_mut()
-            .for_each(|s| s.flip_default(&viewport))
+        self.cells.iter_mut().for_each(|s| s.flip_default(viewport))
     }
 
     fn transpose(&mut self) {
@@ -146,7 +144,7 @@ where
     #[allow(refining_impl_trait)]
     fn mapped_indexed<R: Clone + Hash>(
         &self,
-        mapper: &dyn Fn(&T, &RegularCoord) -> R,
+        mapper: &dyn Fn(&T, RegularCoord) -> R,
     ) -> Polyomino<R> {
         let squares = self
             .cells
@@ -289,9 +287,9 @@ impl UnitPoly for Polyomino<()> {
                 let mut valid = true;
                 for r in 0..child_rows {
                     for c in 0..child_cols {
-                        let child_cell = child.get(&RegularCoord::new(r, c));
+                        let child_cell = child.get(RegularCoord::new(r, c));
                         let parent_cell =
-                            self.get(&RegularCoord::new(row_offset + r, col_offset + c));
+                            self.get(RegularCoord::new(row_offset + r, col_offset + c));
                         match (parent_cell, child_cell) {
                             (Some(_), Some(_)) => {
                                 valid = false;
@@ -333,7 +331,7 @@ impl UnitPoly for Polyomino<()> {
         for i in 0..self.dim.x() {
             for j in 0..self.dim.y() {
                 let coord = CoordBox::Regular(RegularCoord::new(i, j));
-                if self.cells.iter().any(|c| c.coord() == &coord) {
+                if self.cells.iter().any(|c| c.coord() == coord) {
                     result
                         .cells
                         .push(Square::new(coord, SquareOrientation::OnSide, ()));
@@ -350,7 +348,7 @@ impl UnitPoly for Polyomino<()> {
         for i in 0..self.dim.x() {
             result.push_str("[");
             for j in 0..self.dim.y() {
-                let cell = self.get(&RegularCoord::new(i, j));
+                let cell = self.get(RegularCoord::new(i, j));
                 if cell.is_some() {
                     result.push_str("1");
                 } else {

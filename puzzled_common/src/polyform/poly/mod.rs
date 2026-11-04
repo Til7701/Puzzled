@@ -9,9 +9,9 @@ pub trait Poly<T, C: Coord>: Clone
 where
     T: Clone + Hash,
 {
-    fn get(&self, coord: &C) -> Option<PrototileRef<'_, T>>;
+    fn get(&self, coord: C) -> Option<PrototileRef<'_, T>>;
 
-    fn get_mut(&mut self, coord: &C) -> Option<PrototileMutRef<'_, T>>;
+    fn get_mut(&mut self, coord: C) -> Option<PrototileMutRef<'_, T>>;
 
     fn dim(&self) -> C;
 
@@ -29,7 +29,7 @@ where
 
     fn mapped<R: Clone + Hash>(&self, mapper: fn(&T) -> R) -> impl Poly<R, C>;
 
-    fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, &C) -> R) -> impl Poly<R, C>;
+    fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, C) -> R) -> impl Poly<R, C>;
 
     fn filter_mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> impl Poly<R, C>;
 

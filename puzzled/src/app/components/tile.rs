@@ -72,7 +72,7 @@ mod imp {
                     let cell_y = (y / cell_height) as u32;
 
                     current_rotation
-                        .get(&CoordBox::Regular(RegularCoord::new(cell_x, cell_y)))
+                        .get(CoordBox::Regular(RegularCoord::new(cell_x, cell_y)))
                         .is_some()
                 }
                 Polyform::Hexomino { .. } => {
@@ -234,7 +234,7 @@ impl TileView {
     }
 
     /// Sets the drawing mode for the cell at the given coordinates.
-    pub fn set_drawing_mode_at(&self, coord: &CoordBox, drawing_mode: PrototileDrawingMode) {
+    pub fn set_drawing_mode_at(&self, coord: CoordBox, drawing_mode: PrototileDrawingMode) {
         if let Some(mut prototile) = self.imp().current_rotation.borrow_mut().get_mut(coord) {
             prototile.set_data(drawing_mode);
         }

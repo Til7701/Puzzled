@@ -64,8 +64,8 @@ impl TilePlacement {
     }
 
     /// Returns the (x, y) position of the tile.
-    pub fn position(&self) -> &CoordBox {
-        &self.position
+    pub fn position(&self) -> CoordBox {
+        self.position
     }
 }
 

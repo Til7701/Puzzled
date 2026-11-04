@@ -32,8 +32,14 @@ impl PolyominoPlacementModel {
         let grid_config = Self::initial_grid_config(puzzle_config);
 
         let board_config = puzzle_config.board_config();
+        let board_dim = match board_config.layout().dim() {
+            CoordBox::Regular(r) => r,
+            CoordBox::Hex(_) => {
+                unreachable!()
+            }
+        };
         let board = PlacedBoard::new(
-            board_config.layout().dim().into(),
+            board_dim,
             PixelPosition::default(),
             RegularCoord::new(
                 MIN_CELLS_TO_THE_SIDES_OF_BOARD,
@@ -110,14 +116,14 @@ impl PolyominoPlacementModel {
         let tiles_required_cells = self.tiles_required_cells();
         let required_cells = board_size_cells_with_margin.max(tiles_required_cells);
 
-        let cell_width_pixel = (available_width_pixel / required_cells.0 as f64).floor() as u32;
-        let cell_height_pixel = (available_height_pixel / required_cells.1 as f64).floor() as u32;
+        let cell_width_pixel = (available_width_pixel / required_cells.x() as f64).floor() as u32;
+        let cell_height_pixel = (available_height_pixel / required_cells.y() as f64).floor() as u32;
         let cell_size_pixel = cell_width_pixel.min(cell_height_pixel);
 
-        let grid_h_cell_count = (available_width_pixel / cell_size_pixel as f64).floor() as i32;
-        let min_grid_h_cell_count = required_cells.0;
-        let grid_v_cell_count = (available_height_pixel / cell_size_pixel as f64).floor() as i32;
-        let min_grid_v_cell_count = required_cells.1;
+        let grid_h_cell_count = (available_width_pixel / cell_size_pixel as f64).floor() as u32;
+        let min_grid_h_cell_count = required_cells.x();
+        let grid_v_cell_count = (available_height_pixel / cell_size_pixel as f64).floor() as u32;
+        let min_grid_v_cell_count = required_cells.y();
 
         let board_offset_cells = RegularCoord::new(
             (grid_h_cell_count - board_size_cells.x()) / 2,
@@ -138,10 +144,9 @@ impl PolyominoPlacementModel {
 
     /// Calculates the dimensions required to fit all tiles in their current positions.
     fn tiles_required_cells(&self) -> RegularCoord {
-        let tiles = self.tiles;
         let mut required_cells = RegularCoord::new(0, 0);
         let mut lowest_position_cells = RegularCoord::new(0, 0);
-        for tile in tiles.iter() {
+        for tile in self.tiles.iter() {
             let tile_size = tile.cell_size();
             required_cells = required_cells.max(tile_size + tile.position_cells());
             lowest_position_cells = lowest_position_cells.min(tile.position_cells());
@@ -158,7 +163,7 @@ impl PolyominoPlacementModel {
         let old_board_position_cells = self.board.position_cells();
 
         if old_board_position_cells.x() != board_position_cells.x() {
-            self.move_all_elements_by(&RegularCoord::new(
+            self.move_all_elements_by(RegularCoord::new(
                 board_position_cells.x() - old_board_position_cells.x(),
                 0,
             ));
@@ -172,7 +177,7 @@ impl PolyominoPlacementModel {
     ///
     /// If the new position of an element would be negative, it is set to 0 to ensure that all
     /// elements remain visible.
-    fn move_all_elements_by(&mut self, offset_cells: &RegularCoord) {
+    fn move_all_elements_by(&mut self, offset_cells: RegularCoord) {
         for tile in self.tiles.iter_mut() {
             let position_cells = tile.position_cells();
             let mut new_position_cells = position_cells + offset_cells;
@@ -201,17 +206,29 @@ impl PolyominoPlacementModel {
         self.board
             .set_pixel_size(self.translate_cells_to_pixels(size_cells));
 
-        for tile in self.tiles.iter_mut() {
-            let position_cells = tile.position_cells();
-            tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
-            let cells_size = tile.cell_size();
-            tile.set_pixel_size(self.translate_cells_to_pixels(cells_size));
+        for i in 0..self.tiles.len() {
+            let (position_pixels, pixel_size) = {
+                let tile = &self.tiles[i];
+                (
+                    self.translate_cells_to_pixels(tile.position_cells()),
+                    self.translate_cells_to_pixels(tile.cell_size()),
+                )
+            };
+            let tile = &mut self.tiles[i];
+            tile.set_position_pixels(position_pixels);
+            tile.set_pixel_size(pixel_size);
         }
-        if let Some(mut hint_tile) = self.hint_tile {
-            let position_cells = hint_tile.position_cells();
-            hint_tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
-            let cells_size = hint_tile.cell_size();
-            hint_tile.set_pixel_size(self.translate_cells_to_pixels(cells_size));
+        if self.hint_tile.is_some() {
+            let (position_pixels, pixel_size) = {
+                let ht = &self.hint_tile.as_ref().unwrap();
+                (
+                    self.translate_cells_to_pixels(ht.position_cells()),
+                    self.translate_cells_to_pixels(ht.cell_size()),
+                )
+            };
+            let ht = &mut self.hint_tile.as_mut().unwrap();
+            ht.set_position_pixels(position_pixels);
+            ht.set_pixel_size(pixel_size);
         }
     }
 }
@@ -261,9 +278,10 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
     }
 
     fn update_tile_pixel_position(&mut self, idx: usize, position: PixelPosition) {
-        let tile = self.tiles.get_mut(idx).unwrap();
         let position_cells = self.translate_pixels_to_cells(position);
-        tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
+        let position_pixels = self.translate_cells_to_pixels(position_cells);
+        let tile = self.tiles.get_mut(idx).unwrap();
+        tile.set_position_pixels(position_pixels);
         tile.set_position_cells(position_cells);
     }
 
@@ -278,7 +296,7 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
         old.set_current_rotation(shape);
     }
 
-    fn init_hint_tile(&mut self, position_on_board: &RegularCoord, shape: Polyomino<()>) {
+    fn init_hint_tile(&mut self, position_on_board: RegularCoord, shape: Polyomino<()>) {
         let position = self.board.position_cells() + position_on_board;
         let size = shape.dim().into();
         self.hint_tile = Some(PlacedTile::new(None, shape, size, position));
@@ -286,5 +304,16 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
 
     fn remove_hint_tile(&mut self) {
         self.hint_tile = None;
+    }
+
+    fn translate_pixels_to_cells(&self, position: PixelPosition) -> RegularCoord {
+        let cell_size = self.grid_config.cell_size_pixel;
+        let pixel = position.div_scalar(cell_size as f64).round();
+        RegularCoord::new(pixel.0 as u32, pixel.1 as u32)
+    }
+
+    fn translate_cells_to_pixels(&self, position: RegularCoord) -> PixelPosition {
+        let cell_size = self.grid_config.cell_size_pixel;
+        PixelPosition(position.x() as f64, position.y() as f64).mul_scalar(cell_size as f64)
     }
 }

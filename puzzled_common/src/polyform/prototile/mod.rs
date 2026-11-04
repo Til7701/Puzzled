@@ -20,7 +20,7 @@ where
     T: Clone,
     C: Coord,
 {
-    fn coord(&self) -> &C;
+    fn coord(&self) -> C;
 
     fn orientation(&self) -> O;
 
@@ -36,9 +36,9 @@ where
 
     fn set_data(&mut self, data: T);
 
-    fn rotate_counterclockwise(&mut self, viewport: &C);
+    fn rotate_counterclockwise(&mut self, viewport: C);
 
-    fn flip_default(&mut self, viewport: &C);
+    fn flip_default(&mut self, viewport: C);
 
     fn transpose(&mut self);
 }

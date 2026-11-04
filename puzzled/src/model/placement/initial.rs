@@ -25,7 +25,7 @@ pub fn calculate_tile_start_positions(
 
     // Right
     place_in_column(
-        &(&board_offset_cells + &RegularCoord::new(board_dim.x() + 1, 0)),
+        &(board_offset_cells + RegularCoord::new(board_dim.x() + 1, 0)),
         board_dim.y(),
         tiles,
         &mut positions,

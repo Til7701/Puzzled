@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
 /// A regular grid with square elements.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct RegularCoord {
     x: u32,
     y: u32,
@@ -30,6 +30,18 @@ impl RegularCoord {
     pub fn set_y(&mut self, y: u32) {
         self.y = y;
     }
+
+    pub fn min(&self, other: Self) -> Self {
+        RegularCoord::new(self.x.min(other.x), self.y.min(other.y))
+    }
+
+    pub fn max(&self, other: Self) -> Self {
+        RegularCoord::new(self.x.max(other.x), self.y.max(other.y))
+    }
+
+    pub fn add_tuple(&self, tuple: (u32, u32)) -> RegularCoord {
+        RegularCoord::new(self.x + tuple.0, self.y + tuple.1)
+    }
 }
 
 impl Coord for RegularCoord {
@@ -41,14 +53,14 @@ impl Coord for RegularCoord {
         Self::new(1, 1)
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: &Self) {
+    fn rotate_counterclockwise(&mut self, viewport: Self) {
         let old_x = self.x;
         let old_y = self.y;
         self.x = old_y;
         self.y = viewport.y - old_x;
     }
 
-    fn flip_default(&mut self, viewport: &Self) {
+    fn flip_default(&mut self, viewport: Self) {
         let old_x = self.x;
         let old_y = self.y;
         self.x = viewport.x - old_x;
@@ -73,7 +85,7 @@ impl Display for RegularCoord {
     }
 }
 
-impl Add for &RegularCoord {
+impl Add for RegularCoord {
     type Output = RegularCoord;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -84,7 +96,7 @@ impl Add for &RegularCoord {
     }
 }
 
-impl Sub for &RegularCoord {
+impl Sub for RegularCoord {
     type Output = RegularCoord;
 
     fn sub(self, rhs: Self) -> Self::Output {

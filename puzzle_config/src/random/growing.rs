@@ -46,7 +46,7 @@ fn generate_base_board(
         loop {
             let x = rng.random_range(0..board_width);
             let y = rng.random_range(0..board_height);
-            if let Some(mut prototile) = base.get_mut(&RegularCoord::new(x as u32, y as u32).into())
+            if let Some(mut prototile) = base.get_mut(RegularCoord::new(x as u32, y as u32).into())
                 && prototile.data().is_none()
             {
                 prototile.set_data(Some(i as u32));
@@ -116,58 +116,58 @@ fn grow_tile_index(
         let x = rng.random_range(0..xs);
         let y = rng.random_range(0..ys);
 
-        if let Some(prototile) = base_board.get(&RegularCoord::new(x, y).into())
+        if let Some(prototile) = base_board.get(RegularCoord::new(x, y).into())
             && let Some(index) = prototile.data()
             && *index == tile_index
         {
             if x > 0
                 && base_board
-                    .get(&RegularCoord::new(x - 1, y).into())
+                    .get(RegularCoord::new(x - 1, y).into())
                     .unwrap()
                     .data()
                     .is_none()
             {
                 new_board
-                    .get_mut(&RegularCoord::new(x - 1, y).into())
+                    .get_mut(RegularCoord::new(x - 1, y).into())
                     .unwrap()
                     .set_data(new_cell_data.clone());
                 changed = true;
                 break;
             } else if x + 1 < xs
                 && base_board
-                    .get(&RegularCoord::new(x + 1, y).into())
+                    .get(RegularCoord::new(x + 1, y).into())
                     .unwrap()
                     .data()
                     .is_none()
             {
                 new_board
-                    .get_mut(&RegularCoord::new(x + 1, y).into())
+                    .get_mut(RegularCoord::new(x + 1, y).into())
                     .unwrap()
                     .set_data(new_cell_data.clone());
                 changed = true;
                 break;
             } else if y > 0
                 && base_board
-                    .get(&RegularCoord::new(x, y - 1).into())
+                    .get(RegularCoord::new(x, y - 1).into())
                     .unwrap()
                     .data()
                     .is_none()
             {
                 new_board
-                    .get_mut(&RegularCoord::new(x, y - 1).into())
+                    .get_mut(RegularCoord::new(x, y - 1).into())
                     .unwrap()
                     .set_data(new_cell_data.clone());
                 changed = true;
                 break;
             } else if y + 1 < ys
                 && base_board
-                    .get(&RegularCoord::new(x, y + 1).into())
+                    .get(RegularCoord::new(x, y + 1).into())
                     .unwrap()
                     .data()
                     .is_none()
             {
                 new_board
-                    .get_mut(&RegularCoord::new(x, y + 1).into())
+                    .get_mut(RegularCoord::new(x, y + 1).into())
                     .unwrap()
                     .set_data(new_cell_data.clone());
                 changed = true;

@@ -30,8 +30,8 @@ impl<T> Prototile<T, CoordBox, SquareOrientation> for Square<T>
 where
     T: Clone + Hash,
 {
-    fn coord(&self) -> &CoordBox {
-        &self.coord
+    fn coord(&self) -> CoordBox {
+        self.coord
     }
 
     fn orientation(&self) -> SquareOrientation {
@@ -55,11 +55,11 @@ where
         self.data = data;
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: &CoordBox) {
+    fn rotate_counterclockwise(&mut self, viewport: CoordBox) {
         self.coord.rotate_counterclockwise(viewport);
     }
 
-    fn flip_default(&mut self, viewport: &CoordBox) {
+    fn flip_default(&mut self, viewport: CoordBox) {
         self.coord.flip_default(viewport);
     }
 

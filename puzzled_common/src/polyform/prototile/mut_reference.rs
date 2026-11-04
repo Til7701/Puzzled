@@ -14,7 +14,7 @@ impl<'a, T> Prototile<T, CoordBox, Orientation> for PrototileMutRef<'a, T>
 where
     T: Clone + Hash,
 {
-    fn coord(&self) -> &CoordBox {
+    fn coord(&self) -> CoordBox {
         match self {
             PrototileMutRef::Square(square) => square.coord(),
             PrototileMutRef::Hexagon(hexagon) => hexagon.coord(),
@@ -50,11 +50,11 @@ where
         }
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: &CoordBox) {
+    fn rotate_counterclockwise(&mut self, viewport: CoordBox) {
         todo!()
     }
 
-    fn flip_default(&mut self, viewport: &CoordBox) {
+    fn flip_default(&mut self, viewport: CoordBox) {
         todo!()
     }
 

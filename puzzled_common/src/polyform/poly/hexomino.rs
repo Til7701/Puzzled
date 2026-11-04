@@ -37,11 +37,11 @@ impl<T> Poly<T, HexCoord> for Hexomino<T>
 where
     T: Clone + Hash,
 {
-    fn get(&self, coord: &HexCoord) -> Option<PrototileRef<'_, T>> {
+    fn get(&self, coord: HexCoord) -> Option<PrototileRef<'_, T>> {
         todo!()
     }
 
-    fn get_mut(&mut self, coord: &HexCoord) -> Option<PrototileMutRef<'_, T>> {
+    fn get_mut(&mut self, coord: HexCoord) -> Option<PrototileMutRef<'_, T>> {
         todo!()
     }
 
@@ -77,7 +77,7 @@ where
         todo!()
     }
 
-    fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, &HexCoord) -> R) -> Hexomino<R> {
+    fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, HexCoord) -> R) -> Hexomino<R> {
         todo!()
     }
 

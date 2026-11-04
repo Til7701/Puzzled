@@ -251,7 +251,7 @@ impl PuzzledApplication {
             ColorConfig::default_with_index(0),
         );
         left_tile.set_drawing_mode_at(
-            &CoordBox::Regular(RegularCoord::new(1, 1)),
+            CoordBox::Regular(RegularCoord::new(1, 1)),
             PrototileDrawingMode::Overlapping,
         );
         left_tile.set_width_request(CELL_SIZE * 2);
@@ -265,7 +265,7 @@ impl PuzzledApplication {
         right_tile.set_width_request(CELL_SIZE * 2);
         right_tile.set_height_request(CELL_SIZE * 2);
         right_tile.set_drawing_mode_at(
-            &CoordBox::Regular(RegularCoord::new(0, 0)),
+            CoordBox::Regular(RegularCoord::new(0, 0)),
             PrototileDrawingMode::Overlapping,
         );
 
@@ -281,7 +281,7 @@ impl PuzzledApplication {
             ColorConfig::default_with_index(0),
         );
         tile.set_drawing_mode_at(
-            &CoordBox::Regular(RegularCoord::new(1, 1)),
+            CoordBox::Regular(RegularCoord::new(1, 1)),
             PrototileDrawingMode::OutOfBounds,
         );
         tile.set_width_request(CELL_SIZE * 2);

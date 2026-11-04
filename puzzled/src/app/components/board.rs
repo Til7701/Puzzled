@@ -179,7 +179,7 @@ impl BoardView {
         }
     }
 
-    pub fn highlight(&self, coord: &CoordBox) {
+    pub fn highlight(&self, coord: CoordBox) {
         let mut layout = self.imp().layout.borrow_mut();
         if let Some(l) = layout.as_mut() {
             let prototile = l.get_mut(coord);

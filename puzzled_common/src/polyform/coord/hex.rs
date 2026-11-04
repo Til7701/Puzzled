@@ -5,7 +5,7 @@ use std::ops::{Add, Sub};
 /// A grid for hexagons.
 ///
 /// Could maybe be used for triangles as well.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct HexCoord {
     x: u32,
     y: u32,
@@ -35,11 +35,11 @@ impl Coord for HexCoord {
         todo!()
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: &Self) {
+    fn rotate_counterclockwise(&mut self, viewport: Self) {
         todo!()
     }
 
-    fn flip_default(&mut self, viewport: &Self) {
+    fn flip_default(&mut self, viewport: Self) {
         todo!()
     }
 
@@ -58,7 +58,7 @@ impl Display for HexCoord {
     }
 }
 
-impl Add for &HexCoord {
+impl Add for HexCoord {
     type Output = HexCoord;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -70,7 +70,7 @@ impl Add for &HexCoord {
     }
 }
 
-impl Sub for &HexCoord {
+impl Sub for HexCoord {
     type Output = HexCoord;
 
     fn sub(self, rhs: Self) -> Self::Output {

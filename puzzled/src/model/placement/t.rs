@@ -87,11 +87,29 @@ pub trait SimplePlacementModel<P: UnitPoly, C: Coord> {
     /// * `shape`: the shape of the hint tile
     ///
     /// returns: ()
-    fn init_hint_tile(&mut self, position_on_board: &C, shape: P);
+    fn init_hint_tile(&mut self, position_on_board: C, shape: P);
 
     /// Removes the hint tile from the placement model.
     /// Positions will no longer be calculated for the old hint tile.
     fn remove_hint_tile(&mut self);
+
+    /// Converts a PixelOffset to a CellOffset respecting the current grid layout.
+    ///
+    /// # Arguments
+    ///
+    /// * `position`: the position to convert
+    ///
+    /// returns: CellOffset
+    fn translate_pixels_to_cells(&self, position: PixelPosition) -> C;
+
+    /// Converts a CellOffset to a PixelOffset respecting the current grid layout.
+    ///
+    /// # Arguments
+    ///
+    /// * `position`: the position to convert
+    ///
+    /// returns: PixelOffset
+    fn translate_cells_to_pixels(&self, position: C) -> PixelPosition;
 }
 
 pub trait FullPlacementModel<P: UnitPoly, C: Coord>: SimplePlacementModel<P, C> {
@@ -116,7 +134,7 @@ pub trait FullPlacementModel<P: UnitPoly, C: Coord>: SimplePlacementModel<P, C> 
     fn board_pixel_position(&self) -> PixelPosition;
 
     /// The board position in cells.
-    fn board_cell_position(&self) -> &C;
+    fn board_cell_position(&self) -> C;
 
     /// The board size in pixels.
     fn board_size(&self) -> PixelPosition;

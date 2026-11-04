@@ -40,7 +40,7 @@ impl TargetTemplate {
             .iter()
             .map(|TargetIndex(coord)| {
                 layout
-                    .get(coord)
+                    .get(*coord)
                     .map(|data| data.data().display_value.clone())
                     .unwrap_or_else(|| "???".to_string())
             })
@@ -108,8 +108,8 @@ impl TargetIndex {
         TargetIndex(coord)
     }
 
-    pub fn coord(&self) -> &CoordBox {
-        &self.0
+    pub fn coord(&self) -> CoordBox {
+        self.0
     }
 }
 
