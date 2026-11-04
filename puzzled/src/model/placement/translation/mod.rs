@@ -1,3 +1,4 @@
+pub mod hexomino;
 pub mod polyomino;
 
 use crate::model::placement::PixelPosition;

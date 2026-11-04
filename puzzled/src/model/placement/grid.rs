@@ -2,7 +2,6 @@ use crate::model::placement::PlacementModelWrapper;
 use puzzle_config::PuzzleConfig;
 use puzzled_common::polyform::coord::Coord;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::coord::regular::RegularCoord;
 
 pub(super) const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;
 pub(super) const MIN_CELLS_TO_THE_SIDES_OF_BOARD: i32 = 6;
@@ -16,11 +15,11 @@ pub struct GridConfig<C: Coord> {
     pub cell_size_pixel: u32,
 }
 
-impl Default for GridConfig<CoordBox> {
+impl<C: Coord + Default> Default for GridConfig<C> {
     fn default() -> Self {
         GridConfig {
-            grid_cells: CoordBox::Regular(RegularCoord::new(1, 1)),
-            min_grid_cells: CoordBox::Regular(RegularCoord::new(1, 1)),
+            grid_cells: C::default(),
+            min_grid_cells: C::default(),
             cell_size_pixel: 1,
         }
     }

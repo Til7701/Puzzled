@@ -1,144 +1,199 @@
-use crate::model::placement::PixelPosition;
-use crate::model::placement::grid::GridConfig;
+use crate::app::puzzle::puzzle_area::puzzle_state::{
+    Cell, PuzzleState, TileCellPlacement, UnusedTile,
+};
+use crate::model::extension::PuzzleTypeExtension;
+use crate::model::placement::pixel::PixelPosition;
+use crate::model::placement::t::{
+    FullPlacementModel, InternalPlacementModel, SimplePlacementModel,
+};
 use crate::model::placement::tile::PlacedTile;
+use crate::model::placement::translation::hexomino::HexominoPlacementModel;
 use crate::model::placement::translation::polyomino::PolyominoPlacementModel;
-use puzzle_config::PuzzleConfig;
+use crate::model::puzzle::PuzzleModel;
+use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::Coord;
-use puzzled_common::polyform::poly::UnitPoly;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::poly::{Poly, UnitPoly};
+use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
+use std::cell::Ref;
 
 #[derive(Debug, Default)]
 pub enum PlacementModel {
     #[default]
     Polyomino(PolyominoPlacementModel),
+    Hexomino(HexominoPlacementModel),
 }
 
-impl PlacementModel {
-    fn tiles<'a>(&self) -> &'a [impl UnitPoly];
-    fn tiles_mut<'a>(&mut self) -> &'a mut [PlacedTile<impl UnitPoly, impl Coord>];
+impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
+    fn find_tile_matching_base(&self, base: &Polyform<()>) -> Option<usize> {
+        let tiles: &[PlacedTile<impl UnitPoly, impl Coord>] = match self {
+            PlacementModel::Polyomino(p) => p.tiles(),
+            PlacementModel::Hexomino(h) => h.tiles(),
+        };
+        tiles
+            .iter()
+            .enumerate()
+            .find(|t| t.1.base() == base)
+            .map(|t| t.0)
+    }
 
-    /// Recalculates tile and board positions for the new area size.
-    ///
-    /// The given `total_view_size_pixel` must be the actual size of the view the tiles
-    /// and board are placed in or should be placed in.
-    ///
-    /// After this function completed, you can fetch the sizes and positions using the
-    /// corresponding getters.
-    ///
-    /// # Arguments
-    ///
-    /// * `total_view_size_pixel`: the size of the view in pixels
-    /// * `min_cell_size_pixel`: the min cell size for calculating the min area size
-    ///
-    /// returns: ()
-    fn update_pixel_size(&self, total_view_size_pixel: PixelPosition, min_cell_size_pixel: u32);
+    fn extract_puzzle_state(
+        &self,
+        puzzle: &PuzzleModel,
+        puzzle_type_extension: Ref<Option<PuzzleTypeExtension>>,
+    ) -> Result<PuzzleState, String> {
+        let puzzle_config = puzzle.config();
 
-    /// Returns the minimum size the view needs to place all tiles and board while respecting
-    /// the minimum cell size.
-    fn min_area_size(&self) -> PixelPosition;
+        let mut state = PuzzleState::new(puzzle_config, puzzle_type_extension);
 
-    /// The board position in pixels.
-    fn board_pixel_position(&self) -> PixelPosition;
+        let tiles = self.tiles();
+        let board_position = self.board_cell_position();
+        let board_size = puzzle_config.board_config().layout().dim();
 
-    /// The board position in cells.
-    fn board_cell_position(&self) -> &C;
+        for (i, tile) in tiles.iter().enumerate() {
+            let tile_position = self
+                .tile_cell_position(i)
+                .ok_or_else(|| "Tile position not set".to_string())?;
+            let mut any_cell_on_board = false;
+            for mut prototile in tile.current_rotation().iter() {
+                let cell_position = &tile_position + prototile.coord();
+                if &cell_position >= board_position && &cell_position < &board_size {
+                    match state.grid.get_mut(&cell_position) {
+                        None => return Err("Index out of bounds".to_string()),
+                        Some(mut cell_ref) => {
+                            let tile_cell_placement = TileCellPlacement {
+                                tile_id: i,
+                                cell_position: prototile.coord().clone(),
+                            };
+                            let new = match cell_ref.data().clone() {
+                                Cell::Empty(data) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    Cell::One(data, tile_cell_placement)
+                                }
+                                Cell::One(data, existing_widget) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    let widgets = vec![existing_widget, tile_cell_placement];
+                                    Cell::Many(data, widgets)
+                                }
+                                Cell::Many(data, mut widgets) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    widgets.push(tile_cell_placement);
+                                    Cell::Many(data, widgets)
+                                }
+                            };
+                            cell_ref.set_data(new);
+                        }
+                    };
+                }
+            }
+            if !any_cell_on_board {
+                let unused_tile = UnusedTile {
+                    id: i,
+                    base: tile.base().clone(),
+                    name: tile.name().clone(),
+                };
+                state.unused_tiles.insert(unused_tile);
+            }
+        }
+        Ok(state)
+    }
 
-    /// The board size in pixels.
-    fn board_size(&self) -> PixelPosition;
+    fn board_pixel_position(&self) -> PixelPosition {
+        todo!()
+    }
 
-    /// The position of the tile with the given index in pixels.
-    ///
-    /// None, if the tile is being dragged.
-    ///
-    /// The index is the same as the index of the tile in the [PuzzleModel].
-    fn tile_pixel_position(&self, idx: usize) -> Option<PixelPosition>;
+    fn board_cell_position(&self) -> &CoordBox {
+        todo!()
+    }
 
-    /// The position of the tile with the given index in cells.
-    ///
-    /// None, if the tile is being dragged.
-    ///
-    /// The index is the same as the index of the tile in the [PuzzleModel].
-    fn tile_cell_position(&self, idx: usize) -> Option<C>;
+    fn board_size(&self) -> PixelPosition {
+        todo!()
+    }
 
-    /// The size of the tile in pixels.
-    fn tile_size(&self, idx: usize) -> PixelPosition;
+    fn tile_pixel_position(&self, idx: usize) -> Option<PixelPosition> {
+        todo!()
+    }
 
-    /// Updates the tile position by calculating the new position in cells from the given
-    /// position in pixels. This calculation snaps the position to the nearest cell
-    /// position.
-    ///
-    /// # Arguments
-    ///
-    /// * `idx`: the index of the tile
-    /// * `position`: the new position in pixels
-    ///
-    /// returns: ()
-    fn update_tile_pixel_position(&self, idx: usize, position: PixelPosition);
+    fn tile_cell_position(&self, idx: usize) -> Option<CoordBox> {
+        todo!()
+    }
 
-    /// Updates the shape for the given tile. This must be called, if the tile rotated
-    /// or flipped. The given shape must be a valid result of flipping or rotating the base
-    /// shape.
-    ///
-    /// # Arguments
-    ///
-    /// * `idx`: the index of the tile to update
-    /// * `shape`: the new rotation
-    ///
-    /// returns: ()
-    fn update_tile_shape(&self, idx: usize, shape: P);
+    fn tile_size(&self, idx: usize) -> PixelPosition {
+        todo!()
+    }
 
-    /// Initializes a new hint tile at the given position on the board and with the
-    /// given shape.
-    /// This replaces the hint tile currently stored in the PlacementModel.
-    /// Make sure to call [Self::remove_hint_tile] before this call and remove the
-    /// old hint tile from the view.
-    ///
-    /// # Arguments
-    ///
-    /// * `position_on_board`: the position of the hint tile relative to the board
-    /// * `shape`: the shape of the hint tile
-    ///
-    /// returns: ()
-    fn init_hint_tile(&self, position_on_board: &C, shape: P);
+    fn hint_tile_position(&self) -> Option<PixelPosition> {
+        todo!()
+    }
 
-    /// Returns the position of the hint tile in pixels.
-    ///
-    /// None, if no hint tile is registered.
-    fn hint_tile_position(&self) -> Option<PixelPosition>;
+    fn hint_tile_size(&self) -> Option<PixelPosition> {
+        todo!()
+    }
+}
 
-    /// Returns the size of the hint tile in pixels.
-    ///
-    /// None, if no hint tile is registered.
-    fn hint_tile_size(&self) -> Option<PixelPosition>;
+impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
+    fn update_pixel_size(
+        &mut self,
+        total_view_size_pixel: PixelPosition,
+        min_cell_size_pixel: u32,
+    ) {
+        match self {
+            PlacementModel::Polyomino(p) => {
+                p.update_pixel_size(total_view_size_pixel, min_cell_size_pixel)
+            }
+            PlacementModel::Hexomino(h) => {
+                h.update_pixel_size(total_view_size_pixel, min_cell_size_pixel)
+            }
+        }
+    }
 
-    /// Removes the hint tile from the placement model.
-    /// Positions will no longer be calculated for the old hint tile.
-    fn remove_hint_tile(&self);
+    fn min_area_size(&self) -> PixelPosition {
+        match self {
+            PlacementModel::Polyomino(p) => p.min_area_size(),
+            PlacementModel::Hexomino(h) => h.min_area_size(),
+        }
+    }
 
-    /// Connects to the `tile_moved` signal which is emitted when a tile changes positon
-    /// or rotation.
-    fn connect_tile_moved<F: Fn() + 'static>(&self, callback: F);
+    fn update_tile_pixel_position(&mut self, idx: usize, position: PixelPosition) {
+        match self {
+            PlacementModel::Polyomino(p) => p.update_tile_pixel_position(idx, position),
+            PlacementModel::Hexomino(h) => h.update_tile_pixel_position(idx, position),
+        }
+    }
 
-    fn emit_tile_moved(&self);
+    fn update_tile_dragged(&mut self, idx: usize, dragged: bool) {
+        match self {
+            PlacementModel::Polyomino(p) => p.update_tile_dragged(idx, dragged),
+            PlacementModel::Hexomino(h) => h.update_tile_dragged(idx, dragged),
+        }
+    }
 
-    fn initial_grid_config(puzzle_config: &PuzzleConfig) -> GridConfig<C>;
+    fn update_tile_shape(&mut self, idx: usize, shape: Polyform<()>) {
+        match (self, shape) {
+            (PlacementModel::Polyomino(pm), Polyform::Polyomino(po)) => {
+                pm.update_tile_shape(idx, po)
+            }
+            (PlacementModel::Hexomino(pm), Polyform::Hexomino(po)) => pm.update_tile_shape(idx, po),
+            _ => unreachable!(),
+        }
+    }
 
-    /// Calculates how the grid should be laid out based on the current positions of the tiles
-    /// and the size of the board.
-    ///
-    /// This function should ensure, that all tiles are visible and the board is centered.
-    /// [Self::update_grid_config()] is called if the grid layout needs to be updated based on the
-    /// new calculations.
-    fn update_grid_layout(&self);
+    fn init_hint_tile(&mut self, position_on_board: &CoordBox, shape: Polyform<()>) {
+        match (self, position_on_board, shape) {
+            (PlacementModel::Polyomino(pm), CoordBox::Regular(r), Polyform::Polyomino(po)) => {
+                pm.init_hint_tile(r, po)
+            }
+            (PlacementModel::Hexomino(pm), CoordBox::Hex(r), Polyform::Hexomino(po)) => {
+                pm.init_hint_tile(r, po)
+            }
+            _ => unreachable!(),
+        }
+    }
 
-    /// Calculates the dimensions required to fit all tiles in their current positions.
-    fn tiles_required_cells(&self) -> C;
-
-    /// Update the grid configuration and move all elements in case the board offset has changed.
-    fn update_grid_config(&self, grid_config: GridConfig<C>, board_position_cells: C);
-
-    /// Moves all elements by the given offset in cells.
-    ///
-    /// If the new position of an element would be negative, it is set to 0 to ensure that all
-    /// elements remain visible.
-    fn move_all_elements_by(&self, offset_cells: C);
+    fn remove_hint_tile(&mut self) {
+        match self {
+            PlacementModel::Polyomino(p) => p.remove_hint_tile(),
+            PlacementModel::Hexomino(h) => h.remove_hint_tile(),
+        }
+    }
 }

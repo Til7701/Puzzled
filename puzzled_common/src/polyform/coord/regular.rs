@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
 /// A regular grid with square elements.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub struct RegularCoord {
     x: u32,
     y: u32,

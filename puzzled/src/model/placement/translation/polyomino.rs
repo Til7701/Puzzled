@@ -1,15 +1,15 @@
 use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::grid::GridConfig;
+use crate::model::placement::t::{InternalPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::placement::{PixelPosition, initial};
 use crate::model::puzzle::PuzzleModel;
 use puzzle_config::PuzzleConfig;
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::Coord;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::coord::regular::RegularCoord;
+use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::poly::polyomino::Polyomino;
-use puzzled_common::polyform::poly::{Poly, UnitPoly};
 
 pub(super) const MIN_CELLS_TO_THE_TOP_OF_BOARD: u32 = 1;
 pub(super) const MIN_CELLS_TO_THE_SIDES_OF_BOARD: u32 = 6;
@@ -73,99 +73,218 @@ impl PolyominoPlacementModel {
         }
     }
 
-    pub fn tiles<'a>(&self) -> &'a [impl UnitPoly] {
-        &self.tiles
-    }
-
-    pub fn tiles_mut<'a>(&mut self) -> &'a mut [PlacedTile<impl UnitPoly, impl Coord>] {
-        &mut self.tiles
-    }
-
-    fn update_pixel_size(&self, total_view_size_pixel: PixelPosition, min_cell_size_pixel: u32) {
-        todo!()
-    }
-
-    fn min_area_size(&self) -> PixelPosition {
-        todo!()
-    }
-
-    fn board_pixel_position(&self) -> PixelPosition {
-        todo!()
-    }
-
-    fn board_cell_position(&self) -> &RegularCoord {
-        todo!()
-    }
-
-    fn board_size(&self) -> PixelPosition {
-        todo!()
-    }
-
-    fn tile_pixel_position(&self, idx: usize) -> Option<PixelPosition> {
-        todo!()
-    }
-
-    fn tile_cell_position(&self, idx: usize) -> Option<RegularCoord> {
-        todo!()
-    }
-
-    fn tile_size(&self, idx: usize) -> PixelPosition {
-        todo!()
-    }
-
-    fn update_tile_pixel_position(&self, idx: usize, position: PixelPosition) {
-        todo!()
-    }
-
-    fn update_tile_shape(&self, idx: usize, shape: Polyomino<()>) {
-        todo!()
-    }
-
-    fn init_hint_tile(&self, position_on_board: &CoordBox, shape: Polyomino<()>) {
-        todo!()
-    }
-
-    fn hint_tile_position(&self) -> Option<PixelPosition> {
-        todo!()
-    }
-
-    fn hint_tile_size(&self) -> Option<PixelPosition> {
-        todo!()
-    }
-
-    fn remove_hint_tile(&self) {
-        todo!()
-    }
-
-    fn connect_tile_moved<F: Fn() + 'static>(&self, callback: F) {
-        todo!()
-    }
-
-    fn emit_tile_moved(&self) {
-        todo!()
-    }
-
     fn initial_grid_config(puzzle_config: &PuzzleConfig) -> GridConfig<RegularCoord> {
-        todo!()
+        let dim = match puzzle_config.board_config().layout().dim() {
+            CoordBox::Regular(r) => r,
+            CoordBox::Hex(_) => unreachable!(),
+        };
+        let board_cell_width = dim.x();
+        let board_cell_height = dim.y();
+
+        let required_h_cells = board_cell_width + MIN_CELLS_TO_THE_SIDES_OF_BOARD * 2;
+        let required_v_cells =
+            board_cell_height + MIN_CELLS_TO_THE_TOP_OF_BOARD + MIN_CELLS_TO_THE_BOTTOM_OF_BOARD;
+        GridConfig {
+            grid_cells: RegularCoord::new(required_h_cells, required_v_cells),
+            min_grid_cells: RegularCoord::new(required_h_cells, required_v_cells),
+            cell_size_pixel: 1,
+        }
     }
 
-    fn update_grid_layout(&self) {
-        todo!()
+    /// Calculates how the grid should be laid out based on the current positions of the tiles
+    /// and the size of the board.
+    ///
+    /// This function should ensure, that all tiles are visible and the board is centered.
+    /// [Self::update_grid_config()] is called if the grid layout needs to be updated based on the
+    /// new calculations.
+    pub fn update_grid_layout(&mut self) {
+        let area_pixel_size = self.area_pixel_size;
+        let available_width_pixel = area_pixel_size.0;
+        let available_height_pixel = area_pixel_size.1;
+
+        let board_size_cells = self.board.cell_size();
+        let board_size_cells_with_margin = board_size_cells.add_tuple((
+            MIN_CELLS_TO_THE_SIDES_OF_BOARD * 2,
+            MIN_CELLS_TO_THE_TOP_OF_BOARD + MIN_CELLS_TO_THE_BOTTOM_OF_BOARD,
+        ));
+        let tiles_required_cells = self.tiles_required_cells();
+        let required_cells = board_size_cells_with_margin.max(tiles_required_cells);
+
+        let cell_width_pixel = (available_width_pixel / required_cells.0 as f64).floor() as u32;
+        let cell_height_pixel = (available_height_pixel / required_cells.1 as f64).floor() as u32;
+        let cell_size_pixel = cell_width_pixel.min(cell_height_pixel);
+
+        let grid_h_cell_count = (available_width_pixel / cell_size_pixel as f64).floor() as i32;
+        let min_grid_h_cell_count = required_cells.0;
+        let grid_v_cell_count = (available_height_pixel / cell_size_pixel as f64).floor() as i32;
+        let min_grid_v_cell_count = required_cells.1;
+
+        let board_offset_cells = RegularCoord::new(
+            (grid_h_cell_count - board_size_cells.x()) / 2,
+            MIN_CELLS_TO_THE_TOP_OF_BOARD,
+        );
+
+        let grid_config = GridConfig {
+            grid_cells: RegularCoord::new(grid_h_cell_count, grid_v_cell_count),
+            min_grid_cells: RegularCoord::new(min_grid_h_cell_count, min_grid_v_cell_count),
+            cell_size_pixel,
+        };
+        let old_grid_config = &self.grid_config;
+        let old_board_position_cells = self.board.position_cells();
+        if *old_grid_config != grid_config || old_board_position_cells != board_offset_cells {
+            self.update_grid_config(grid_config, board_offset_cells);
+        }
     }
 
+    /// Calculates the dimensions required to fit all tiles in their current positions.
     fn tiles_required_cells(&self) -> RegularCoord {
-        todo!()
+        let tiles = self.tiles;
+        let mut required_cells = RegularCoord::new(0, 0);
+        let mut lowest_position_cells = RegularCoord::new(0, 0);
+        for tile in tiles.iter() {
+            let tile_size = tile.cell_size();
+            required_cells = required_cells.max(tile_size + tile.position_cells());
+            lowest_position_cells = lowest_position_cells.min(tile.position_cells());
+        }
+        required_cells - lowest_position_cells
     }
 
+    /// Update the grid configuration and move all elements in case the board offset has changed.
     fn update_grid_config(
-        &self,
+        &mut self,
         grid_config: GridConfig<RegularCoord>,
         board_position_cells: RegularCoord,
     ) {
-        todo!()
+        let old_board_position_cells = self.board.position_cells();
+
+        if old_board_position_cells.x() != board_position_cells.x() {
+            self.move_all_elements_by(&RegularCoord::new(
+                board_position_cells.x() - old_board_position_cells.x(),
+                0,
+            ));
+        }
+
+        self.grid_config = grid_config;
+        self.board.set_position_cells(board_position_cells);
     }
 
-    fn move_all_elements_by(&self, offset_cells: RegularCoord) {
-        todo!()
+    /// Moves all elements by the given offset in cells.
+    ///
+    /// If the new position of an element would be negative, it is set to 0 to ensure that all
+    /// elements remain visible.
+    fn move_all_elements_by(&mut self, offset_cells: &RegularCoord) {
+        for tile in self.tiles.iter_mut() {
+            let position_cells = tile.position_cells();
+            let mut new_position_cells = position_cells + offset_cells;
+            if new_position_cells.x() < 0 {
+                new_position_cells.set_x(0);
+            }
+            if new_position_cells.y() < 0 {
+                new_position_cells.set_y(0);
+            }
+            tile.set_position_cells(new_position_cells);
+        }
+        let mut opt_hint_tile = &mut self.hint_tile;
+        if let Some(hint_tile) = opt_hint_tile {
+            let new_position_cells = hint_tile.position_cells() + offset_cells;
+            hint_tile.set_position_cells(new_position_cells);
+        }
+    }
+
+    /// Takes all cell positions, calculates pixel positions for them and writes them
+    /// back to the tiles and board.
+    fn update_pixel_from_cell_data(&mut self) {
+        let position_cells = self.board.position_cells();
+        self.board
+            .set_position_pixel(self.translate_cells_to_pixels(position_cells));
+        let size_cells = self.board.cell_size();
+        self.board
+            .set_pixel_size(self.translate_cells_to_pixels(size_cells));
+
+        for tile in self.tiles.iter_mut() {
+            let position_cells = tile.position_cells();
+            tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
+            let cells_size = tile.cell_size();
+            tile.set_pixel_size(self.translate_cells_to_pixels(cells_size));
+        }
+        if let Some(mut hint_tile) = self.hint_tile {
+            let position_cells = hint_tile.position_cells();
+            hint_tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
+            let cells_size = hint_tile.cell_size();
+            hint_tile.set_pixel_size(self.translate_cells_to_pixels(cells_size));
+        }
+    }
+}
+
+impl InternalPlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementModel {
+    fn tiles(&self) -> &[PlacedTile<Polyomino<()>, RegularCoord>] {
+        &self.tiles
+    }
+
+    fn tiles_mut(&mut self) -> &mut [PlacedTile<Polyomino<()>, RegularCoord>] {
+        &mut self.tiles
+    }
+
+    fn board(&self) -> &PlacedBoard<RegularCoord> {
+        &self.board
+    }
+
+    fn board_mut(&mut self) -> &mut PlacedBoard<RegularCoord> {
+        &mut self.board
+    }
+
+    fn hint_tile(&self) -> &Option<PlacedTile<Polyomino<()>, RegularCoord>> {
+        &self.hint_tile
+    }
+}
+
+impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementModel {
+    fn update_pixel_size(
+        &mut self,
+        total_view_size_pixel: PixelPosition,
+        min_cell_size_pixel: u32,
+    ) {
+        if total_view_size_pixel.0 < 100.0 || total_view_size_pixel.1 < 100.0 {
+            return;
+        }
+        self.area_pixel_size = total_view_size_pixel;
+        self.update_grid_layout();
+        let min_grid_cells = &self.grid_config.min_grid_cells;
+        self.min_area_pixel_size =
+            PixelPosition(min_grid_cells.x() as f64, min_grid_cells.y() as f64)
+                .mul_scalar(min_cell_size_pixel as f64);
+        self.update_pixel_from_cell_data();
+    }
+
+    fn min_area_size(&self) -> PixelPosition {
+        self.min_area_pixel_size
+    }
+
+    fn update_tile_pixel_position(&mut self, idx: usize, position: PixelPosition) {
+        let tile = self.tiles.get_mut(idx).unwrap();
+        let position_cells = self.translate_pixels_to_cells(position);
+        tile.set_position_pixels(self.translate_cells_to_pixels(position_cells));
+        tile.set_position_cells(position_cells);
+    }
+
+    fn update_tile_dragged(&mut self, idx: usize, dragged: bool) {
+        let tile = self.tiles.get_mut(idx).unwrap();
+        tile.set_dragged(dragged);
+    }
+
+    fn update_tile_shape(&mut self, idx: usize, shape: Polyomino<()>) {
+        let old = self.tiles.get_mut(idx).unwrap();
+        old.set_cell_size(shape.dim().into());
+        old.set_current_rotation(shape);
+    }
+
+    fn init_hint_tile(&mut self, position_on_board: &RegularCoord, shape: Polyomino<()>) {
+        let position = self.board.position_cells() + position_on_board;
+        let size = shape.dim().into();
+        self.hint_tile = Some(PlacedTile::new(None, shape, size, position));
+    }
+
+    fn remove_hint_tile(&mut self) {
+        self.hint_tile = None;
     }
 }
