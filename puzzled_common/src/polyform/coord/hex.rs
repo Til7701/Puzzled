@@ -35,11 +35,11 @@ impl Coord for HexCoord {
         todo!()
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: Self) {
+    fn rotate_counterclockwise(&mut self, _viewport: Self) {
         todo!()
     }
 
-    fn flip_default(&mut self, viewport: Self) {
+    fn flip_default(&mut self, _viewport: Self) {
         todo!()
     }
 

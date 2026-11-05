@@ -143,11 +143,27 @@ where
 
 impl UnitPoly for Polyform<()> {
     fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
-        todo!()
+        match (self, child) {
+            (Polyform::Polyomino(p), Polyform::Polyomino(c)) => p
+                .place_on_all_positions(c)
+                .into_iter()
+                .map(|a| a.into())
+                .collect(),
+            (Polyform::Hexomino(h), Polyform::Hexomino(c)) => h
+                .place_on_all_positions(c)
+                .into_iter()
+                .map(|a| a.into())
+                .collect(),
+            _ => unreachable!(),
+        }
     }
 
     fn remove_parent(&mut self, parent: &Self) {
-        todo!()
+        match (self, parent) {
+            (Polyform::Polyomino(p), Polyform::Polyomino(par)) => p.remove_parent(par),
+            (Polyform::Hexomino(h), Polyform::Hexomino(par)) => h.remove_parent(par),
+            _ => unreachable!(),
+        }
     }
 
     fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {

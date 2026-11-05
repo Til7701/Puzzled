@@ -14,7 +14,7 @@ pub(super) const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: u32 = 6;
 pub struct HexominoPlacementModel {}
 
 impl HexominoPlacementModel {
-    pub fn new(puzzle_model: &PuzzleModel) -> Self {
+    pub fn new(_puzzle_model: &PuzzleModel) -> Self {
         todo!()
     }
 }
@@ -44,8 +44,8 @@ impl InternalPlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
 impl SimplePlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
     fn update_pixel_size(
         &mut self,
-        total_view_size_pixel: PixelPosition,
-        min_cell_size_pixel: u32,
+        _total_view_size_pixel: PixelPosition,
+        _min_cell_size_pixel: u32,
     ) {
         todo!()
     }
@@ -54,19 +54,19 @@ impl SimplePlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
         todo!()
     }
 
-    fn update_tile_pixel_position(&mut self, idx: usize, position: PixelPosition) {
+    fn update_tile_pixel_position(&mut self, _idx: usize, _position: PixelPosition) {
         todo!()
     }
 
-    fn update_tile_dragged(&mut self, idx: usize, dragged: bool) {
+    fn update_tile_dragged(&mut self, _idx: usize, _dragged: bool) {
         todo!()
     }
 
-    fn update_tile_shape(&mut self, idx: usize, shape: Hexomino<()>) {
+    fn update_tile_shape(&mut self, _idx: usize, _shape: Hexomino<()>) {
         todo!()
     }
 
-    fn init_hint_tile(&mut self, position_on_board: HexCoord, shape: Hexomino<()>) {
+    fn init_hint_tile(&mut self, _position_on_board: HexCoord, _shape: Hexomino<()>) {
         todo!()
     }
 
@@ -74,11 +74,11 @@ impl SimplePlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
         todo!()
     }
 
-    fn translate_pixels_to_cells(&self, position: PixelPosition) -> HexCoord {
+    fn translate_pixels_to_cells(&self, _position: PixelPosition) -> HexCoord {
         todo!()
     }
 
-    fn translate_cells_to_pixels(&self, position: HexCoord) -> PixelPosition {
+    fn translate_cells_to_pixels(&self, _position: HexCoord) -> PixelPosition {
         todo!()
     }
 }

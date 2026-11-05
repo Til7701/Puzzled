@@ -48,7 +48,7 @@ where
     T: Clone + Hash,
 {
     fn set_coord(&mut self, coord: CoordBox) {
-        todo!()
+        self.coord = coord;
     }
 
     fn set_data(&mut self, data: T) {

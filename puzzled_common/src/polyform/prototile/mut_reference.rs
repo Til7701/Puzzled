@@ -40,7 +40,10 @@ where
     T: Clone + Hash,
 {
     fn set_coord(&mut self, coord: CoordBox) {
-        todo!()
+        match self {
+            PrototileMutRef::Square(square) => square.set_coord(coord),
+            PrototileMutRef::Hexagon(hexagon) => hexagon.set_coord(coord),
+        }
     }
 
     fn set_data(&mut self, data: T) {
@@ -51,15 +54,24 @@ where
     }
 
     fn rotate_counterclockwise(&mut self, viewport: CoordBox) {
-        todo!()
+        match self {
+            PrototileMutRef::Square(square) => square.rotate_counterclockwise(viewport),
+            PrototileMutRef::Hexagon(hexagon) => hexagon.rotate_counterclockwise(viewport),
+        }
     }
 
     fn flip_default(&mut self, viewport: CoordBox) {
-        todo!()
+        match self {
+            PrototileMutRef::Square(square) => square.flip_default(viewport),
+            PrototileMutRef::Hexagon(hexagon) => hexagon.flip_default(viewport),
+        }
     }
 
     fn transpose(&mut self) {
-        todo!()
+        match self {
+            PrototileMutRef::Square(square) => square.transpose(),
+            PrototileMutRef::Hexagon(hexagon) => hexagon.transpose(),
+        }
     }
 }
 

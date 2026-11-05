@@ -16,11 +16,11 @@ impl<T> Hexomino<T>
 where
     T: Clone + Hash,
 {
-    pub fn sized(size: HexCoord, value: T) -> Self {
+    pub fn sized(_size: HexCoord, _value: T) -> Self {
         todo!()
     }
 
-    pub fn from_vec<X>(vec: &[Vec<X>], mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>) -> Self {
+    pub fn from_vec<X>(_vec: &[Vec<X>], _mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>) -> Self {
         todo!()
     }
 
@@ -37,11 +37,11 @@ impl<T> Poly<T, HexCoord> for Hexomino<T>
 where
     T: Clone + Hash,
 {
-    fn get(&self, coord: HexCoord) -> Option<PrototileRef<'_, T>> {
+    fn get(&self, _coord: HexCoord) -> Option<PrototileRef<'_, T>> {
         todo!()
     }
 
-    fn get_mut(&mut self, coord: HexCoord) -> Option<PrototileMutRef<'_, T>> {
+    fn get_mut(&mut self, _coord: HexCoord) -> Option<PrototileMutRef<'_, T>> {
         todo!()
     }
 
@@ -73,19 +73,19 @@ where
         todo!()
     }
 
-    fn mapped<R: Clone + Hash>(&self, mapper: fn(&T) -> R) -> Hexomino<R> {
+    fn mapped<R: Clone + Hash>(&self, _mapper: fn(&T) -> R) -> Hexomino<R> {
         todo!()
     }
 
-    fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, HexCoord) -> R) -> Hexomino<R> {
+    fn mapped_indexed<R: Clone + Hash>(&self, _mapper: &dyn Fn(&T, HexCoord) -> R) -> Hexomino<R> {
         todo!()
     }
 
-    fn filter_mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Hexomino<R> {
+    fn filter_mapped<R: Clone + Hash>(&self, _mapper: &dyn Fn(&T) -> Option<R>) -> Hexomino<R> {
         todo!()
     }
 
-    fn extend_adjacent(&mut self, value: T) {
+    fn extend_adjacent(&mut self, _value: T) {
         todo!()
     }
 
@@ -95,19 +95,19 @@ where
 }
 
 impl UnitPoly for Hexomino<()> {
-    fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
+    fn place_on_all_positions(&self, _child: &Self) -> Vec<Self> {
         todo!()
     }
 
-    fn remove_parent(&mut self, parent: &Self) {
+    fn remove_parent(&mut self, _parent: &Self) {
         todo!()
     }
 
-    fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+    fn count_biggest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
         todo!()
     }
 
-    fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+    fn count_smallest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
         todo!()
     }
 
@@ -119,7 +119,7 @@ impl UnitPoly for Hexomino<()> {
         todo!()
     }
 
-    fn from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self {
+    fn from_bool_slice<const N: usize>(_slice: &[[bool; N]]) -> Self {
         todo!()
     }
 }
