@@ -102,7 +102,7 @@ impl PartialOrd for &CoordBox {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match (self, other) {
             (CoordBox::Regular(s), CoordBox::Regular(r)) => s.partial_cmp(&r),
-            (CoordBox::Hex(s), CoordBox::Hex(r)) => todo!(),
+            (CoordBox::Hex(_s), CoordBox::Hex(_r)) => todo!(),
             _ => unreachable!(),
         }
     }

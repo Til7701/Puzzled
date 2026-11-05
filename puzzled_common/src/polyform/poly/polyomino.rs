@@ -70,7 +70,7 @@ where
     fn get_square(&self, coord: RegularCoord) -> Option<&Square<T>> {
         self.cells
             .iter()
-            .find(|p| p.coord() == CoordBox::Regular(coord.clone()))
+            .find(|p| p.coord() == CoordBox::Regular(coord))
             .map(|s| s)
     }
 }
@@ -82,14 +82,14 @@ where
     fn get(&self, coord: RegularCoord) -> Option<PrototileRef<'_, T>> {
         self.cells
             .iter()
-            .find(|p| p.coord() == CoordBox::Regular(coord.clone()))
+            .find(|p| p.coord() == CoordBox::Regular(coord))
             .map(|s| s.into())
     }
 
     fn get_mut(&mut self, coord: RegularCoord) -> Option<PrototileMutRef<'_, T>> {
         self.cells
             .iter_mut()
-            .find(|p| p.coord() == CoordBox::Regular(coord.clone()))
+            .find(|p| p.coord() == CoordBox::Regular(coord))
             .map(|s| s.into())
     }
 
@@ -122,7 +122,7 @@ where
     }
 
     fn flip(&mut self) {
-        let viewport = CoordBox::Regular(self.dim.clone());
+        let viewport = CoordBox::Regular(self.dim);
         self.cells.iter_mut().for_each(|s| s.flip_default(viewport))
     }
 
@@ -139,11 +139,11 @@ where
             .map(|s| {
                 let data = s.data();
                 let new_data = mapper(data);
-                Square::new(s.coord().clone(), s.orientation(), new_data)
+                Square::new(s.coord(), s.orientation(), new_data)
             })
             .collect();
         Polyomino {
-            dim: self.dim.clone(),
+            dim: self.dim,
             cells: squares,
         }
     }
@@ -163,11 +163,11 @@ where
                     _ => unreachable!(),
                 };
                 let new_data = mapper(data, coord);
-                Square::new(s.coord().clone(), s.orientation(), new_data)
+                Square::new(s.coord(), s.orientation(), new_data)
             })
             .collect();
         Polyomino {
-            dim: self.dim.clone(),
+            dim: self.dim,
             cells: squares,
         }
     }
@@ -180,11 +180,11 @@ where
             .filter_map(|s| {
                 let data = s.data();
                 let new_data = mapper(data);
-                new_data.map(|new_data| Square::new(s.coord().clone(), s.orientation(), new_data))
+                new_data.map(|new_data| Square::new(s.coord(), s.orientation(), new_data))
             })
             .collect();
         Polyomino {
-            dim: self.dim.clone(),
+            dim: self.dim,
             cells: squares,
         }
     }
@@ -241,10 +241,7 @@ where
         let mut lower = RegularCoord::new(0, 0);
         let mut upper = RegularCoord::new(0, 0);
         if self.dim.x() == 0 || self.dim.y() == 0 {
-            return TrimSides {
-                lower: lower.into(),
-                upper: upper.into(),
-            };
+            return TrimSides { lower, upper };
         }
 
         let min_y = self
@@ -258,7 +255,7 @@ where
             .unwrap();
         self.cells
             .iter_mut()
-            .for_each(|square| match square.coord().clone() {
+            .for_each(|square| match square.coord() {
                 CoordBox::Regular(mut coord) => {
                     coord.set_y(coord.y() - min_y);
                     square.set_coord(coord.into());
@@ -291,7 +288,7 @@ where
             .unwrap();
         self.cells
             .iter_mut()
-            .for_each(|square| match square.coord().clone() {
+            .for_each(|square| match square.coord() {
                 CoordBox::Regular(mut coord) => {
                     coord.set_x(coord.x() - min_x);
                     square.set_coord(coord.into());
@@ -313,10 +310,7 @@ where
         self.dim.set_x(max_x);
         upper.set_x(upper.x() + max_x);
 
-        TrimSides {
-            lower: lower.into(),
-            upper: upper.into(),
-        }
+        TrimSides { lower, upper }
     }
 }
 
@@ -375,7 +369,7 @@ impl UnitPoly for Polyomino<()> {
 
     fn inverted(&self) -> Self {
         let mut result = Self {
-            dim: self.dim.clone(),
+            dim: self.dim,
             cells: Vec::with_capacity((self.dim.x() * self.dim.y()) as usize - self.cells.len()),
         };
 
@@ -395,34 +389,34 @@ impl UnitPoly for Polyomino<()> {
 
     fn as_2d_slice(&self) -> String {
         let mut result = String::new();
-        result.push_str("[");
+        result.push('[');
         for i in 0..self.dim.x() {
-            result.push_str("[");
+            result.push('[');
             for j in 0..self.dim.y() {
                 let cell = self.get(RegularCoord::new(i, j));
                 if cell.is_some() {
-                    result.push_str("1");
+                    result.push('1');
                 } else {
-                    result.push_str("0");
+                    result.push('0');
                 }
                 if j < self.dim.y() - 1 {
-                    result.push_str(",");
+                    result.push(',');
                 }
             }
-            result.push_str("]");
+            result.push(']');
             if i < self.dim.x() - 1 {
-                result.push_str(",");
+                result.push(',');
             }
         }
-        result.push_str("]");
+        result.push(']');
         result
     }
 
-    fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+    fn count_biggest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
         todo!()
     }
 
-    fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+    fn count_smallest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
         todo!()
     }
 

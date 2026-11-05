@@ -96,10 +96,10 @@ where
     {
         match self {
             Polyform::Polyomino(p) => Polyform::Polyomino(
-                p.mapped_indexed(&|data, coord| mapper(data, CoordBox::Regular(coord.clone()))),
+                p.mapped_indexed(&|data, coord| mapper(data, CoordBox::Regular(coord))),
             ),
             Polyform::Hexomino(h) => Polyform::Hexomino(
-                h.mapped_indexed(&|data, coord| mapper(data, CoordBox::Hex(coord.clone()))),
+                h.mapped_indexed(&|data, coord| mapper(data, CoordBox::Hex(coord))),
             ),
         }
     }
