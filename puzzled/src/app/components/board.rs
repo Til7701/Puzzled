@@ -1,4 +1,6 @@
 use crate::adw_ext;
+use crate::app::components::polyform_drawing;
+use crate::app::components::polyform_drawing::PolyformDrawingData;
 use crate::app::components::polyform_drawing::mode::PrototileDrawingMode;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
 use adw::gdk::cairo::Context;
@@ -27,8 +29,7 @@ mod imp {
     pub struct PuzzledBoardView {
         #[property(name = "show-grid-lines", get, set)]
         pub show_grid_lines: RefCell<bool>,
-
-        pub layout: RefCell<Option<Polyform<(Option<String>, PrototileDrawingMode)>>>,
+        pub layout: RefCell<Option<Polyform<PolyformDrawingData>>>,
     }
 
     #[glib::object_subclass]
@@ -60,14 +61,11 @@ impl BoardView {
         let obj: BoardView = glib::Object::builder().build();
 
         let layout = match board_config {
-            BoardConfig::Simple { layout } => {
-                layout.mapped(|_| (None, PrototileDrawingMode::Normal))
-            }
+            BoardConfig::Simple { layout } => layout.mapped(|_| PolyformDrawingData::default()),
             BoardConfig::Area { layout, .. } => layout.mapped(|value| {
-                (
-                    Some(value.display_value.clone()),
-                    PrototileDrawingMode::Normal,
-                )
+                let mut data = PolyformDrawingData::default();
+                data.text = Some(value.display_value.clone());
+                data
             }),
         };
         obj.imp().layout.replace(Some(layout));
@@ -92,14 +90,7 @@ impl BoardView {
     fn draw(&self, cr: &Context, width: i32, height: i32) {
         let layout = self.imp().layout.borrow();
         if let Some(l) = layout.deref() {
-            match l {
-                Polyform::Polyomino(polyomino) => {
-                    self.draw_polyomino(cr, width, height, polyomino);
-                }
-                Polyform::Hexomino { .. } => {
-                    todo!()
-                }
-            };
+            polyform_drawing::draw(cr, width, height, l);
         }
     }
 
@@ -185,6 +176,7 @@ impl BoardView {
             let prototile = l.get_mut(coord);
             if let Some(mut p) = prototile {
                 let data = p.data();
+
                 p.set_data((data.0.clone(), PrototileDrawingMode::Highlighted));
             }
         }
