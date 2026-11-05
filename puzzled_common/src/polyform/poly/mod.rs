@@ -5,6 +5,9 @@ use std::hash::Hash;
 pub mod hexomino;
 pub mod polyomino;
 
+#[cfg(test)]
+mod polyomino_tests;
+
 pub trait Poly<T, C: Coord>: Clone
 where
     T: Clone + Hash,
