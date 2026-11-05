@@ -71,7 +71,6 @@ where
         self.cells
             .iter()
             .find(|p| p.coord() == CoordBox::Regular(coord))
-            .map(|s| s)
     }
 }
 

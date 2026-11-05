@@ -73,14 +73,17 @@ where
         todo!()
     }
 
+    #[allow(refining_impl_trait_reachable)]
     fn mapped<R: Clone + Hash>(&self, _mapper: fn(&T) -> R) -> Hexomino<R> {
         todo!()
     }
 
+    #[allow(refining_impl_trait_reachable)]
     fn mapped_indexed<R: Clone + Hash>(&self, _mapper: &dyn Fn(&T, HexCoord) -> R) -> Hexomino<R> {
         todo!()
     }
 
+    #[allow(refining_impl_trait_reachable)]
     fn filter_mapped<R: Clone + Hash>(&self, _mapper: &dyn Fn(&T) -> Option<R>) -> Hexomino<R> {
         todo!()
     }

@@ -80,6 +80,7 @@ where
         }
     }
 
+    #[allow(refining_impl_trait_reachable)]
     fn mapped<R>(&self, mapper: fn(&T) -> R) -> Polyform<R>
     where
         R: Clone + Hash,
@@ -90,6 +91,7 @@ where
         }
     }
 
+    #[allow(refining_impl_trait_reachable)]
     fn mapped_indexed<R>(&self, mapper: &dyn Fn(&T, CoordBox) -> R) -> Polyform<R>
     where
         R: Clone + Hash,
@@ -104,6 +106,7 @@ where
         }
     }
 
+    #[allow(refining_impl_trait_reachable)]
     fn filter_mapped<R>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Polyform<R>
     where
         R: Clone + Hash,

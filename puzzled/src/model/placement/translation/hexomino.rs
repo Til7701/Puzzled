@@ -6,10 +6,6 @@ use crate::model::puzzle::PuzzleModel;
 use puzzled_common::polyform::coord::hex::HexCoord;
 use puzzled_common::polyform::poly::hexomino::Hexomino;
 
-pub(super) const MIN_CELLS_TO_THE_TOP_OF_BOARD: u32 = 1;
-pub(super) const MIN_CELLS_TO_THE_SIDES_OF_BOARD: u32 = 6;
-pub(super) const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: u32 = 6;
-
 #[derive(Debug, Default)]
 pub struct HexominoPlacementModel {}
 
@@ -71,14 +67,6 @@ impl SimplePlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
     }
 
     fn remove_hint_tile(&mut self) {
-        todo!()
-    }
-
-    fn translate_pixels_to_cells(&self, _position: PixelPosition) -> HexCoord {
-        todo!()
-    }
-
-    fn translate_cells_to_pixels(&self, _position: HexCoord) -> PixelPosition {
         todo!()
     }
 }

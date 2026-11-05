@@ -189,7 +189,7 @@ impl PolyominoPlacementModel {
             }
             tile.set_position_cells(new_position_cells);
         }
-        let mut opt_hint_tile = &mut self.hint_tile;
+        let opt_hint_tile = &mut self.hint_tile;
         if let Some(hint_tile) = opt_hint_tile {
             let new_position_cells = hint_tile.position_cells() + offset_cells;
             hint_tile.set_position_cells(new_position_cells);
@@ -230,6 +230,17 @@ impl PolyominoPlacementModel {
             ht.set_position_pixels(position_pixels);
             ht.set_pixel_size(pixel_size);
         }
+    }
+
+    fn translate_pixels_to_cells(&self, position: PixelPosition) -> RegularCoord {
+        let cell_size = self.grid_config.cell_size_pixel;
+        let pixel = position.div_scalar(cell_size as f64).round();
+        RegularCoord::new(pixel.0 as u32, pixel.1 as u32)
+    }
+
+    fn translate_cells_to_pixels(&self, position: RegularCoord) -> PixelPosition {
+        let cell_size = self.grid_config.cell_size_pixel;
+        PixelPosition(position.x() as f64, position.y() as f64).mul_scalar(cell_size as f64)
     }
 }
 
@@ -304,16 +315,5 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
 
     fn remove_hint_tile(&mut self) {
         self.hint_tile = None;
-    }
-
-    fn translate_pixels_to_cells(&self, position: PixelPosition) -> RegularCoord {
-        let cell_size = self.grid_config.cell_size_pixel;
-        let pixel = position.div_scalar(cell_size as f64).round();
-        RegularCoord::new(pixel.0 as u32, pixel.1 as u32)
-    }
-
-    fn translate_cells_to_pixels(&self, position: RegularCoord) -> PixelPosition {
-        let cell_size = self.grid_config.cell_size_pixel;
-        PixelPosition(position.x() as f64, position.y() as f64).mul_scalar(cell_size as f64)
     }
 }

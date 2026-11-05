@@ -92,24 +92,6 @@ pub trait SimplePlacementModel<P: UnitPoly, C: Coord> {
     /// Removes the hint tile from the placement model.
     /// Positions will no longer be calculated for the old hint tile.
     fn remove_hint_tile(&mut self);
-
-    /// Converts a PixelOffset to a CellOffset respecting the current grid layout.
-    ///
-    /// # Arguments
-    ///
-    /// * `position`: the position to convert
-    ///
-    /// returns: CellOffset
-    fn translate_pixels_to_cells(&self, position: PixelPosition) -> C;
-
-    /// Converts a CellOffset to a PixelOffset respecting the current grid layout.
-    ///
-    /// # Arguments
-    ///
-    /// * `position`: the position to convert
-    ///
-    /// returns: PixelOffset
-    fn translate_cells_to_pixels(&self, position: C) -> PixelPosition;
 }
 
 pub trait FullPlacementModel<P: UnitPoly, C: Coord>: SimplePlacementModel<P, C> {

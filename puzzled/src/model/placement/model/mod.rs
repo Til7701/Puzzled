@@ -58,7 +58,7 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
         let board_position = self.board_cell_position();
         let board_size = puzzle_config.board_config().layout().dim();
 
-        let tiles = match self {
+        match self {
             PlacementModel::Polyomino(p) => {
                 for (i, tile) in p.tiles().iter().enumerate() {
                     self.add_tile(
@@ -275,13 +275,5 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
             PlacementModel::Polyomino(p) => p.remove_hint_tile(),
             PlacementModel::Hexomino(h) => h.remove_hint_tile(),
         }
-    }
-
-    fn translate_pixels_to_cells(&self, position: PixelPosition) -> CoordBox {
-        todo!()
-    }
-
-    fn translate_cells_to_pixels(&self, position: CoordBox) -> PixelPosition {
-        todo!()
     }
 }
