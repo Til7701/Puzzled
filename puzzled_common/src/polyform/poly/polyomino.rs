@@ -66,6 +66,13 @@ where
     pub fn cells_mut(&mut self) -> &mut [Square<T>] {
         &mut self.cells
     }
+
+    fn get_square(&self, coord: RegularCoord) -> Option<&Square<T>> {
+        self.cells
+            .iter()
+            .find(|p| p.coord() == CoordBox::Regular(coord.clone()))
+            .map(|s| s)
+    }
 }
 
 impl<T> Poly<T, RegularCoord> for Polyomino<T>
@@ -183,7 +190,51 @@ where
     }
 
     fn extend_adjacent(&mut self, value: T) {
-        todo!()
+        self.dim.set_x(self.dim.x() + 2);
+        self.dim.set_y(self.dim.y() + 2);
+        for cell in &mut self.cells {
+            cell.set_coord(cell.coord() + CoordBox::Regular(RegularCoord::new(1, 1)))
+        }
+
+        let mut new_cells = Vec::new();
+
+        for i in 1..self.dim.x() - 1 {
+            for j in 1..self.dim.y() - 1 {
+                if let Some(cell) = self.get_square(RegularCoord::new(i, j)) {
+                    if self.get(RegularCoord::new(i - 1, j)).is_none() {
+                        new_cells.push(Square::new(
+                            RegularCoord::new(i - 1, j).into(),
+                            cell.orientation(),
+                            value.clone(),
+                        ));
+                    }
+                    if self.get(RegularCoord::new(i + 1, j)).is_none() {
+                        new_cells.push(Square::new(
+                            RegularCoord::new(i + 1, j).into(),
+                            cell.orientation(),
+                            value.clone(),
+                        ));
+                    }
+                    if self.get(RegularCoord::new(i, j - 1)).is_none() {
+                        new_cells.push(Square::new(
+                            RegularCoord::new(i - 1, j).into(),
+                            cell.orientation(),
+                            value.clone(),
+                        ));
+                    }
+                    if self.get(RegularCoord::new(i, j + 1)).is_none() {
+                        new_cells.push(Square::new(
+                            RegularCoord::new(i + 1, j).into(),
+                            cell.orientation(),
+                            value.clone(),
+                        ));
+                    }
+                }
+            }
+        }
+
+        self.cells.extend(new_cells);
+        self.trim();
     }
 
     fn trim(&mut self) -> TrimSides<RegularCoord> {
