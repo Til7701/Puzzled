@@ -5,6 +5,7 @@ use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
 use puzzled_common::polyform::coord::Coord;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::poly::UnitPoly;
 use std::cell::Ref;
 
@@ -74,6 +75,8 @@ pub trait SimplePlacementModel<P: UnitPoly, C: Coord> {
     ///
     /// returns: ()
     fn update_tile_shape(&mut self, idx: usize, shape: P);
+
+    fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox>;
 
     /// Initializes a new hint tile at the given position on the board and with the
     /// given shape.

@@ -3,6 +3,7 @@ use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::t::{InternalPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::coord::hex::HexCoord;
 use puzzled_common::polyform::poly::hexomino::Hexomino;
 
@@ -59,6 +60,10 @@ impl SimplePlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
     }
 
     fn update_tile_shape(&mut self, _idx: usize, _shape: Hexomino<()>) {
+        todo!()
+    }
+
+    fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox> {
         todo!()
     }
 

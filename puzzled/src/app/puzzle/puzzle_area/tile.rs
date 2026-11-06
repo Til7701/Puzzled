@@ -87,15 +87,14 @@ impl PuzzleArea {
         gesture.set_button(BUTTON_SECONDARY);
         self.setup_tile_updating_gesture(tile_view_index, &gesture, {
             let self_clone = self.clone();
-            move |tile_view| {
-                tile_view.rotate_clockwise();
-                self_clone
-                    .imp()
-                    .placement_model
-                    .borrow()
-                    .as_ref()
-                    .unwrap()
-                    .update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+            move |tile_view, x, y| {
+                let placement_model = self_clone.imp().placement_model.borrow();
+                let pm = placement_model.as_ref().unwrap();
+                tile_view.rotate_clockwise(
+                    pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
+                        .unwrap(),
+                );
+                pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
             }
         });
         draggable.add_controller(gesture.upcast::<EventController>());
@@ -105,21 +104,20 @@ impl PuzzleArea {
         gesture.set_button(BUTTON_MIDDLE);
         self.setup_tile_updating_gesture(tile_view_index, &gesture, {
             let self_clone = self.clone();
-            move |tile_view| {
-                tile_view.flip();
-                self_clone
-                    .imp()
-                    .placement_model
-                    .borrow()
-                    .as_ref()
-                    .unwrap()
-                    .update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+            move |tile_view, x, y| {
+                let placement_model = self_clone.imp().placement_model.borrow();
+                let pm = placement_model.as_ref().unwrap();
+                tile_view.flip(
+                    pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
+                        .unwrap(),
+                );
+                pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
             }
         });
         draggable.add_controller(gesture.upcast::<EventController>());
     }
 
-    fn setup_tile_updating_gesture<F: Fn(&TileView) + 'static>(
+    fn setup_tile_updating_gesture<F: Fn(&TileView, f64, f64) + 'static>(
         &self,
         tile_view_index: usize,
         gesture: &GestureClick,
@@ -127,7 +125,7 @@ impl PuzzleArea {
     ) {
         gesture.connect_pressed({
             let self_clone = self.clone();
-            move |_, _n_press, _x, _y| {
+            move |_, _n_press, x, y| {
                 let tiles = self_clone.imp().tiles.borrow();
                 let tile_view = tiles.get(tile_view_index);
                 let tile_view = match tile_view {
@@ -135,7 +133,7 @@ impl PuzzleArea {
                     None => return,
                 };
 
-                tile_update_function(tile_view);
+                tile_update_function(tile_view, x, y);
             }
         });
     }

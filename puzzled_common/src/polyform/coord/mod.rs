@@ -7,11 +7,11 @@ pub trait Coord: Clone + Copy {
 
     fn one() -> Self;
 
-    fn rotate_counterclockwise(&mut self, viewport: Self);
+    fn rotate_around(&self, prime: Self, viewport: Self) -> Self;
 
-    fn flip_default(&mut self, viewport: Self);
+    fn flip_default(&self, prime: Self, viewport: Self) -> Self;
 
-    fn transpose(&mut self);
+    fn transpose(&self) -> Self;
 
     fn area(&self) -> usize;
 }

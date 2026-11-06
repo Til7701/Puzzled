@@ -59,17 +59,31 @@ where
         }
     }
 
-    fn rotate_counterclockwise(&mut self) {
-        match self {
-            Polyform::Polyomino(p) => p.rotate_counterclockwise(),
-            Polyform::Hexomino(h) => h.rotate_counterclockwise(),
+    fn rotate_around(&mut self, prime: CoordBox) -> (CoordBox, CoordBox) {
+        match (self, prime) {
+            (Polyform::Polyomino(p), CoordBox::Regular(reg)) => {
+                let movement_request = p.rotate_around(reg);
+                (movement_request.0.into(), movement_request.1.into())
+            }
+            (Polyform::Hexomino(h), CoordBox::Hex(hex)) => {
+                let movement_request = h.rotate_around(hex);
+                (movement_request.0.into(), movement_request.1.into())
+            }
+            _ => unreachable!(),
         }
     }
 
-    fn flip(&mut self) {
-        match self {
-            Polyform::Polyomino(p) => p.flip(),
-            Polyform::Hexomino(h) => h.flip(),
+    fn flip(&mut self, prime: CoordBox) -> (CoordBox, CoordBox) {
+        match (self, prime) {
+            (Polyform::Polyomino(p), CoordBox::Regular(reg)) => {
+                let movement_request = p.flip(reg);
+                (movement_request.0.into(), movement_request.1.into())
+            }
+            (Polyform::Hexomino(h), CoordBox::Hex(hex)) => {
+                let movement_request = h.flip(hex);
+                (movement_request.0.into(), movement_request.1.into())
+            }
+            _ => unreachable!(),
         }
     }
 

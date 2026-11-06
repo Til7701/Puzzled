@@ -19,16 +19,16 @@ impl RegularCoord {
         self.x
     }
 
-    pub fn set_x(&mut self, x: u32) {
-        self.x = x;
+    pub fn with_x(&self, x: u32) -> Self {
+        RegularCoord { x, ..*self }
     }
 
     pub fn y(&self) -> u32 {
         self.y
     }
 
-    pub fn set_y(&mut self, y: u32) {
-        self.y = y;
+    pub fn with_y(&self, y: u32) -> Self {
+        RegularCoord { y, ..*self }
     }
 
     pub fn min(&self, other: Self) -> Self {
@@ -53,25 +53,27 @@ impl Coord for RegularCoord {
         Self::new(1, 1)
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: Self) {
-        let old_x = self.x;
-        let old_y = self.y;
-        self.x = old_y;
-        self.y = viewport.y - old_x;
+    fn rotate_around(&self, prime: Self, viewport: Self) -> Self {
+        let dx = self.x as isize - prime.x() as isize;
+        let dy = self.y as isize - prime.y() as isize;
+
+        let x = prime.x() as isize + dy;
+        let y = prime.y() as isize + dx;
+
+        RegularCoord::new(
+            x.rem_euclid(viewport.x() as isize) as u32,
+            y.rem_euclid(viewport.y() as isize) as u32,
+        )
     }
 
-    fn flip_default(&mut self, viewport: Self) {
-        let old_x = self.x;
-        let old_y = self.y;
-        self.x = viewport.x - old_x;
-        self.y = old_y;
+    fn flip_default(&self, prime: Self, viewport: Self) -> Self {
+        let dx = prime.x() as isize - self.x as isize;
+
+        RegularCoord::new(dx.rem_euclid(viewport.x() as isize) as u32, self.y)
     }
 
-    fn transpose(&mut self) {
-        let old_x = self.x;
-        let old_y = self.y;
-        self.x = old_y;
-        self.y = old_x;
+    fn transpose(&self) -> Self {
+        RegularCoord::new(self.y, self.x)
     }
 
     fn area(&self) -> usize {

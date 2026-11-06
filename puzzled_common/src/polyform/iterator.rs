@@ -1,4 +1,5 @@
 use crate::polyform::Polyform;
+use crate::polyform::coord::regular::RegularCoord;
 use crate::polyform::poly::Poly;
 use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square};
 use std::hash::Hash;
@@ -101,10 +102,10 @@ where
                 let v = if self.index >= 8 {
                     None
                 } else if self.index == 4 {
-                    polyform.flip();
+                    polyform.flip(RegularCoord::new(0, 0).into());
                     Some(polyform.clone())
                 } else {
-                    polyform.rotate_counterclockwise();
+                    polyform.rotate_around(RegularCoord::new(0, 0).into());
                     Some(polyform.clone())
                 };
                 self.index += 1;

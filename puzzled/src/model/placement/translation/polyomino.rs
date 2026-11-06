@@ -182,10 +182,10 @@ impl PolyominoPlacementModel {
             let position_cells = tile.position_cells();
             let mut new_position_cells = position_cells + offset_cells;
             if new_position_cells.x() < 0 {
-                new_position_cells.set_x(0);
+                new_position_cells = new_position_cells.with_x(0);
             }
             if new_position_cells.y() < 0 {
-                new_position_cells.set_y(0);
+                new_position_cells = new_position_cells.with_y(0);
             }
             tile.set_position_cells(new_position_cells);
         }
@@ -305,6 +305,10 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
         let old = self.tiles.get_mut(idx).unwrap();
         old.set_cell_size(shape.dim().into());
         old.set_current_rotation(shape);
+    }
+
+    fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox> {
+        Some(RegularCoord::new(0, 0).into()) // FIXME
     }
 
     fn init_hint_tile(&mut self, position_on_board: RegularCoord, shape: Polyomino<()>) {

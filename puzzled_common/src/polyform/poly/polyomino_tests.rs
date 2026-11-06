@@ -1,10 +1,11 @@
+use crate::polyform::coord::regular::RegularCoord;
 use crate::polyform::poly::polyomino::Polyomino;
 use crate::polyform::poly::{Poly, UnitPoly};
 
 #[test]
 fn test_rotate_counterclockwise_size_1() {
     let mut shape = Polyomino::from_bool_slice(&[[true]]);
-    shape.rotate_counterclockwise();
+    shape.rotate_around(RegularCoord::new(0, 0));
     let expected = Polyomino::from_bool_slice(&[[true]]);
     assert_eq!(expected, shape);
 }
@@ -12,7 +13,7 @@ fn test_rotate_counterclockwise_size_1() {
 #[test]
 fn test_rotate_counterclockwise_size_2() {
     let mut shape = Polyomino::from_bool_slice(&[[true, false]]);
-    shape.rotate_counterclockwise();
+    shape.rotate_around(RegularCoord::new(0, 0));
     let expected = Polyomino::from_bool_slice(&[[false], [true]]);
     assert_eq!(expected, shape);
 }
@@ -24,7 +25,7 @@ fn test_rotate_counterclockwise() {
         [true, true, true],
         [true, false, true],
     ]);
-    shape.rotate_counterclockwise();
+    shape.rotate_around(RegularCoord::new(0, 0));
     let expected = Polyomino::from_bool_slice(&[
         [false, true, true],
         [false, true, false],

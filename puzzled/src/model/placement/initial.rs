@@ -69,7 +69,7 @@ fn place_in_column(
                 CoordBox::Regular(r) => r,
                 CoordBox::Hex(_) => unreachable!(),
             };
-            next_pos.set_y(next_pos.y() + tile_dim.y());
+            next_pos = next_pos.with_y(next_pos.y() + tile_dim.y());
             next_tile_index += 1;
         }
     }
@@ -95,7 +95,7 @@ fn place_in_row(
             if tiles.len() == positions.len() {
                 break;
             }
-            next_pos.set_x(next_pos.x() + tile_dim.x());
+            next_pos = next_pos.with_x(next_pos.x() + tile_dim.x());
             if tile_dim.y() > highest_tile {
                 highest_tile = tile_dim.y();
             }

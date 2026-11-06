@@ -20,28 +20,34 @@ impl Coord for CoordBox {
         panic!("Not allowed");
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: Self) {
-        match (self, viewport) {
-            (CoordBox::Regular(regular), CoordBox::Regular(v)) => {
-                regular.rotate_counterclockwise(v)
+    fn rotate_around(&self, prime: Self, viewport: Self) -> Self {
+        match (self, prime, viewport) {
+            (CoordBox::Regular(regular), CoordBox::Regular(p), CoordBox::Regular(v)) => {
+                regular.rotate_around(p, v).into()
             }
-            (CoordBox::Hex(hex), CoordBox::Hex(v)) => hex.rotate_counterclockwise(v),
+            (CoordBox::Hex(hex), CoordBox::Hex(p), CoordBox::Hex(v)) => {
+                hex.rotate_around(p, v).into()
+            }
             _ => unreachable!(),
         }
     }
 
-    fn flip_default(&mut self, viewport: Self) {
-        match (self, viewport) {
-            (CoordBox::Regular(regular), CoordBox::Regular(v)) => regular.flip_default(v),
-            (CoordBox::Hex(hex), CoordBox::Hex(v)) => hex.flip_default(v),
+    fn flip_default(&self, prime: Self, viewport: Self) -> Self {
+        match (self, prime, viewport) {
+            (CoordBox::Regular(regular), CoordBox::Regular(p), CoordBox::Regular(v)) => {
+                regular.flip_default(p, v).into()
+            }
+            (CoordBox::Hex(hex), CoordBox::Hex(p), CoordBox::Hex(v)) => {
+                hex.flip_default(p, v).into()
+            }
             _ => unreachable!(),
         }
     }
 
-    fn transpose(&mut self) {
+    fn transpose(&self) -> Self {
         match self {
-            CoordBox::Regular(regular) => regular.transpose(),
-            CoordBox::Hex(hex) => hex.transpose(),
+            CoordBox::Regular(regular) => regular.transpose().into(),
+            CoordBox::Hex(hex) => hex.transpose().into(),
         }
     }
 

@@ -61,11 +61,11 @@ where
         todo!()
     }
 
-    fn rotate_counterclockwise(&mut self) {
+    fn rotate_around(&mut self, _prime: HexCoord) -> (HexCoord, HexCoord) {
         todo!()
     }
 
-    fn flip(&mut self) {
+    fn flip(&mut self, _prime: HexCoord) -> (HexCoord, HexCoord) {
         todo!()
     }
 

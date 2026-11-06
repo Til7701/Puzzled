@@ -107,26 +107,34 @@ where
     fn rotate_to_landscape(&mut self) {
         if self.dim.x() < self.dim.y() {
             self.transpose();
-            self.rotate_counterclockwise();
-            self.rotate_counterclockwise();
+            self.rotate_around(RegularCoord::new(0, 0));
+            self.rotate_around(RegularCoord::new(0, 0));
         }
     }
 
-    fn rotate_counterclockwise(&mut self) {
-        self.dim.transpose();
-        let viewport = self.dim.into();
-        self.cells
-            .iter_mut()
-            .for_each(|s| s.rotate_counterclockwise(viewport));
+    fn rotate_around(&mut self, prime: RegularCoord) -> (RegularCoord, RegularCoord) {
+        self.dim = self.dim.transpose();
+        let viewport = self.dim;
+
+        for cell in &mut self.cells {
+            cell.set_coord(cell.coord().rotate_around(prime.into(), viewport.into()));
+        }
+
+        (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
     }
 
-    fn flip(&mut self) {
-        let viewport = CoordBox::Regular(self.dim);
-        self.cells.iter_mut().for_each(|s| s.flip_default(viewport))
+    fn flip(&mut self, prime: RegularCoord) -> (RegularCoord, RegularCoord) {
+        let viewport = self.dim;
+
+        for cell in &mut self.cells {
+            cell.set_coord(cell.coord().flip_default(prime.into(), viewport.into()));
+        }
+
+        (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
     }
 
     fn transpose(&mut self) {
-        self.dim.transpose();
+        self.dim = self.dim.transpose();
         self.cells.iter_mut().for_each(|s| s.transpose())
     }
 
@@ -189,8 +197,7 @@ where
     }
 
     fn extend_adjacent(&mut self, value: T) {
-        self.dim.set_x(self.dim.x() + 2);
-        self.dim.set_y(self.dim.y() + 2);
+        self.dim = RegularCoord::new(self.dim.x() + 2, self.dim.y() + 2);
         for cell in &mut self.cells {
             cell.set_coord(cell.coord() + CoordBox::Regular(RegularCoord::new(1, 1)))
         }
@@ -255,14 +262,13 @@ where
         self.cells
             .iter_mut()
             .for_each(|square| match square.coord() {
-                CoordBox::Regular(mut coord) => {
-                    coord.set_y(coord.y() - min_y);
-                    square.set_coord(coord.into());
+                CoordBox::Regular(coord) => {
+                    square.set_coord(coord.with_y(coord.y() - min_y).into());
                 }
                 _ => unreachable!(),
             });
-        self.dim.set_y(self.dim.y() - min_y);
-        lower.set_y(lower.y() + min_y);
+        self.dim = self.dim.with_y(self.dim.y() - min_y);
+        lower = lower.with_y(lower.y() + min_y);
 
         let max_y = self
             .cells
@@ -273,8 +279,8 @@ where
             })
             .max()
             .unwrap();
-        self.dim.set_y(self.dim.y() - max_y);
-        upper.set_y(upper.y() + max_y);
+        self.dim = self.dim.with_y(self.dim.y() - max_y);
+        upper = upper.with_y(upper.y() + max_y);
 
         let min_x = self
             .cells
@@ -288,14 +294,13 @@ where
         self.cells
             .iter_mut()
             .for_each(|square| match square.coord() {
-                CoordBox::Regular(mut coord) => {
-                    coord.set_x(coord.x() - min_x);
-                    square.set_coord(coord.into());
+                CoordBox::Regular(coord) => {
+                    square.set_coord(coord.with_x(coord.x() - min_x).into());
                 }
                 _ => unreachable!(),
             });
-        self.dim.set_x(min_x);
-        lower.set_x(lower.x() + min_x);
+        self.dim = self.dim.with_x(min_x);
+        lower = lower.with_x(lower.x() + min_x);
 
         let max_x = self
             .cells
@@ -306,8 +311,8 @@ where
             })
             .max()
             .unwrap();
-        self.dim.set_x(max_x);
-        upper.set_x(upper.x() + max_x);
+        self.dim = self.dim.with_x(max_x);
+        upper = upper.with_x(upper.x() + max_x);
 
         TrimSides { lower, upper }
     }

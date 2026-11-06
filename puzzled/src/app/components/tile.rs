@@ -192,18 +192,18 @@ impl TileView {
     }
 
     /// Rotates the tile one step clockwise.
-    pub fn rotate_clockwise(&self) {
+    pub fn rotate_clockwise(&self, prime: CoordBox) {
         // We are calling counterclockwise here, since the tile is drawn transposed.
         self.imp()
             .current_rotation
             .borrow_mut()
-            .rotate_counterclockwise();
+            .rotate_around(prime);
         self.update_current_rotation_specials();
     }
 
     /// Flips the tile horizontally.
-    pub fn flip(&self) {
-        self.imp().current_rotation.borrow_mut().flip();
+    pub fn flip(&self, prime: CoordBox) {
+        self.imp().current_rotation.borrow_mut().flip(prime);
         self.update_current_rotation_specials();
     }
 

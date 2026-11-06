@@ -60,17 +60,17 @@ where
         }
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: CoordBox) {
+    fn rotate_counterclockwise(&mut self, prime: CoordBox, viewport: CoordBox) {
         match self {
-            PrototileMutRef::Square(square) => square.rotate_counterclockwise(viewport),
-            PrototileMutRef::Hexagon(hexagon) => hexagon.rotate_counterclockwise(viewport),
+            PrototileMutRef::Square(square) => square.rotate_counterclockwise(prime, viewport),
+            PrototileMutRef::Hexagon(hexagon) => hexagon.rotate_counterclockwise(prime, viewport),
         }
     }
 
-    fn flip_default(&mut self, viewport: CoordBox) {
+    fn flip_default(&mut self, prime: CoordBox, viewport: CoordBox) {
         match self {
-            PrototileMutRef::Square(square) => square.flip_default(viewport),
-            PrototileMutRef::Hexagon(hexagon) => hexagon.flip_default(viewport),
+            PrototileMutRef::Square(square) => square.flip_default(prime, viewport),
+            PrototileMutRef::Hexagon(hexagon) => hexagon.flip_default(prime, viewport),
         }
     }
 

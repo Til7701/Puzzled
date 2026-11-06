@@ -258,6 +258,13 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
         }
     }
 
+    fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox> {
+        match self {
+            PlacementModel::Polyomino(p) => p.prototile_coord(idx, pixel_position),
+            PlacementModel::Hexomino(h) => h.prototile_coord(idx, pixel_position),
+        }
+    }
+
     fn init_hint_tile(&mut self, position_on_board: CoordBox, shape: Polyform<()>) {
         match (self, position_on_board, shape) {
             (PlacementModel::Polyomino(pm), CoordBox::Regular(r), Polyform::Polyomino(po)) => {

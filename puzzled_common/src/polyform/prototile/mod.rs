@@ -38,9 +38,9 @@ where
 
     fn set_data(&mut self, data: T);
 
-    fn rotate_counterclockwise(&mut self, viewport: C);
+    fn rotate_counterclockwise(&mut self, prime: C, viewport: C);
 
-    fn flip_default(&mut self, viewport: C);
+    fn flip_default(&mut self, prime: C, viewport: C);
 
     fn transpose(&mut self);
 }

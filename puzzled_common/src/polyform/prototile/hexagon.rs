@@ -59,12 +59,12 @@ where
         self.data = data;
     }
 
-    fn rotate_counterclockwise(&mut self, viewport: CoordBox) {
-        self.coord.rotate_counterclockwise(viewport);
+    fn rotate_counterclockwise(&mut self, prime: CoordBox, viewport: CoordBox) {
+        self.coord.rotate_around(prime, viewport);
     }
 
-    fn flip_default(&mut self, viewport: CoordBox) {
-        self.coord.flip_default(viewport);
+    fn flip_default(&mut self, prime: CoordBox, viewport: CoordBox) {
+        self.coord.flip_default(prime, viewport);
     }
 
     fn transpose(&mut self) {

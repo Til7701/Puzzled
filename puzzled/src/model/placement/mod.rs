@@ -227,6 +227,13 @@ impl PlacementModelWrapper {
         self.emit_tile_moved();
     }
 
+    pub fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox> {
+        self.imp()
+            .placement_model
+            .borrow_mut()
+            .prototile_coord(idx, pixel_position)
+    }
+
     /// Initializes a new hint tile at the given position on the board and with the
     /// given shape.
     /// This replaces the hint tile currently stored in the PlacementModel.
