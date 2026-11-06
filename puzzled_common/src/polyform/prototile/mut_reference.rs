@@ -46,6 +46,13 @@ where
         }
     }
 
+    fn data_mut(&mut self) -> &mut T {
+        match self {
+            PrototileMutRef::Square(square) => square.data_mut(),
+            PrototileMutRef::Hexagon(hexagon) => hexagon.data_mut(),
+        }
+    }
+
     fn set_data(&mut self, data: T) {
         match self {
             PrototileMutRef::Square(square) => square.set_data(data),

@@ -1,4 +1,4 @@
-use crate::app::components::polyform_drawing::mode::PrototileDrawingMode;
+use crate::app::components::polyform_drawing::PrototileDrawingMode;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
 use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use adw::subclass::prelude::ObjectSubclassIsExt;

@@ -51,6 +51,10 @@ where
         self.coord = coord;
     }
 
+    fn data_mut(&mut self) -> &mut T {
+        &mut self.data
+    }
+
     fn set_data(&mut self, data: T) {
         self.data = data;
     }

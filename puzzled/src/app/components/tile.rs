@@ -1,9 +1,11 @@
 use crate::adw_ext;
-use crate::app::components::polyform_drawing::mode::PrototileDrawingMode;
+use crate::app::components::polyform_drawing;
+use crate::app::components::polyform_drawing::{
+    DrawingSettings, PolyformDrawingData, PolyformDrawingDataSpecial, PrototileDrawingMode,
+};
 use adw::gdk::RGBA;
 use adw::gio;
 use adw::glib;
-use adw::prelude::GdkCairoContextExt;
 use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
@@ -12,25 +14,23 @@ use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::poly::polyomino::Polyomino;
 use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
-use std::collections::HashMap;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = adw_ext::ERROR_BG_LIGHT;
 const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
 
 mod imp {
     use super::*;
+    use crate::app::components::polyform_drawing::PolyformDrawingData;
     use std::cell::{Cell, RefCell};
-    use std::collections::HashMap;
     use std::ops::Deref;
 
     #[derive(Debug, Default)]
     pub struct PuzzledTileView {
         pub id: Cell<usize>,
-        pub current_rotation: RefCell<Polyform<PrototileDrawingMode>>,
-        pub color: RefCell<HashMap<PrototileDrawingMode, RGBA>>,
+        pub current_rotation: RefCell<Polyform<PolyformDrawingData>>,
+        pub color: Cell<Option<RGBA>>,
     }
 
     #[glib::object_subclass]
@@ -101,8 +101,14 @@ impl TileView {
         obj.imp().id.replace(id);
         obj.imp()
             .current_rotation
-            .replace(base.mapped(|_| PrototileDrawingMode::Normal));
-        obj.init_color(color);
+            .replace(base.mapped(|_| PolyformDrawingData::default()));
+        obj.update_current_rotation_specials();
+        obj.imp().color.replace(Some(RGBA::new(
+            color.red() as f32 / 255.0,
+            color.green() as f32 / 255.0,
+            color.blue() as f32 / 255.0,
+            color.alpha() as f32 / 255.0,
+        )));
 
         obj.set_draw_func({
             let self_clone = obj.clone();
@@ -112,96 +118,22 @@ impl TileView {
         obj
     }
 
-    fn init_color(&self, color: ColorConfig) {
-        let color = RGBA::new(
-            (color.red() as f64 / 255.0) as f32,
-            (color.green() as f64 / 255.0) as f32,
-            (color.blue() as f64 / 255.0) as f32,
-            (color.alpha() as f64 / 255.0) as f32,
-        );
-
-        let mut color_map = HashMap::new();
-        color_map.insert(PrototileDrawingMode::Normal, color);
-        color_map.insert(PrototileDrawingMode::Overlapping, color.with_alpha(0.5));
-        color_map.insert(PrototileDrawingMode::OutOfBounds, color.with_alpha(0.5));
-        self.imp().color.replace(color_map);
-    }
-
     fn draw(&self, cr: &Context, width: i32, height: i32) {
         let current_rotation = self.imp().current_rotation.borrow();
-
-        match current_rotation.deref() {
-            Polyform::Polyomino(polyomino) => {
-                self.draw_polyomino(cr, width, height, polyomino);
-            }
-            Polyform::Hexomino { .. } => {
-                todo!()
-            }
-        }
+        let settings = DrawingSettings {
+            main_colors: [self.color()],
+            highlight_colors: Self::highlight_color,
+            border_color: None,
+        };
+        polyform_drawing::draw(cr, width, height, &*current_rotation, &settings);
     }
 
-    fn draw_polyomino(
-        &self,
-        cr: &Context,
-        width: i32,
-        height: i32,
-        polyomino: &Polyomino<PrototileDrawingMode>,
-    ) {
-        let dim = polyomino.dim();
-        let squares = polyomino.cells();
-        let color_map = self.imp().color.borrow();
-        for cell in squares.iter() {
-            let coord = match cell.coord() {
-                CoordBox::Regular(coord) => coord,
-                _ => unreachable!(),
-            };
-            let x = coord.x();
-            let y = coord.y();
-            let cell_width = width as f64 / dim.x() as f64;
-            let cell_height = height as f64 / dim.y() as f64;
-            let cell_x = x as f64 * cell_width;
-            let cell_y = y as f64 * cell_height;
-
-            let drawing_mode = cell.data();
-            let color = &color_map[drawing_mode];
-            cr.set_source_color(color);
-            cr.rectangle(cell_x, cell_y, cell_width, cell_height);
-            cr.fill().expect("Failed to fill");
-            // Due to floating point inaccuracies, there might be 2px gaps between cells, so
-            // additional rectangles are drawn to fill those gaps if the adjacent cells are filled.
-            // This only solves the problem, if the color is not transparent, otherwise there
-            // would be visible lines between the cells of the tile.
-            // if color.alpha() == 1.0 {
-            //     if current_rotation.get((x + 1, y)).unwrap_or(&false) {
-            //         cr.rectangle(cell_x + cell_width - 1.0, cell_y, 2.0, cell_height);
-            //         cr.fill().expect("Failed to fill");
-            //     }
-            //     if current_rotation.get((x, y + 1)).unwrap_or(&false) {
-            //         cr.rectangle(cell_x, cell_y + cell_height - 1.0, cell_width, 2.0);
-            //         cr.fill().expect("Failed to fill");
-            //     }
-            // }
-
-            // Border
-            let border_color = match drawing_mode {
-                PrototileDrawingMode::Normal => None,
-                PrototileDrawingMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
-                PrototileDrawingMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
-                PrototileDrawingMode::Highlighted => None,
-            };
-            if let Some(border_color) = border_color {
-                cr.set_source_color(&border_color);
-                const BORDER_WIDTH: f64 = 3.0;
-                const HALF_BORDER_WIDTH: f64 = BORDER_WIDTH / 2.0;
-                cr.set_line_width(BORDER_WIDTH);
-                cr.rectangle(
-                    cell_x + HALF_BORDER_WIDTH,
-                    cell_y + HALF_BORDER_WIDTH,
-                    cell_width - BORDER_WIDTH,
-                    cell_height - BORDER_WIDTH,
-                );
-                cr.stroke().expect("Failed to stroke");
-            }
+    fn highlight_color(drawing_mode: &PrototileDrawingMode) -> Option<RGBA> {
+        match drawing_mode {
+            PrototileDrawingMode::Normal => None,
+            PrototileDrawingMode::Overlapping => Some(HIGHLIGHT_OVERLAPPING_COLOR),
+            PrototileDrawingMode::OutOfBounds => Some(HIGHLIGHT_OUT_OF_BOUNDS_COLOR),
+            PrototileDrawingMode::Highlighted => None,
         }
     }
 
@@ -211,7 +143,50 @@ impl TileView {
     }
 
     pub fn color(&self) -> RGBA {
-        self.imp().color.borrow()[&PrototileDrawingMode::Normal]
+        self.imp().color.get().unwrap()
+    }
+
+    fn update_current_rotation_specials(&self) {
+        let current_rotation_lookup = self.imp().current_rotation.borrow().clone(); // TODO avoid
+        let mut current_rotation = self.imp().current_rotation.borrow_mut();
+        for mut prototile in current_rotation.deref_mut().iter_mut() {
+            let coord = prototile.coord();
+            let data = prototile.data_mut();
+            match (coord, &mut data.special) {
+                (CoordBox::Regular(c), PolyformDrawingDataSpecial::Polyomino(s)) => {
+                    if c.x() > 0
+                        && current_rotation_lookup
+                            .get(CoordBox::Regular(c - RegularCoord::new(1, 0)))
+                            .is_some()
+                    {
+                        s.left_neighbour = true;
+                    }
+                    if current_rotation_lookup
+                        .get(CoordBox::Regular(c + RegularCoord::new(1, 0)))
+                        .is_some()
+                    {
+                        s.right_neighbour = true;
+                    }
+                    if c.y() > 0
+                        && current_rotation_lookup
+                            .get(CoordBox::Regular(c - RegularCoord::new(0, 1)))
+                            .is_some()
+                    {
+                        s.top_neighbour = true;
+                    }
+                    if current_rotation_lookup
+                        .get(CoordBox::Regular(c + RegularCoord::new(0, 1)))
+                        .is_some()
+                    {
+                        s.bottom_neighbour = true;
+                    }
+                }
+                (CoordBox::Hex(_), PolyformDrawingDataSpecial::Hexomino()) => {
+                    todo!()
+                }
+                _ => unreachable!(),
+            }
+        }
     }
 
     /// Rotates the tile one step clockwise.
@@ -221,11 +196,13 @@ impl TileView {
             .current_rotation
             .borrow_mut()
             .rotate_counterclockwise();
+        self.update_current_rotation_specials();
     }
 
     /// Flips the tile horizontally.
     pub fn flip(&self) {
         self.imp().current_rotation.borrow_mut().flip();
+        self.update_current_rotation_specials();
     }
 
     /// Returns the current layout of the tile, which changes when the tile is rotated or flipped.
@@ -236,19 +213,16 @@ impl TileView {
     /// Sets the drawing mode for the cell at the given coordinates.
     pub fn set_drawing_mode_at(&self, coord: CoordBox, drawing_mode: PrototileDrawingMode) {
         if let Some(mut prototile) = self.imp().current_rotation.borrow_mut().get_mut(coord) {
-            prototile.set_data(drawing_mode);
+            prototile.data_mut().drawing_mode = drawing_mode;
         }
         self.queue_draw();
     }
 
     /// Resets the drawing mode for all cells to [PrototileDrawingMode::Normal].
     pub fn reset_drawing_modes(&self) {
-        let new_rotation = self
-            .imp()
-            .current_rotation
-            .borrow()
-            .mapped(|_| PrototileDrawingMode::Normal);
-        self.imp().current_rotation.replace(new_rotation);
+        for mut prototile in self.imp().current_rotation.borrow_mut().iter_mut() {
+            prototile.data_mut().drawing_mode = PrototileDrawingMode::Normal;
+        }
         self.queue_draw();
     }
 }

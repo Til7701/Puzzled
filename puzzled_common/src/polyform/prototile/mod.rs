@@ -34,6 +34,8 @@ where
 {
     fn set_coord(&mut self, coord: C);
 
+    fn data_mut(&mut self) -> &mut T;
+
     fn set_data(&mut self, data: T);
 
     fn rotate_counterclockwise(&mut self, viewport: C);

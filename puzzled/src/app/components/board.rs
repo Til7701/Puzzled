@@ -1,23 +1,41 @@
 use crate::adw_ext;
 use crate::app::components::polyform_drawing;
-use crate::app::components::polyform_drawing::PolyformDrawingData;
-use crate::app::components::polyform_drawing::mode::PrototileDrawingMode;
+use crate::app::components::polyform_drawing::{
+    DrawingSettings, PolyformDrawingData, PrototileDrawingMode,
+};
 use crate::global::settings::{Preferences, ShowBoardGridLines};
+use adw::gdk::RGBA;
 use adw::gdk::cairo::Context;
-use adw::gio;
 use adw::glib;
 use adw::subclass::prelude::*;
+use adw::{StyleManager, gio};
 use gtk::Widget;
 use gtk::prelude::*;
 use puzzle_config::BoardConfig;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::poly::polyomino::Polyomino;
 use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
 use std::ops::Deref;
 
-const SHOW_GRID_LINES_CLASS: &str = "show-grid-lines";
+const MAIN_COLORS_COUNT: usize = 6;
+const LIGHT_MAIN_COLORS: [RGBA; MAIN_COLORS_COUNT] = [
+    adw_ext::LIGHT_2,
+    adw_ext::LIGHT_3,
+    adw_ext::LIGHT_4,
+    adw_ext::LIGHT_5,
+    adw_ext::DARK_1,
+    adw_ext::DARK_2,
+];
+
+const DARK_MAIN_COLORS: [RGBA; MAIN_COLORS_COUNT] = [
+    adw_ext::from_hex(0x333333),
+    adw_ext::from_hex(0x444444),
+    adw_ext::from_hex(0x555555),
+    adw_ext::from_hex(0x666666),
+    adw_ext::from_hex(0x777777),
+    adw_ext::from_hex(0x888888),
+];
 
 mod imp {
     use super::*;
@@ -65,6 +83,7 @@ impl BoardView {
             BoardConfig::Area { layout, .. } => layout.mapped(|value| {
                 let mut data = PolyformDrawingData::default();
                 data.text = Some(value.display_value.clone());
+                data.main_color_index = value.area_index as usize;
                 data
             }),
         };
@@ -77,7 +96,6 @@ impl BoardView {
 
         let preferences = Preferences::default();
         preferences.bind(ShowBoardGridLines, &obj, "show-grid-lines");
-        obj.update_grid_lines(preferences.get(ShowBoardGridLines));
         obj.connect_show_grid_lines_notify({
             move |obj| {
                 obj.queue_draw();
@@ -90,84 +108,44 @@ impl BoardView {
     fn draw(&self, cr: &Context, width: i32, height: i32) {
         let layout = self.imp().layout.borrow();
         if let Some(l) = layout.deref() {
-            polyform_drawing::draw(cr, width, height, l);
+            let (main_colors, border_color) = if StyleManager::default().is_dark() {
+                (DARK_MAIN_COLORS, self.dark_border_color())
+            } else {
+                (LIGHT_MAIN_COLORS, self.light_border_color())
+            };
+            let settings = DrawingSettings {
+                main_colors,
+                highlight_colors: Self::highlight_color,
+                border_color,
+            };
+            polyform_drawing::draw(cr, width, height, l, &settings);
         }
     }
 
-    fn draw_polyomino(
-        &self,
-        cr: &Context,
-        width: i32,
-        height: i32,
-        polyomino: &Polyomino<(Option<String>, PrototileDrawingMode)>,
-    ) {
-        let dim = polyomino.dim();
-        let squares = polyomino.cells();
-        for cell in squares.iter() {
-            let coord = match cell.coord() {
-                CoordBox::Regular(coord) => coord,
-                _ => unreachable!(),
-            };
-            let x = coord.x();
-            let y = coord.y();
-            let cell_width = width as f64 / dim.x() as f64;
-            let cell_height = height as f64 / dim.y() as f64;
-            let cell_x = x as f64 * cell_width;
-            let cell_y = y as f64 * cell_height;
+    fn light_border_color(&self) -> Option<RGBA> {
+        if *self.imp().show_grid_lines.borrow() {
+            return Some(adw_ext::from_hex(0xfafafb));
+        }
+        None
+    }
+    fn dark_border_color(&self) -> Option<RGBA> {
+        if *self.imp().show_grid_lines.borrow() {
+            return Some(adw_ext::from_hex(0x222226));
+        }
+        None
+    }
 
-            let (display_value, drawing_mode) = cell.data();
-            let color = &adw_ext::DARK_1; // FIXME chose based on area
-            cr.set_source_color(color);
-            cr.rectangle(cell_x, cell_y, cell_width, cell_height);
-            cr.fill().expect("Failed to fill");
-            // Due to floating point inaccuracies, there might be 2px gaps between cells, so
-            // additional rectangles are drawn to fill those gaps if the adjacent cells are filled.
-            // This only solves the problem, if the color is not transparent, otherwise there
-            // would be visible lines between the cells of the tile.
-            // if color.alpha() == 1.0 {
-            //     if current_rotation.get((x + 1, y)).unwrap_or(&false) {
-            //         cr.rectangle(cell_x + cell_width - 1.0, cell_y, 2.0, cell_height);
-            //         cr.fill().expect("Failed to fill");
-            //     }
-            //     if current_rotation.get((x, y + 1)).unwrap_or(&false) {
-            //         cr.rectangle(cell_x, cell_y + cell_height - 1.0, cell_width, 2.0);
-            //         cr.fill().expect("Failed to fill");
-            //     }
-            // }
-
-            // Border
-            let border_color = match drawing_mode {
-                PrototileDrawingMode::Normal => None,
-                PrototileDrawingMode::Overlapping => None,
-                PrototileDrawingMode::OutOfBounds => None,
-                PrototileDrawingMode::Highlighted => Some(adw_ext::BLUE_1), // FIXME change to current accent color
-            };
-            if let Some(border_color) = border_color {
-                cr.set_source_color(&border_color);
-                const BORDER_WIDTH: f64 = 3.0;
-                const HALF_BORDER_WIDTH: f64 = BORDER_WIDTH / 2.0;
-                cr.set_line_width(BORDER_WIDTH);
-                cr.rectangle(
-                    cell_x + HALF_BORDER_WIDTH,
-                    cell_y + HALF_BORDER_WIDTH,
-                    cell_width - BORDER_WIDTH,
-                    cell_height - BORDER_WIDTH,
-                );
-                cr.stroke().expect("Failed to stroke");
-            }
+    fn highlight_color(drawing_mode: &PrototileDrawingMode) -> Option<RGBA> {
+        match drawing_mode {
+            PrototileDrawingMode::Normal => None,
+            PrototileDrawingMode::Overlapping => None,
+            PrototileDrawingMode::OutOfBounds => None,
+            PrototileDrawingMode::Highlighted => Some(StyleManager::default().accent_color_rgba()),
         }
     }
 
     pub fn get_min_element_size(&self) -> u32 {
-        20u32
-    }
-
-    fn update_grid_lines(&self, show_grid_lines: bool) {
-        if show_grid_lines {
-            self.add_css_class(SHOW_GRID_LINES_CLASS);
-        } else {
-            self.remove_css_class(SHOW_GRID_LINES_CLASS);
-        }
+        20u32 // FIXME
     }
 
     pub fn highlight(&self, coord: CoordBox) {
@@ -175,9 +153,8 @@ impl BoardView {
         if let Some(l) = layout.as_mut() {
             let prototile = l.get_mut(coord);
             if let Some(mut p) = prototile {
-                let data = p.data();
-
-                p.set_data((data.0.clone(), PrototileDrawingMode::Highlighted));
+                let data = p.data_mut();
+                data.drawing_mode = PrototileDrawingMode::Highlighted;
             }
         }
     }
@@ -185,8 +162,9 @@ impl BoardView {
     pub fn remove_highlights(&self) {
         let mut layout = self.imp().layout.borrow_mut();
         if let Some(l) = layout.as_mut() {
-            let new = l.mapped(|(value, _)| (value.clone(), PrototileDrawingMode::Normal));
-            layout.replace(new);
+            for mut prototile in l.iter_mut() {
+                prototile.data_mut().drawing_mode = PrototileDrawingMode::Normal;
+            }
         }
     }
 }

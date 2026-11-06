@@ -17,7 +17,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-use crate::app::components::polyform_drawing::mode::PrototileDrawingMode;
+use crate::app::components::polyform_drawing::PrototileDrawingMode;
 use crate::app::components::tile::TileView;
 use crate::config::VERSION;
 use crate::global::settings::{Preferences, ShowBoardGridLines};
