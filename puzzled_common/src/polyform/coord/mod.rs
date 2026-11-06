@@ -1,8 +1,10 @@
+use std::hash::Hash;
+
 pub mod coord_box;
 pub mod hex;
 pub mod regular;
 
-pub trait Coord: Clone + Copy {
+pub trait Coord: Clone + Copy + Hash {
     fn zero() -> Self;
 
     fn one() -> Self;

@@ -1,23 +1,24 @@
 use crate::polyform::coord::Coord;
-use crate::polyform::coord::coord_box::CoordBox;
 use crate::polyform::prototile::{MutPrototile, Prototile};
 use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Square<T>
+pub struct Square<T, C>
 where
     T: Clone + Hash,
+    C: Coord,
 {
-    coord: CoordBox,
+    coord: C,
     orientation: SquareOrientation,
     data: T,
 }
 
-impl<T> Square<T>
+impl<T, C> Square<T, C>
 where
     T: Clone + Hash,
+    C: Coord,
 {
-    pub fn new(coord: CoordBox, orientation: SquareOrientation, data: T) -> Self {
+    pub fn new(coord: C, orientation: SquareOrientation, data: T) -> Self {
         Square {
             coord,
             orientation,
@@ -26,11 +27,12 @@ where
     }
 }
 
-impl<T> Prototile<T, CoordBox, SquareOrientation> for Square<T>
+impl<T, C> Prototile<T, C, SquareOrientation> for Square<T, C>
 where
     T: Clone + Hash,
+    C: Coord,
 {
-    fn coord(&self) -> CoordBox {
+    fn coord(&self) -> C {
         self.coord
     }
 
@@ -43,11 +45,12 @@ where
     }
 }
 
-impl<T> MutPrototile<T, CoordBox, SquareOrientation> for Square<T>
+impl<T, C> MutPrototile<T, C, SquareOrientation> for Square<T, C>
 where
     T: Clone + Hash,
+    C: Coord,
 {
-    fn set_coord(&mut self, coord: CoordBox) {
+    fn set_coord(&mut self, coord: C) {
         self.coord = coord;
     }
 
@@ -59,11 +62,11 @@ where
         self.data = data;
     }
 
-    fn rotate_counterclockwise(&mut self, prime: CoordBox, viewport: CoordBox) {
+    fn rotate_counterclockwise(&mut self, prime: C, viewport: C) {
         self.coord = self.coord.rotate_around(prime, viewport);
     }
 
-    fn flip_default(&mut self, prime: CoordBox, viewport: CoordBox) {
+    fn flip_default(&mut self, prime: C, viewport: C) {
         self.coord = self.coord.flip_default(prime, viewport);
     }
 

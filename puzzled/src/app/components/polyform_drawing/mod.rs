@@ -5,7 +5,7 @@ use adw::prelude::GdkCairoContextExt;
 use gtk::pango;
 use pangocairo::functions::show_layout;
 use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::poly::polyomino::Polyomino;
 use puzzled_common::polyform::prototile::{Prototile, Square};
@@ -109,13 +109,10 @@ fn draw_square<const M: usize>(
     pan: &pango::Layout,
     cell_width: f64,
     cell_height: f64,
-    cell: &Square<PolyformDrawingData>,
+    cell: &Square<PolyformDrawingData, RegularCoord>,
     drawing_settings: &DrawingSettings<M>,
 ) {
-    let coord = match cell.coord() {
-        CoordBox::Regular(coord) => coord,
-        _ => unreachable!(),
-    };
+    let coord = cell.coord();
     let x = coord.x();
     let y = coord.y();
     let cell_x = x as f64 * cell_width;

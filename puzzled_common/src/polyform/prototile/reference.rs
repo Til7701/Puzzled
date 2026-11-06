@@ -1,4 +1,6 @@
 use crate::polyform::coord::coord_box::CoordBox;
+use crate::polyform::coord::hex::HexCoord;
+use crate::polyform::coord::regular::RegularCoord;
 use crate::polyform::prototile::{Hexagon, Orientation, Prototile, Square};
 use std::hash::Hash;
 
@@ -7,8 +9,8 @@ pub enum PrototileRef<'a, T>
 where
     T: Clone + Hash,
 {
-    Square(&'a Square<T>),
-    Hexagon(&'a Hexagon<T>),
+    Polyomino(&'a Square<T, RegularCoord>),
+    Hexomino(&'a Hexagon<T, HexCoord>),
 }
 
 impl<'a, T> Prototile<T, CoordBox, Orientation> for PrototileRef<'a, T>
@@ -17,40 +19,40 @@ where
 {
     fn coord(&self) -> CoordBox {
         match self {
-            PrototileRef::Square(square) => square.coord(),
-            PrototileRef::Hexagon(hexagon) => hexagon.coord(),
+            PrototileRef::Polyomino(square) => square.coord().into(),
+            PrototileRef::Hexomino(hexagon) => hexagon.coord().into(),
         }
     }
 
     fn orientation(&self) -> Orientation {
         match self {
-            PrototileRef::Square(square) => square.orientation().into(),
-            PrototileRef::Hexagon(hexagon) => hexagon.orientation().into(),
+            PrototileRef::Polyomino(square) => square.orientation().into(),
+            PrototileRef::Hexomino(hexagon) => hexagon.orientation().into(),
         }
     }
 
     fn data(&self) -> &T {
         match self {
-            PrototileRef::Square(square) => square.data(),
-            PrototileRef::Hexagon(hexagon) => hexagon.data(),
+            PrototileRef::Polyomino(square) => square.data(),
+            PrototileRef::Hexomino(hexagon) => hexagon.data(),
         }
     }
 }
 
-impl<'a, T> From<&'a Square<T>> for PrototileRef<'a, T>
+impl<'a, T> From<&'a Square<T, RegularCoord>> for PrototileRef<'a, T>
 where
     T: Clone + Hash,
 {
-    fn from(value: &'a Square<T>) -> Self {
-        PrototileRef::Square(value)
+    fn from(value: &'a Square<T, RegularCoord>) -> Self {
+        PrototileRef::Polyomino(value)
     }
 }
 
-impl<'a, T> From<&'a Hexagon<T>> for PrototileRef<'a, T>
+impl<'a, T> From<&'a Hexagon<T, HexCoord>> for PrototileRef<'a, T>
 where
     T: Clone + Hash,
 {
-    fn from(value: &'a Hexagon<T>) -> Self {
-        PrototileRef::Hexagon(value)
+    fn from(value: &'a Hexagon<T, HexCoord>) -> Self {
+        PrototileRef::Hexomino(value)
     }
 }

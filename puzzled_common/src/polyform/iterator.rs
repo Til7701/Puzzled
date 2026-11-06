@@ -1,4 +1,5 @@
 use crate::polyform::Polyform;
+use crate::polyform::coord::hex::HexCoord;
 use crate::polyform::coord::regular::RegularCoord;
 use crate::polyform::poly::Poly;
 use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square};
@@ -19,10 +20,10 @@ where
     pub fn iter_mut(&mut self) -> PolyformIterMut<'_, T> {
         match self {
             Polyform::Polyomino(polyomino) => {
-                PolyformIterMut::Squares(polyomino.cells_mut().iter_mut())
+                PolyformIterMut::Polyomino(polyomino.cells_mut().iter_mut())
             }
             Polyform::Hexomino(hexomino) => {
-                PolyformIterMut::Hexagons(hexomino.cells_mut().iter_mut())
+                PolyformIterMut::Hexomino(hexomino.cells_mut().iter_mut())
             }
         }
     }
@@ -63,8 +64,8 @@ pub enum PolyformIterMut<'a, T>
 where
     T: Clone + Hash,
 {
-    Squares(IterMut<'a, Square<T>>),
-    Hexagons(IterMut<'a, Hexagon<T>>),
+    Polyomino(IterMut<'a, Square<T, RegularCoord>>),
+    Hexomino(IterMut<'a, Hexagon<T, HexCoord>>),
 }
 
 impl<'a, T> Iterator for PolyformIterMut<'a, T>
@@ -75,8 +76,8 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-            Self::Squares(iter) => iter.next().map(|s| s.into()),
-            Self::Hexagons(iter) => iter.next().map(|h| h.into()),
+            Self::Polyomino(iter) => iter.next().map(|s| s.into()),
+            Self::Hexomino(iter) => iter.next().map(|h| h.into()),
         }
     }
 }
@@ -97,7 +98,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         match &mut self.polyform {
-            Polyform::Polyomino { .. } => {
+            Polyform::Polyomino(_) => {
                 let polyform = &mut self.polyform;
                 let v = if self.index >= 8 {
                     None
@@ -111,7 +112,7 @@ where
                 self.index += 1;
                 v
             }
-            Polyform::Hexomino { .. } => {
+            Polyform::Hexomino(_) => {
                 todo!()
             }
         }

@@ -9,7 +9,7 @@ where
     T: Clone + Hash,
 {
     dim: HexCoord,
-    cells: Vec<Hexagon<T>>,
+    cells: Vec<Hexagon<T, HexCoord>>,
 }
 
 impl<T> Hexomino<T>
@@ -24,11 +24,11 @@ where
         todo!()
     }
 
-    pub fn cells(&self) -> &[Hexagon<T>] {
+    pub fn cells(&self) -> &[Hexagon<T, HexCoord>] {
         &self.cells
     }
 
-    pub fn cells_mut(&mut self) -> &mut [Hexagon<T>] {
+    pub fn cells_mut(&mut self) -> &mut [Hexagon<T, HexCoord>] {
         &mut self.cells
     }
 }
@@ -106,19 +106,19 @@ impl UnitPoly for Hexomino<()> {
         todo!()
     }
 
-    fn count_biggest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
-        todo!()
-    }
-
-    fn count_smallest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
-        todo!()
-    }
-
     fn inverted(&self) -> Self {
         todo!()
     }
 
     fn as_2d_slice(&self) -> String {
+        todo!()
+    }
+
+    fn count_biggest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
+        todo!()
+    }
+
+    fn count_smallest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
         todo!()
     }
 

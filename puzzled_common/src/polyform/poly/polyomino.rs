@@ -1,5 +1,4 @@
 use crate::polyform::coord::Coord;
-use crate::polyform::coord::coord_box::CoordBox;
 use crate::polyform::coord::regular::RegularCoord;
 use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 use crate::polyform::prototile::{
@@ -13,7 +12,7 @@ where
     T: Clone + Hash,
 {
     dim: RegularCoord,
-    cells: Vec<Square<T>>,
+    cells: Vec<Square<T, RegularCoord>>,
 }
 
 impl<T> Polyomino<T>
@@ -25,7 +24,7 @@ where
         for i in 0..size.x() {
             for j in 0..size.y() {
                 squares.push(Square::new(
-                    CoordBox::Regular(RegularCoord::new(i, j)),
+                    RegularCoord::new(i, j),
                     SquareOrientation::OnSide,
                     value.clone(),
                 ))
@@ -45,7 +44,7 @@ where
             for (j, value) in row.iter().enumerate() {
                 if let Some(data) = mapper(value, (i, j)) {
                     squares.push(Square::new(
-                        CoordBox::Regular(RegularCoord::new(i as u32, j as u32)),
+                        RegularCoord::new(i as u32, j as u32),
                         SquareOrientation::OnSide,
                         data,
                     ))
@@ -59,18 +58,16 @@ where
         }
     }
 
-    pub fn cells(&self) -> &[Square<T>] {
+    pub fn cells(&self) -> &[Square<T, RegularCoord>] {
         &self.cells
     }
 
-    pub fn cells_mut(&mut self) -> &mut [Square<T>] {
+    pub fn cells_mut(&mut self) -> &mut [Square<T, RegularCoord>] {
         &mut self.cells
     }
 
-    fn get_square(&self, coord: RegularCoord) -> Option<&Square<T>> {
-        self.cells
-            .iter()
-            .find(|p| p.coord() == CoordBox::Regular(coord))
+    fn get_square(&self, coord: RegularCoord) -> Option<&Square<T, RegularCoord>> {
+        self.cells.iter().find(|p| p.coord() == coord)
     }
 }
 
@@ -81,14 +78,14 @@ where
     fn get(&self, coord: RegularCoord) -> Option<PrototileRef<'_, T>> {
         self.cells
             .iter()
-            .find(|p| p.coord() == CoordBox::Regular(coord))
+            .find(|p| p.coord() == coord)
             .map(|s| s.into())
     }
 
     fn get_mut(&mut self, coord: RegularCoord) -> Option<PrototileMutRef<'_, T>> {
         self.cells
             .iter_mut()
-            .find(|p| p.coord() == CoordBox::Regular(coord))
+            .find(|p| p.coord() == coord)
             .map(|s| s.into())
     }
 
@@ -165,10 +162,7 @@ where
             .iter()
             .map(|s| {
                 let data = s.data();
-                let coord = match s.coord() {
-                    CoordBox::Regular(regular) => regular,
-                    _ => unreachable!(),
-                };
+                let coord = s.coord();
                 let new_data = mapper(data, coord);
                 Square::new(s.coord(), s.orientation(), new_data)
             })
@@ -199,7 +193,7 @@ where
     fn extend_adjacent(&mut self, value: T) {
         self.dim = RegularCoord::new(self.dim.x() + 2, self.dim.y() + 2);
         for cell in &mut self.cells {
-            cell.set_coord(cell.coord() + CoordBox::Regular(RegularCoord::new(1, 1)))
+            cell.set_coord(cell.coord() + RegularCoord::new(1, 1))
         }
 
         let mut new_cells = Vec::new();
@@ -253,30 +247,20 @@ where
         let min_y = self
             .cells
             .iter()
-            .map(|square| match square.coord() {
-                CoordBox::Regular(coord) => coord.y(),
-                _ => unreachable!(),
-            })
+            .map(|square| square.coord().y())
             .min()
             .unwrap();
-        self.cells
-            .iter_mut()
-            .for_each(|square| match square.coord() {
-                CoordBox::Regular(coord) => {
-                    square.set_coord(coord.with_y(coord.y() - min_y).into());
-                }
-                _ => unreachable!(),
-            });
+        self.cells.iter_mut().for_each(|square| {
+            let coord = square.coord();
+            square.set_coord(coord.with_y(coord.y() - min_y).into());
+        });
         self.dim = self.dim.with_y(self.dim.y() - min_y);
         lower = lower.with_y(lower.y() + min_y);
 
         let max_y = self
             .cells
             .iter()
-            .map(|square| match square.coord() {
-                CoordBox::Regular(coord) => coord.y(),
-                _ => unreachable!(),
-            })
+            .map(|square| square.coord().y())
             .max()
             .unwrap();
         self.dim = self.dim.with_y(self.dim.y() - max_y);
@@ -285,30 +269,20 @@ where
         let min_x = self
             .cells
             .iter()
-            .map(|square| match square.coord() {
-                CoordBox::Regular(coord) => coord.x(),
-                _ => unreachable!(),
-            })
+            .map(|square| square.coord().x())
             .min()
             .unwrap();
-        self.cells
-            .iter_mut()
-            .for_each(|square| match square.coord() {
-                CoordBox::Regular(coord) => {
-                    square.set_coord(coord.with_x(coord.x() - min_x).into());
-                }
-                _ => unreachable!(),
-            });
+        self.cells.iter_mut().for_each(|square| {
+            let coord = square.coord();
+            square.set_coord(coord.with_x(coord.x() - min_x).into());
+        });
         self.dim = self.dim.with_x(min_x);
         lower = lower.with_x(lower.x() + min_x);
 
         let max_x = self
             .cells
             .iter()
-            .map(|square| match square.coord() {
-                CoordBox::Regular(coord) => coord.x(),
-                _ => unreachable!(),
-            })
+            .map(|square| square.coord().x())
             .max()
             .unwrap();
         self.dim = self.dim.with_x(max_x);
@@ -344,10 +318,10 @@ impl UnitPoly for Polyomino<()> {
                                 valid = false;
                                 break;
                             }
-                            (Some(PrototileRef::Square(parent_c)), None) => {
+                            (Some(PrototileRef::Polyomino(parent_c)), None) => {
                                 new_array.cells.push(parent_c.clone())
                             }
-                            (None, Some(PrototileRef::Square(child_c))) => {
+                            (None, Some(PrototileRef::Polyomino(child_c))) => {
                                 new_array.cells.push(child_c.clone())
                             }
                             (None, None) => {}
@@ -379,7 +353,7 @@ impl UnitPoly for Polyomino<()> {
 
         for i in 0..self.dim.x() {
             for j in 0..self.dim.y() {
-                let coord = CoordBox::Regular(RegularCoord::new(i, j));
+                let coord = RegularCoord::new(i, j);
                 if self.cells.iter().any(|c| c.coord() == coord) {
                     result
                         .cells
