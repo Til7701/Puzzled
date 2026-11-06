@@ -124,8 +124,10 @@ impl TileView {
             main_colors: [self.color()],
             highlight_colors: Self::highlight_color,
             border_color: None,
+            text_color: adw_ext::DARK_5, // Does not matter
         };
-        polyform_drawing::draw(cr, width, height, &*current_rotation, &settings);
+        let pan = self.create_pango_layout(None);
+        polyform_drawing::draw(cr, &pan, width, height, &*current_rotation, &settings);
     }
 
     fn highlight_color(drawing_mode: &PrototileDrawingMode) -> Option<RGBA> {

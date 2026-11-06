@@ -15,7 +15,7 @@ use puzzle_config::BoardConfig;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
+use puzzled_common::polyform::prototile::MutPrototile;
 use std::ops::Deref;
 
 const MAIN_COLORS_COUNT: usize = 6;
@@ -108,17 +108,23 @@ impl BoardView {
     fn draw(&self, cr: &Context, width: i32, height: i32) {
         let layout = self.imp().layout.borrow();
         if let Some(l) = layout.deref() {
-            let (main_colors, border_color) = if StyleManager::default().is_dark() {
-                (DARK_MAIN_COLORS, self.dark_border_color())
+            let (main_colors, border_color, text_color) = if StyleManager::default().is_dark() {
+                (DARK_MAIN_COLORS, self.dark_border_color(), adw_ext::LIGHT_1)
             } else {
-                (LIGHT_MAIN_COLORS, self.light_border_color())
+                (
+                    LIGHT_MAIN_COLORS,
+                    self.light_border_color(),
+                    adw_ext::DARK_5,
+                )
             };
             let settings = DrawingSettings {
                 main_colors,
                 highlight_colors: Self::highlight_color,
                 border_color,
+                text_color,
             };
-            polyform_drawing::draw(cr, width, height, l, &settings);
+            let pan = self.create_pango_layout(None);
+            polyform_drawing::draw(cr, &pan, width, height, l, &settings);
         }
     }
 
