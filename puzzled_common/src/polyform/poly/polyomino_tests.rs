@@ -1,6 +1,6 @@
 use crate::polyform::coord::regular::RegularCoord;
 use crate::polyform::poly::polyomino::Polyomino;
-use crate::polyform::poly::{Poly, UnitPoly};
+use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 
 #[test]
 fn test_rotate_counterclockwise_size_1() {
@@ -50,202 +50,169 @@ fn test_rotate_to_landscape_one() {
     assert_eq!(expected, shape);
 }
 
-// #[test]
-// fn test_trim_sides_empty() {
-//     let mut array = Polyomino::from_bool_slice(&[[true]]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[true]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 0,
-//         lower_y: 0,
-//         upper_y: 0,
-//         upper_x: 0,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_true() {
-//     let mut array = Polyomino::from_bool_slice(&[[true]]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 0,
-//         lower_y: 1,
-//         upper_y: 0,
-//         upper_x: 0,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_false() {
-//     let mut array = Polyomino::from_bool_slice(&[[false]]);
-//     let trim_sides = array.trim_matching(false);
-//     let expected = Polyomino::from_bool_slice(&[[]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 0,
-//         lower_y: 1,
-//         upper_y: 0,
-//         upper_x: 0,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_lower_y_upper_y() {
-//     let mut array = Polyomino::from_bool_slice(&[
-//         [true, true, false, true],
-//         [true, false, false, true],
-//         [true, true, false, true],
-//     ]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[true, false], [false, false], [true, false]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 0,
-//         lower_y: 1,
-//         upper_y: 1,
-//         upper_x: 0,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_lower_x_upper_x() {
-//     let mut array = Polyomino::from_bool_slice(&[
-//         [true, true, true, true],
-//         [false, true, false, false],
-//         [true, true, true, true],
-//     ]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[false, true, false, false]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 1,
-//         lower_y: 0,
-//         upper_y: 0,
-//         upper_x: 1,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_all_sides() {
-//     let mut array = Polyomino::from_bool_slice(&[
-//         [true, true, true, true, true],
-//         [true, true, false, false, true],
-//         [true, false, true, false, true],
-//         [true, true, true, true, true],
-//     ]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[true, false, false], [false, true, false]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 1,
-//         lower_y: 1,
-//         upper_y: 1,
-//         upper_x: 1,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_from_lower_y() {
-//     let mut array = Polyomino::from_bool_slice(&[[true, true, false, false], [true, false, true, false]]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[true, false, false], [false, true, false]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 0,
-//         lower_y: 1,
-//         upper_y: 0,
-//         upper_x: 0,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_from_upper_y() {
-//     let mut array = Polyomino::from_bool_slice(&[[false, false, true, true], [false, true, false, true]]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[false, false, true], [false, true, false]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 0,
-//         lower_y: 0,
-//         upper_y: 1,
-//         upper_x: 0,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_from_lower_x() {
-//     let mut array = Polyomino::from_bool_slice(&[
-//         [true, true, true],
-//         [false, true, false],
-//         [true, false, true],
-//     ]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[false, true, false], [true, false, true]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 1,
-//         lower_y: 0,
-//         upper_y: 0,
-//         upper_x: 0,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_from_upper_x() {
-//     let mut array = Polyomino::from_bool_slice(&[
-//         [false, true, false],
-//         [true, false, true],
-//         [true, true, true],
-//     ]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[[false, true, false], [true, false, true]]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 0,
-//         lower_y: 0,
-//         upper_y: 0,
-//         upper_x: 1,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
-//
-// #[test]
-// fn test_trim_sides_rows_cols_test() {
-//     let mut array = Polyomino::from_bool_slice(&[
-//         [false, false, false, false],
-//         [false, false, false, false],
-//         [true, true, true, true],
-//         [false, true, false, true],
-//         [true, true, true, true],
-//     ]);
-//     let trim_sides = array.trim_matching(true);
-//     let expected = Polyomino::from_bool_slice(&[
-//         [false, false, false, false],
-//         [false, false, false, false],
-//         [true, true, true, true],
-//         [false, true, false, true],
-//     ]);
-//     assert_eq!(expected, array);
-//     let expected_trim_sides = TrimSides {
-//         lower_x: 0,
-//         lower_y: 0,
-//         upper_y: 0,
-//         upper_x: 1,
-//     };
-//     assert_eq!(expected_trim_sides, trim_sides);
-// }
+#[test]
+fn test_trim_sides_empty() {
+    let mut array = Polyomino::from_bool_slice(&[[true]]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[true]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(0, 0),
+        upper: RegularCoord::new(0, 0),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_1() {
+    let mut array = Polyomino::from_bool_slice(&[[false]]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(0, 1),
+        upper: RegularCoord::new(0, 0),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_lower_y_upper_y() {
+    let mut array = Polyomino::from_bool_slice(&[
+        [false, false, true, false],
+        [false, true, true, false],
+        [false, false, true, false],
+    ]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[false, true], [true, true], [false, true]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(0, 1),
+        upper: RegularCoord::new(0, 1),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_lower_x_upper_x() {
+    let mut array = Polyomino::from_bool_slice(&[
+        [true, true, true, true],
+        [false, true, false, false],
+        [true, true, true, true],
+    ]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[false, true, false, false]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(1, 0),
+        upper: RegularCoord::new(1, 0),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_all_sides() {
+    let mut array = Polyomino::from_bool_slice(&[
+        [false, false, false, false, false],
+        [false, false, true, true, false],
+        [false, true, false, true, false],
+        [false, false, false, false, false],
+    ]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[false, true, true], [true, false, true]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(1, 1),
+        upper: RegularCoord::new(1, 1),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_from_lower_y() {
+    let mut array =
+        Polyomino::from_bool_slice(&[[false, false, true, true], [false, true, false, true]]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[false, true, true], [true, false, true]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(0, 1),
+        upper: RegularCoord::new(0, 0),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_from_upper_y() {
+    let mut array =
+        Polyomino::from_bool_slice(&[[true, true, false, false], [true, false, true, false]]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[true, true, false], [true, false, true]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(0, 0),
+        upper: RegularCoord::new(0, 1),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_from_lower_x() {
+    let mut array = Polyomino::from_bool_slice(&[
+        [false, false, false],
+        [true, false, true],
+        [false, true, false],
+    ]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[true, false, true], [false, true, false]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(1, 0),
+        upper: RegularCoord::new(0, 0),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_from_upper_x() {
+    let mut array = Polyomino::from_bool_slice(&[
+        [true, false, true],
+        [false, true, false],
+        [false, false, false],
+    ]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[[true, false, true], [false, true, false]]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(0, 0),
+        upper: RegularCoord::new(1, 0),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_trim_sides_rows_cols_test() {
+    let mut array = Polyomino::from_bool_slice(&[
+        [true, true, true, true],
+        [true, true, true, true],
+        [false, false, false, false],
+        [true, false, true, false],
+        [false, false, false, false],
+    ]);
+    let trim_sides = array.trim();
+    let expected = Polyomino::from_bool_slice(&[
+        [true, true, true, true],
+        [true, true, true, true],
+        [false, false, false, false],
+        [true, false, true, false],
+    ]);
+    assert_eq!(expected, array);
+    let expected_trim_sides = TrimSides {
+        lower: RegularCoord::new(0, 0),
+        upper: RegularCoord::new(1, 0),
+    };
+    assert_eq!(expected_trim_sides, trim_sides);
+}
 
 #[test]
 fn test_count_biggest_connected_area_of_cells_matching_empty() {

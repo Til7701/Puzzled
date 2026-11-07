@@ -39,7 +39,19 @@ where
     }
 
     pub fn from_vec<X>(vec: &[Vec<X>], mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>) -> Self {
-        let size = RegularCoord::new(vec.len() as u32, vec[0].len() as u32);
+        let size = RegularCoord::new(
+            vec.len() as u32,
+            if !vec.is_empty() {
+                vec[0].len() as u32
+            } else {
+                0
+            },
+        );
+        let size = if size.x() == 0 || size.y() == 0 {
+            RegularCoord::new(0, 0)
+        } else {
+            size
+        };
         let mut squares = Vec::with_capacity(size.area());
         for (i, row) in vec.iter().enumerate() {
             for (j, value) in row.iter().enumerate() {
@@ -239,55 +251,52 @@ where
     }
 
     fn trim(&mut self) -> TrimSides<RegularCoord> {
+        println!("{}", self);
         let mut lower = RegularCoord::new(0, 0);
         let mut upper = RegularCoord::new(0, 0);
         if self.dim.x() == 0 || self.dim.y() == 0 {
             return TrimSides { lower, upper };
         }
+        if self.cells.is_empty() {
+            let old_dim = self.dim;
+            self.dim = RegularCoord::new(0, 0);
+            return TrimSides {
+                lower: old_dim,
+                upper,
+            };
+        }
 
-        let min_y = self
-            .cells
-            .iter()
-            .map(|square| square.coord().y())
-            .min()
-            .unwrap();
-        self.cells.iter_mut().for_each(|square| {
-            let coord = square.coord();
-            square.set_coord(coord.with_y(coord.y() - min_y));
-        });
-        self.dim = self.dim.with_y(self.dim.y() - min_y);
-        lower = lower.with_y(lower.y() + min_y);
+        if let Some(min_y) = self.cells.iter().map(|square| square.coord().y()).min() {
+            self.cells.iter_mut().for_each(|square| {
+                let coord = square.coord();
+                square.set_coord(coord.with_y(coord.y() - min_y));
+            });
+            self.dim = self.dim.with_y(self.dim.y() - min_y);
+            lower = lower.with_y(lower.y() + min_y);
+        };
 
-        let max_y = self
-            .cells
-            .iter()
-            .map(|square| square.coord().y())
-            .max()
-            .unwrap();
-        self.dim = self.dim.with_y(max_y + 1);
-        upper = upper.with_y(upper.y() + max_y);
+        if let Some(max_y) = self.cells.iter().map(|square| square.coord().y()).max() {
+            self.dim = self.dim.with_y(max_y + 1);
+            upper = upper.with_y(upper.y() + max_y);
+        }
 
-        let min_x = self
-            .cells
-            .iter()
-            .map(|square| square.coord().x())
-            .min()
-            .unwrap();
-        self.cells.iter_mut().for_each(|square| {
-            let coord = square.coord();
-            square.set_coord(coord.with_x(coord.x() - min_x));
-        });
-        self.dim = self.dim.with_x(min_x);
-        lower = lower.with_x(lower.x() + min_x);
+        if let Some(min_x) = self.cells.iter().map(|square| square.coord().x()).min() {
+            self.cells.iter_mut().for_each(|square| {
+                let coord = square.coord();
+                square.set_coord(coord.with_x(coord.x() - min_x));
+            });
+            self.dim = self.dim.with_x(min_x);
+            lower = lower.with_x(lower.x() + min_x);
+        }
 
-        let max_x = self
-            .cells
-            .iter()
-            .map(|square| square.coord().x())
-            .max()
-            .unwrap();
-        self.dim = self.dim.with_x(max_x + 1);
-        upper = upper.with_x(upper.x() + max_x);
+        if let Some(max_x) = self.cells.iter().map(|square| square.coord().x()).max() {
+            self.dim = self.dim.with_x(max_x + 1);
+            upper = upper.with_x(upper.x() + max_x);
+        }
+
+        if self.dim.x() == 0 || self.dim.y() == 0 {
+            self.dim = RegularCoord::new(0, 0);
+        }
 
         TrimSides { lower, upper }
     }
