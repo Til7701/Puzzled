@@ -190,6 +190,7 @@ mod tests {
     use puzzle_solver::board::Board;
     use puzzle_solver::cancellation_token::CancellationToken;
     use puzzle_solver::tile::Tile;
+    use puzzled_common::polyform::poly::{Poly, UnitPoly};
     use std::collections::{HashMap, HashSet};
     use std::fs;
     use std::hash::{DefaultHasher, Hash, Hasher};
@@ -252,7 +253,8 @@ mod tests {
                 let board_config = &puzzle.board_config();
                 match board_config {
                     BoardConfig::Simple { layout } => {
-                        let board: Board = layout.map(|e| !e).clone().into();
+                        let board_polyform = layout.inverted();
+                        let board = Board::new(board_polyform);
                         let tiles: Vec<Tile> = puzzle
                             .tiles()
                             .iter()

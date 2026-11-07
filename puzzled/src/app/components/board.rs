@@ -1,14 +1,41 @@
+use crate::adw_ext;
+use crate::app::components::polyform_drawing;
+use crate::app::components::polyform_drawing::{
+    DrawingSettings, PolyformDrawingData, PrototileDrawingMode,
+};
 use crate::global::settings::{Preferences, ShowBoardGridLines};
-use adw::gio;
+use adw::gdk::RGBA;
+use adw::gdk::cairo::Context;
 use adw::glib;
-use adw::prelude::Cast;
 use adw::subclass::prelude::*;
+use adw::{StyleManager, gio};
+use gtk::Widget;
 use gtk::prelude::*;
-use gtk::{Frame, Label, Widget};
 use puzzle_config::BoardConfig;
-use std::cell::Ref;
+use puzzled_common::polyform::Polyform;
+use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::prototile::MutPrototile;
+use std::ops::Deref;
 
-const SHOW_GRID_LINES_CLASS: &str = "show-grid-lines";
+const MAIN_COLORS_COUNT: usize = 6;
+const LIGHT_MAIN_COLORS: [RGBA; MAIN_COLORS_COUNT] = [
+    adw_ext::LIGHT_2,
+    adw_ext::LIGHT_3,
+    adw_ext::LIGHT_4,
+    adw_ext::LIGHT_5,
+    adw_ext::DARK_1,
+    adw_ext::DARK_2,
+];
+
+const DARK_MAIN_COLORS: [RGBA; MAIN_COLORS_COUNT] = [
+    adw_ext::from_hex(0x333333),
+    adw_ext::from_hex(0x444444),
+    adw_ext::from_hex(0x555555),
+    adw_ext::from_hex(0x666666),
+    adw_ext::from_hex(0x777777),
+    adw_ext::from_hex(0x888888),
+];
 
 mod imp {
     use super::*;
@@ -20,15 +47,14 @@ mod imp {
     pub struct PuzzledBoardView {
         #[property(name = "show-grid-lines", get, set)]
         pub show_grid_lines: RefCell<bool>,
-
-        pub elements: RefCell<Vec<Widget>>,
+        pub layout: RefCell<Option<Polyform<PolyformDrawingData>>>,
     }
 
     #[glib::object_subclass]
     impl ObjectSubclass for PuzzledBoardView {
         const NAME: &'static str = "PuzzledBoardView";
         type Type = BoardView;
-        type ParentType = gtk::Grid;
+        type ParentType = gtk::DrawingArea;
 
         fn class_init(_: &mut Self::Class) {}
 
@@ -38,110 +64,113 @@ mod imp {
     #[glib::derived_properties]
     impl ObjectImpl for PuzzledBoardView {}
     impl WidgetImpl for PuzzledBoardView {}
-    impl GridImpl for PuzzledBoardView {}
+    impl DrawingAreaImpl for PuzzledBoardView {}
 }
 
 glib::wrapper! {
     pub struct BoardView(ObjectSubclass<imp::PuzzledBoardView>)
-        @extends Widget, gtk::Grid,
+        @extends Widget, gtk::DrawingArea,
          @implements gtk::Buildable, gtk::Accessible, gtk::ConstraintTarget,
-                  gtk::Native, gio::ActionGroup, gio::ActionMap, gtk::Orientable;
+                  gtk::Native, gio::ActionGroup, gio::ActionMap;
 }
 
 impl BoardView {
     pub fn new(board_config: &BoardConfig) -> Result<BoardView, String> {
         let obj: BoardView = glib::Object::builder().build();
 
-        let board_layout = &board_config.layout();
+        let layout = match board_config {
+            BoardConfig::Simple { layout } => layout.mapped(|_| PolyformDrawingData::default()),
+            BoardConfig::Area { layout, .. } => layout.mapped(|value| {
+                let mut data = PolyformDrawingData::default();
+                data.text = Some(value.display_value.clone());
+                data.main_color_index = value.area_index as usize;
+                data
+            }),
+        };
+        obj.imp().layout.replace(Some(layout));
 
-        obj.add_css_class("board-grid");
-        obj.set_row_homogeneous(true);
-        obj.set_column_homogeneous(true);
-
-        let mut elements: Vec<Widget> = Vec::new();
-
-        for ((x, y), value) in board_layout.indexed_iter() {
-            let cell = if *value {
-                match board_config {
-                    BoardConfig::Simple { .. } => {
-                        let css_classes: Vec<String> =
-                            vec!["board-cell".to_string(), "board-cell-simple".to_string()];
-
-                        Frame::builder().css_classes(css_classes).build()
-                    }
-                    BoardConfig::Area {
-                        area_indices,
-                        display_values,
-                        ..
-                    } => {
-                        let css_classes: Vec<String> = vec![
-                            "board-cell".to_string(),
-                            format!("board-cell-{}", area_indices[[x, y]]),
-                        ];
-                        let cell = Frame::builder().css_classes(css_classes).build();
-
-                        let label = Label::new(Some(&display_values[[x, y]]));
-                        cell.set_child(Some(&label));
-                        cell
-                    }
-                }
-            } else {
-                let css_classes: Vec<String> =
-                    vec!["board-cell".to_string(), "board-cell-outside".to_string()];
-                Frame::builder().css_classes(css_classes).build()
-            };
-            obj.attach(&cell, x as i32, y as i32, 1, 1);
-            elements.push(cell.upcast::<Widget>());
-        }
-        obj.imp().elements.replace(elements);
+        obj.set_draw_func({
+            let self_clone = obj.clone();
+            move |_, cr, width, height| self_clone.draw(cr, width, height)
+        });
 
         let preferences = Preferences::default();
         preferences.bind(ShowBoardGridLines, &obj, "show-grid-lines");
-        obj.update_grid_lines(preferences.get(ShowBoardGridLines));
         obj.connect_show_grid_lines_notify({
             move |obj| {
-                let show_grid_lines = preferences.get(ShowBoardGridLines);
-                obj.update_grid_lines(show_grid_lines);
+                obj.queue_draw();
             }
         });
 
         Ok(obj)
     }
 
-    pub fn elements(&self) -> Ref<'_, Vec<Widget>> {
-        self.imp().elements.borrow()
+    fn draw(&self, cr: &Context, width: i32, height: i32) {
+        let layout = self.imp().layout.borrow();
+        if let Some(l) = layout.deref() {
+            let (main_colors, border_color, text_color) = if StyleManager::default().is_dark() {
+                (DARK_MAIN_COLORS, self.dark_border_color(), adw_ext::LIGHT_1)
+            } else {
+                (
+                    LIGHT_MAIN_COLORS,
+                    self.light_border_color(),
+                    adw_ext::DARK_5,
+                )
+            };
+            let settings = DrawingSettings {
+                main_colors,
+                highlight_colors: Self::highlight_color,
+                border_color,
+                text_color,
+            };
+            let pan = self.create_pango_layout(None);
+            polyform_drawing::draw(cr, &pan, width, height, l, &settings);
+        }
+    }
+
+    fn light_border_color(&self) -> Option<RGBA> {
+        if *self.imp().show_grid_lines.borrow() {
+            return Some(adw_ext::from_hex(0xfafafb));
+        }
+        None
+    }
+    fn dark_border_color(&self) -> Option<RGBA> {
+        if *self.imp().show_grid_lines.borrow() {
+            return Some(adw_ext::from_hex(0x222226));
+        }
+        None
+    }
+
+    fn highlight_color(drawing_mode: &PrototileDrawingMode) -> Option<RGBA> {
+        match drawing_mode {
+            PrototileDrawingMode::Normal => None,
+            PrototileDrawingMode::Overlapping => None,
+            PrototileDrawingMode::OutOfBounds => None,
+            PrototileDrawingMode::Highlighted => Some(StyleManager::default().accent_color_rgba()),
+        }
     }
 
     pub fn get_min_element_size(&self) -> u32 {
-        self.elements()
-            .iter()
-            .map(|w| {
-                let frame: Option<&Frame> = w.downcast_ref::<Frame>();
-                frame
-                    .iter()
-                    .flat_map(|frame| frame.child())
-                    .flat_map(|child| child.downcast::<Label>())
-                    .map(|label| {
-                        let size = label
-                            .layout()
-                            .pixel_size()
-                            .0
-                            .max(label.layout().pixel_size().1);
-                        (size as f64 * 1.4) as u32
-                    })
-                    .next()
-                    .unwrap_or(0)
-            })
-            .chain(0..1)
-            .max()
-            .unwrap_or(0)
+        20u32 // FIXME
     }
 
-    fn update_grid_lines(&self, show_grid_lines: bool) {
-        if show_grid_lines {
-            self.add_css_class(SHOW_GRID_LINES_CLASS);
-        } else {
-            self.remove_css_class(SHOW_GRID_LINES_CLASS);
+    pub fn highlight(&self, coord: CoordBox) {
+        let mut layout = self.imp().layout.borrow_mut();
+        if let Some(l) = layout.as_mut() {
+            let prototile = l.get_mut(coord);
+            if let Some(mut p) = prototile {
+                let data = p.data_mut();
+                data.drawing_mode = PrototileDrawingMode::Highlighted;
+            }
+        }
+    }
+
+    pub fn remove_highlights(&self) {
+        let mut layout = self.imp().layout.borrow_mut();
+        if let Some(l) = layout.as_mut() {
+            for mut prototile in l.iter_mut() {
+                prototile.data_mut().drawing_mode = PrototileDrawingMode::Normal;
+            }
         }
     }
 }

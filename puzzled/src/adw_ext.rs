@@ -1,4 +1,5 @@
 use adw::gdk::RGBA;
+use gtk::Settings;
 
 pub const WARNING_BG_LIGHT: RGBA = from_hex(0xe5a50a);
 pub const WARNING_BG_DARK: RGBA = from_hex(0xcd9309);
@@ -52,11 +53,15 @@ pub const DARK_3: RGBA = from_hex(0x3d3846);
 pub const DARK_4: RGBA = from_hex(0x241f31);
 pub const DARK_5: RGBA = from_hex(0x000000);
 
-const fn from_hex(hex: u32) -> RGBA {
+pub const fn from_hex(hex: u32) -> RGBA {
     let r = ((hex >> 16) & 0xFF) as f64 / 255.0;
     let g = ((hex >> 8) & 0xFF) as f64 / 255.0;
     let b = (hex & 0xFF) as f64 / 255.0;
     RGBA::new(r as f32, g as f32, b as f32, 1.0)
+}
+
+pub fn accent_color() -> Option<RGBA> {
+    Settings::default()?.gtk_accent_color() // FIXME maybe cache if necessary
 }
 
 #[cfg(test)]

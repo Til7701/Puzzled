@@ -7,9 +7,8 @@ mod tile;
 
 use crate::app::puzzle::puzzle_area::puzzle_state::PuzzleState;
 use crate::model::extension::PuzzleTypeExtension;
-use crate::model::placement::PlacementModel;
+use crate::model::placement::{PixelPosition, PlacementModelWrapper};
 use crate::model::puzzle::PuzzleModel;
-use crate::offset::PixelOffset;
 use crate::window::PuzzledWindow;
 use adw::gio;
 use adw::subclass::prelude::*;
@@ -23,7 +22,7 @@ mod imp {
     use super::*;
     use crate::app::components::board::BoardView;
     use crate::app::components::tile::TileView;
-    use crate::model::placement::PlacementModel;
+    use crate::model::placement::PlacementModelWrapper;
     use adw::glib::subclass::Signal;
     use std::cell::{OnceCell, RefCell};
     use std::sync::OnceLock;
@@ -31,7 +30,7 @@ mod imp {
     #[derive(Debug, Default)]
     pub struct PuzzledPuzzleArea {
         pub window: OnceCell<PuzzledWindow>,
-        pub(super) placement_model: RefCell<Option<PlacementModel>>,
+        pub(super) placement_model: RefCell<Option<PlacementModelWrapper>>,
         pub board: RefCell<Option<BoardView>>,
         pub tiles: RefCell<Vec<TileView>>,
         pub hint_tile: RefCell<Option<TileView>>,
@@ -78,7 +77,7 @@ impl PuzzleArea {
             .expect("Failed to set window for PuzzlePage");
     }
 
-    pub(super) fn add(&self, widget: &Widget, pos: &PixelOffset) {
+    pub(super) fn add(&self, widget: &Widget, pos: &PixelPosition) {
         self.put(widget, pos.0, pos.1);
         self.imp()
             .elements_in_fixed
@@ -96,7 +95,7 @@ impl PuzzleArea {
         let puzzle_config = puzzle.config();
         self.clear_elements();
 
-        let placement_model = PlacementModel::new(puzzle);
+        let placement_model = PlacementModelWrapper::new(puzzle);
         placement_model.connect_tile_moved({
             let self_clone = self.clone();
             move || self_clone.run_on_tile_moved()
