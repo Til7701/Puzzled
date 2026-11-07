@@ -63,7 +63,7 @@ impl SimplePlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
         todo!()
     }
 
-    fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox> {
+    fn prototile_coord(&self, _idx: usize, _pixel_position: PixelPosition) -> Option<CoordBox> {
         todo!()
     }
 

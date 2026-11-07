@@ -295,9 +295,9 @@ impl<'a> Converter<'a> {
                     }
                     let mut array = Polyomino::from_vec(&area_layout, &|value, (x, y)| {
                         if *value >= 0 {
-                            let area_index = area_layout.get(x).map(|v| v.get(y)).flatten()?;
-                            let display_value = values.get(x).map(|v| v.get(y)).flatten()?;
-                            let value_order = value_order.get(x).map(|v| v.get(y)).flatten()?;
+                            let area_index = area_layout.get(x).and_then(|v| v.get(y))?;
+                            let display_value = values.get(x).and_then(|v| v.get(y))?;
+                            let value_order = value_order.get(x).and_then(|v| v.get(y))?;
                             Some(AreaBoardData {
                                 area_index: *area_index,
                                 display_value: display_value.clone(),

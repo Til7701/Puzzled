@@ -123,11 +123,11 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
             PlacementModel::Polyomino(p) => p
                 .tiles()
                 .get(idx)
-                .map(|t| t.position_cells().clone().into()),
+                .map(|t| t.position_cells().into()),
             PlacementModel::Hexomino(h) => h
                 .tiles()
                 .get(idx)
-                .map(|t| t.position_cells().clone().into()),
+                .map(|t| t.position_cells().into()),
         }
     }
 
@@ -170,13 +170,13 @@ impl PlacementModel {
         let mut any_cell_on_board = false;
         for prototile in tile_current_rotation.iter() {
             let cell_position = tile_position + prototile.coord();
-            if &cell_position >= board_position && &cell_position < &board_size {
+            if &cell_position >= board_position && &cell_position < board_size {
                 match state.grid.get_mut(cell_position) {
                     None => return Err("Index out of bounds".to_string()),
                     Some(mut cell_ref) => {
                         let tile_cell_placement = TileCellPlacement {
                             tile_id: i,
-                            cell_position: prototile.coord().clone(),
+                            cell_position: prototile.coord(),
                         };
                         let new = match cell_ref.data().clone() {
                             Cell::Empty(data) => {
@@ -202,7 +202,7 @@ impl PlacementModel {
         if !any_cell_on_board {
             let unused_tile = UnusedTile {
                 id: i,
-                base: tile_base.clone().into(),
+                base: tile_base.clone(),
                 name: tile_name.clone(),
             };
             state.unused_tiles.insert(unused_tile);

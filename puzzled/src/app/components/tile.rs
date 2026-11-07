@@ -15,7 +15,7 @@ use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
-use std::ops::{Deref, DerefMut};
+use std::ops::DerefMut;
 
 const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = adw_ext::ERROR_BG_LIGHT;
 const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
@@ -95,7 +95,7 @@ impl TileView {
     /// Creates a new TileView with the given id and base layout.
     /// The name is used to refer to the tile layout when calculating possible solutions for given
     /// tiles.
-    pub fn new(id: usize, mut base: Polyform<()>, color: ColorConfig) -> Self {
+    pub fn new(id: usize, base: Polyform<()>, color: ColorConfig) -> Self {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
@@ -127,7 +127,7 @@ impl TileView {
             text_color: adw_ext::DARK_5, // Does not matter
         };
         let pan = self.create_pango_layout(None);
-        polyform_drawing::draw(cr, &pan, width, height, &*current_rotation, &settings);
+        polyform_drawing::draw(cr, &pan, width, height, &current_rotation, &settings);
     }
 
     fn highlight_color(drawing_mode: &PrototileDrawingMode) -> Option<RGBA> {

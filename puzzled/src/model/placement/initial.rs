@@ -57,10 +57,10 @@ fn place_in_column(
     positions: &mut Vec<RegularCoord>,
 ) {
     if tiles.len() != positions.len() {
-        let mut next_pos = start.clone();
+        let mut next_pos = *start;
         let mut next_tile_index = positions.len();
         while end > next_pos.y() {
-            positions.push(next_pos.clone());
+            positions.push(next_pos);
             if tiles.len() == positions.len() {
                 break;
             }
@@ -83,7 +83,7 @@ fn place_in_row(
 ) -> u32 {
     let mut highest_tile: u32 = 0;
     if tiles.len() != positions.len() {
-        let mut next_pos = start.clone();
+        let mut next_pos = *start;
         let mut next_tile_index = positions.len();
         let mut tile = &tiles[next_tile_index];
         let mut tile_dim = match tile.base().dim() {
@@ -91,7 +91,7 @@ fn place_in_row(
             CoordBox::Hex(_) => unreachable!(),
         };
         while end > next_pos.x() + tile_dim.x() {
-            positions.push(next_pos.clone());
+            positions.push(next_pos);
             if tiles.len() == positions.len() {
                 break;
             }

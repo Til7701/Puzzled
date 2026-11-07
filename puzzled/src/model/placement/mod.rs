@@ -1,12 +1,8 @@
-use crate::app::puzzle::puzzle_area::puzzle_state::{
-    Cell, PuzzleState, TileCellPlacement, UnusedTile,
-};
+use crate::app::puzzle::puzzle_area::puzzle_state::PuzzleState;
 use crate::model::extension::PuzzleTypeExtension;
-use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::model::PlacementModel;
 pub(crate) use crate::model::placement::pixel::PixelPosition;
 use crate::model::placement::t::{FullPlacementModel, SimplePlacementModel};
-use crate::model::placement::tile::PlacedTile;
 use crate::model::placement::translation::hexomino::HexominoPlacementModel;
 use crate::model::placement::translation::polyomino::PolyominoPlacementModel;
 use crate::model::puzzle::PuzzleModel;
@@ -16,8 +12,7 @@ use adw::subclass::prelude::*;
 use log::debug;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
+use puzzled_common::polyform::prototile::Prototile;
 use std::cell::Ref;
 
 mod board;
@@ -143,7 +138,6 @@ impl PlacementModelWrapper {
             .placement_model
             .borrow()
             .board_cell_position()
-            .clone()
     }
 
     /// The board size in pixels.

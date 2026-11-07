@@ -100,10 +100,10 @@ impl PuzzleState {
             allowed: false,
         }));
 
-        let puzzle_state = PuzzleState {
+        
+        PuzzleState {
             grid,
             unused_tiles: HashSet::new(),
-        };
-        puzzle_state
+        }
     }
 }

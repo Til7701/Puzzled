@@ -64,7 +64,7 @@ impl PolyominoPlacementModel {
                     Polyform::Polyomino(p) => p.clone(),
                     Polyform::Hexomino(_) => unreachable!(),
                 };
-                let cell_size = shape.dim().into();
+                let cell_size = shape.dim();
                 PlacedTile::new(config.name().clone(), shape, cell_size, *pos)
             })
             .collect();
@@ -303,7 +303,7 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
 
     fn update_tile_shape(&mut self, idx: usize, shape: Polyomino<()>) {
         let old = self.tiles.get_mut(idx).unwrap();
-        old.set_cell_size(shape.dim().into());
+        old.set_cell_size(shape.dim());
         old.set_current_rotation(shape);
     }
 
@@ -313,7 +313,7 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
 
     fn init_hint_tile(&mut self, position_on_board: RegularCoord, shape: Polyomino<()>) {
         let position = self.board.position_cells() + position_on_board;
-        let size = shape.dim().into();
+        let size = shape.dim();
         self.hint_tile = Some(PlacedTile::new(None, shape, size, position));
     }
 

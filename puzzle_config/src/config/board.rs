@@ -59,7 +59,7 @@ impl BoardConfig {
             let data = prototile.data();
             if data.display_value == board_value && data.area_index == area_index {
                 let coord = prototile.coord();
-                return Some(TargetIndex::new(coord.clone()));
+                return Some(TargetIndex::new(coord));
             }
         }
         None
@@ -106,7 +106,7 @@ impl BoardConfig {
                     Some((
                         order,
                         value.clone(),
-                        TargetIndex::new(prototile.coord().clone()),
+                        TargetIndex::new(prototile.coord()),
                     ))
                 } else {
                     None

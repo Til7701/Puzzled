@@ -31,7 +31,6 @@ use gettextrs::gettext;
 use gtk::{CssProvider, License, STYLE_PROVIDER_PRIORITY_APPLICATION, Settings, gio, glib};
 use log::info;
 use puzzle_config::ColorConfig;
-use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::UnitPoly;

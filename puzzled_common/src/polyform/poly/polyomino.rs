@@ -203,28 +203,28 @@ where
                 if let Some(cell) = self.get_square(RegularCoord::new(i, j)) {
                     if self.get(RegularCoord::new(i - 1, j)).is_none() {
                         new_cells.push(Square::new(
-                            RegularCoord::new(i - 1, j).into(),
+                            RegularCoord::new(i - 1, j),
                             cell.orientation(),
                             value.clone(),
                         ));
                     }
                     if self.get(RegularCoord::new(i + 1, j)).is_none() {
                         new_cells.push(Square::new(
-                            RegularCoord::new(i + 1, j).into(),
+                            RegularCoord::new(i + 1, j),
                             cell.orientation(),
                             value.clone(),
                         ));
                     }
                     if self.get(RegularCoord::new(i, j - 1)).is_none() {
                         new_cells.push(Square::new(
-                            RegularCoord::new(i - 1, j).into(),
+                            RegularCoord::new(i - 1, j),
                             cell.orientation(),
                             value.clone(),
                         ));
                     }
                     if self.get(RegularCoord::new(i, j + 1)).is_none() {
                         new_cells.push(Square::new(
-                            RegularCoord::new(i + 1, j).into(),
+                            RegularCoord::new(i + 1, j),
                             cell.orientation(),
                             value.clone(),
                         ));
@@ -252,7 +252,7 @@ where
             .unwrap();
         self.cells.iter_mut().for_each(|square| {
             let coord = square.coord();
-            square.set_coord(coord.with_y(coord.y() - min_y).into());
+            square.set_coord(coord.with_y(coord.y() - min_y));
         });
         self.dim = self.dim.with_y(self.dim.y() - min_y);
         lower = lower.with_y(lower.y() + min_y);
@@ -274,7 +274,7 @@ where
             .unwrap();
         self.cells.iter_mut().for_each(|square| {
             let coord = square.coord();
-            square.set_coord(coord.with_x(coord.x() - min_x).into());
+            square.set_coord(coord.with_x(coord.x() - min_x));
         });
         self.dim = self.dim.with_x(min_x);
         lower = lower.with_x(lower.x() + min_x);
