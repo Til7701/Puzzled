@@ -18,7 +18,7 @@ use puzzled_common::polyform::poly::{Poly, TrimSides};
 /// board[[2, 3]] = true;
 /// assert_eq!(board[[2, 3]], true);
 /// ```
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Board(Polyform<()>);
 
 impl Board {

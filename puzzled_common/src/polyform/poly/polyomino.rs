@@ -4,6 +4,7 @@ use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 use crate::polyform::prototile::{
     MutPrototile, Prototile, PrototileMutRef, PrototileRef, Square, SquareOrientation,
 };
+use std::fmt::{Display, Formatter, Write};
 use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -217,14 +218,14 @@ where
                     }
                     if self.get(RegularCoord::new(i, j - 1)).is_none() {
                         new_cells.push(Square::new(
-                            RegularCoord::new(i - 1, j),
+                            RegularCoord::new(i, j - 1),
                             cell.orientation(),
                             value.clone(),
                         ));
                     }
                     if self.get(RegularCoord::new(i, j + 1)).is_none() {
                         new_cells.push(Square::new(
-                            RegularCoord::new(i + 1, j),
+                            RegularCoord::new(i, j + 1),
                             cell.orientation(),
                             value.clone(),
                         ));
@@ -263,7 +264,7 @@ where
             .map(|square| square.coord().y())
             .max()
             .unwrap();
-        self.dim = self.dim.with_y(self.dim.y() - max_y);
+        self.dim = self.dim.with_y(max_y + 1);
         upper = upper.with_y(upper.y() + max_y);
 
         let min_x = self
@@ -285,7 +286,7 @@ where
             .map(|square| square.coord().x())
             .max()
             .unwrap();
-        self.dim = self.dim.with_x(max_x);
+        self.dim = self.dim.with_x(max_x + 1);
         upper = upper.with_x(upper.x() + max_x);
 
         TrimSides { lower, upper }
@@ -413,5 +414,27 @@ where
             dim: RegularCoord::new(0, 0),
             cells: vec![],
         }
+    }
+}
+
+impl<T> Display for Polyomino<T>
+where
+    T: Clone + Hash,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_char('\n')?;
+        for i in 0..self.dim.x() {
+            for j in 0..self.dim.y() {
+                let text = if self.get(RegularCoord::new(i, j)).is_some() {
+                    '#'
+                } else {
+                    '.'
+                };
+                f.write_char(text)?;
+            }
+            f.write_char('\n')?;
+        }
+
+        Ok(())
     }
 }

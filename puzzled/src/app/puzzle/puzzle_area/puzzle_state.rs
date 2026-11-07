@@ -82,14 +82,14 @@ impl PuzzleState {
                 Some(PuzzleTypeExtension::Area {
                     target: Some(target),
                 }),
-            ) => layout.clone().mapped_indexed(&|_, coord| {
+            ) => layout.mapped_indexed(&|_, coord| {
                 let allowed = target.indices.iter().any(|t| t.coord() == coord);
                 CellData {
                     is_on_board: true,
                     allowed,
                 }
             }),
-            (BoardConfig::Area { layout, .. }, _) => layout.clone().mapped(|_| CellData {
+            (BoardConfig::Area { layout, .. }, _) => layout.mapped(|_| CellData {
                 is_on_board: true,
                 allowed: true,
             }),
@@ -100,7 +100,6 @@ impl PuzzleState {
             allowed: false,
         }));
 
-        
         PuzzleState {
             grid,
             unused_tiles: HashSet::new(),

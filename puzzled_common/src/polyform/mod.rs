@@ -3,6 +3,7 @@ use crate::polyform::poly::hexomino::Hexomino;
 use crate::polyform::poly::polyomino::Polyomino;
 use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 use crate::polyform::prototile::{Prototile, PrototileMutRef, PrototileRef};
+use std::fmt::{Display, Formatter, Pointer};
 use std::hash::Hash;
 
 pub mod coord;
@@ -240,5 +241,17 @@ impl<T: Clone + Hash> From<Polyomino<T>> for Polyform<T> {
 impl<T: Clone + Hash> From<Hexomino<T>> for Polyform<T> {
     fn from(value: Hexomino<T>) -> Self {
         Polyform::Hexomino(value)
+    }
+}
+
+impl<T> Display for Polyform<T>
+where
+    T: Clone + Hash,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Polyform::Polyomino(p) => p.fmt(f),
+            Polyform::Hexomino(_) => todo!(),
+        }
     }
 }
