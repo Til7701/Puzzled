@@ -114,7 +114,7 @@ where
         let viewport = self.dim;
 
         for cell in &mut self.cells {
-            cell.set_coord(cell.coord().rotate_around(prime.into(), viewport.into()));
+            cell.set_coord(cell.coord().rotate_around(prime, viewport));
         }
 
         (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
@@ -124,7 +124,7 @@ where
         let viewport = self.dim;
 
         for cell in &mut self.cells {
-            cell.set_coord(cell.coord().flip_default(prime.into(), viewport.into()));
+            cell.set_coord(cell.coord().flip_default(prime, viewport));
         }
 
         (RegularCoord::new(0, 0), RegularCoord::new(0, 0))

@@ -67,9 +67,9 @@ impl Coord for RegularCoord {
     }
 
     fn flip_default(&self, prime: Self, viewport: Self) -> Self {
-        let dx = prime.x() as isize - self.x as isize;
-
-        RegularCoord::new(dx.rem_euclid(viewport.x() as isize) as u32, self.y)
+        let dx = self.x as isize - prime.x() as isize + 1;
+        let x = viewport.x() as isize - dx;
+        RegularCoord::new(x as u32, self.y)
     }
 
     fn transpose(&self) -> Self {
