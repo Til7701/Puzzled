@@ -144,15 +144,15 @@ where
             Polyform::Polyomino(p) => {
                 let trim = p.trim();
                 TrimSides {
-                    lower: trim.lower.into(),
-                    upper: trim.upper.into(),
+                    negative: trim.negative.into(),
+                    positive: trim.positive.into(),
                 }
             }
             Polyform::Hexomino(h) => {
                 let trim = h.trim();
                 TrimSides {
-                    lower: trim.lower.into(),
-                    upper: trim.upper.into(),
+                    negative: trim.negative.into(),
+                    positive: trim.positive.into(),
                 }
             }
         }

@@ -73,7 +73,7 @@ pub fn solve_all_filling(
                 .placements()
                 .iter()
                 .map(|placement| {
-                    let position = placement.position() + trim_sides.lower;
+                    let position = placement.position() + trim_sides.negative;
                     TilePlacement::new(
                         placement.tile_id(),
                         placement.base().clone(),

@@ -19,6 +19,7 @@ impl RegularCoord {
         self.x
     }
 
+    #[must_use]
     pub fn with_x(&self, x: u32) -> Self {
         RegularCoord { x, ..*self }
     }
@@ -27,6 +28,7 @@ impl RegularCoord {
         self.y
     }
 
+    #[must_use]
     pub fn with_y(&self, y: u32) -> Self {
         RegularCoord { y, ..*self }
     }

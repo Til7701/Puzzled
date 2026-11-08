@@ -61,7 +61,7 @@ pub trait UnitPoly: Sized + Clone {
 #[derive(Debug, PartialEq, Eq)]
 pub struct TrimSides<C: Coord> {
     /// The number of rows removed from the lower side.
-    pub lower: C,
+    pub negative: C,
     /// The number of columns removed from the higher side.
-    pub upper: C,
+    pub positive: C,
 }

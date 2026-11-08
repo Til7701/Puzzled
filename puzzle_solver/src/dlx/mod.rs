@@ -212,7 +212,7 @@ fn create_solution(
                         tile.id(),
                         tile.base.clone(),
                         placed_tile,
-                        trim.lower,
+                        trim.negative,
                     ))
                 } else {
                     None

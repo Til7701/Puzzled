@@ -251,18 +251,17 @@ where
     }
 
     fn trim(&mut self) -> TrimSides<RegularCoord> {
-        println!("{}", self);
-        let mut lower = RegularCoord::new(0, 0);
-        let mut upper = RegularCoord::new(0, 0);
+        let mut negative = RegularCoord::new(0, 0);
+        let mut positive = RegularCoord::new(0, 0);
         if self.dim.x() == 0 || self.dim.y() == 0 {
-            return TrimSides { lower, upper };
+            return TrimSides { negative, positive };
         }
         if self.cells.is_empty() {
             let old_dim = self.dim;
             self.dim = RegularCoord::new(0, 0);
             return TrimSides {
-                lower: old_dim,
-                upper,
+                negative: old_dim,
+                positive,
             };
         }
 
@@ -271,13 +270,13 @@ where
                 let coord = square.coord();
                 square.set_coord(coord.with_y(coord.y() - min_y));
             });
+            negative = negative.with_y(min_y);
             self.dim = self.dim.with_y(self.dim.y() - min_y);
-            lower = lower.with_y(lower.y() + min_y);
         };
 
         if let Some(max_y) = self.cells.iter().map(|square| square.coord().y()).max() {
+            positive = positive.with_y(self.dim.y() - max_y);
             self.dim = self.dim.with_y(max_y + 1);
-            upper = upper.with_y(upper.y() + max_y);
         }
 
         if let Some(min_x) = self.cells.iter().map(|square| square.coord().x()).min() {
@@ -285,20 +284,20 @@ where
                 let coord = square.coord();
                 square.set_coord(coord.with_x(coord.x() - min_x));
             });
-            self.dim = self.dim.with_x(min_x);
-            lower = lower.with_x(lower.x() + min_x);
+            negative = negative.with_x(min_x);
+            self.dim = self.dim.with_x(self.dim.x() - min_x);
         }
 
         if let Some(max_x) = self.cells.iter().map(|square| square.coord().x()).max() {
+            positive = positive.with_x(self.dim.x() - max_x);
             self.dim = self.dim.with_x(max_x + 1);
-            upper = upper.with_x(upper.x() + max_x);
         }
 
         if self.dim.x() == 0 || self.dim.y() == 0 {
             self.dim = RegularCoord::new(0, 0);
         }
 
-        TrimSides { lower, upper }
+        TrimSides { negative, positive }
     }
 }
 
