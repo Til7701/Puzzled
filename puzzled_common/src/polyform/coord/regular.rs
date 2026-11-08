@@ -56,22 +56,26 @@ impl Coord for RegularCoord {
     }
 
     fn rotate_around(&self, prime: Self, viewport: Self) -> Self {
-        let dx = self.x as isize - prime.x() as isize;
-        let dy = self.y as isize - prime.y() as isize;
-
-        let x = prime.x() as isize + dy;
-        let y = prime.y() as isize + dx;
+        let x_wo_viewport = prime.x() as i32 + (self.y as i32 - prime.y() as i32);
+        let y_wo_viewport = prime.y() as i32 + (self.x as i32 - prime.x() as i32);
 
         RegularCoord::new(
-            x.rem_euclid(viewport.x() as isize) as u32,
-            y.rem_euclid(viewport.y() as isize) as u32,
+            x_wo_viewport.rem_euclid(viewport.x() as i32) as u32,
+            y_wo_viewport.rem_euclid(viewport.y() as i32) as u32,
         )
     }
 
     fn flip_default(&self, prime: Self, viewport: Self) -> Self {
-        let dx = self.x as isize - prime.x() as isize + 1;
-        let x = viewport.x() as isize - dx;
-        RegularCoord::new(x as u32, self.y)
+        let x_wo_viewport = prime.x() as i32 - (self.x as i32 + 1);
+        let x = if self.x < prime.x {
+            x_wo_viewport.rem_euclid(viewport.x() as i32)
+        } else if self.x > prime.x {
+            x_wo_viewport.rem_euclid(viewport.x() as i32)
+        } else {
+            self.x as i32
+        } as u32;
+
+        RegularCoord::new(x, self.y)
     }
 
     fn transpose(&self) -> Self {
