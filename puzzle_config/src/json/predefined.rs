@@ -67,7 +67,7 @@ impl ConfigStore {
             .get(0..2)
             .map(|dims| (dims[0], dims[1]))
             .map(|(rows, cols)| BoardConfig::Simple {
-                layout: Polyomino::sized(RegularCoord::new(rows as u32, cols as u32), ()).into(),
+                layout: Polyomino::sized(RegularCoord::new(rows, cols), ()).into(),
             })
     }
 }

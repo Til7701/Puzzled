@@ -11,9 +11,9 @@ use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::poly::polyomino::Polyomino;
 
-pub(super) const MIN_CELLS_TO_THE_TOP_OF_BOARD: u32 = 1;
-pub(super) const MIN_CELLS_TO_THE_SIDES_OF_BOARD: u32 = 6;
-pub(super) const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: u32 = 6;
+pub(super) const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;
+pub(super) const MIN_CELLS_TO_THE_SIDES_OF_BOARD: i32 = 6;
+pub(super) const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 6;
 
 #[derive(Debug, Default)]
 pub struct PolyominoPlacementModel {
@@ -116,13 +116,13 @@ impl PolyominoPlacementModel {
         let tiles_required_cells = self.tiles_required_cells();
         let required_cells = board_size_cells_with_margin.max(tiles_required_cells);
 
-        let cell_width_pixel = (available_width_pixel / required_cells.x() as f64).floor() as u32;
-        let cell_height_pixel = (available_height_pixel / required_cells.y() as f64).floor() as u32;
-        let cell_size_pixel = cell_width_pixel.min(cell_height_pixel);
+        let cell_width_pixel = (available_width_pixel / required_cells.x() as f64).floor() as i32;
+        let cell_height_pixel = (available_height_pixel / required_cells.y() as f64).floor() as i32;
+        let cell_size_pixel = cell_width_pixel.min(cell_height_pixel) as u32;
 
-        let grid_h_cell_count = (available_width_pixel / cell_size_pixel as f64).floor() as u32;
+        let grid_h_cell_count = (available_width_pixel / cell_size_pixel as f64).floor() as i32;
         let min_grid_h_cell_count = required_cells.x();
-        let grid_v_cell_count = (available_height_pixel / cell_size_pixel as f64).floor() as u32;
+        let grid_v_cell_count = (available_height_pixel / cell_size_pixel as f64).floor() as i32;
         let min_grid_v_cell_count = required_cells.y();
 
         let board_offset_cells = RegularCoord::new(
@@ -235,7 +235,7 @@ impl PolyominoPlacementModel {
     fn translate_pixels_to_cells(&self, position: PixelPosition) -> RegularCoord {
         let cell_size = self.grid_config.cell_size_pixel;
         let pixel = position.div_scalar(cell_size as f64).round();
-        RegularCoord::new(pixel.0 as u32, pixel.1 as u32)
+        RegularCoord::new(pixel.0 as i32, pixel.1 as i32)
     }
 
     fn translate_cells_to_pixels(&self, position: RegularCoord) -> PixelPosition {

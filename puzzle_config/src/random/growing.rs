@@ -38,7 +38,7 @@ fn generate_base_board(
         } => (tile_count, board_width, board_height),
     };
     let mut base = Polyomino::sized(
-        RegularCoord::new(board_width as u32, board_height as u32),
+        RegularCoord::new(board_width as i32, board_height as i32),
         None::<u32>,
     );
 
@@ -46,7 +46,7 @@ fn generate_base_board(
         loop {
             let x = rng.random_range(0..board_width);
             let y = rng.random_range(0..board_height);
-            if let Some(mut prototile) = base.get_mut(RegularCoord::new(x as u32, y as u32))
+            if let Some(mut prototile) = base.get_mut(RegularCoord::new(x as i32, y as i32))
                 && prototile.data().is_none()
             {
                 prototile.set_data(Some(i as u32));

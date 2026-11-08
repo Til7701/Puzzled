@@ -68,8 +68,8 @@ mod imp {
                     let cell_width = width / tile_dims.x() as f64;
                     let cell_height = height / tile_dims.y() as f64;
 
-                    let cell_x = (x / cell_width) as u32;
-                    let cell_y = (y / cell_height) as u32;
+                    let cell_x = (x / cell_width) as i32;
+                    let cell_y = (y / cell_height) as i32;
 
                     current_rotation
                         .get(CoordBox::Regular(RegularCoord::new(cell_x, cell_y)))

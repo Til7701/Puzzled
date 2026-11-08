@@ -6,30 +6,30 @@ use std::ops::{Add, Sub};
 /// A regular grid with square elements.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct RegularCoord {
-    x: u32,
-    y: u32,
+    x: i32,
+    y: i32,
 }
 
 impl RegularCoord {
-    pub fn new(x: u32, y: u32) -> Self {
+    pub fn new(x: i32, y: i32) -> Self {
         RegularCoord { x, y }
     }
 
-    pub fn x(&self) -> u32 {
+    pub fn x(&self) -> i32 {
         self.x
     }
 
     #[must_use]
-    pub fn with_x(&self, x: u32) -> Self {
+    pub fn with_x(&self, x: i32) -> Self {
         RegularCoord { x, ..*self }
     }
 
-    pub fn y(&self) -> u32 {
+    pub fn y(&self) -> i32 {
         self.y
     }
 
     #[must_use]
-    pub fn with_y(&self, y: u32) -> Self {
+    pub fn with_y(&self, y: i32) -> Self {
         RegularCoord { y, ..*self }
     }
 
@@ -41,7 +41,7 @@ impl RegularCoord {
         RegularCoord::new(self.x.max(other.x), self.y.max(other.y))
     }
 
-    pub fn add_tuple(&self, tuple: (u32, u32)) -> RegularCoord {
+    pub fn add_tuple(&self, tuple: (i32, i32)) -> RegularCoord {
         RegularCoord::new(self.x + tuple.0, self.y + tuple.1)
     }
 }
@@ -56,24 +56,24 @@ impl Coord for RegularCoord {
     }
 
     fn rotate_around(&self, prime: Self, viewport: Self) -> Self {
-        let x_wo_viewport = prime.x() as i32 + (self.y as i32 - prime.y() as i32);
-        let y_wo_viewport = prime.y() as i32 + (self.x as i32 - prime.x() as i32);
+        let x_wo_viewport = prime.x() + (self.y - prime.y());
+        let y_wo_viewport = prime.y() + (self.x - prime.x());
 
         RegularCoord::new(
-            x_wo_viewport.rem_euclid(viewport.x() as i32) as u32,
-            y_wo_viewport.rem_euclid(viewport.y() as i32) as u32,
+            x_wo_viewport.rem_euclid(viewport.x()),
+            y_wo_viewport.rem_euclid(viewport.y()),
         )
     }
 
     fn flip_default(&self, prime: Self, viewport: Self) -> Self {
-        let x_wo_viewport = prime.x() as i32 - (self.x as i32 + 1);
+        let x_wo_viewport = prime.x() - (self.x + 1);
         let x = if self.x < prime.x {
-            x_wo_viewport.rem_euclid(viewport.x() as i32)
+            x_wo_viewport.rem_euclid(viewport.x())
         } else if self.x > prime.x {
-            x_wo_viewport.rem_euclid(viewport.x() as i32)
+            x_wo_viewport.rem_euclid(viewport.x())
         } else {
-            self.x as i32
-        } as u32;
+            self.x
+        };
 
         RegularCoord::new(x, self.y)
     }

@@ -52,7 +52,7 @@ pub fn calculate_tile_start_positions(
 
 fn place_in_column(
     start: &RegularCoord,
-    end: u32,
+    end: i32,
     tiles: &[TileConfig],
     positions: &mut Vec<RegularCoord>,
 ) {
@@ -77,11 +77,11 @@ fn place_in_column(
 
 fn place_in_row(
     start: &RegularCoord,
-    end: u32,
+    end: i32,
     tiles: &[TileConfig],
     positions: &mut Vec<RegularCoord>,
-) -> u32 {
-    let mut highest_tile: u32 = 0;
+) -> i32 {
+    let mut highest_tile: i32 = 0;
     if tiles.len() != positions.len() {
         let mut next_pos = *start;
         let mut next_tile_index = positions.len();

@@ -40,9 +40,9 @@ where
 
     pub fn from_vec<X>(vec: &[Vec<X>], mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>) -> Self {
         let size = RegularCoord::new(
-            vec.len() as u32,
+            vec.len() as i32,
             if !vec.is_empty() {
-                vec[0].len() as u32
+                vec[0].len() as i32
             } else {
                 0
             },
@@ -57,7 +57,7 @@ where
             for (j, value) in row.iter().enumerate() {
                 if let Some(data) = mapper(value, (i, j)) {
                     squares.push(Square::new(
-                        RegularCoord::new(i as u32, j as u32),
+                        RegularCoord::new(i as i32, j as i32),
                         SquareOrientation::OnSide,
                         data,
                     ))
