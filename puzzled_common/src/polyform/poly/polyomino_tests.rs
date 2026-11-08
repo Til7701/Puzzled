@@ -109,12 +109,12 @@ fn test_trim_sides_lower_y_upper_y() {
 #[test]
 fn test_trim_sides_lower_x_upper_x() {
     let mut array = Polyomino::from_bool_slice(&[
-        [true, true, true, true],
-        [false, true, false, false],
-        [true, true, true, true],
+        [false, false, false, false],
+        [true, false, true, true],
+        [false, false, false, false],
     ]);
     let trim_sides = array.trim();
-    let expected = Polyomino::from_bool_slice(&[[false, true, false, false]]);
+    let expected = Polyomino::from_bool_slice(&[[true, false, true, true]]);
     assert_eq!(expected, array);
     let expected_trim_sides = TrimSides {
         negative: RegularCoord::new(1, 0),

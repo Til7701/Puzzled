@@ -260,7 +260,7 @@ where
             let old_dim = self.dim;
             self.dim = RegularCoord::new(0, 0);
             return TrimSides {
-                negative: old_dim,
+                negative: RegularCoord::new(old_dim.x() - old_dim.y(), old_dim.y()),
                 positive,
             };
         }
@@ -275,7 +275,7 @@ where
         };
 
         if let Some(max_y) = self.cells.iter().map(|square| square.coord().y()).max() {
-            positive = positive.with_y(self.dim.y() - max_y);
+            positive = positive.with_y(self.dim.y() - max_y - 1);
             self.dim = self.dim.with_y(max_y + 1);
         }
 
@@ -289,7 +289,7 @@ where
         }
 
         if let Some(max_x) = self.cells.iter().map(|square| square.coord().x()).max() {
-            positive = positive.with_x(self.dim.x() - max_x);
+            positive = positive.with_x(self.dim.x() - max_x - 1);
             self.dim = self.dim.with_x(max_x + 1);
         }
 
