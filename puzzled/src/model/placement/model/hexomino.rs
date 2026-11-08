@@ -1,6 +1,6 @@
 use crate::model::placement::PixelPosition;
 use crate::model::placement::board::PlacedBoard;
-use crate::model::placement::t::{InternalPlacementModel, SimplePlacementModel};
+use crate::model::placement::prelude::{InternalPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
 use puzzled_common::polyform::coord::coord_box::CoordBox;

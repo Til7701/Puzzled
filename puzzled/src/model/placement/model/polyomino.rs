@@ -1,6 +1,6 @@
 use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::grid::GridConfig;
-use crate::model::placement::t::{InternalPlacementModel, SimplePlacementModel};
+use crate::model::placement::prelude::{InternalPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::placement::{PixelPosition, initial};
 use crate::model::puzzle::PuzzleModel;
@@ -11,9 +11,9 @@ use puzzled_common::polyform::coord::regular::RegularCoord;
 use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::poly::polyomino::Polyomino;
 
-pub(super) const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;
-pub(super) const MIN_CELLS_TO_THE_SIDES_OF_BOARD: i32 = 6;
-pub(super) const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 6;
+pub(in crate::model::placement) const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;
+pub(in crate::model::placement) const MIN_CELLS_TO_THE_SIDES_OF_BOARD: i32 = 6;
+pub(in crate::model::placement) const MIN_CELLS_TO_THE_BOTTOM_OF_BOARD: i32 = 6;
 
 #[derive(Debug, Default)]
 pub struct PolyominoPlacementModel {

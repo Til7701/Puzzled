@@ -3,17 +3,20 @@ use crate::app::puzzle::puzzle_area::puzzle_state::{
 };
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::placement::pixel::PixelPosition;
-use crate::model::placement::t::{
+use crate::model::placement::prelude::{
     FullPlacementModel, InternalPlacementModel, SimplePlacementModel,
 };
-use crate::model::placement::translation::hexomino::HexominoPlacementModel;
-use crate::model::placement::translation::polyomino::PolyominoPlacementModel;
 use crate::model::puzzle::PuzzleModel;
+use hexomino::HexominoPlacementModel;
+use polyomino::PolyominoPlacementModel;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::poly::Poly;
 use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
 use std::cell::Ref;
+
+pub mod hexomino;
+pub mod polyomino;
 
 #[derive(Debug)]
 pub enum PlacementModel {
@@ -120,14 +123,8 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
 
     fn tile_cell_position(&self, idx: usize) -> Option<CoordBox> {
         match self {
-            PlacementModel::Polyomino(p) => p
-                .tiles()
-                .get(idx)
-                .map(|t| t.position_cells().into()),
-            PlacementModel::Hexomino(h) => h
-                .tiles()
-                .get(idx)
-                .map(|t| t.position_cells().into()),
+            PlacementModel::Polyomino(p) => p.tiles().get(idx).map(|t| t.position_cells().into()),
+            PlacementModel::Hexomino(h) => h.tiles().get(idx).map(|t| t.position_cells().into()),
         }
     }
 

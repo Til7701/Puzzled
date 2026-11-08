@@ -1,15 +1,14 @@
 use crate::app::puzzle::puzzle_area::puzzle_state::PuzzleState;
 use crate::model::extension::PuzzleTypeExtension;
 use crate::model::placement::model::PlacementModel;
-pub(crate) use crate::model::placement::pixel::PixelPosition;
-use crate::model::placement::t::{FullPlacementModel, SimplePlacementModel};
-use crate::model::placement::translation::hexomino::HexominoPlacementModel;
-use crate::model::placement::translation::polyomino::PolyominoPlacementModel;
+use crate::model::placement::prelude::{FullPlacementModel, SimplePlacementModel};
 use crate::model::puzzle::PuzzleModel;
 use adw::glib;
 use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use log::debug;
+use model::hexomino::HexominoPlacementModel;
+use model::polyomino::PolyominoPlacementModel;
 use puzzled_common::polyform::Polyform;
 use puzzled_common::polyform::coord::coord_box::CoordBox;
 use puzzled_common::polyform::prototile::Prototile;
@@ -19,10 +18,11 @@ mod board;
 mod grid;
 mod initial;
 mod model;
-pub mod pixel;
-mod t;
+mod pixel;
+mod prelude;
 mod tile;
-mod translation;
+
+pub use pixel::PixelPosition;
 
 const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
 
@@ -134,10 +134,7 @@ impl PlacementModelWrapper {
 
     /// The board position in cells.
     fn board_cell_position(&self) -> CoordBox {
-        self.imp()
-            .placement_model
-            .borrow()
-            .board_cell_position()
+        self.imp().placement_model.borrow().board_cell_position()
     }
 
     /// The board size in pixels.
