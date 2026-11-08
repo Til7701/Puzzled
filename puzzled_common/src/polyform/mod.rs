@@ -1,15 +1,28 @@
-use crate::polyform::coord::coord_box::CoordBox;
-use crate::polyform::poly::hexomino::Hexomino;
-use crate::polyform::poly::polyomino::Polyomino;
-use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
-use crate::polyform::prototile::{Prototile, PrototileMutRef, PrototileRef};
-use std::fmt::{Display, Formatter, Pointer};
+use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 
-pub mod coord;
-pub mod iterator;
-pub mod poly;
-pub mod prototile;
+mod coord;
+mod iterator;
+mod poly;
+mod prototile;
+
+pub use coord::Coord;
+pub use coord::coord_box::CoordBox;
+pub use coord::hex::HexCoord;
+pub use coord::regular::RegularCoord;
+pub use poly::Poly;
+pub use poly::TrimSides;
+pub use poly::UnitPoly;
+pub use poly::hexomino::Hexomino;
+pub use poly::polyomino::Polyomino;
+pub use prototile::Hexagon;
+pub use prototile::HexagonOrientation;
+pub use prototile::MutPrototile;
+pub use prototile::Prototile;
+pub use prototile::PrototileMutRef;
+pub use prototile::PrototileRef;
+pub use prototile::Square;
+pub use prototile::SquareOrientation;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Polyform<T>
@@ -184,6 +197,20 @@ impl UnitPoly for Polyform<()> {
         }
     }
 
+    fn inverted(&self) -> Self {
+        match self {
+            Polyform::Polyomino(p) => p.inverted().into(),
+            Polyform::Hexomino(h) => h.inverted().into(),
+        }
+    }
+
+    fn as_2d_slice(&self) -> String {
+        match self {
+            Polyform::Polyomino(p) => p.as_2d_slice(),
+            Polyform::Hexomino(h) => h.as_2d_slice(),
+        }
+    }
+
     fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
         match self {
             Polyform::Polyomino(p) => {
@@ -201,20 +228,6 @@ impl UnitPoly for Polyform<()> {
             Polyform::Hexomino(h) => {
                 h.count_smallest_connected_area_of_cells_matching(target_value)
             }
-        }
-    }
-
-    fn inverted(&self) -> Self {
-        match self {
-            Polyform::Polyomino(p) => p.inverted().into(),
-            Polyform::Hexomino(h) => h.inverted().into(),
-        }
-    }
-
-    fn as_2d_slice(&self) -> String {
-        match self {
-            Polyform::Polyomino(p) => p.as_2d_slice(),
-            Polyform::Hexomino(h) => h.as_2d_slice(),
         }
     }
 

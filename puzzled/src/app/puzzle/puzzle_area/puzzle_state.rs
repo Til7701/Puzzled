@@ -1,8 +1,6 @@
 use crate::model::extension::PuzzleTypeExtension;
 use puzzle_config::{BoardConfig, PuzzleConfig};
-use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::{CoordBox, Poly, Polyform};
 use std::cell::Ref;
 use std::collections::HashSet;
 

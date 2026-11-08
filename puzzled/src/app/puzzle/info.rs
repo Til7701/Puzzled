@@ -5,7 +5,7 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{ActionRow, Dialog, gio};
 use gtk::prelude::WidgetExt;
 use puzzle_config::PuzzleConfig;
-use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::Poly;
 use std::ops::Deref;
 
 impl PuzzlePage {

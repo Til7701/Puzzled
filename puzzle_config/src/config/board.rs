@@ -1,8 +1,6 @@
 use crate::config::area::AreaConfig;
 use crate::{Target, TargetIndex, TargetTemplate};
-use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::prototile::Prototile;
+use puzzled_common::polyform::{Poly, Polyform, Prototile};
 use std::hash::{Hash, Hasher};
 
 pub type SimpleBoardData = ();
@@ -103,11 +101,7 @@ impl BoardConfig {
                 if index == area_index {
                     let value = &data.display_value;
                     let order = data.value_order;
-                    Some((
-                        order,
-                        value.clone(),
-                        TargetIndex::new(prototile.coord()),
-                    ))
+                    Some((order, value.clone(), TargetIndex::new(prototile.coord())))
                 } else {
                     None
                 }

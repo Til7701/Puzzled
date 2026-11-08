@@ -31,10 +31,7 @@ use gettextrs::gettext;
 use gtk::{CssProvider, License, STYLE_PROVIDER_PRIORITY_APPLICATION, Settings, gio, glib};
 use log::info;
 use puzzle_config::ColorConfig;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::coord::regular::RegularCoord;
-use puzzled_common::polyform::poly::UnitPoly;
-use puzzled_common::polyform::poly::polyomino::Polyomino;
+use puzzled_common::polyform::{CoordBox, Polyomino, RegularCoord, UnitPoly};
 use std::fmt::Debug;
 
 mod imp {

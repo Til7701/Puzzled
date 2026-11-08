@@ -1,7 +1,5 @@
 use puzzle_config::{PuzzleConfig, TileConfig};
-use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::coord::regular::RegularCoord;
-use puzzled_common::polyform::poly::Poly;
+use puzzled_common::polyform::{CoordBox, Poly, RegularCoord};
 
 pub fn calculate_tile_start_positions(
     tiles: &[TileConfig],

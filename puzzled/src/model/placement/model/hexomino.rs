@@ -3,9 +3,7 @@ use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::prelude::{InternalPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::coord::hex::HexCoord;
-use puzzled_common::polyform::poly::hexomino::Hexomino;
+use puzzled_common::polyform::{CoordBox, HexCoord, Hexomino};
 
 #[derive(Debug, Default)]
 pub struct HexominoPlacementModel {}

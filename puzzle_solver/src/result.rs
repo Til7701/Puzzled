@@ -1,5 +1,4 @@
-use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
+use puzzled_common::polyform::{CoordBox, Polyform};
 
 /// Represents a successful solution to the puzzle.
 #[derive(Debug)]

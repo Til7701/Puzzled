@@ -9,9 +9,7 @@ use crate::{
     PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate,
     TileConfig, validation,
 };
-use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::poly::polyomino::Polyomino;
+use puzzled_common::polyform::{Poly, Polyform, Polyomino};
 use std::num::NonZero;
 use time::OffsetDateTime;
 

@@ -10,11 +10,7 @@ use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
 use puzzle_config::ColorConfig;
-use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::coord::regular::RegularCoord;
-use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
+use puzzled_common::polyform::{CoordBox, MutPrototile, Poly, Polyform, Prototile, RegularCoord};
 use std::ops::DerefMut;
 
 const HIGHLIGHT_OVERLAPPING_COLOR: RGBA = adw_ext::ERROR_BG_LIGHT;
@@ -23,6 +19,7 @@ const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
 mod imp {
     use super::*;
     use crate::app::components::polyform_drawing::PolyformDrawingData;
+    use puzzled_common::polyform::{CoordBox, Poly, RegularCoord};
     use std::cell::{Cell, RefCell};
     use std::ops::Deref;
 

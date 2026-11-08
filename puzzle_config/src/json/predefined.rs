@@ -1,7 +1,6 @@
 use crate::json::model::{Board, Tile};
 use crate::{BoardConfig, TileConfig};
-use puzzled_common::polyform::coord::regular::RegularCoord;
-use puzzled_common::polyform::poly::polyomino::Polyomino;
+use puzzled_common::polyform::{Polyomino, RegularCoord};
 use serde::Deserialize;
 use std::collections::HashMap;
 

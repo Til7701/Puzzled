@@ -9,10 +9,7 @@ use crate::model::placement::prelude::{
 use crate::model::puzzle::PuzzleModel;
 use hexomino::HexominoPlacementModel;
 use polyomino::PolyominoPlacementModel;
-use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::poly::Poly;
-use puzzled_common::polyform::prototile::{MutPrototile, Prototile};
+use puzzled_common::polyform::{CoordBox, MutPrototile, Poly, Polyform, Prototile};
 use std::cell::Ref;
 
 pub mod hexomino;

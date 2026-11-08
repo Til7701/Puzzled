@@ -9,9 +9,7 @@ use adw::subclass::prelude::*;
 use log::debug;
 use model::hexomino::HexominoPlacementModel;
 use model::polyomino::PolyominoPlacementModel;
-use puzzled_common::polyform::Polyform;
-use puzzled_common::polyform::coord::coord_box::CoordBox;
-use puzzled_common::polyform::prototile::Prototile;
+use puzzled_common::polyform::{CoordBox, Polyform};
 use std::cell::Ref;
 
 mod board;

@@ -2,7 +2,7 @@ use crate::app::components::polyform_drawing::PrototileDrawingMode;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
 use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use adw::subclass::prelude::ObjectSubclassIsExt;
-use puzzled_common::polyform::prototile::Prototile;
+use puzzled_common::polyform::Prototile;
 
 impl PuzzleArea {
     pub fn update_highlights(&self) {

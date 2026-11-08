@@ -1,4 +1,4 @@
-use puzzled_common::polyform::coord::Coord;
+use puzzled_common::polyform::Coord;
 
 /// Configuration for the puzzle grid layout.
 #[derive(Debug, Eq, PartialEq)]
