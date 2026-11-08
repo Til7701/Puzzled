@@ -1,9 +1,96 @@
 use crate::polyform::coord::regular::RegularCoord;
 use crate::polyform::poly::polyomino::Polyomino;
 use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
+use crate::polyform::prototile::{Square, SquareOrientation};
 
 #[test]
-fn test_rotate_counterclockwise_size_1() {
+fn test_default() {
+    let polyform = Polyomino::<()>::default();
+    assert_eq!(RegularCoord::new(0, 0), polyform.dim());
+    assert!(polyform.cells().is_empty());
+}
+
+#[test]
+fn test_from_bool_slice_empty() {
+    let polyform = Polyomino::from_bool_slice::<0>(&[]);
+    assert_eq!(RegularCoord::new(0, 0), polyform.dim());
+    assert!(polyform.cells().is_empty());
+
+    let polyform = Polyomino::from_bool_slice(&[[]]);
+    assert_eq!(RegularCoord::new(0, 0), polyform.dim());
+    assert!(polyform.cells().is_empty());
+}
+
+#[test]
+fn test_from_bool_slice_false() {
+    let polyform = Polyomino::from_bool_slice(&[[false]]);
+    assert_eq!(RegularCoord::new(1, 1), polyform.dim());
+    assert!(polyform.cells().is_empty());
+}
+
+#[test]
+fn test_from_bool_slice_true() {
+    let polyform = Polyomino::from_bool_slice(&[[true]]);
+    assert_eq!(RegularCoord::new(1, 1), polyform.dim());
+    assert_eq!(1, polyform.cells().len());
+    assert!(polyform.cells().contains(&Square::new(
+        RegularCoord::new(0, 0),
+        SquareOrientation::OnSide,
+        ()
+    )));
+}
+
+#[test]
+fn test_from_bool_slice_multiple() {
+    let polyform = Polyomino::from_bool_slice(&[[true, false, true], [true, true, true]]);
+    assert_eq!(RegularCoord::new(2, 3), polyform.dim());
+    assert_eq!(5, polyform.cells().len());
+    assert!(polyform.cells().contains(&Square::new(
+        RegularCoord::new(0, 0),
+        SquareOrientation::OnSide,
+        ()
+    )));
+    assert!(polyform.cells().contains(&Square::new(
+        RegularCoord::new(0, 2),
+        SquareOrientation::OnSide,
+        ()
+    )));
+    assert!(polyform.cells().contains(&Square::new(
+        RegularCoord::new(1, 0),
+        SquareOrientation::OnSide,
+        ()
+    )));
+    assert!(polyform.cells().contains(&Square::new(
+        RegularCoord::new(1, 1),
+        SquareOrientation::OnSide,
+        ()
+    )));
+    assert!(polyform.cells().contains(&Square::new(
+        RegularCoord::new(1, 2),
+        SquareOrientation::OnSide,
+        ()
+    )));
+}
+
+#[test]
+fn test_sized() {
+    let polyform = Polyomino::sized(RegularCoord::new(1, 2), 1);
+    assert_eq!(RegularCoord::new(1, 2), polyform.dim());
+    assert_eq!(2, polyform.cells().len());
+    assert!(polyform.cells().contains(&Square::new(
+        RegularCoord::new(0, 0),
+        SquareOrientation::OnSide,
+        1
+    )));
+    assert!(polyform.cells().contains(&Square::new(
+        RegularCoord::new(0, 1),
+        SquareOrientation::OnSide,
+        1
+    )));
+}
+
+#[test]
+fn test_rotate_around_size_1() {
     let mut shape = Polyomino::from_bool_slice(&[[true]]);
     shape.rotate_around(RegularCoord::new(0, 0));
     let expected = Polyomino::from_bool_slice(&[[true]]);
@@ -11,7 +98,7 @@ fn test_rotate_counterclockwise_size_1() {
 }
 
 #[test]
-fn test_rotate_counterclockwise_size_2() {
+fn test_rotate_around_size_2() {
     let mut shape = Polyomino::from_bool_slice(&[[true, false]]);
     shape.rotate_around(RegularCoord::new(0, 0));
     let expected = Polyomino::from_bool_slice(&[[false], [true]]);
@@ -19,17 +106,118 @@ fn test_rotate_counterclockwise_size_2() {
 }
 
 #[test]
-fn test_rotate_counterclockwise() {
+fn test_rotate_around() {
     let mut shape = Polyomino::from_bool_slice(&[
         [true, false, false],
         [true, true, true],
         [true, false, true],
+        [false, false, true],
     ]);
     shape.rotate_around(RegularCoord::new(0, 0));
     let expected = Polyomino::from_bool_slice(&[
-        [false, true, true],
-        [false, true, false],
+        [false, true, true, true],
+        [false, true, false, false],
+        [true, true, true, false],
+    ]);
+    assert_eq!(expected, shape);
+}
+
+#[test]
+fn test_flip_size_1() {
+    let mut shape = Polyomino::from_bool_slice(&[[true]]);
+    let movement_request = shape.flip(RegularCoord::new(0, 0));
+    assert_eq!(
+        (RegularCoord::new(0, 0), RegularCoord::new(0, 0)),
+        movement_request
+    );
+    let expected = Polyomino::from_bool_slice(&[[true]]);
+    assert_eq!(expected, shape);
+}
+
+#[test]
+fn test_flip_size_2_left() {
+    let mut shape = Polyomino::from_bool_slice(&[[true], [false]]);
+    let movement_request = shape.flip(RegularCoord::new(0, 0));
+    assert_eq!(
+        (RegularCoord::new(0, 0), RegularCoord::new(1, 0)),
+        movement_request
+    );
+    let expected = Polyomino::from_bool_slice(&[[false], [true]]);
+    assert_eq!(expected, shape);
+}
+
+#[test]
+fn test_flip_size_2_right() {
+    let mut shape = Polyomino::from_bool_slice(&[[true], [false]]);
+    let movement_request = shape.flip(RegularCoord::new(1, 0));
+    assert_eq!(
+        (RegularCoord::new(1, 0), RegularCoord::new(0, 0)),
+        movement_request
+    );
+    let expected = Polyomino::from_bool_slice(&[[false], [true]]);
+    assert_eq!(expected, shape);
+}
+
+#[test]
+fn test_flip_left() {
+    let mut shape = Polyomino::from_bool_slice(&[
+        [true, false, false],
         [true, true, true],
+        [true, false, true],
+        [false, false, true],
+    ]);
+    let movement_request = shape.flip(RegularCoord::new(0, 0));
+    assert_eq!(
+        (RegularCoord::new(0, 0), RegularCoord::new(3, 0)),
+        movement_request
+    );
+    let expected = Polyomino::from_bool_slice(&[
+        [false, false, true],
+        [true, false, true],
+        [true, true, true],
+        [true, false, false],
+    ]);
+    assert_eq!(expected, shape);
+}
+
+#[test]
+fn test_flip_middle() {
+    let mut shape = Polyomino::from_bool_slice(&[
+        [true, false, false],
+        [true, false, true],
+        [false, false, true],
+    ]);
+    let movement_request = shape.flip(RegularCoord::new(1, 2));
+    assert_eq!(
+        (RegularCoord::new(0, 0), RegularCoord::new(0, 0)),
+        movement_request
+    );
+    let expected = Polyomino::from_bool_slice(&[
+        [false, false, true],
+        [true, false, true],
+        [true, false, false],
+    ]);
+    assert_eq!(expected, shape);
+}
+
+#[test]
+fn test_flip_right() {
+    let mut shape = Polyomino::from_bool_slice(&[
+        [true, false, false],
+        [true, true, true],
+        [true, false, true],
+        [false, false, true],
+    ]);
+    let movement_request = shape.flip(RegularCoord::new(3, 0));
+    assert_eq!(
+        (RegularCoord::new(3, 0), RegularCoord::new(0, 0)),
+        movement_request
+    );
+    let expected = Polyomino::from_bool_slice(&[
+        [false, false, true],
+        [true, false, true],
+        [true, true, true],
+        [true, false, false],
     ]);
     assert_eq!(expected, shape);
 }
@@ -286,92 +474,6 @@ fn test_count_biggest_connected_area_of_cells_matching_complex() {
     assert_eq!(count_true, 8);
     assert_eq!(count_false, 3);
 }
-
-// #[test]
-// fn test_or_arrays_at() {
-//     let parent = Polyomino::from_bool_slice(&[
-//         [false, false, false],
-//         [false, false, false],
-//         [false, false, false],
-//     ]);
-//     let child = Polyomino::from_bool_slice(&[[true, false], [false, true]]);
-//     let result = parent.or_at(&child, 1, 1);
-//     let expected = Polyomino::from_bool_slice(&[
-//         [false, false, false],
-//         [false, true, false],
-//         [false, false, true],
-//     ]);
-//     assert_eq!(expected, result);
-// }
-//
-// #[test]
-// fn test_or_arrays_at_empty_child() {
-//     let parent = Polyomino::from_bool_slice(&[
-//         [false, false, false],
-//         [false, false, false],
-//         [false, false, false],
-//     ]);
-//     let child = Polyomino::from_bool_slice(&[[]]);
-//     let result = parent.or_at(&child, 1, 1);
-//     let expected = Polyomino::from_bool_slice(&[
-//         [false, false, false],
-//         [false, false, false],
-//         [false, false, false],
-//     ]);
-//     assert_eq!(expected, result);
-// }
-//
-// #[test]
-// fn test_or_arrays_at_child_1x1() {
-//     let parent = Polyomino::from_bool_slice(&[
-//         [false, false, false],
-//         [false, false, false],
-//         [false, false, false],
-//     ]);
-//     let child = Polyomino::from_bool_slice(&[[true]]);
-//     let result = parent.or_at(&child, 1, 1);
-//     let expected = Polyomino::from_bool_slice(&[
-//         [false, false, false],
-//         [false, true, false],
-//         [false, false, false],
-//     ]);
-//     assert_eq!(expected, result);
-// }
-//
-// #[test]
-// fn test_or_arrays_at_child_off_parent() {
-//     let parent = Polyomino::from_bool_slice(&[
-//         [false, false, false],
-//         [false, false, false],
-//         [false, false, false],
-//     ]);
-//     let child = Polyomino::from_bool_slice(&[[true, true], [true, true]]);
-//     let result = parent.or_at(&child, 2, 2);
-//     let expected = Polyomino::from_bool_slice(&[
-//         [false, false, false],
-//         [false, false, false],
-//         [false, false, true],
-//     ]);
-//     assert_eq!(expected, result);
-// }
-//
-// #[test]
-// fn test_or_arrays_at_true_parent() {
-//     let parent = Polyomino::from_bool_slice(&[[true, true, true], [true, true, true], [true, true, true]]);
-//     let child = Polyomino::from_bool_slice(&[[true, false], [true, false]]);
-//     let result = parent.or_at(&child, 1, 1);
-//     let expected = Polyomino::from_bool_slice(&[[true, true, true], [true, true, true], [true, true, true]]);
-//     assert_eq!(expected, result);
-// }
-//
-// #[test]
-// fn test_or_arrays_at_smaller_parent() {
-//     let parent = Polyomino::from_bool_slice(&[[false, false], [false, false]]);
-//     let child = Polyomino::from_bool_slice(&[[true, true, true], [true, true, true], [true, true, true]]);
-//     let result = parent.or_at(&child, 0, 0);
-//     let expected = Polyomino::from_bool_slice(&[[true, true], [true, true]]);
-//     assert_eq!(expected, result);
-// }
 
 #[test]
 fn test_place_on_all_positions() {

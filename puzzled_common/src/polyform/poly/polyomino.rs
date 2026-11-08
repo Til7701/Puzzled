@@ -7,7 +7,7 @@ use crate::polyform::prototile::{
 use std::fmt::{Display, Formatter, Write};
 use std::hash::Hash;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Eq, Hash)]
 pub struct Polyomino<T>
 where
     T: Clone + Hash,
@@ -89,10 +89,7 @@ where
     T: Clone + Hash,
 {
     fn get(&self, coord: RegularCoord) -> Option<PrototileRef<'_, T>> {
-        self.cells
-            .iter()
-            .find(|p| p.coord() == coord)
-            .map(|s| s.into())
+        self.get_square(coord).map(|s| s.into())
     }
 
     fn get_mut(&mut self, coord: RegularCoord) -> Option<PrototileMutRef<'_, T>> {
@@ -123,24 +120,31 @@ where
     }
 
     fn rotate_around(&mut self, prime: RegularCoord) -> (RegularCoord, RegularCoord) {
-        self.dim = self.dim.transpose();
         let viewport = self.dim;
-
         for cell in &mut self.cells {
             cell.set_coord(cell.coord().rotate_around(prime, viewport));
         }
-
+        self.dim = self.dim.transpose();
         (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
     }
 
     fn flip(&mut self, prime: RegularCoord) -> (RegularCoord, RegularCoord) {
         let viewport = self.dim;
-
         for cell in &mut self.cells {
             cell.set_coord(cell.coord().flip_default(prime, viewport));
         }
-
-        (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
+        let middle = (self.dim.x() as f32 - 1.0) / 2.0;
+        println!("{}", middle);
+        if (prime.x() as f32) < middle {
+            (
+                RegularCoord::new(0, 0),
+                RegularCoord::new(self.dim.x() - prime.x() - 1, 0),
+            )
+        } else if (prime.x() as f32) > middle {
+            (RegularCoord::new(prime.x(), 0), RegularCoord::new(0, 0))
+        } else {
+            (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
+        }
     }
 
     fn transpose(&mut self) {
@@ -422,6 +426,29 @@ where
             dim: RegularCoord::new(0, 0),
             cells: vec![],
         }
+    }
+}
+
+impl<T> PartialEq for Polyomino<T>
+where
+    T: Clone + Hash + PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        if self.dim != other.dim || self.cells.len() != other.cells.len() {
+            return false;
+        }
+
+        for cell in &self.cells {
+            if let Some(other_cell) = other.get_square(cell.coord()) {
+                if cell != other_cell {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        true
     }
 }
 

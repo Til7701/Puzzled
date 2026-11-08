@@ -4,7 +4,7 @@ pub mod coord_box;
 pub mod hex;
 pub mod regular;
 
-pub trait Coord: Clone + Copy + Hash {
+pub trait Coord: Clone + Copy + Hash + PartialEq + Eq {
     fn zero() -> Self;
 
     fn one() -> Self;
