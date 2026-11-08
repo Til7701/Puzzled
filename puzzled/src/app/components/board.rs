@@ -151,7 +151,7 @@ impl BoardView {
     }
 
     pub fn get_min_element_size(&self) -> u32 {
-        20u32 // FIXME
+        10u32 // FIXME
     }
 
     pub fn highlight(&self, coord: CoordBox) {
@@ -161,6 +161,7 @@ impl BoardView {
             if let Some(mut p) = prototile {
                 let data = p.data_mut();
                 data.drawing_mode = PrototileDrawingMode::Highlighted;
+                self.queue_draw();
             }
         }
     }
@@ -171,6 +172,7 @@ impl BoardView {
             for mut prototile in l.iter_mut() {
                 prototile.data_mut().drawing_mode = PrototileDrawingMode::Normal;
             }
+            self.queue_draw();
         }
     }
 }
