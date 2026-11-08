@@ -1,12 +1,12 @@
 pub mod combination_solutions;
 
-use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
+use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, CellData, PuzzleState};
 use log::debug;
 use puzzle_solver::board::Board;
 use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
-use puzzled_common::polyform::Poly;
+use puzzled_common::polyform::{Poly, Prototile};
 use std::cmp::PartialEq;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -157,7 +157,7 @@ impl Solver {
     /// returns: bool
     pub fn is_solved(&self, puzzle_state: &PuzzleState) -> bool {
         let board = self.create_board(puzzle_state);
-        board.get_polyform().iter().count() > 0
+        board.get_polyform().iter().count() == 0
     }
 
     /// Creates a board representation from the given puzzle state and target to give to the solver.
@@ -169,7 +169,7 @@ impl Solver {
     ///
     /// returns: Board
     fn create_board(&self, puzzle_state: &PuzzleState) -> Board {
-        let board = puzzle_state.grid.clone().filter_mapped(&|cell| match cell {
+        let board = puzzle_state.grid.filter_mapped(&|cell| match cell {
             Cell::Empty(cell_data) => {
                 if cell_data.allowed {
                     Some(())
