@@ -9,7 +9,7 @@ use crate::model::placement::prelude::{
 use crate::model::puzzle::PuzzleModel;
 use hexomino::HexominoPlacementModel;
 use polyomino::PolyominoPlacementModel;
-use puzzled_common::polyform::{CoordBox, MutPrototile, Poly, Polyform, Prototile};
+use puzzled_common::polyform::{CoordBox, MutPrototile, Poly, Polyform, Prototile, RegularCoord};
 use std::cell::Ref;
 
 pub mod hexomino;
@@ -63,8 +63,8 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
                 for (i, tile) in p.tiles().iter().enumerate() {
                     self.add_tile(
                         &mut state,
-                        &board_position,
-                        &board_size,
+                        board_position,
+                        board_size,
                         i,
                         &tile.current_rotation().clone().into(),
                         &tile.base().clone().into(),
@@ -76,8 +76,8 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
                 for (i, tile) in h.tiles().iter().enumerate() {
                     self.add_tile(
                         &mut state,
-                        &board_position,
-                        &board_size,
+                        board_position,
+                        board_size,
                         i,
                         &tile.current_rotation().clone().into(),
                         &tile.base().clone().into(),
@@ -151,8 +151,8 @@ impl PlacementModel {
     fn add_tile(
         &self,
         state: &mut PuzzleState,
-        board_position: &CoordBox,
-        board_size: &CoordBox,
+        board_position: CoordBox,
+        board_size: CoordBox,
         i: usize,
         tile_current_rotation: &Polyform<()>,
         tile_base: &Polyform<()>,
@@ -161,11 +161,18 @@ impl PlacementModel {
         let tile_position = self
             .tile_cell_position(i)
             .ok_or_else(|| "Tile position not set".to_string())?;
+        let one: CoordBox = match tile_position {
+            CoordBox::Regular(_) => RegularCoord::new(1, 1).into(),
+            CoordBox::Hex(_) => todo!(),
+        };
         let mut any_cell_on_board = false;
         for prototile in tile_current_rotation.iter() {
             let cell_position = tile_position + prototile.coord();
-            if &cell_position >= board_position && &cell_position < board_size {
-                match state.grid.get_mut(cell_position) {
+            if &cell_position >= &(board_position - one)
+                && &cell_position < &(board_position + board_size)
+            {
+                let cell_position_on_board = cell_position - board_position + one;
+                match state.grid.get_mut(cell_position_on_board) {
                     None => return Err("Index out of bounds".to_string()),
                     Some(mut cell_ref) => {
                         let tile_cell_placement = TileCellPlacement {

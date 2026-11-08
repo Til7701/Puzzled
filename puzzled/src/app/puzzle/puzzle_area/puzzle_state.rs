@@ -1,8 +1,9 @@
 use crate::model::extension::PuzzleTypeExtension;
 use puzzle_config::{BoardConfig, PuzzleConfig};
-use puzzled_common::polyform::{CoordBox, Poly, Polyform};
+use puzzled_common::polyform::{CoordBox, Poly, Polyform, Prototile, RegularCoord};
 use std::cell::Ref;
 use std::collections::HashSet;
+use std::fmt::{Display, Formatter, Write};
 
 /// Represents data associated with a cell in the puzzle grid.
 #[derive(Default, Debug, Clone, Hash)]
@@ -102,5 +103,78 @@ impl PuzzleState {
             grid,
             unused_tiles: HashSet::new(),
         }
+    }
+}
+
+impl Display for PuzzleState {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_char('\n')?;
+        let dim = match self.grid.dim() {
+            CoordBox::Regular(p) => p,
+            CoordBox::Hex(_) => panic!(),
+        };
+        for i in 0..dim.x() {
+            for j in 0..dim.y() {
+                match self
+                    .grid
+                    .get(RegularCoord::new(i, j).into())
+                    .map(|p| p.data().clone())
+                {
+                    None => f.write_str(" ... ")?,
+                    Some(Cell::Empty(data)) => {
+                        f.write_char(' ')?;
+                        if data.is_on_board {
+                            f.write_char('b')?
+                        } else {
+                            f.write_char('.')?
+                        }
+                        if data.allowed {
+                            f.write_char('a')?
+                        } else {
+                            f.write_char('.')?
+                        }
+                        f.write_char('0')?;
+                        f.write_char(' ')?;
+                    }
+                    Some(Cell::One(data, _)) => {
+                        f.write_char(' ')?;
+                        if data.is_on_board {
+                            f.write_char('b')?
+                        } else {
+                            f.write_char('.')?
+                        }
+                        if data.allowed {
+                            f.write_char('a')?
+                        } else {
+                            f.write_char('.')?
+                        }
+                        f.write_char('1')?;
+                        f.write_char(' ')?;
+                    }
+                    Some(Cell::Many(data, v)) => {
+                        f.write_char(' ')?;
+                        if data.is_on_board {
+                            f.write_char('b')?
+                        } else {
+                            f.write_char('.')?
+                        }
+                        if data.allowed {
+                            f.write_char('a')?
+                        } else {
+                            f.write_char('.')?
+                        }
+                        write!(f, "{}", v.len())?;
+                        f.write_char(' ')?;
+                    }
+                };
+            }
+            f.write_char('\n')?;
+        }
+
+        for unused_tile in &self.unused_tiles {
+            unused_tile.base.fmt(f)?;
+        }
+
+        Ok(())
     }
 }
