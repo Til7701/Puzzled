@@ -49,10 +49,10 @@ pub enum PolyformDrawingDataSpecial {
 
 #[derive(Clone, Hash, Debug, Default)]
 pub struct PolyominoSpecial {
-    pub top_neighbour: bool,
-    pub bottom_neighbour: bool,
-    pub left_neighbour: bool,
-    pub right_neighbour: bool,
+    pub x_neg_neighbour: bool,
+    pub x_pos_neighbour: bool,
+    pub y_neg_neighbour: bool,
+    pub y_pos_neighbour: bool,
 }
 
 impl Default for PolyformDrawingDataSpecial {
@@ -136,11 +136,11 @@ fn draw_square<const M: usize>(
     // This only solves the problem, if the color is not transparent, otherwise there
     // would be visible lines between the cells of the tile.
     if color.alpha() == 1.0 {
-        if special.left_neighbour {
+        if special.x_pos_neighbour {
             cr.rectangle(cell_x + cell_width - 1.0, cell_y, 2.0, cell_height);
             cr.fill().expect("Failed to fill");
         }
-        if special.top_neighbour {
+        if special.y_pos_neighbour {
             cr.rectangle(cell_x, cell_y + cell_height - 1.0, cell_width, 2.0);
             cr.fill().expect("Failed to fill");
         }

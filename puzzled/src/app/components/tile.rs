@@ -158,26 +158,26 @@ impl TileView {
                             .get(CoordBox::Regular(c - RegularCoord::new(1, 0)))
                             .is_some()
                     {
-                        s.left_neighbour = true;
+                        s.x_neg_neighbour = true;
                     }
                     if current_rotation_lookup
                         .get(CoordBox::Regular(c + RegularCoord::new(1, 0)))
                         .is_some()
                     {
-                        s.right_neighbour = true;
+                        s.x_pos_neighbour = true;
                     }
                     if c.y() > 0
                         && current_rotation_lookup
                             .get(CoordBox::Regular(c - RegularCoord::new(0, 1)))
                             .is_some()
                     {
-                        s.top_neighbour = true;
+                        s.y_neg_neighbour = true;
                     }
                     if current_rotation_lookup
                         .get(CoordBox::Regular(c + RegularCoord::new(0, 1)))
                         .is_some()
                     {
-                        s.bottom_neighbour = true;
+                        s.y_pos_neighbour = true;
                     }
                 }
                 (CoordBox::Hex(_), PolyformDrawingDataSpecial::Hexomino()) => {
