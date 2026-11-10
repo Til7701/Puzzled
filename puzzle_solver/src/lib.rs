@@ -36,17 +36,18 @@ pub mod tile;
 /// use puzzle_solver::board::Board;
 /// use puzzle_solver::tile::Tile;
 /// use puzzle_solver::cancellation_token::CancellationToken;
-/// use puzzled_common::polyform::Polyomino::from_bool_slice;
+/// use puzzled_common::polyform::*;
+/// use puzzle_solver::solve_all_filling;
 ///
 /// let board = Board::new(Polyomino::from_bool_slice(&[
 ///     [true, false, false],
 ///     [false, false, false],
 ///     [false, false, false],
 ///     [false, false, false]
-/// ]));
+/// ]).into());
 /// let tiles = vec![
-///     Tile::new(42, Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]])),
-///     Tile::new(43, Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]])),
+///     Tile::new(42, Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into()),
+///     Tile::new(43, Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]]).into()),
 /// ];
 /// let cancel_token = CancellationToken::new();
 ///

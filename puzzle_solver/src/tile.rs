@@ -31,9 +31,9 @@ impl Tile {
     ///
     /// ```rust
     /// use puzzle_solver::tile::Tile;
-    /// use puzzled_common::shape::Polyomino::from_bool_slice;
+    /// use puzzled_common::polyform::*;
     ///
-    /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]);
+    /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
     /// let tile = Tile::new(42, base);
     /// ```
     pub fn new(id: usize, base: Polyform<()>) -> Tile {
@@ -67,9 +67,9 @@ impl Tile {
     ///
     /// ```rust
     /// use puzzle_solver::tile::Tile;
-    /// use puzzled_common::shape::Polyomino::from_bool_slice;
+    /// use puzzled_common::polyform::*;
     ///
-    /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]);
+    /// let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
     /// let tile = Tile::new(42, base.clone());
     /// assert_eq!(tile.base(), &base);
     /// ```

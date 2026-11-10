@@ -4,18 +4,6 @@ use puzzled_common::polyform::{CoordBox, Poly, Polyform, TrimSides};
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
 /// A filled cell is either outside the puzzle area or blocked by a placed tile.
 /// An empty cell is not blocked by a tile and a tile can be placed there.
-///
-/// # Examples
-///
-/// This creates a 5x5 board and sets the cell at (2, 3) to true (filled).
-///
-/// ```rust
-/// use puzzle_solver::board::Board;
-///
-/// let mut board = Board::new((5, 5));
-/// board[[2, 3]] = true;
-/// assert_eq!(board[[2, 3]], true);
-/// ```
 #[derive(Clone, Debug)]
 pub struct Board(Polyform<()>);
 
@@ -32,10 +20,10 @@ impl Board {
     ///
     /// ```rust
     /// use puzzle_solver::board::Board;
+    /// use puzzled_common::polyform::*;
     ///
-    /// let board = Board::new((3, 4));
-    /// assert_eq!(board.get_shape().dim(), (3, 4));
-    /// assert!(board.get_shape().iter().all(|&b| b == false));
+    /// let board = Board::new(Polyomino::sized(RegularCoord::new(3, 4), ()).into());
+    /// assert_eq!(board.get_polyform(), &Polyomino::sized(RegularCoord::new(3, 4), ()).into());
     /// ```
     pub fn new(base: Polyform<()>) -> Self {
         Board(base)
@@ -53,11 +41,10 @@ impl Board {
     ///
     /// ```rust
     /// use puzzle_solver::board::Board;
-    /// use puzzled_common::Shape;
-    /// use puzzled_common::ShapeType::Square;
+    /// use puzzled_common::polyform::*;
     ///
-    /// let board = Board::new((3, 4));
-    /// assert_eq!(board.get_shape(), &Shape::from_elem((3, 4), Square, false));
+    /// let board = Board::new(Polyomino::sized(RegularCoord::new(3, 4), ()).into());
+    /// assert_eq!(board.get_polyform(), &Polyomino::sized(RegularCoord::new(3, 4), ()).into());
     /// ```
     pub fn get_polyform(&self) -> &Polyform<()> {
         &self.0
