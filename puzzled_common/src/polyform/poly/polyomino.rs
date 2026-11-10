@@ -5,9 +5,9 @@ use crate::polyform::prototile::{
     MutPrototile, Prototile, PrototileMutRef, PrototileRef, Square, SquareOrientation,
 };
 use std::fmt::{Display, Formatter, Write};
-use std::hash::Hash;
+use std::hash::{DefaultHasher, Hash, Hasher};
 
-#[derive(Debug, Clone, Eq, Hash)]
+#[derive(Debug, Clone, Eq)]
 pub struct Polyomino<T>
 where
     T: Clone + Hash,
@@ -456,6 +456,31 @@ where
         }
 
         true
+    }
+}
+
+impl<T> Hash for Polyomino<T>
+where
+    T: Clone + Hash,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let mut hashes: Vec<u64> = self
+            .cells
+            .iter()
+            .map(|item| {
+                let mut hasher = DefaultHasher::new();
+                item.hash(&mut hasher);
+                hasher.finish()
+            })
+            .collect();
+
+        // Sort the hashes to ensure order-independence
+        hashes.sort_unstable();
+
+        for hash in hashes {
+            hash.hash(state);
+        }
+        self.dim.hash(state);
     }
 }
 
