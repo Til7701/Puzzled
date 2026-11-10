@@ -120,12 +120,20 @@ where
     }
 
     fn rotate_around(&mut self, prime: RegularCoord) -> RegularCoord {
-        let movement_request = RegularCoord::new(0, 0);
+        println!("prime: {}", prime);
+        let movement_request = {
+            let x_mr = -(self.dim.y() - prime.y() - 1);
+            let y_mr = prime.y() - prime.x();
+            RegularCoord::new(x_mr, y_mr)
+        };
+        println!("movement request: {}", movement_request);
 
+        println!("before: {}", self);
         for cell in &mut self.cells {
             cell.set_coord(cell.coord().rotate_around(prime) - movement_request);
         }
         self.dim = self.dim.transpose();
+        println!("after: {}", self);
         movement_request
     }
 

@@ -90,20 +90,47 @@ fn test_sized() {
 }
 
 #[test]
-fn test_rotate_around_size_1() {
+fn test_rotate_around_size_1x1() {
     let mut shape = Polyomino::from_bool_slice(&[[true]]);
     let movement_request = shape.rotate_around(RegularCoord::new(0, 0));
-    assert_eq!(RegularCoord::new(0, 0), movement_request);
     let expected = Polyomino::from_bool_slice(&[[true]]);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(0, 0), movement_request);
 }
 
 #[test]
-fn test_rotate_around_size_2() {
+fn test_rotate_around_size_1x2_a_left() {
     let mut shape = Polyomino::from_bool_slice(&[[true, false]]);
     let movement_request = shape.rotate_around(RegularCoord::new(0, 0));
-    assert_eq!(RegularCoord::new(0, 0), movement_request); // FIXME
     let expected = Polyomino::from_bool_slice(&[[false], [true]]);
+    assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(-1, 0), movement_request);
+}
+
+#[test]
+fn test_rotate_around_size_1x2_a_right() {
+    let mut shape = Polyomino::from_bool_slice(&[[false, true]]);
+    let movement_request = shape.rotate_around(RegularCoord::new(0, 1));
+    let expected = Polyomino::from_bool_slice(&[[true], [false]]);
+    assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(0, 1), movement_request);
+}
+
+#[test]
+fn test_rotate_around_size_1x2_b_left() {
+    let mut shape = Polyomino::from_bool_slice(&[[true], [false]]);
+    let movement_request = shape.rotate_around(RegularCoord::new(0, 0));
+    let expected = Polyomino::from_bool_slice(&[[true, false]]);
+    assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(0, 0), movement_request);
+}
+
+#[test]
+fn test_rotate_around_size_1x2_b_right() {
+    let mut shape = Polyomino::from_bool_slice(&[[false], [true]]);
+    let movement_request = shape.rotate_around(RegularCoord::new(1, 0));
+    let expected = Polyomino::from_bool_slice(&[[false, true]]);
+    assert_eq!(RegularCoord::new(1, -1), movement_request);
     assert_eq!(expected, shape);
 }
 
@@ -116,40 +143,58 @@ fn test_rotate_around() {
         [false, false, true],
     ]);
     let movement_request = shape.rotate_around(RegularCoord::new(0, 0));
-    assert_eq!(RegularCoord::new(0, 0), movement_request); // FIXME
     let expected = Polyomino::from_bool_slice(&[
         [false, true, true, true],
         [false, true, false, false],
         [true, true, true, false],
     ]);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(-2, 0), movement_request);
 }
 
 #[test]
-fn test_flip_size_1() {
+fn test_rotate_around_2() {
+    let mut shape = Polyomino::from_bool_slice(&[
+        [true, false, false],
+        [true, true, true],
+        [true, false, true],
+        [false, false, true],
+    ]);
+    let movement_request = shape.rotate_around(RegularCoord::new(2, 1));
+    let expected = Polyomino::from_bool_slice(&[
+        [false, true, true, true],
+        [false, true, false, false],
+        [true, true, true, false],
+    ]);
+    assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(-1, -1), movement_request);
+}
+
+#[test]
+fn test_flip_size_1x1() {
     let mut shape = Polyomino::from_bool_slice(&[[true]]);
     let movement_request = shape.flip(RegularCoord::new(0, 0));
-    assert_eq!(RegularCoord::new(0, 0), movement_request);
     let expected = Polyomino::from_bool_slice(&[[true]]);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(0, 0), movement_request);
 }
 
 #[test]
-fn test_flip_size_2_left() {
+fn test_flip_size_2x2_left() {
     let mut shape = Polyomino::from_bool_slice(&[[true, false], [false, true]]);
     let movement_request = shape.flip(RegularCoord::new(0, 0));
-    assert_eq!(RegularCoord::new(-1, 0), movement_request);
     let expected = Polyomino::from_bool_slice(&[[false, true], [true, false]]);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(-1, 0), movement_request);
 }
 
 #[test]
-fn test_flip_size_2_right() {
+fn test_flip_size_2x2_right() {
     let mut shape = Polyomino::from_bool_slice(&[[true, false], [false, true]]);
     let movement_request = shape.flip(RegularCoord::new(1, 0));
-    assert_eq!(RegularCoord::new(1, 0), movement_request);
     let expected = Polyomino::from_bool_slice(&[[false, true], [true, false]]);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(1, 0), movement_request);
 }
 
 #[test]
@@ -161,7 +206,6 @@ fn test_flip_left() {
         [false, false, true],
     ]);
     let movement_request = shape.flip(RegularCoord::new(0, 0));
-    assert_eq!(RegularCoord::new(-3, 0), movement_request);
     let expected = Polyomino::from_bool_slice(&[
         [false, false, true],
         [true, false, true],
@@ -169,6 +213,7 @@ fn test_flip_left() {
         [true, false, false],
     ]);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(-3, 0), movement_request);
 }
 
 #[test]
@@ -179,13 +224,13 @@ fn test_flip_middle() {
         [false, false, true],
     ]);
     let movement_request = shape.flip(RegularCoord::new(1, 2));
-    assert_eq!(RegularCoord::new(0, 0), movement_request);
     let expected = Polyomino::from_bool_slice(&[
         [false, false, true],
         [true, false, true],
         [true, false, false],
     ]);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(0, 0), movement_request);
 }
 
 #[test]
@@ -197,7 +242,6 @@ fn test_flip_right() {
         [false, false, true],
     ]);
     let movement_request = shape.flip(RegularCoord::new(3, 0));
-    assert_eq!(RegularCoord::new(3, 0), movement_request);
     let expected = Polyomino::from_bool_slice(&[
         [false, false, true],
         [true, false, true],
@@ -205,6 +249,7 @@ fn test_flip_right() {
         [true, false, false],
     ]);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(3, 0), movement_request);
 }
 
 #[test]

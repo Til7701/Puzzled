@@ -58,7 +58,7 @@ impl Coord for RegularCoord {
     fn rotate_around(&self, prime: Self) -> Self {
         let dx = self.x - prime.x();
         let dy = self.y - prime.y();
-        RegularCoord::new(prime.x() + dy, prime.y() + dx)
+        RegularCoord::new(prime.x() - dy, prime.y() + dx)
     }
 
     fn flip_default(&self, prime: Self) -> Self {
