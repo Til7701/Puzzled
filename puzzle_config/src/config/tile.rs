@@ -69,8 +69,7 @@ impl Hash for TileConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::polyform::poly::UnitPoly;
-    use puzzled_common::polyform::poly::polyomino::Polyomino;
+    use puzzled_common::polyform::{Polyomino, UnitPoly};
 
     #[test]
     fn test_hash() {

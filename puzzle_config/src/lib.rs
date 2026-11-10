@@ -38,8 +38,7 @@ pub fn create_json_loader(
 #[cfg(test)]
 mod tests {
     use crate::create_json_loader;
-    use puzzled_common::polyform::poly::UnitPoly;
-    use puzzled_common::polyform::poly::polyomino::Polyomino;
+    use puzzled_common::polyform::{Polyomino, UnitPoly};
 
     #[test]
     fn test_load_puzzle_collection_from_json() {

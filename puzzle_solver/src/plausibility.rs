@@ -31,8 +31,7 @@ mod tests {
     use super::*;
     use crate::board::Board;
     use crate::tile::Tile;
-    use puzzled_common::polyform::poly::UnitPoly;
-    use puzzled_common::polyform::poly::polyomino::Polyomino;
+    use puzzled_common::polyform::{Polyomino, UnitPoly};
 
     #[test]
     fn test_check_passing() {

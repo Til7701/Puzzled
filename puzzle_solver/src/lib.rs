@@ -91,11 +91,7 @@ pub fn solve_all_filling(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::polyform::Polyform;
-    use puzzled_common::polyform::coord::coord_box::CoordBox;
-    use puzzled_common::polyform::coord::regular::RegularCoord;
-    use puzzled_common::polyform::poly::UnitPoly;
-    use puzzled_common::polyform::poly::polyomino::Polyomino;
+    use puzzled_common::polyform::{CoordBox, Polyform, Polyomino, RegularCoord, UnitPoly};
 
     #[test]
     fn test_solve_all_filling_success() {
