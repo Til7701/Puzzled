@@ -20,14 +20,10 @@ impl Coord for CoordBox {
         panic!("Not allowed");
     }
 
-    fn rotate_around(&self, prime: Self, viewport: Self) -> Self {
-        match (self, prime, viewport) {
-            (CoordBox::Regular(regular), CoordBox::Regular(p), CoordBox::Regular(v)) => {
-                regular.rotate_around(p, v).into()
-            }
-            (CoordBox::Hex(hex), CoordBox::Hex(p), CoordBox::Hex(v)) => {
-                hex.rotate_around(p, v).into()
-            }
+    fn rotate_around(&self, prime: Self) -> Self {
+        match (self, prime) {
+            (CoordBox::Regular(regular), CoordBox::Regular(p)) => regular.rotate_around(p).into(),
+            (CoordBox::Hex(hex), CoordBox::Hex(p)) => hex.rotate_around(p).into(),
             _ => unreachable!(),
         }
     }

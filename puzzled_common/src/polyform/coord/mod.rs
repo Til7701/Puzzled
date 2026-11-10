@@ -9,7 +9,7 @@ pub trait Coord: Clone + Copy + Hash + PartialEq + Eq {
 
     fn one() -> Self;
 
-    fn rotate_around(&self, prime: Self, viewport: Self) -> Self;
+    fn rotate_around(&self, prime: Self) -> Self;
 
     fn flip_default(&self, prime: Self) -> Self;
 

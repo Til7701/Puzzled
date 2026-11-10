@@ -73,16 +73,10 @@ where
         }
     }
 
-    fn rotate_around(&mut self, prime: CoordBox) -> (CoordBox, CoordBox) {
+    fn rotate_around(&mut self, prime: CoordBox) -> CoordBox {
         match (self, prime) {
-            (Polyform::Polyomino(p), CoordBox::Regular(reg)) => {
-                let movement_request = p.rotate_around(reg);
-                (movement_request.0.into(), movement_request.1.into())
-            }
-            (Polyform::Hexomino(h), CoordBox::Hex(hex)) => {
-                let movement_request = h.rotate_around(hex);
-                (movement_request.0.into(), movement_request.1.into())
-            }
+            (Polyform::Polyomino(p), CoordBox::Regular(reg)) => p.rotate_around(reg).into(),
+            (Polyform::Hexomino(h), CoordBox::Hex(hex)) => h.rotate_around(hex).into(),
             _ => unreachable!(),
         }
     }

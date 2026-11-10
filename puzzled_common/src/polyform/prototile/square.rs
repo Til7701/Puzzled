@@ -62,8 +62,8 @@ where
         self.data = data;
     }
 
-    fn rotate_counterclockwise(&mut self, prime: C, viewport: C) {
-        self.coord = self.coord.rotate_around(prime, viewport);
+    fn rotate_counterclockwise(&mut self, prime: C) {
+        self.coord = self.coord.rotate_around(prime);
     }
 
     fn flip_default(&mut self, prime: C) {

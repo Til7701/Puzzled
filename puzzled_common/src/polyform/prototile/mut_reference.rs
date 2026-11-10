@@ -63,15 +63,13 @@ where
         }
     }
 
-    fn rotate_counterclockwise(&mut self, prime: CoordBox, viewport: CoordBox) {
-        match (self, prime, viewport) {
-            (
-                PrototileMutRef::Polyomino(square),
-                CoordBox::Regular(p_reg),
-                CoordBox::Regular(v_reg),
-            ) => square.rotate_counterclockwise(p_reg, v_reg),
-            (PrototileMutRef::Hexomino(hexagon), CoordBox::Hex(p_hex), CoordBox::Hex(v_hex)) => {
-                hexagon.rotate_counterclockwise(p_hex, v_hex)
+    fn rotate_counterclockwise(&mut self, prime: CoordBox) {
+        match (self, prime) {
+            (PrototileMutRef::Polyomino(square), CoordBox::Regular(p_reg)) => {
+                square.rotate_counterclockwise(p_reg)
+            }
+            (PrototileMutRef::Hexomino(hexagon), CoordBox::Hex(p_hex)) => {
+                hexagon.rotate_counterclockwise(p_hex)
             }
             _ => unreachable!(),
         }

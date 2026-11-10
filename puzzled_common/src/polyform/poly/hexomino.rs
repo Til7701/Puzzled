@@ -61,7 +61,7 @@ where
         todo!()
     }
 
-    fn rotate_around(&mut self, _prime: HexCoord) -> (HexCoord, HexCoord) {
+    fn rotate_around(&mut self, _prime: HexCoord) -> HexCoord {
         todo!()
     }
 

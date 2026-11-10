@@ -119,13 +119,14 @@ where
         }
     }
 
-    fn rotate_around(&mut self, prime: RegularCoord) -> (RegularCoord, RegularCoord) {
-        let viewport = self.dim;
+    fn rotate_around(&mut self, prime: RegularCoord) -> RegularCoord {
+        let movement_request = RegularCoord::new(0, 0);
+
         for cell in &mut self.cells {
-            cell.set_coord(cell.coord().rotate_around(prime, viewport));
+            cell.set_coord(cell.coord().rotate_around(prime) - movement_request);
         }
         self.dim = self.dim.transpose();
-        (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
+        movement_request
     }
 
     fn flip(&mut self, prime: RegularCoord) -> RegularCoord {

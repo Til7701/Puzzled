@@ -24,7 +24,7 @@ where
 
     fn rotate_to_landscape(&mut self);
 
-    fn rotate_around(&mut self, prime: C) -> (C, C);
+    fn rotate_around(&mut self, prime: C) -> C;
 
     fn flip(&mut self, prime: C) -> C;
 

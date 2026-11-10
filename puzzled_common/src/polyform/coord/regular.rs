@@ -55,14 +55,10 @@ impl Coord for RegularCoord {
         Self::new(1, 1)
     }
 
-    fn rotate_around(&self, prime: Self, viewport: Self) -> Self {
-        let x_wo_viewport = prime.x() + (self.y - prime.y());
-        let y_wo_viewport = prime.y() + (self.x - prime.x());
-
-        RegularCoord::new(
-            x_wo_viewport.rem_euclid(viewport.x()),
-            y_wo_viewport.rem_euclid(viewport.y()),
-        )
+    fn rotate_around(&self, prime: Self) -> Self {
+        let dx = self.x - prime.x();
+        let dy = self.y - prime.y();
+        RegularCoord::new(prime.x() + dy, prime.y() + dx)
     }
 
     fn flip_default(&self, prime: Self) -> Self {

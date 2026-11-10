@@ -35,7 +35,7 @@ impl Coord for HexCoord {
         todo!()
     }
 
-    fn rotate_around(&self, _prime: Self, _viewport: Self) -> Self {
+    fn rotate_around(&self, _prime: Self) -> Self {
         todo!()
     }
 
