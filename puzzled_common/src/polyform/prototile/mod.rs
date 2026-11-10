@@ -40,7 +40,7 @@ where
 
     fn rotate_counterclockwise(&mut self, prime: C, viewport: C);
 
-    fn flip_default(&mut self, prime: C, viewport: C);
+    fn flip_default(&mut self, prime: C);
 
     fn transpose(&mut self);
 }

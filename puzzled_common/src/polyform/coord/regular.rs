@@ -65,16 +65,8 @@ impl Coord for RegularCoord {
         )
     }
 
-    fn flip_default(&self, prime: Self, viewport: Self) -> Self {
-        let x_wo_viewport = prime.x() - (self.x + 1);
-        let x = if self.x < prime.x {
-            x_wo_viewport.rem_euclid(viewport.x())
-        } else if self.x > prime.x {
-            x_wo_viewport.rem_euclid(viewport.x())
-        } else {
-            self.x
-        };
-
+    fn flip_default(&self, prime: Self) -> Self {
+        let x = prime.x() - (self.x - prime.x());
         RegularCoord::new(x, self.y)
     }
 

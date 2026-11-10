@@ -26,7 +26,7 @@ where
 
     fn rotate_around(&mut self, prime: C) -> (C, C);
 
-    fn flip(&mut self, prime: C) -> (C, C);
+    fn flip(&mut self, prime: C) -> C;
 
     fn transpose(&mut self);
 

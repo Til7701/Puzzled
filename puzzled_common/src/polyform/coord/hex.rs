@@ -39,7 +39,7 @@ impl Coord for HexCoord {
         todo!()
     }
 
-    fn flip_default(&self, _prime: Self, _viewport: Self) -> Self {
+    fn flip_default(&self, _prime: Self) -> Self {
         todo!()
     }
 

@@ -66,8 +66,8 @@ where
         self.coord.rotate_around(prime, viewport);
     }
 
-    fn flip_default(&mut self, prime: C, viewport: C) {
-        self.coord.flip_default(prime, viewport);
+    fn flip_default(&mut self, prime: C) {
+        self.coord.flip_default(prime);
     }
 
     fn transpose(&mut self) {

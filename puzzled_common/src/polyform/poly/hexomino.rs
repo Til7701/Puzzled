@@ -65,7 +65,7 @@ where
         todo!()
     }
 
-    fn flip(&mut self, _prime: HexCoord) -> (HexCoord, HexCoord) {
+    fn flip(&mut self, _prime: HexCoord) -> HexCoord {
         todo!()
     }
 

@@ -87,16 +87,10 @@ where
         }
     }
 
-    fn flip(&mut self, prime: CoordBox) -> (CoordBox, CoordBox) {
+    fn flip(&mut self, prime: CoordBox) -> CoordBox {
         match (self, prime) {
-            (Polyform::Polyomino(p), CoordBox::Regular(reg)) => {
-                let movement_request = p.flip(reg);
-                (movement_request.0.into(), movement_request.1.into())
-            }
-            (Polyform::Hexomino(h), CoordBox::Hex(hex)) => {
-                let movement_request = h.flip(hex);
-                (movement_request.0.into(), movement_request.1.into())
-            }
+            (Polyform::Polyomino(p), CoordBox::Regular(reg)) => p.flip(reg).into(),
+            (Polyform::Hexomino(h), CoordBox::Hex(hex)) => h.flip(hex).into(),
             _ => unreachable!(),
         }
     }

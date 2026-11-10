@@ -128,23 +128,21 @@ where
         (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
     }
 
-    fn flip(&mut self, prime: RegularCoord) -> (RegularCoord, RegularCoord) {
-        let viewport = self.dim;
-        for cell in &mut self.cells {
-            cell.set_coord(cell.coord().flip_default(prime, viewport));
-        }
+    fn flip(&mut self, prime: RegularCoord) -> RegularCoord {
         let middle = (self.dim.x() as f32 - 1.0) / 2.0;
-        println!("{}", middle);
-        if (prime.x() as f32) < middle {
-            (
-                RegularCoord::new(0, 0),
-                RegularCoord::new(self.dim.x() - prime.x() - 1, 0),
-            )
+        let movement_request = if (prime.x() as f32) < middle {
+            RegularCoord::new(-(self.dim.x() - prime.x() - 1), 0)
         } else if (prime.x() as f32) > middle {
-            (RegularCoord::new(prime.x(), 0), RegularCoord::new(0, 0))
+            RegularCoord::new(prime.x(), 0)
         } else {
-            (RegularCoord::new(0, 0), RegularCoord::new(0, 0))
+            RegularCoord::new(0, 0)
+        };
+
+        for cell in &mut self.cells {
+            cell.set_coord(cell.coord().flip_default(prime) - movement_request);
         }
+
+        movement_request
     }
 
     fn transpose(&mut self) {

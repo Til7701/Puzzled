@@ -32,14 +32,10 @@ impl Coord for CoordBox {
         }
     }
 
-    fn flip_default(&self, prime: Self, viewport: Self) -> Self {
-        match (self, prime, viewport) {
-            (CoordBox::Regular(regular), CoordBox::Regular(p), CoordBox::Regular(v)) => {
-                regular.flip_default(p, v).into()
-            }
-            (CoordBox::Hex(hex), CoordBox::Hex(p), CoordBox::Hex(v)) => {
-                hex.flip_default(p, v).into()
-            }
+    fn flip_default(&self, prime: Self) -> Self {
+        match (self, prime) {
+            (CoordBox::Regular(regular), CoordBox::Regular(p)) => regular.flip_default(p).into(),
+            (CoordBox::Hex(hex), CoordBox::Hex(p)) => hex.flip_default(p).into(),
             _ => unreachable!(),
         }
     }
