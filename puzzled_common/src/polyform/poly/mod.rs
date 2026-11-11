@@ -50,9 +50,9 @@ pub trait UnitPoly: Sized + Clone {
 
     fn as_2d_slice(&self) -> String;
 
-    fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize;
+    fn count_biggest_connected_area_of_cells(&self) -> usize;
 
-    fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize;
+    fn count_smallest_connected_area_of_cells(&self) -> usize;
 
     fn from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self;
 }

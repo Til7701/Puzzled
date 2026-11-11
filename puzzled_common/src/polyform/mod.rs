@@ -199,23 +199,17 @@ impl UnitPoly for Polyform<()> {
         }
     }
 
-    fn count_biggest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+    fn count_biggest_connected_area_of_cells(&self) -> usize {
         match self {
-            Polyform::Polyomino(p) => {
-                p.count_biggest_connected_area_of_cells_matching(target_value)
-            }
-            Polyform::Hexomino(h) => h.count_biggest_connected_area_of_cells_matching(target_value),
+            Polyform::Polyomino(p) => p.count_biggest_connected_area_of_cells(),
+            Polyform::Hexomino(h) => h.count_biggest_connected_area_of_cells(),
         }
     }
 
-    fn count_smallest_connected_area_of_cells_matching(&self, target_value: bool) -> usize {
+    fn count_smallest_connected_area_of_cells(&self) -> usize {
         match self {
-            Polyform::Polyomino(p) => {
-                p.count_smallest_connected_area_of_cells_matching(target_value)
-            }
-            Polyform::Hexomino(h) => {
-                h.count_smallest_connected_area_of_cells_matching(target_value)
-            }
+            Polyform::Polyomino(p) => p.count_smallest_connected_area_of_cells(),
+            Polyform::Hexomino(h) => h.count_smallest_connected_area_of_cells(),
         }
     }
 

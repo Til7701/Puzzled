@@ -401,12 +401,80 @@ impl UnitPoly for Polyomino<()> {
         result
     }
 
-    fn count_biggest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
-        todo!()
+    fn count_biggest_connected_area_of_cells(&self) -> usize {
+        let mut visited_cells = HashSet::new();
+        let mut max_area = 0;
+
+        for square in self.cells.iter() {
+            let coord = square.coord();
+            if !visited_cells.contains(&coord) {
+                let mut area = 0;
+                let mut stack = vec![coord];
+
+                while let Some(c) = stack.pop() {
+                    if !visited_cells.contains(&c) && self.get_square(c).is_some() {
+                        visited_cells.insert(c);
+                        area += 1;
+
+                        // Add neighbors to the stack
+                        if c.x() > 0 {
+                            stack.push(RegularCoord::new(c.x() - 1, c.y()));
+                        }
+                        if c.x() < self.dim.x() - 1 {
+                            stack.push(RegularCoord::new(c.x() + 1, c.y()));
+                        }
+                        if c.y() > 0 {
+                            stack.push(RegularCoord::new(c.x(), c.y() - 1));
+                        }
+                        if c.y() < self.dim.y() - 1 {
+                            stack.push(RegularCoord::new(c.x(), c.y() + 1));
+                        }
+                    }
+                }
+
+                max_area = max_area.max(area);
+            }
+        }
+
+        max_area
     }
 
-    fn count_smallest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
-        todo!()
+    fn count_smallest_connected_area_of_cells(&self) -> usize {
+        let mut visited_cells = HashSet::new();
+        let mut min_area = usize::MAX;
+
+        for square in self.cells.iter() {
+            let coord = square.coord();
+            if !visited_cells.contains(&coord) {
+                let mut area = 0;
+                let mut stack = vec![coord];
+
+                while let Some(c) = stack.pop() {
+                    if !visited_cells.contains(&c) && self.get_square(c).is_some() {
+                        visited_cells.insert(c);
+                        area += 1;
+
+                        // Add neighbors to the stack
+                        if c.x() > 0 {
+                            stack.push(RegularCoord::new(c.x() - 1, c.y()));
+                        }
+                        if c.x() < self.dim.x() - 1 {
+                            stack.push(RegularCoord::new(c.x() + 1, c.y()));
+                        }
+                        if c.y() > 0 {
+                            stack.push(RegularCoord::new(c.x(), c.y() - 1));
+                        }
+                        if c.y() < self.dim.y() - 1 {
+                            stack.push(RegularCoord::new(c.x(), c.y() + 1));
+                        }
+                    }
+                }
+
+                min_area = min_area.min(area);
+            }
+        }
+
+        min_area
     }
 
     fn from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self {

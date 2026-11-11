@@ -75,9 +75,9 @@ mod tests {
         let pruner = Pruner::new(&board, &tiles);
 
         let pt0 = PositionedTile::new(&tiles[0], &board, &pruner);
-        assert_eq!(pt0.all_placements().len(), 22);
+        assert_eq!(pt0.all_placements().len(), 9);
 
         let pt1 = PositionedTile::new(&tiles[1], &board, &pruner);
-        assert_eq!(pt1.all_placements().len(), 5);
+        assert_eq!(pt1.all_placements().len(), 3);
     }
 }

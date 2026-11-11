@@ -538,33 +538,33 @@ fn test_trim_sides_rows_cols_test() {
 fn test_count_biggest_connected_area_of_cells_matching_empty() {
     let shape = Polyomino::from_bool_slice(&[[]]);
 
-    let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
-    let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+    let count = shape.count_biggest_connected_area_of_cells();
+    let count_inverted = shape.inverted().count_biggest_connected_area_of_cells();
 
-    assert_eq!(count_true, 0);
-    assert_eq!(count_false, 0);
+    assert_eq!(count, 0);
+    assert_eq!(count_inverted, 0);
 }
 
 #[test]
 fn test_count_biggest_connected_area_of_cells_matching_true() {
     let shape = Polyomino::from_bool_slice(&[[true]]);
 
-    let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
-    let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+    let count = shape.count_biggest_connected_area_of_cells();
+    let count_inverted = shape.inverted().count_biggest_connected_area_of_cells();
 
-    assert_eq!(count_true, 1);
-    assert_eq!(count_false, 0);
+    assert_eq!(count, 1);
+    assert_eq!(count_inverted, 0);
 }
 
 #[test]
 fn test_count_biggest_connected_area_of_cells_matching_false() {
     let shape = Polyomino::from_bool_slice(&[[false]]);
 
-    let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
-    let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+    let count = shape.count_biggest_connected_area_of_cells();
+    let count_inverted = shape.inverted().count_biggest_connected_area_of_cells();
 
-    assert_eq!(count_true, 0);
-    assert_eq!(count_false, 1);
+    assert_eq!(count, 0);
+    assert_eq!(count_inverted, 1);
 }
 
 #[test]
@@ -572,11 +572,11 @@ fn test_count_biggest_connected_area_of_cells_matching_ring() {
     let shape =
         Polyomino::from_bool_slice(&[[true, true, true], [true, false, true], [true, true, true]]);
 
-    let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
-    let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+    let count = shape.count_biggest_connected_area_of_cells();
+    let count_inverted = shape.inverted().count_biggest_connected_area_of_cells();
 
-    assert_eq!(count_true, 8);
-    assert_eq!(count_false, 1);
+    assert_eq!(count, 8);
+    assert_eq!(count_inverted, 1);
 }
 
 #[test]
@@ -587,11 +587,41 @@ fn test_count_biggest_connected_area_of_cells_matching_complex() {
         [true, true, true, false, true],
     ]);
 
-    let count_true = shape.count_biggest_connected_area_of_cells_matching(true);
-    let count_false = shape.count_biggest_connected_area_of_cells_matching(false);
+    let count = shape.count_biggest_connected_area_of_cells();
+    let count_inverted = shape.inverted().count_biggest_connected_area_of_cells();
 
-    assert_eq!(count_true, 8);
-    assert_eq!(count_false, 3);
+    assert_eq!(count, 8);
+    assert_eq!(count_inverted, 3);
+}
+
+#[test]
+fn test_count_biggest_connected_area_of_cells_matching_cross() {
+    let shape = Polyomino::from_bool_slice(&[
+        [true, false, true],
+        [false, true, false],
+        [true, true, true],
+    ]);
+
+    let count = shape.count_biggest_connected_area_of_cells();
+    let count_inverted = shape.inverted().count_biggest_connected_area_of_cells();
+
+    assert_eq!(count, 4);
+    assert_eq!(count_inverted, 1);
+}
+
+#[test]
+fn test_count_smallest_connected_area_of_cells_matching() {
+    let array = Polyomino::from_bool_slice(&[
+        [true, false, false],
+        [true, false, true],
+        [false, true, true],
+    ]);
+
+    let count = array.count_smallest_connected_area_of_cells();
+    let count_inverted = array.inverted().count_smallest_connected_area_of_cells();
+
+    assert_eq!(count, 2);
+    assert_eq!(count_inverted, 1);
 }
 
 #[test]
@@ -713,30 +743,4 @@ fn test_inverted() {
     let inverted = polyform.inverted();
     let expected = Polyomino::from_bool_slice(&[[false, true], [true, false]]);
     assert_eq!(expected, inverted);
-}
-
-#[test]
-fn test_count_biggest_connected_area_of_cells_matching() {
-    let array = Polyomino::from_bool_slice(&[
-        [true, false, true],
-        [false, true, false],
-        [true, true, true],
-    ]);
-    let count_true = array.count_biggest_connected_area_of_cells_matching(true);
-    let count_false = array.count_biggest_connected_area_of_cells_matching(false);
-    assert_eq!(count_true, 4);
-    assert_eq!(count_false, 1);
-}
-
-#[test]
-fn test_count_smallest_connected_area_of_cells_matching() {
-    let array = Polyomino::from_bool_slice(&[
-        [true, false, false],
-        [true, false, true],
-        [false, true, true],
-    ]);
-    let count_true = array.count_smallest_connected_area_of_cells_matching(true);
-    let count_false = array.count_smallest_connected_area_of_cells_matching(false);
-    assert_eq!(count_true, 2);
-    assert_eq!(count_false, 1);
 }

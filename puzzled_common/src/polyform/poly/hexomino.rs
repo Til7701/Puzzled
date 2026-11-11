@@ -114,11 +114,11 @@ impl UnitPoly for Hexomino<()> {
         todo!()
     }
 
-    fn count_biggest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
+    fn count_biggest_connected_area_of_cells(&self) -> usize {
         todo!()
     }
 
-    fn count_smallest_connected_area_of_cells_matching(&self, _target_value: bool) -> usize {
+    fn count_smallest_connected_area_of_cells(&self) -> usize {
         todo!()
     }
 
