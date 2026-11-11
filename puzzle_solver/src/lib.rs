@@ -93,10 +93,9 @@ mod tests {
     fn test_solve_all_filling_success() {
         let board = Board::new(
             Polyomino::from_bool_slice(&[
-                [true, false, false],
-                [false, false, false],
-                [false, false, false],
-                [false, false, false],
+                [true, false, false, false],
+                [false, false, false, false],
+                [false, false, false, false],
             ])
             .into(),
         );
@@ -115,6 +114,9 @@ mod tests {
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();
+        for placement in placements {
+            println!("{}", placement.rotation());
+        }
         assert_eq!(placements.len(), 2);
         let expected_placement_1 = TilePlacement::new(
             42,
@@ -185,7 +187,7 @@ mod tests {
     #[test]
     fn test_solve_all_filling_success_one_tile() {
         let board = Board::new(
-            Polyomino::from_bool_slice(&[[true, false, false], [false, false, false]]).into(),
+            Polyomino::from_bool_slice(&[[false, false], [true, false], [false, false]]).into(),
         );
         let tiles = vec![Tile::new(
             42,
