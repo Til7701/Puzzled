@@ -61,32 +61,26 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
         match self {
             PlacementModel::Polyomino(p) => {
                 for (i, tile) in p.tiles().iter().enumerate() {
-                    self.add_tile(
-                        &mut state,
-                        board_position,
-                        board_size,
-                        TileToPlace {
-                            i,
-                            current_rotation: &tile.current_rotation().clone().into(),
-                            base: &tile.base().clone().into(),
-                            name: tile.name(),
-                        },
-                    )?;
+                    let to_place = TileToPlace {
+                        i,
+                        current_rotation: &tile.current_rotation().clone().into(),
+                        base: &tile.base().clone().into(),
+                        name: tile.name(),
+                        dragged: tile.dragged(),
+                    };
+                    self.add_tile(&mut state, board_position, board_size, to_place)?;
                 }
             }
             PlacementModel::Hexomino(h) => {
                 for (i, tile) in h.tiles().iter().enumerate() {
-                    self.add_tile(
-                        &mut state,
-                        board_position,
-                        board_size,
-                        TileToPlace {
-                            i,
-                            current_rotation: &tile.current_rotation().clone().into(),
-                            base: &tile.base().clone().into(),
-                            name: tile.name(),
-                        },
-                    )?;
+                    let to_place = TileToPlace {
+                        i,
+                        current_rotation: &tile.current_rotation().clone().into(),
+                        base: &tile.base().clone().into(),
+                        name: tile.name(),
+                        dragged: tile.dragged(),
+                    };
+                    self.add_tile(&mut state, board_position, board_size, to_place)?;
                 }
             }
         };
@@ -156,6 +150,7 @@ struct TileToPlace<'a> {
     current_rotation: &'a Polyform<()>,
     base: &'a Polyform<()>,
     name: &'a Option<String>,
+    dragged: bool,
 }
 
 impl PlacementModel {
@@ -179,38 +174,40 @@ impl PlacementModel {
             CoordBox::Hex(_) => todo!(),
         };
         let mut any_cell_on_board = false;
-        for prototile in tile_current_rotation.iter() {
-            let cell_position = tile_position + prototile.coord();
-            if &cell_position >= &(board_position - one)
-                && &cell_position < &(board_position + board_size)
-            {
-                let cell_position_on_board = cell_position - board_position + one;
-                match state.grid.get_mut(cell_position_on_board) {
-                    None => {}
-                    Some(mut cell_ref) => {
-                        let tile_cell_placement = TileCellPlacement {
-                            tile_id: i,
-                            cell_position: prototile.coord(),
-                        };
-                        let new = match cell_ref.data().clone() {
-                            Cell::Empty(data) => {
-                                any_cell_on_board = any_cell_on_board || data.is_on_board;
-                                Cell::One(data, tile_cell_placement)
-                            }
-                            Cell::One(data, existing_widget) => {
-                                any_cell_on_board = any_cell_on_board || data.is_on_board;
-                                let widgets = vec![existing_widget, tile_cell_placement];
-                                Cell::Many(data, widgets)
-                            }
-                            Cell::Many(data, mut widgets) => {
-                                any_cell_on_board = any_cell_on_board || data.is_on_board;
-                                widgets.push(tile_cell_placement);
-                                Cell::Many(data, widgets)
-                            }
-                        };
-                        cell_ref.set_data(new);
-                    }
-                };
+        if !tile_to_place.dragged {
+            for prototile in tile_current_rotation.iter() {
+                let cell_position = tile_position + prototile.coord();
+                if &cell_position >= &(board_position - one)
+                    && &cell_position < &(board_position + board_size)
+                {
+                    let cell_position_on_board = cell_position - board_position + one;
+                    match state.grid.get_mut(cell_position_on_board) {
+                        None => {}
+                        Some(mut cell_ref) => {
+                            let tile_cell_placement = TileCellPlacement {
+                                tile_id: i,
+                                cell_position: prototile.coord(),
+                            };
+                            let new = match cell_ref.data().clone() {
+                                Cell::Empty(data) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    Cell::One(data, tile_cell_placement)
+                                }
+                                Cell::One(data, existing_widget) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    let widgets = vec![existing_widget, tile_cell_placement];
+                                    Cell::Many(data, widgets)
+                                }
+                                Cell::Many(data, mut widgets) => {
+                                    any_cell_on_board = any_cell_on_board || data.is_on_board;
+                                    widgets.push(tile_cell_placement);
+                                    Cell::Many(data, widgets)
+                                }
+                            };
+                            cell_ref.set_data(new);
+                        }
+                    };
+                }
             }
         }
         if !any_cell_on_board {
