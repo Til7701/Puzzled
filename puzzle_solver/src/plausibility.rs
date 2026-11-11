@@ -1,6 +1,7 @@
 use crate::board::Board;
 use crate::tile::Tile;
 use log::debug;
+use puzzled_common::polyform::UnitPoly;
 
 /// Performs a plausibility check for the given board and tiles.
 /// It checks the following conditions:
@@ -17,7 +18,7 @@ use log::debug;
 ///
 /// returns: bool
 pub(crate) fn check(board: &Board, tiles: &[Tile]) -> bool {
-    let board_area = board.get_polyform().iter().count();
+    let board_area = board.get_polyform().inverted().iter().count();
     let tiles_area: usize = tiles.iter().map(|tile| tile.base.iter().count()).sum();
     debug!(
         "Plausibility check: board area = {}, tiles area = {}",

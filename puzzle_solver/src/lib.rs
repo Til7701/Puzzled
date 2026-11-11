@@ -55,7 +55,7 @@ pub mod tile;
 /// assert!(result.is_ok());
 /// ```
 pub fn solve_all_filling(
-    board: Board,
+    mut board: Board,
     tiles: &[Tile],
     cancel_token: CancellationToken,
 ) -> Result<Solution, UnsolvableReason> {
@@ -64,29 +64,24 @@ pub fn solve_all_filling(
         return Err(UnsolvableReason::PlausibilityCheckFailed);
     }
 
-    let mut board = board;
     let trim_sides = board.trim();
 
-    let result = dlx::solve_all_filling(&board, tiles, cancel_token);
-    match &result {
-        Ok(solution) => {
-            let trim_adjusted_placements: Vec<TilePlacement> = solution
-                .placements()
-                .iter()
-                .map(|placement| {
-                    let position = placement.position() + trim_sides.negative;
-                    TilePlacement::new(
-                        placement.tile_id(),
-                        placement.base().clone(),
-                        placement.rotation().clone(),
-                        position,
-                    )
-                })
-                .collect();
-            Ok(Solution::new(trim_adjusted_placements))
-        }
-        Err(_) => result,
-    }
+    let solution = dlx::solve_all_filling(&board, tiles, cancel_token)?;
+
+    let trim_adjusted_placements: Vec<TilePlacement> = solution
+        .placements()
+        .iter()
+        .map(|placement| {
+            let position = placement.position() + trim_sides.negative;
+            TilePlacement::new(
+                placement.tile_id(),
+                placement.base().clone(),
+                placement.rotation().clone(),
+                position,
+            )
+        })
+        .collect();
+    Ok(Solution::new(trim_adjusted_placements))
 }
 
 #[cfg(test)]
@@ -117,6 +112,7 @@ mod tests {
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
+        println!("{:?}", result);
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();

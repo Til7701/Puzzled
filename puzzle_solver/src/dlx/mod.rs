@@ -9,7 +9,7 @@ use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
 use log::debug;
-use puzzled_common::polyform::{Poly, Polyform};
+use puzzled_common::polyform::{Poly, Polyform, Prototile, PrototileRef};
 use std::num::NonZero;
 use std::thread;
 use std::thread::JoinHandle;
@@ -119,9 +119,11 @@ fn run_multithreaded(
                     max_tile_index,
                     chunk_size * i,
                 );
+                println!("{}", solver);
                 let result = solver
                     .solve_cancelable(&|| cancel_token.is_cancelled())
                     .ok_or(UnsolvableReason::NoFit);
+                println!("Solve result: {:?}", result);
                 main_thread.unpark();
                 result
             }
@@ -184,8 +186,18 @@ fn tile_to_filled_indices(
 fn shape_to_filled_indices(shape: &Polyform<()>, index_offset: usize) -> Vec<usize> {
     shape
         .iter()
-        .enumerate()
-        .map(|(i, _)| index_offset + i + 1)
+        .map(|p| {
+            let i = match (p, shape) {
+                (PrototileRef::Polyomino(square), Polyform::Polyomino(polyomino)) => {
+                    square.coord().x() * polyomino.dim().x() + square.coord().y()
+                }
+                (PrototileRef::Hexomino(_), Polyform::Hexomino(_)) => {
+                    todo!()
+                }
+                _ => unreachable!(),
+            } as usize;
+            index_offset + i + 1
+        })
         .collect()
 }
 

@@ -1,5 +1,5 @@
 use log::debug;
-use puzzled_common::polyform::{CoordBox, Poly, Polyform, TrimSides};
+use puzzled_common::polyform::{CoordBox, Poly, Polyform, TrimSides, UnitPoly};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
 /// A filled cell is either outside the puzzle area or blocked by a placed tile.
@@ -61,7 +61,10 @@ impl Board {
     /// Trims the board by removing any rows or columns on the edges that are entirely
     /// true (filled).
     pub(crate) fn trim(&mut self) -> TrimSides<CoordBox> {
-        self.0.trim()
+        self.0 = self.0.inverted();
+        let trim = self.0.trim();
+        self.0 = self.0.inverted();
+        trim
     }
 }
 
