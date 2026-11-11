@@ -130,8 +130,8 @@ fn test_rotate_around_size_1x2_b_right() {
     let mut shape = Polyomino::from_bool_slice(&[[false], [true]]);
     let movement_request = shape.rotate_around(RegularCoord::new(1, 0));
     let expected = Polyomino::from_bool_slice(&[[false, true]]);
-    assert_eq!(RegularCoord::new(1, -1), movement_request);
     assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(1, -1), movement_request);
 }
 
 #[test]
@@ -167,7 +167,25 @@ fn test_rotate_around_2() {
         [true, true, true, false],
     ]);
     assert_eq!(expected, shape);
-    assert_eq!(RegularCoord::new(-1, -1), movement_request);
+    assert_eq!(RegularCoord::new(1, -1), movement_request);
+}
+
+#[test]
+fn test_rotate_around_3() {
+    let mut shape = Polyomino::from_bool_slice(&[
+        [true, false, false],
+        [true, true, true],
+        [true, false, true],
+        [false, false, true],
+    ]);
+    let movement_request = shape.rotate_around(RegularCoord::new(3, 2));
+    let expected = Polyomino::from_bool_slice(&[
+        [false, true, true, true],
+        [false, true, false, false],
+        [true, true, true, false],
+    ]);
+    assert_eq!(expected, shape);
+    assert_eq!(RegularCoord::new(3, -1), movement_request);
 }
 
 #[test]
