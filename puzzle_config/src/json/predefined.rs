@@ -1,5 +1,5 @@
 use crate::json::model::{Board, Tile};
-use crate::{BoardConfig, TileConfig};
+use crate::BoardConfig;
 use puzzled_common::polyform::{Polyomino, RegularCoord};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -29,34 +29,6 @@ impl ConfigStore {
 
     pub fn get_board(&self, name: &str) -> Option<Board> {
         self.boards.get(name).cloned()
-    }
-
-    #[deprecated]
-    pub(crate) fn take_tiles(&mut self) -> Vec<TileConfig> {
-        // let tiles: HashMap<String, Tile> = take(&mut self.tiles);
-        // tiles
-        //     .into_iter()
-        //     .flat_map(|(name, tile)| {
-        //         (0, tile, Some(name))
-        //             .convert(&Predefined::default(), &mut Custom::default())
-        //             .unwrap()
-        //     })
-        //     .collect()
-        unreachable!()
-    }
-
-    #[deprecated]
-    pub(crate) fn take_boards(&mut self) -> Vec<BoardConfig> {
-        // let boards: HashMap<String, Board> = take(&mut self.boards);
-        // boards
-        //     .into_values()
-        //     .map(|board| {
-        //         board
-        //             .convert(&Predefined::default(), &mut Custom::default())
-        //             .unwrap()
-        //     })
-        //     .collect()
-        unreachable!()
     }
 
     pub fn predefined_board_from_str(&self, name: &str) -> Option<BoardConfig> {

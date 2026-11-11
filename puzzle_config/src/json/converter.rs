@@ -383,3 +383,93 @@ impl<'a> Converter<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use puzzled_common::polyform::*;
+
+    #[test]
+    fn test_convert_predefined_tile() {
+        let mut predefined = Predefined::default();
+        predefined.add_tile(
+            "L3".to_string(),
+            Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![1, 1]])),
+        );
+        let mut converter = Converter::new(&predefined);
+
+        let tile = Tile::Ref("L3".to_string());
+        let converted_tile = converter
+            .convert_tile(0, tile, Some("L3".to_string()))
+            .unwrap();
+        let expected_tile = TileConfig::new(
+            {
+                let mut p = Polyomino::from_bool_slice(&[[true, false], [true, true]]);
+                p.transpose();
+                p.into()
+            },
+            ColorConfig::default_with_index(0),
+            Some("L3".to_string()),
+        );
+        assert_eq!(*converted_tile.first().unwrap(), expected_tile);
+    }
+
+    #[test]
+    fn test_convert_predefined_tile_unknown() {
+        let predefined = Predefined::default();
+        let mut converter = Converter::new(&predefined);
+
+        let tile = Tile::Ref("test".to_string());
+        let converted_tile = converter.convert_tile(0, tile, Some("L3".to_string()));
+        assert!(converted_tile.is_err());
+        assert_eq!(
+            converted_tile.err().unwrap(),
+            ReadError::UnknownPredefinedTile {
+                name: "test".to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn test_convert_custom_tile() {
+        let predefined = Predefined::default();
+        let mut converter = Converter::new(&predefined);
+
+        let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![1, 1]]));
+        let converted_tile = converter
+            .convert_tile(0, tile, Some("L3".to_string()))
+            .unwrap();
+        let expected_tile = TileConfig::new(
+            {
+                let mut p = Polyomino::from_bool_slice(&[[true, false], [true, true]]);
+                p.transpose();
+                p.into()
+            },
+            ColorConfig::default_with_index(0),
+            Some("L3".to_string()),
+        );
+        assert_eq!(*converted_tile.first().unwrap(), expected_tile);
+    }
+
+    #[test]
+    fn test_convert_custom_tile_zero_dimension() {
+        let predefined = Predefined::default();
+        let mut converter = Converter::new(&predefined);
+
+        let tile = Tile::Layout(TileLayout::Custom(vec![]));
+        let converted_tile = converter.convert_tile(0, tile, Some("L3".to_string()));
+        assert!(converted_tile.is_err());
+        assert_eq!(
+            converted_tile.err().unwrap(),
+            ReadError::TileWidthOrHeightCannotBeZero
+        );
+
+        let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![]]));
+        let converted_tile = converter.convert_tile(0, tile, Some("L3".to_string()));
+        assert!(converted_tile.is_err());
+        assert_eq!(
+            converted_tile.err().unwrap(),
+            ReadError::TileWidthOrHeightCannotBeZero
+        );
+    }
+}
