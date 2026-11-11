@@ -626,7 +626,6 @@ fn test_remove_parent_smaller_parent() {
 }
 
 #[test]
-#[should_panic]
 fn test_remove_parent_bigger_parent_panic() {
     let parent = Polyomino::from_bool_slice(&[
         [true, false, true],

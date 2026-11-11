@@ -327,18 +327,21 @@ impl UnitPoly for Polyomino<()> {
                 for r in 0..child_rows {
                     for c in 0..child_cols {
                         let child_cell = child.get(RegularCoord::new(r, c));
-                        let parent_cell =
-                            self.get(RegularCoord::new(row_offset + r, col_offset + c));
+                        let parent_coord = RegularCoord::new(row_offset + r, col_offset + c);
+                        let parent_cell = self.get(parent_coord);
                         match (parent_cell, child_cell) {
                             (Some(_), Some(_)) => {
                                 valid = false;
                                 break;
                             }
-                            (Some(PrototileRef::Polyomino(parent_c)), None) => {
-                                new_array.cells.push(parent_c.clone())
-                            }
+                            (Some(_), None) => {} // Already in cells due to clone above
                             (None, Some(PrototileRef::Polyomino(child_c))) => {
-                                new_array.cells.push(child_c.clone())
+                                let new_cell = Square::new(
+                                    parent_coord,
+                                    child_c.orientation(),
+                                    child_c.data().clone(),
+                                );
+                                new_array.cells.push(new_cell);
                             }
                             (None, None) => {}
                             (_, _) => unreachable!(),
