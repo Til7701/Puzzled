@@ -328,11 +328,8 @@ impl UnitPoly for Polyomino<()> {
                             }
                             (Some(_), None) => {} // Already in cells due to clone above
                             (None, Some(PrototileRef::Polyomino(child_c))) => {
-                                let new_cell = Square::new(
-                                    parent_coord,
-                                    child_c.orientation(),
-                                    child_c.data().clone(),
-                                );
+                                let new_cell =
+                                    { Square::new(parent_coord, child_c.orientation(), ()) };
                                 new_array.cells.push(new_cell);
                             }
                             (None, None) => {}

@@ -1,12 +1,12 @@
 pub mod combination_solutions;
 
-use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, CellData, PuzzleState};
+use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use log::debug;
 use puzzle_solver::board::Board;
 use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
-use puzzled_common::polyform::{Poly, Prototile};
+use puzzled_common::polyform::Poly;
 use std::cmp::PartialEq;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicU64, Ordering};

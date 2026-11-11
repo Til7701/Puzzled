@@ -345,9 +345,9 @@ fn test_mapped_indexed() {
 
 #[test]
 fn test_filter_mapped() {
-    let polyform = Polyomino::from_vec(&[vec![1, 2, 3], vec![4, 5, 6]], &|v, c| Some(*v));
+    let polyform = Polyomino::from_vec(&[vec![1, 2, 3], vec![4, 5, 6]], &|v, _| Some(*v));
     let mapped = polyform.filter_mapped(&|v| if *v % 2 == 0 { Some(*v) } else { None });
-    let expected = Polyomino::from_vec(&[vec![0, 2, 0], vec![4, 0, 6]], &|v, c| {
+    let expected = Polyomino::from_vec(&[vec![0, 2, 0], vec![4, 0, 6]], &|v, _| {
         if *v != 0 { Some(*v) } else { None }
     });
     assert_eq!(expected, mapped);

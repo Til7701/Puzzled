@@ -303,8 +303,8 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
         old.set_current_rotation(shape);
     }
 
-    fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox> {
-        Some(RegularCoord::new(0, 0).into()) // FIXME
+    fn prototile_coord(&self, _idx: usize, _pixel_position: PixelPosition) -> Option<CoordBox> {
+        Some(RegularCoord::new(0, 0).into()) // FIXME see #255
     }
 
     fn init_hint_tile(&mut self, position_on_board: RegularCoord, shape: Polyomino<()>) {
