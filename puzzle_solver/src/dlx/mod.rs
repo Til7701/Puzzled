@@ -119,11 +119,9 @@ fn run_multithreaded(
                     max_tile_index,
                     chunk_size * i,
                 );
-                println!("{}", solver);
                 let result = solver
                     .solve_cancelable(&|| cancel_token.is_cancelled())
                     .ok_or(UnsolvableReason::NoFit);
-                println!("Solve result: {:?}", result);
                 main_thread.unpark();
                 result
             }
@@ -189,7 +187,7 @@ fn shape_to_filled_indices(shape: &Polyform<()>, index_offset: usize) -> Vec<usi
         .map(|p| {
             let i = match (p, shape) {
                 (PrototileRef::Polyomino(square), Polyform::Polyomino(polyomino)) => {
-                    square.coord().x() * polyomino.dim().x() + square.coord().y()
+                    square.coord().x() * polyomino.dim().y() + square.coord().y()
                 }
                 (PrototileRef::Hexomino(_), Polyform::Hexomino(_)) => {
                     todo!()

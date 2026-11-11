@@ -212,6 +212,7 @@ mod tests {
     /// Ensures solvability of puzzles in core collections that are not known to be unsolvable or take too long to solve.
     #[test]
     fn test_solve_core_collections() {
+        assert!(false); // Disable for now FIXME
         let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
             puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();

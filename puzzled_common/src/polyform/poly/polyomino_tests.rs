@@ -367,8 +367,6 @@ fn test_extend_adjacent() {
         ],
         &|v, _| if *v != 0 { Some(*v) } else { None },
     );
-    println!("{}", polyform);
-    println!("{}", expected);
     assert_eq!(expected, polyform);
 }
 

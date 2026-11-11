@@ -112,7 +112,6 @@ mod tests {
         ];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
-        println!("{:?}", result);
         assert!(result.is_ok());
         let solution = result.unwrap();
         let placements = solution.placements();
