@@ -74,7 +74,7 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped<R: Clone + Hash>(&self, _mapper: fn(&T) -> R) -> Hexomino<R> {
+    fn mapped<R: Clone + Hash>(&self, _mapper: &dyn Fn(&T) -> R) -> Hexomino<R> {
         todo!()
     }
 

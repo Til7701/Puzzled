@@ -97,7 +97,7 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped<R>(&self, mapper: fn(&T) -> R) -> Polyform<R>
+    fn mapped<R>(&self, mapper: &dyn Fn(&T) -> R) -> Polyform<R>
     where
         R: Clone + Hash,
     {

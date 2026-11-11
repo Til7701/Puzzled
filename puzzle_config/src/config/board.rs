@@ -66,7 +66,7 @@ impl BoardConfig {
     pub fn layout(&self) -> Polyform<()> {
         match self {
             BoardConfig::Simple { layout } => layout.clone(),
-            BoardConfig::Area { layout, .. } => layout.clone().mapped(|_| ()),
+            BoardConfig::Area { layout, .. } => layout.clone().mapped(&|_| ()),
         }
     }
 

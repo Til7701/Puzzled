@@ -287,6 +287,14 @@ fn test_rotate_to_landscape_one() {
 }
 
 #[test]
+fn test_rotate_to_landscape() {
+    let mut shape = Polyomino::from_bool_slice(&[[true, false, true, true]]);
+    shape.rotate_to_landscape();
+    let expected = Polyomino::from_bool_slice(&[[true], [false], [true], [true]]);
+    assert_eq!(expected, shape);
+}
+
+#[test]
 fn test_trim_sides_empty() {
     let mut array = Polyomino::from_bool_slice(&[[]]);
     let trim_sides = array.trim();
@@ -297,6 +305,71 @@ fn test_trim_sides_empty() {
         positive: RegularCoord::new(0, 0),
     };
     assert_eq!(expected_trim_sides, trim_sides);
+}
+
+#[test]
+fn test_transpose() {
+    let mut polyform = Polyomino::from_bool_slice(&[[true, false, true], [false, true, false]]);
+    polyform.transpose();
+    let expected = Polyomino::from_bool_slice(&[[true, false], [false, true], [true, false]]);
+    assert_eq!(expected, polyform);
+}
+
+#[test]
+fn test_mapped() {
+    let polyform = Polyomino::from_vec(
+        &[vec![true, false, true], vec![false, true, false]],
+        &|v, _| Some(*v),
+    );
+    let mapped = polyform.mapped(&|v| !*v);
+    let expected = Polyomino::from_vec(
+        &[vec![false, true, false], vec![true, false, true]],
+        &|v, _| Some(*v),
+    );
+    assert_eq!(expected, mapped);
+}
+
+#[test]
+fn test_mapped_indexed() {
+    let polyform = Polyomino::from_vec(
+        &[vec![true, false, true], vec![false, true, false]],
+        &|v, _| Some(*v),
+    );
+    let mapped = polyform.mapped_indexed(&|v, _| !*v);
+    let expected = Polyomino::from_vec(
+        &[vec![false, true, false], vec![true, false, true]],
+        &|v, _| Some(*v),
+    );
+    assert_eq!(expected, mapped);
+}
+
+#[test]
+fn test_filter_mapped() {
+    let polyform = Polyomino::from_vec(&[vec![1, 2, 3], vec![4, 5, 6]], &|v, c| Some(*v));
+    let mapped = polyform.filter_mapped(&|v| if *v % 2 == 0 { Some(*v) } else { None });
+    let expected = Polyomino::from_vec(&[vec![0, 2, 0], vec![4, 0, 6]], &|v, c| {
+        if *v != 0 { Some(*v) } else { None }
+    });
+    assert_eq!(expected, mapped);
+}
+
+#[test]
+fn test_extend_adjacent() {
+    let mut polyform =
+        Polyomino::from_bool_slice(&[[true, false, true], [false, true, false]]).mapped(&|_| 1);
+    polyform.extend_adjacent(2);
+    let expected = Polyomino::from_vec(
+        &[
+            vec![0, 2, 0, 2, 0],
+            vec![2, 1, 2, 1, 2],
+            vec![0, 2, 1, 2, 0],
+            vec![0, 0, 2, 0, 0],
+        ],
+        &|v, _| if *v != 0 { Some(*v) } else { None },
+    );
+    println!("{}", polyform);
+    println!("{}", expected);
+    assert_eq!(expected, polyform);
 }
 
 #[test]
@@ -634,6 +707,14 @@ fn test_remove_parent_bigger_parent_panic() {
     ]);
     let mut child = Polyomino::from_bool_slice(&[[true, true], [true, true]]);
     child.remove_parent(&parent);
+}
+
+#[test]
+fn test_inverted() {
+    let polyform = Polyomino::from_bool_slice(&[[true, false], [false, true]]);
+    let inverted = polyform.inverted();
+    let expected = Polyomino::from_bool_slice(&[[false, true], [true, false]]);
+    assert_eq!(expected, inverted);
 }
 
 #[test]

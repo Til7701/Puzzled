@@ -98,7 +98,7 @@ impl TileView {
         obj.imp().id.replace(id);
         obj.imp()
             .current_rotation
-            .replace(base.mapped(|_| PolyformDrawingData::default()));
+            .replace(base.mapped(&|_| PolyformDrawingData::default()));
         obj.update_current_rotation_specials();
         obj.imp().color.replace(Some(RGBA::new(
             color.red() as f32 / 255.0,
@@ -206,7 +206,7 @@ impl TileView {
 
     /// Returns the current layout of the tile, which changes when the tile is rotated or flipped.
     pub fn current_rotation(&self) -> Polyform<()> {
-        self.imp().current_rotation.borrow().mapped(|_| ())
+        self.imp().current_rotation.borrow().mapped(&|_| ())
     }
 
     /// Sets the drawing mode for the cell at the given coordinates.

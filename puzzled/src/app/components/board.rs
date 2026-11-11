@@ -76,8 +76,8 @@ impl BoardView {
         let obj: BoardView = glib::Object::builder().build();
 
         let layout = match board_config {
-            BoardConfig::Simple { layout } => layout.mapped(|_| PolyformDrawingData::default()),
-            BoardConfig::Area { layout, .. } => layout.mapped(|value| {
+            BoardConfig::Simple { layout } => layout.mapped(&|_| PolyformDrawingData::default()),
+            BoardConfig::Area { layout, .. } => layout.mapped(&|value| {
                 let mut data = PolyformDrawingData::default();
                 data.text = Some(value.display_value.clone());
                 data.main_color_index = value.area_index as usize;

@@ -30,7 +30,7 @@ where
 
     fn transpose(&mut self);
 
-    fn mapped<R: Clone + Hash>(&self, mapper: fn(&T) -> R) -> impl Poly<R, C>;
+    fn mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> R) -> impl Poly<R, C>;
 
     fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, C) -> R) -> impl Poly<R, C>;
 

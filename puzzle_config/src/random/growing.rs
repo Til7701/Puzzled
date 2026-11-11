@@ -17,7 +17,7 @@ pub fn create_puzzle(
         .map(|i| extract_tile(i as u32, &complete_board))
         .map(Polyform::Polyomino)
         .collect();
-    let board = complete_board.mapped(|_| ());
+    let board = complete_board.mapped(&|_| ());
 
     (Polyform::Polyomino(board), tiles)
 }
@@ -178,5 +178,5 @@ fn grow_tile_index(
 fn extract_tile(tile_index: u32, complete_board: &Polyomino<Option<u32>>) -> Polyomino<()> {
     let mut base = complete_board.filter_mapped(&|x| x.filter(|i| *i == tile_index));
     base.trim();
-    base.mapped(|_| ())
+    base.mapped(&|_| ())
 }

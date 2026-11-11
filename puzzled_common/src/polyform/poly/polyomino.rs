@@ -4,6 +4,7 @@ use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
 use crate::polyform::prototile::{
     MutPrototile, Prototile, PrototileMutRef, PrototileRef, Square, SquareOrientation,
 };
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter, Write};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
@@ -114,8 +115,6 @@ where
     fn rotate_to_landscape(&mut self) {
         if self.dim.x() < self.dim.y() {
             self.transpose();
-            self.rotate_around(RegularCoord::new(0, 0));
-            self.rotate_around(RegularCoord::new(0, 0));
         }
     }
 
@@ -156,7 +155,7 @@ where
     }
 
     #[allow(refining_impl_trait)]
-    fn mapped<R: Clone + Hash>(&self, mapper: fn(&T) -> R) -> Polyomino<R> {
+    fn mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> R) -> Polyomino<R> {
         let squares = self
             .cells
             .iter()
@@ -216,38 +215,31 @@ where
             cell.set_coord(cell.coord() + RegularCoord::new(1, 1))
         }
 
+        let mut placed_coords = HashSet::new();
         let mut new_cells = Vec::new();
 
         for i in 1..self.dim.x() - 1 {
             for j in 1..self.dim.y() - 1 {
                 if let Some(cell) = self.get_square(RegularCoord::new(i, j)) {
-                    if self.get(RegularCoord::new(i - 1, j)).is_none() {
-                        new_cells.push(Square::new(
-                            RegularCoord::new(i - 1, j),
-                            cell.orientation(),
-                            value.clone(),
-                        ));
+                    let x_neg = RegularCoord::new(i - 1, j);
+                    if self.get(x_neg).is_none() && !placed_coords.contains(&x_neg) {
+                        new_cells.push(Square::new(x_neg, cell.orientation(), value.clone()));
+                        placed_coords.insert(x_neg);
                     }
-                    if self.get(RegularCoord::new(i + 1, j)).is_none() {
-                        new_cells.push(Square::new(
-                            RegularCoord::new(i + 1, j),
-                            cell.orientation(),
-                            value.clone(),
-                        ));
+                    let x_pos = RegularCoord::new(i + 1, j);
+                    if self.get(x_pos).is_none() && !placed_coords.contains(&x_pos) {
+                        new_cells.push(Square::new(x_pos, cell.orientation(), value.clone()));
+                        placed_coords.insert(x_pos);
                     }
-                    if self.get(RegularCoord::new(i, j - 1)).is_none() {
-                        new_cells.push(Square::new(
-                            RegularCoord::new(i, j - 1),
-                            cell.orientation(),
-                            value.clone(),
-                        ));
+                    let y_neg = RegularCoord::new(i, j - 1);
+                    if self.get(y_neg).is_none() && !placed_coords.contains(&y_neg) {
+                        new_cells.push(Square::new(y_neg, cell.orientation(), value.clone()));
+                        placed_coords.insert(y_neg);
                     }
-                    if self.get(RegularCoord::new(i, j + 1)).is_none() {
-                        new_cells.push(Square::new(
-                            RegularCoord::new(i, j + 1),
-                            cell.orientation(),
-                            value.clone(),
-                        ));
+                    let y_pos = RegularCoord::new(i, j + 1);
+                    if self.get(y_pos).is_none() && !placed_coords.contains(&y_pos) {
+                        new_cells.push(Square::new(y_pos, cell.orientation(), value.clone()));
+                        placed_coords.insert(y_pos);
                     }
                 }
             }
@@ -373,7 +365,7 @@ impl UnitPoly for Polyomino<()> {
         for i in 0..self.dim.x() {
             for j in 0..self.dim.y() {
                 let coord = RegularCoord::new(i, j);
-                if self.cells.iter().any(|c| c.coord() == coord) {
+                if !self.cells.iter().any(|c| c.coord() == coord) {
                     result
                         .cells
                         .push(Square::new(coord, SquareOrientation::OnSide, ()));
