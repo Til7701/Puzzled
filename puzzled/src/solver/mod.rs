@@ -6,7 +6,7 @@ use puzzle_solver::board::Board;
 use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
-use puzzled_common::polyform::Poly;
+use puzzled_common::polyform::{Poly, Polyform, Polyomino, UnitPoly};
 use std::cmp::PartialEq;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -169,7 +169,14 @@ impl Solver {
     ///
     /// returns: Board
     fn create_board(&self, puzzle_state: &PuzzleState) -> Board {
-        let board = puzzle_state.grid.filter_mapped(&|cell| match cell {
+        let mut board: Polyform<()> = match &puzzle_state.grid {
+            Polyform::Polyomino(polyomino) => Polyomino::sized(polyomino.dim(), ()).into(),
+            Polyform::Hexomino(_) => {
+                todo!()
+            }
+        };
+
+        board.remove_parent(&puzzle_state.grid.filter_mapped(&|cell| match cell {
             Cell::Empty(cell_data) => {
                 if cell_data.allowed {
                     Some(())
@@ -179,7 +186,7 @@ impl Solver {
             }
             Cell::One(_, _) => None,
             Cell::Many(_, _) => None,
-        });
+        }));
 
         Board::new(board)
     }

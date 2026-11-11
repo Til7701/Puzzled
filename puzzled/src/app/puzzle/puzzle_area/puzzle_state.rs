@@ -82,7 +82,7 @@ impl PuzzleState {
                     target: Some(target),
                 }),
             ) => layout.mapped_indexed(&|_, coord| {
-                let allowed = target.indices.iter().any(|t| t.coord() == coord);
+                let allowed = !target.indices.iter().any(|t| t.coord() == coord);
                 CellData {
                     is_on_board: true,
                     allowed,

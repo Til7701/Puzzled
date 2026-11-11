@@ -186,7 +186,7 @@ impl PlacementModel {
             {
                 let cell_position_on_board = cell_position - board_position + one;
                 match state.grid.get_mut(cell_position_on_board) {
-                    None => return Err("Index out of bounds".to_string()),
+                    None => {}
                     Some(mut cell_ref) => {
                         let tile_cell_placement = TileCellPlacement {
                             tile_id: i,
