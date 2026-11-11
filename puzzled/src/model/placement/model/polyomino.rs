@@ -247,16 +247,8 @@ impl InternalPlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementM
         &self.tiles
     }
 
-    fn tiles_mut(&mut self) -> &mut [PlacedTile<Polyomino<()>, RegularCoord>] {
-        &mut self.tiles
-    }
-
     fn board(&self) -> &PlacedBoard<RegularCoord> {
         &self.board
-    }
-
-    fn board_mut(&mut self) -> &mut PlacedBoard<RegularCoord> {
-        &mut self.board
     }
 
     fn hint_tile(&self) -> &Option<PlacedTile<Polyomino<()>, RegularCoord>> {

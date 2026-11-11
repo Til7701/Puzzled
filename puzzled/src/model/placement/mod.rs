@@ -130,11 +130,6 @@ impl PlacementModelWrapper {
         self.imp().placement_model.borrow().board_pixel_position()
     }
 
-    /// The board position in cells.
-    fn board_cell_position(&self) -> CoordBox {
-        self.imp().placement_model.borrow().board_cell_position()
-    }
-
     /// The board size in pixels.
     pub fn board_size(&self) -> PixelPosition {
         self.imp().placement_model.borrow().board_size()
@@ -147,15 +142,6 @@ impl PlacementModelWrapper {
     /// The index is the same as the index of the tile in the [PuzzleModel].
     pub fn tile_pixel_position(&self, idx: usize) -> Option<PixelPosition> {
         self.imp().placement_model.borrow().tile_pixel_position(idx)
-    }
-
-    /// The position of the tile with the given index in cells.
-    ///
-    /// None, if the tile is being dragged.
-    ///
-    /// The index is the same as the index of the tile in the [PuzzleModel].
-    fn tile_cell_position(&self, idx: usize) -> Option<CoordBox> {
-        self.imp().placement_model.borrow().tile_cell_position(idx)
     }
 
     /// The size of the tile in pixels.

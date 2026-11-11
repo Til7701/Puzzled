@@ -9,10 +9,8 @@ use std::cell::Ref;
 
 pub trait InternalPlacementModel<P: UnitPoly, C: Coord> {
     fn tiles(&self) -> &[PlacedTile<P, C>];
-    fn tiles_mut(&mut self) -> &mut [PlacedTile<P, C>];
 
     fn board(&self) -> &PlacedBoard<C>;
-    fn board_mut(&mut self) -> &mut PlacedBoard<C>;
 
     fn hint_tile(&self) -> &Option<PlacedTile<P, C>>;
 }

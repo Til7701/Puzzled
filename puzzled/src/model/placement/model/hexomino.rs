@@ -27,15 +27,7 @@ impl InternalPlacementModel<Hexomino<()>, HexCoord> for HexominoPlacementModel {
         todo!()
     }
 
-    fn tiles_mut(&mut self) -> &mut [PlacedTile<Hexomino<()>, HexCoord>] {
-        todo!()
-    }
-
     fn board(&self) -> &PlacedBoard<HexCoord> {
-        todo!()
-    }
-
-    fn board_mut(&mut self) -> &mut PlacedBoard<HexCoord> {
         todo!()
     }
 
