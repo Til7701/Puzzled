@@ -1,7 +1,7 @@
 use crate::board::Board;
 use crate::tile::Tile;
 use log::debug;
-use puzzled_common::polyform::UnitPoly;
+use puzzled_polyform::UnitPoly;
 
 /// Performs a plausibility check for the given board and tiles.
 /// It checks the following conditions:
@@ -32,7 +32,7 @@ mod tests {
     use super::*;
     use crate::board::Board;
     use crate::tile::Tile;
-    use puzzled_common::polyform::{Polyomino, UnitPoly};
+    use puzzled_polyform::{Polyomino, UnitPoly};
 
     #[test]
     fn test_check_passing() {

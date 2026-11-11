@@ -4,7 +4,7 @@ use crate::model::placement::PixelPosition;
 use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
-use puzzled_common::polyform::{Coord, CoordBox, UnitPoly};
+use puzzled_polyform::{Coord, CoordBox, UnitPoly};
 use std::cell::Ref;
 
 pub trait InternalPlacementModel<P: UnitPoly, C: Coord> {

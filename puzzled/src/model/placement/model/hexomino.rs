@@ -4,7 +4,7 @@ use crate::model::placement::grid::GridConfig;
 use crate::model::placement::prelude::{InternalPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
-use puzzled_common::polyform::{CoordBox, HexCoord, Hexomino};
+use puzzled_polyform::{CoordBox, HexCoord, Hexomino};
 
 #[derive(Debug, Default)]
 pub struct HexominoPlacementModel {

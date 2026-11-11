@@ -6,7 +6,7 @@ use puzzle_solver::board::Board;
 use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
-use puzzled_common::polyform::{Poly, Polyform, Polyomino, UnitPoly};
+use puzzled_polyform::{Poly, Polyform, Polyomino, UnitPoly};
 use std::cmp::PartialEq;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicU64, Ordering};

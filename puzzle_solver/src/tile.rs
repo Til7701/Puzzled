@@ -1,4 +1,4 @@
-use puzzled_common::polyform::Polyform;
+use puzzled_polyform::Polyform;
 use std::collections::HashSet;
 
 /// Represents a tile to place on a board.
@@ -31,7 +31,7 @@ impl Tile {
     ///
     /// ```rust
     /// use puzzle_solver::tile::Tile;
-    /// use puzzled_common::polyform::*;
+    /// use puzzled_polyform::*;
     ///
     /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
     /// let tile = Tile::new(42, base);
@@ -67,7 +67,7 @@ impl Tile {
     ///
     /// ```rust
     /// use puzzle_solver::tile::Tile;
-    /// use puzzled_common::polyform::*;
+    /// use puzzled_polyform::*;
     ///
     /// let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
     /// let tile = Tile::new(42, base.clone());
@@ -81,7 +81,7 @@ impl Tile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::polyform::{Polyomino, UnitPoly};
+    use puzzled_polyform::{Polyomino, UnitPoly};
 
     #[test]
     fn test_new() {

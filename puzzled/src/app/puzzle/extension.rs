@@ -9,7 +9,7 @@ use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppe
 use gtk::StringList;
 use gtk::prelude::{ButtonExt, WidgetExt};
 use puzzle_config::{AreaBoardData, AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
-use puzzled_common::polyform::{Poly, Polyform, Prototile};
+use puzzled_polyform::{Poly, Polyform, Prototile};
 
 #[derive(Debug, Clone, PartialEq)]
 struct TargetIndexListItem {

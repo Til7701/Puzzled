@@ -1,8 +1,8 @@
-use crate::polyform::Polyform;
-use crate::polyform::coord::hex::HexCoord;
-use crate::polyform::coord::regular::RegularCoord;
-use crate::polyform::poly::Poly;
-use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square};
+use crate::Polyform;
+use crate::coord::hex::HexCoord;
+use crate::coord::regular::RegularCoord;
+use crate::poly::Poly;
+use crate::prototile::{Hexagon, PrototileMutRef, PrototileRef, Square};
 use std::hash::Hash;
 use std::slice::IterMut;
 

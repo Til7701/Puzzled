@@ -1,7 +1,7 @@
-use crate::polyform::coord::regular::RegularCoord;
-use crate::polyform::poly::polyomino::Polyomino;
-use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
-use crate::polyform::prototile::{Square, SquareOrientation};
+use crate::coord::regular::RegularCoord;
+use crate::poly::polyomino::Polyomino;
+use crate::poly::{Poly, TrimSides, UnitPoly};
+use crate::prototile::{Square, SquareOrientation};
 
 #[test]
 fn test_default() {

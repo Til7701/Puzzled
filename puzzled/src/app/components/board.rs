@@ -12,7 +12,7 @@ use adw::{StyleManager, gio};
 use gtk::Widget;
 use gtk::prelude::*;
 use puzzle_config::BoardConfig;
-use puzzled_common::polyform::{CoordBox, MutPrototile, Poly, Polyform};
+use puzzled_polyform::{CoordBox, MutPrototile, Poly, Polyform};
 use std::ops::Deref;
 
 const MAIN_COLORS_COUNT: usize = 6;

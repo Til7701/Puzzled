@@ -4,7 +4,7 @@ use adw::gdk::pango::{Alignment, SCALE, WrapMode};
 use adw::prelude::GdkCairoContextExt;
 use gtk::pango;
 use pangocairo::functions::show_layout;
-use puzzled_common::polyform::{Poly, Polyform, Polyomino, Prototile, RegularCoord, Square};
+use puzzled_polyform::{Poly, Polyform, Polyomino, Prototile, RegularCoord, Square};
 
 const BORDER_SIZE_RATIO: f64 = 0.03;
 const HIGHLIGHT_SIZE_RATIO: f64 = 0.08;

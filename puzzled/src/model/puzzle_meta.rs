@@ -4,7 +4,7 @@ use adw::glib::{Variant, VariantDict, VariantTy};
 use adw::prelude::{SettingsExt, SettingsExtManual};
 use log::{debug, error};
 use puzzle_config::{BoardConfig, PuzzleConfigCollection, Target};
-use puzzled_common::polyform::CoordBox;
+use puzzled_polyform::CoordBox;
 
 const SOLVED_KEY: &str = "solved";
 const HINTS_KEY: &str = "hints";

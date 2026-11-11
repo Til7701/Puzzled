@@ -31,7 +31,7 @@ use gettextrs::gettext;
 use gtk::{CssProvider, License, STYLE_PROVIDER_PRIORITY_APPLICATION, Settings, gio, glib};
 use log::info;
 use puzzle_config::ColorConfig;
-use puzzled_common::polyform::{CoordBox, Polyomino, RegularCoord, UnitPoly};
+use puzzled_polyform::{CoordBox, Polyomino, RegularCoord, UnitPoly};
 use std::fmt::Debug;
 
 mod imp {

@@ -1,6 +1,6 @@
 use crate::config::area::AreaConfig;
 use crate::{Target, TargetIndex, TargetTemplate};
-use puzzled_common::polyform::{Poly, Polyform, Prototile};
+use puzzled_polyform::{Poly, Polyform, Prototile};
 use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]

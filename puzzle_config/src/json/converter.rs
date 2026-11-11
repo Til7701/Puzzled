@@ -9,7 +9,7 @@ use crate::{
     PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate,
     TileConfig, validation,
 };
-use puzzled_common::polyform::{Poly, Polyform, Polyomino};
+use puzzled_polyform::{Poly, Polyform, Polyomino};
 use std::num::NonZero;
 use time::OffsetDateTime;
 
@@ -387,7 +387,7 @@ impl<'a> Converter<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::polyform::*;
+    use puzzled_polyform::*;
 
     #[test]
     fn test_convert_predefined_tile() {

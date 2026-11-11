@@ -9,7 +9,7 @@ use crate::result::{Solution, TilePlacement, UnsolvableReason};
 use crate::tile::Tile;
 use dlx_rs::Solver;
 use log::debug;
-use puzzled_common::polyform::{Poly, Polyform, Prototile, PrototileRef};
+use puzzled_polyform::{Poly, Polyform, Prototile, PrototileRef};
 use std::num::NonZero;
 use std::thread;
 use std::thread::JoinHandle;

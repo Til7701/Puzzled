@@ -4,7 +4,7 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{FixedExt, WidgetExt};
 use puzzle_config::ColorConfig;
 use puzzle_solver::result::TilePlacement;
-use puzzled_common::polyform::{CoordBox, RegularCoord};
+use puzzled_polyform::{CoordBox, RegularCoord};
 
 impl PuzzleArea {
     /// Show the placement of a tile as a hint.

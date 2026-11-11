@@ -1,6 +1,6 @@
-use crate::polyform::coord::hex::HexCoord;
-use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
-use crate::polyform::prototile::{Hexagon, PrototileMutRef, PrototileRef};
+use crate::coord::hex::HexCoord;
+use crate::poly::{Poly, TrimSides, UnitPoly};
+use crate::prototile::{Hexagon, PrototileMutRef, PrototileRef};
 use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

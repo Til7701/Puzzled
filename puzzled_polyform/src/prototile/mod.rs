@@ -1,4 +1,4 @@
-use crate::polyform::coord::Coord;
+use crate::coord::Coord;
 use std::hash::Hash;
 
 mod hexagon;

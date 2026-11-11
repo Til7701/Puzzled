@@ -1,13 +1,13 @@
 [workspace]
 resolver = "3"
-members = ["puzzle_solver", "puzzle_config", "puzzled", "puzzled_common"]
+members = ["puzzle_solver", "puzzle_config", "puzzled", "puzzled_polyform"]
 
 [workspace.package]
 version = "1.2.4"
 edition = "2024"
 
 [workspace.dependencies]
-puzzled_common = { path = "./puzzled_common" }
+puzzled_polyform = { path = "puzzled_polyform" }
 puzzle_solver = { path = "./puzzle_solver" }
 puzzle_config = { path = "./puzzle_config" }
 gettext-rs = { version = "0.8", features = ["gettext-system"] }

@@ -1,6 +1,6 @@
 use crate::config::area::{AreaConfig, AreaValueFormatter};
 use crate::config::board::AreaBoardData;
-use puzzled_common::polyform::{CoordBox, Poly, Polyform, Prototile};
+use puzzled_polyform::{CoordBox, Poly, Polyform, Prototile};
 use std::fmt::{Display, Formatter};
 
 /// Template for formatting targets to show in the UI.

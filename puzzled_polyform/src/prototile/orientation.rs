@@ -1,4 +1,4 @@
-use crate::polyform::prototile::{HexagonOrientation, SquareOrientation};
+use crate::prototile::{HexagonOrientation, SquareOrientation};
 
 pub enum Orientation {
     Square(SquareOrientation),

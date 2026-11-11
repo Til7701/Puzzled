@@ -1,5 +1,5 @@
 use crate::config::color::ColorConfig;
-use puzzled_common::polyform::Polyform;
+use puzzled_polyform::Polyform;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 /// Configuration for a tile that can be placed on the board.
@@ -69,7 +69,7 @@ impl Hash for TileConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::polyform::{Polyomino, UnitPoly};
+    use puzzled_polyform::{Polyomino, UnitPoly};
 
     #[test]
     fn test_hash() {

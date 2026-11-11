@@ -1,5 +1,5 @@
 use crate::random::{Algorithm, RandomPuzzleSettings};
-use puzzled_common::polyform::{MutPrototile, Poly, Polyform, Polyomino, Prototile, RegularCoord};
+use puzzled_polyform::{MutPrototile, Poly, Polyform, Polyomino, Prototile, RegularCoord};
 use rand::{Rng, RngExt};
 use std::collections::BTreeMap;
 

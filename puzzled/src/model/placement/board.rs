@@ -1,5 +1,5 @@
 use crate::model::placement::PixelPosition;
-use puzzled_common::polyform::Coord;
+use puzzled_polyform::Coord;
 
 #[derive(Clone, Debug, Default)]
 pub struct PlacedBoard<C: Coord> {

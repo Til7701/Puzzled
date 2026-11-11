@@ -10,7 +10,7 @@ use gtk::prelude::{ActionableExt, BoxExt, FixedExt, ListBoxRowExt, WidgetExt};
 use gtk::{Align, Fixed, Widget};
 use log::error;
 use puzzle_config::{BoardConfig, ProgressionConfig, TileConfig};
-use puzzled_common::polyform::Poly;
+use puzzled_polyform::Poly;
 
 /// How many pixels a cell should have in the preview of tiles and boards.
 /// This is NOT the total size of the preview.

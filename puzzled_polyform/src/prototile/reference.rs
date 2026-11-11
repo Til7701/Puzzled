@@ -1,7 +1,7 @@
-use crate::polyform::coord::coord_box::CoordBox;
-use crate::polyform::coord::hex::HexCoord;
-use crate::polyform::coord::regular::RegularCoord;
-use crate::polyform::prototile::{Hexagon, Orientation, Prototile, Square};
+use crate::coord::coord_box::CoordBox;
+use crate::coord::hex::HexCoord;
+use crate::coord::regular::RegularCoord;
+use crate::prototile::{Hexagon, Orientation, Prototile, Square};
 use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

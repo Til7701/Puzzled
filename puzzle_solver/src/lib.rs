@@ -36,7 +36,7 @@ pub mod tile;
 /// use puzzle_solver::board::Board;
 /// use puzzle_solver::tile::Tile;
 /// use puzzle_solver::cancellation_token::CancellationToken;
-/// use puzzled_common::polyform::*;
+/// use puzzled_polyform::*;
 /// use puzzle_solver::solve_all_filling;
 ///
 /// let board = Board::new(Polyomino::from_bool_slice(&[
@@ -87,7 +87,7 @@ pub fn solve_all_filling(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::polyform::{CoordBox, Polyform, Polyomino, RegularCoord, UnitPoly};
+    use puzzled_polyform::{CoordBox, Polyform, Polyomino, RegularCoord, UnitPoly};
 
     #[test]
     fn test_solve_all_filling_success() {

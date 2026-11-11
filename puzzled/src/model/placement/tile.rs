@@ -1,5 +1,5 @@
 use crate::model::placement::PixelPosition;
-use puzzled_common::polyform::{Coord, UnitPoly};
+use puzzled_polyform::{Coord, UnitPoly};
 
 #[derive(Clone, Debug, Default)]
 pub struct PlacedTile<P: UnitPoly, C: Coord> {

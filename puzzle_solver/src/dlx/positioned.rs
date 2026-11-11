@@ -1,7 +1,7 @@
 use crate::board::Board;
 use crate::dlx::pruner::Pruner;
 use crate::tile::Tile;
-use puzzled_common::polyform::{Polyform, UnitPoly};
+use puzzled_polyform::{Polyform, UnitPoly};
 
 /// A tile with all its possible placements on the board represented as bitmasks.
 ///
@@ -49,7 +49,7 @@ impl PositionedTile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::polyform::Polyomino;
+    use puzzled_polyform::*;
 
     #[test]
     fn test_new() {

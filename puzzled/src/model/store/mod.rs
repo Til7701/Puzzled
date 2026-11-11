@@ -190,7 +190,7 @@ mod tests {
     use puzzle_solver::board::Board;
     use puzzle_solver::cancellation_token::CancellationToken;
     use puzzle_solver::tile::Tile;
-    use puzzled_common::polyform::UnitPoly;
+    use puzzled_polyform::UnitPoly;
     use std::collections::{HashMap, HashSet};
     use std::fs;
     use std::hash::{DefaultHasher, Hash, Hasher};

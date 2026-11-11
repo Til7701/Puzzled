@@ -1,5 +1,5 @@
-use crate::polyform::coord::Coord;
-use crate::polyform::prototile::{MutPrototile, Prototile};
+use crate::coord::Coord;
+use crate::prototile::{MutPrototile, Prototile};
 use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

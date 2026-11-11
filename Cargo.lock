@@ -781,7 +781,7 @@ dependencies = [
 name = "puzzle_config"
 version = "1.2.4"
 dependencies = [
- "puzzled_common",
+ "puzzled_polyform",
  "rand",
  "regex",
  "semver",
@@ -796,7 +796,7 @@ version = "1.2.4"
 dependencies = [
  "dlx-rs",
  "log",
- "puzzled_common",
+ "puzzled_polyform",
 ]
 
 [[package]]
@@ -810,17 +810,14 @@ dependencies = [
  "pangocairo",
  "puzzle_config",
  "puzzle_solver",
- "puzzled_common",
+ "puzzled_polyform",
  "rand",
  "simple_logger",
 ]
 
 [[package]]
-name = "puzzled_common"
+name = "puzzled_polyform"
 version = "1.2.4"
-dependencies = [
- "log",
-]
 
 [[package]]
 name = "quote"

@@ -1,6 +1,6 @@
-use crate::polyform::coord::Coord;
-use crate::polyform::coord::hex::HexCoord;
-use crate::polyform::coord::regular::RegularCoord;
+use crate::coord::Coord;
+use crate::coord::hex::HexCoord;
+use crate::coord::regular::RegularCoord;
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};

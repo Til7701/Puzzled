@@ -1,5 +1,5 @@
 use log::debug;
-use puzzled_common::polyform::{CoordBox, Poly, Polyform, TrimSides, UnitPoly};
+use puzzled_polyform::{CoordBox, Poly, Polyform, TrimSides, UnitPoly};
 
 /// Represents a 2D board for the puzzle, where each cell is either true (filled) or false (empty).
 /// A filled cell is either outside the puzzle area or blocked by a placed tile.
@@ -20,7 +20,7 @@ impl Board {
     ///
     /// ```rust
     /// use puzzle_solver::board::Board;
-    /// use puzzled_common::polyform::*;
+    /// use puzzled_polyform::*;
     ///
     /// let board = Board::new(Polyomino::sized(RegularCoord::new(3, 4), ()).into());
     /// assert_eq!(board.get_polyform(), &Polyomino::sized(RegularCoord::new(3, 4), ()).into());
@@ -41,7 +41,7 @@ impl Board {
     ///
     /// ```rust
     /// use puzzle_solver::board::Board;
-    /// use puzzled_common::polyform::*;
+    /// use puzzled_polyform::*;
     ///
     /// let board = Board::new(Polyomino::sized(RegularCoord::new(3, 4), ()).into());
     /// assert_eq!(board.get_polyform(), &Polyomino::sized(RegularCoord::new(3, 4), ()).into());

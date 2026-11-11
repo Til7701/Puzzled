@@ -2,7 +2,7 @@ use crate::{
     BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig,
     PuzzleConfigCollection, TileConfig,
 };
-use puzzled_common::polyform::Polyform;
+use puzzled_polyform::Polyform;
 use rand::rngs::Xoshiro256PlusPlus;
 use rand::{Rng, RngExt, SeedableRng};
 use std::hash::Hash;
@@ -77,7 +77,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzled_common::polyform::{Polyomino, UnitPoly};
+    use puzzled_polyform::{Polyomino, UnitPoly};
 
     #[test]
     fn test_normal() {

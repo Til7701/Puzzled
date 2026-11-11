@@ -1,7 +1,7 @@
-use crate::polyform::coord::Coord;
-use crate::polyform::coord::regular::RegularCoord;
-use crate::polyform::poly::{Poly, TrimSides, UnitPoly};
-use crate::polyform::prototile::{
+use crate::coord::Coord;
+use crate::coord::regular::RegularCoord;
+use crate::poly::{Poly, TrimSides, UnitPoly};
+use crate::prototile::{
     MutPrototile, Prototile, PrototileMutRef, PrototileRef, Square, SquareOrientation,
 };
 use std::collections::HashSet;

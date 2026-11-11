@@ -1,5 +1,5 @@
-use crate::polyform::coord::Coord;
-use crate::polyform::prototile::{PrototileMutRef, PrototileRef};
+use crate::coord::Coord;
+use crate::prototile::{PrototileMutRef, PrototileRef};
 use std::hash::Hash;
 
 pub mod hexomino;
