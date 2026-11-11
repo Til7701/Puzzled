@@ -8,8 +8,6 @@ use gtk::Widget;
 use gtk::prelude::{FixedExt, WidgetExt};
 use puzzle_config::PuzzleConfig;
 
-const TARGET_SELECTION_CLASS: &str = "target-selection";
-
 impl PuzzleArea {
     pub fn setup_board(&self, puzzle_config: &PuzzleConfig) {
         let board_view =

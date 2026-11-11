@@ -1,12 +1,20 @@
 use crate::model::placement::PixelPosition;
 use crate::model::placement::board::PlacedBoard;
+use crate::model::placement::grid::GridConfig;
 use crate::model::placement::prelude::{InternalPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::puzzle::PuzzleModel;
 use puzzled_common::polyform::{CoordBox, HexCoord, Hexomino};
 
 #[derive(Debug, Default)]
-pub struct HexominoPlacementModel {}
+pub struct HexominoPlacementModel {
+    _area_pixel_size: PixelPosition,
+    _min_area_pixel_size: PixelPosition,
+    _grid_config: GridConfig<HexCoord>,
+    _board: PlacedBoard<HexCoord>,
+    _tiles: Vec<PlacedTile<Hexomino<()>, HexCoord>>,
+    _hint_tile: Option<PlacedTile<Hexomino<()>, HexCoord>>,
+}
 
 impl HexominoPlacementModel {
     pub fn new(_puzzle_model: &PuzzleModel) -> Self {

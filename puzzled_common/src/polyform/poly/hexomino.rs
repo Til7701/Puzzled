@@ -20,7 +20,10 @@ where
         todo!()
     }
 
-    pub fn from_vec<X>(_vec: &[Vec<X>], _mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>) -> Self {
+    pub fn from_vec<X, M>(_vec: &[Vec<X>], _mapper: &M) -> Self
+    where
+        M: Fn(&X, (usize, usize)) -> Option<T>,
+    {
         todo!()
     }
 
@@ -74,17 +77,26 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped<R: Clone + Hash>(&self, _mapper: &dyn Fn(&T) -> R) -> Hexomino<R> {
+    fn mapped<R: Clone + Hash, M>(&self, _mapper: &M) -> Hexomino<R>
+    where
+        M: Fn(&T) -> R,
+    {
         todo!()
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped_indexed<R: Clone + Hash>(&self, _mapper: &dyn Fn(&T, HexCoord) -> R) -> Hexomino<R> {
+    fn mapped_indexed<R: Clone + Hash, M>(&self, _mapper: &M) -> Hexomino<R>
+    where
+        M: Fn(&T, HexCoord) -> R,
+    {
         todo!()
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn filter_mapped<R: Clone + Hash>(&self, _mapper: &dyn Fn(&T) -> Option<R>) -> Hexomino<R> {
+    fn filter_mapped<R: Clone + Hash, M>(&self, _mapper: &M) -> Hexomino<R>
+    where
+        M: Fn(&T) -> Option<R>,
+    {
         todo!()
     }
 

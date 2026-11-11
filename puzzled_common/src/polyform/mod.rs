@@ -97,9 +97,10 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped<R>(&self, mapper: &dyn Fn(&T) -> R) -> Polyform<R>
+    fn mapped<R, M>(&self, mapper: &M) -> Polyform<R>
     where
         R: Clone + Hash,
+        M: Fn(&T) -> R,
     {
         match self {
             Polyform::Polyomino(p) => Polyform::Polyomino(p.mapped(mapper)),
@@ -108,9 +109,10 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped_indexed<R>(&self, mapper: &dyn Fn(&T, CoordBox) -> R) -> Polyform<R>
+    fn mapped_indexed<R, M>(&self, mapper: &M) -> Polyform<R>
     where
         R: Clone + Hash,
+        M: Fn(&T, CoordBox) -> R,
     {
         match self {
             Polyform::Polyomino(p) => Polyform::Polyomino(
@@ -123,9 +125,10 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn filter_mapped<R>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Polyform<R>
+    fn filter_mapped<R, M>(&self, mapper: &M) -> Polyform<R>
     where
         R: Clone + Hash,
+        M: Fn(&T) -> Option<R>,
     {
         match self {
             Polyform::Polyomino(p) => Polyform::Polyomino(p.filter_mapped(mapper)),

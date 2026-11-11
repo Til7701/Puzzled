@@ -77,11 +77,10 @@ impl BoardView {
 
         let layout = match board_config {
             BoardConfig::Simple { layout } => layout.mapped(&|_| PolyformDrawingData::default()),
-            BoardConfig::Area { layout, .. } => layout.mapped(&|value| {
-                let mut data = PolyformDrawingData::default();
-                data.text = Some(value.display_value.clone());
-                data.main_color_index = value.area_index as usize;
-                data
+            BoardConfig::Area { layout, .. } => layout.mapped(&|value| PolyformDrawingData {
+                text: Some(value.display_value.clone()),
+                main_color_index: value.area_index as usize,
+                ..Default::default()
             }),
         };
         obj.imp().layout.replace(Some(layout));

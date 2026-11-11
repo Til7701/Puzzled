@@ -216,12 +216,14 @@ impl PolyominoPlacementModel {
         }
         if self.hint_tile.is_some() {
             let (position_pixels, pixel_size) = {
+                #[allow(clippy::unnecessary_unwrap)]
                 let ht = &self.hint_tile.as_ref().unwrap();
                 (
                     self.translate_cells_to_pixels(ht.position_cells()),
                     self.translate_cells_to_pixels(ht.cell_size()),
                 )
             };
+            #[allow(clippy::unnecessary_unwrap)]
             let ht = &mut self.hint_tile.as_mut().unwrap();
             ht.set_position_pixels(position_pixels);
             ht.set_pixel_size(pixel_size);

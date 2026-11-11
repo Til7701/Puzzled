@@ -39,7 +39,10 @@ where
         }
     }
 
-    pub fn from_vec<X>(vec: &[Vec<X>], mapper: &dyn Fn(&X, (usize, usize)) -> Option<T>) -> Self {
+    pub fn from_vec<X, M>(vec: &[Vec<X>], mapper: &M) -> Self
+    where
+        M: Fn(&X, (usize, usize)) -> Option<T>,
+    {
         let size = RegularCoord::new(
             vec.len() as i32,
             if !vec.is_empty() {
@@ -155,7 +158,10 @@ where
     }
 
     #[allow(refining_impl_trait)]
-    fn mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> R) -> Polyomino<R> {
+    fn mapped<R: Clone + Hash, M>(&self, mapper: &M) -> Polyomino<R>
+    where
+        M: Fn(&T) -> R,
+    {
         let squares = self
             .cells
             .iter()
@@ -172,10 +178,10 @@ where
     }
 
     #[allow(refining_impl_trait)]
-    fn mapped_indexed<R: Clone + Hash>(
-        &self,
-        mapper: &dyn Fn(&T, RegularCoord) -> R,
-    ) -> Polyomino<R> {
+    fn mapped_indexed<R: Clone + Hash, M>(&self, mapper: &M) -> Polyomino<R>
+    where
+        M: Fn(&T, RegularCoord) -> R,
+    {
         let squares = self
             .cells
             .iter()
@@ -193,7 +199,10 @@ where
     }
 
     #[allow(refining_impl_trait)]
-    fn filter_mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> Polyomino<R> {
+    fn filter_mapped<R: Clone + Hash, M>(&self, mapper: &M) -> Polyomino<R>
+    where
+        M: Fn(&T) -> Option<R>,
+    {
         let squares = self
             .cells
             .iter()

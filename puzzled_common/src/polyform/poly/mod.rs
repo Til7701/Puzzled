@@ -30,11 +30,17 @@ where
 
     fn transpose(&mut self);
 
-    fn mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> R) -> impl Poly<R, C>;
+    fn mapped<R: Clone + Hash, M>(&self, mapper: &M) -> impl Poly<R, C>
+    where
+        M: Fn(&T) -> R;
 
-    fn mapped_indexed<R: Clone + Hash>(&self, mapper: &dyn Fn(&T, C) -> R) -> impl Poly<R, C>;
+    fn mapped_indexed<R: Clone + Hash, M>(&self, mapper: &M) -> impl Poly<R, C>
+    where
+        M: Fn(&T, C) -> R;
 
-    fn filter_mapped<R: Clone + Hash>(&self, mapper: &dyn Fn(&T) -> Option<R>) -> impl Poly<R, C>;
+    fn filter_mapped<R: Clone + Hash, M>(&self, mapper: &M) -> impl Poly<R, C>
+    where
+        M: Fn(&T) -> Option<R>;
 
     fn extend_adjacent(&mut self, value: T);
 

@@ -65,10 +65,12 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
                         &mut state,
                         board_position,
                         board_size,
-                        i,
-                        &tile.current_rotation().clone().into(),
-                        &tile.base().clone().into(),
-                        tile.name(),
+                        TileToPlace {
+                            i,
+                            current_rotation: &tile.current_rotation().clone().into(),
+                            base: &tile.base().clone().into(),
+                            name: tile.name(),
+                        },
                     )?;
                 }
             }
@@ -78,10 +80,12 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
                         &mut state,
                         board_position,
                         board_size,
-                        i,
-                        &tile.current_rotation().clone().into(),
-                        &tile.base().clone().into(),
-                        tile.name(),
+                        TileToPlace {
+                            i,
+                            current_rotation: &tile.current_rotation().clone().into(),
+                            base: &tile.base().clone().into(),
+                            name: tile.name(),
+                        },
                     )?;
                 }
             }
@@ -147,17 +151,26 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
     }
 }
 
+struct TileToPlace<'a> {
+    i: usize,
+    current_rotation: &'a Polyform<()>,
+    base: &'a Polyform<()>,
+    name: &'a Option<String>,
+}
+
 impl PlacementModel {
     fn add_tile(
         &self,
         state: &mut PuzzleState,
         board_position: CoordBox,
         board_size: CoordBox,
-        i: usize,
-        tile_current_rotation: &Polyform<()>,
-        tile_base: &Polyform<()>,
-        tile_name: &Option<String>,
+        tile_to_place: TileToPlace,
     ) -> Result<(), String> {
+        let i = tile_to_place.i;
+        let tile_current_rotation = tile_to_place.current_rotation;
+        let tile_base = tile_to_place.base;
+        let tile_name = tile_to_place.name;
+
         let tile_position = self
             .tile_cell_position(i)
             .ok_or_else(|| "Tile position not set".to_string())?;

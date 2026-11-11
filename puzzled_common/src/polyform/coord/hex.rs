@@ -5,7 +5,7 @@ use std::ops::{Add, Sub};
 /// A grid for hexagons.
 ///
 /// Could maybe be used for triangles as well.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct HexCoord {
     x: u32,
     y: u32,

@@ -3,7 +3,6 @@ use crate::{Target, TargetIndex, TargetTemplate};
 use puzzled_common::polyform::{Poly, Polyform, Prototile};
 use std::hash::{Hash, Hasher};
 
-pub type SimpleBoardData = ();
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct AreaBoardData {
     pub area_index: i32,
