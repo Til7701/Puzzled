@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
-/// A regular grid with square elements.
+/// A regular coordinate with square elements.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct RegularCoord {
     x: i32,
@@ -11,50 +11,54 @@ pub struct RegularCoord {
 }
 
 impl RegularCoord {
+    /// Creates a new `RegularCoord` with the given values.
+    ///
+    /// # Arguments
+    ///
+    /// * `x`: the first dimension
+    /// * `y`: the second dimension
+    ///
+    /// returns: RegularCoord
     pub fn new(x: i32, y: i32) -> Self {
         RegularCoord { x, y }
     }
 
+    /// Returns the first dimension
     pub fn x(&self) -> i32 {
         self.x
     }
 
+    /// Creates a new `RegularCoord` with the given x as the first dimension
+    /// and keeping the other values.
     #[must_use]
     pub fn with_x(&self, x: i32) -> Self {
         RegularCoord { x, ..*self }
     }
 
+    /// Returns the second dimension
     pub fn y(&self) -> i32 {
         self.y
     }
 
+    /// Creates a new `RegularCoord` with the given y as the second dimension
+    /// and keeping the other values.
     #[must_use]
     pub fn with_y(&self, y: i32) -> Self {
         RegularCoord { y, ..*self }
     }
 
+    /// Returns the elementwise minimum of this and the other.
     pub fn min(&self, other: Self) -> Self {
         RegularCoord::new(self.x.min(other.x), self.y.min(other.y))
     }
 
+    /// Returns the elementwise maximum of this and the other.
     pub fn max(&self, other: Self) -> Self {
         RegularCoord::new(self.x.max(other.x), self.y.max(other.y))
-    }
-
-    pub fn add_tuple(&self, tuple: (i32, i32)) -> RegularCoord {
-        RegularCoord::new(self.x + tuple.0, self.y + tuple.1)
     }
 }
 
 impl Coord for RegularCoord {
-    fn zero() -> Self {
-        Self::new(0, 0)
-    }
-
-    fn one() -> Self {
-        Self::new(1, 1)
-    }
-
     fn rotate_around(&self, prime: Self) -> Self {
         let dx = self.x - prime.x();
         let dy = self.y - prime.y();

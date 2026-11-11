@@ -2,9 +2,7 @@ use crate::coord::Coord;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
-/// A grid for hexagons.
-///
-/// Could maybe be used for triangles as well.
+/// A coordinate for hexagons.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct HexCoord {
     x: u32,
@@ -27,14 +25,6 @@ impl HexCoord {
 }
 
 impl Coord for HexCoord {
-    fn zero() -> Self {
-        todo!()
-    }
-
-    fn one() -> Self {
-        todo!()
-    }
-
     fn rotate_around(&self, _prime: Self) -> Self {
         todo!()
     }

@@ -5,6 +5,7 @@ use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
+/// A box to wrap any coordinate type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CoordBox {
     Regular(RegularCoord),
@@ -12,14 +13,6 @@ pub enum CoordBox {
 }
 
 impl Coord for CoordBox {
-    fn zero() -> Self {
-        panic!("Not allowed");
-    }
-
-    fn one() -> Self {
-        panic!("Not allowed");
-    }
-
     fn rotate_around(&self, prime: Self) -> Self {
         match (self, prime) {
             (CoordBox::Regular(regular), CoordBox::Regular(p)) => regular.rotate_around(p).into(),

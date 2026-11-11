@@ -8,12 +8,18 @@ pub mod polyomino;
 #[cfg(test)]
 mod polyomino_tests;
 
+/// All the operations a polyform with any data value should be able to do.
+///
+/// T: the datatype stored in the polyform
+/// C: the coordinate system used by this polyform
 pub trait Poly<T, C: Coord>: Clone
 where
     T: Clone + Hash,
 {
+    /// Returns an immutable reference to the prototile at the specified coordinates if there is one.
     fn get(&self, coord: C) -> Option<PrototileRef<'_, T>>;
 
+    /// Returns a mutable reference to the prototile at the specified coordinates if there is one.
     fn get_mut(&mut self, coord: C) -> Option<PrototileMutRef<'_, T>>;
 
     fn dim(&self) -> C;

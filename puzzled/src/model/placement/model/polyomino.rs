@@ -105,10 +105,11 @@ impl PolyominoPlacementModel {
         let available_height_pixel = area_pixel_size.1;
 
         let board_size_cells = self.board.cell_size();
-        let board_size_cells_with_margin = board_size_cells.add_tuple((
-            MIN_CELLS_TO_THE_SIDES_OF_BOARD * 2,
-            MIN_CELLS_TO_THE_TOP_OF_BOARD + MIN_CELLS_TO_THE_BOTTOM_OF_BOARD,
-        ));
+        let board_size_cells_with_margin = board_size_cells
+            + RegularCoord::new(
+                MIN_CELLS_TO_THE_SIDES_OF_BOARD * 2,
+                MIN_CELLS_TO_THE_TOP_OF_BOARD + MIN_CELLS_TO_THE_BOTTOM_OF_BOARD,
+            );
         let tiles_required_cells = self.tiles_required_cells();
         let required_cells = board_size_cells_with_margin.max(tiles_required_cells);
 
