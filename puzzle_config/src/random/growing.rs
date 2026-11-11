@@ -15,6 +15,7 @@ pub fn create_puzzle(
 
     let tiles = (0..tile_count)
         .map(|i| extract_tile(i as u32, &complete_board))
+        .filter(|polyform| !polyform.cells().is_empty())
         .map(Polyform::Polyomino)
         .collect();
     let board = complete_board.mapped(&|_| ());
@@ -61,7 +62,7 @@ fn grow_until_complete(
     rng: &mut dyn Rng,
     mut base_board: Polyomino<Option<u32>>,
 ) -> Polyomino<Option<u32>> {
-    while base_board.cells_mut().iter().any(|x| x.data().is_none()) {
+    while base_board.cells().iter().any(|x| x.data().is_none()) {
         base_board = grow(rng, base_board);
     }
     base_board
@@ -178,5 +179,8 @@ fn grow_tile_index(
 fn extract_tile(tile_index: u32, complete_board: &Polyomino<Option<u32>>) -> Polyomino<()> {
     let mut base = complete_board.filter_mapped(&|x| x.filter(|i| *i == tile_index));
     base.trim();
+    base.rotate_around(RegularCoord::new(0, 0));
+    base.rotate_around(RegularCoord::new(0, 0));
+    base.rotate_around(RegularCoord::new(0, 0));
     base.mapped(&|_| ())
 }
