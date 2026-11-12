@@ -1,21 +1,23 @@
 use crate::config::area::AreaConfig;
 use crate::{Target, TargetIndex, TargetTemplate};
-use ndarray::Array2;
-use puzzled_common::Shape;
-use puzzled_common::ShapeType::Square;
+use puzzled_polyform::{Poly, Polyform, Prototile};
 use std::hash::{Hash, Hasher};
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct AreaBoardData {
+    pub area_index: i32,
+    pub display_value: String,
+    pub value_order: i32,
+}
 
 /// Configuration for the board layout and areas.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum BoardConfig {
     Simple {
-        layout: Shape,
+        layout: Polyform<()>,
     },
     Area {
-        layout: Box<Shape>,
-        area_indices: Box<Array2<i32>>,
-        display_values: Box<Array2<String>>,
-        value_order: Box<Array2<i32>>,
+        layout: Polyform<AreaBoardData>,
         area_configs: Vec<AreaConfig>,
         target_template: TargetTemplate,
     },
@@ -26,8 +28,7 @@ impl BoardConfig {
         match self {
             BoardConfig::Simple { .. } => None,
             BoardConfig::Area {
-                display_values,
-                area_indices,
+                layout,
                 area_configs,
                 ..
             } => {
@@ -36,8 +37,7 @@ impl BoardConfig {
                     if let Some(target_index) = Self::find_index_for_value_in_area(
                         area_config.default_value(),
                         i as i32,
-                        display_values,
-                        area_indices,
+                        layout,
                     ) {
                         indices.push(target_index);
                     }
@@ -50,21 +50,22 @@ impl BoardConfig {
     fn find_index_for_value_in_area(
         board_value: &str,
         area_index: i32,
-        board_values: &Array2<String>,
-        area_indices: &Array2<i32>,
+        layout: &Polyform<AreaBoardData>,
     ) -> Option<TargetIndex> {
-        for ((x, y), value) in board_values.indexed_iter() {
-            if value == board_value && area_indices[[x, y]] == area_index {
-                return Some(TargetIndex(x, y));
+        for prototile in layout.iter() {
+            let data = prototile.data();
+            if data.display_value == board_value && data.area_index == area_index {
+                let coord = prototile.coord();
+                return Some(TargetIndex::new(coord));
             }
         }
         None
     }
 
-    pub fn layout(&self) -> &Shape {
+    pub fn layout(&self) -> Polyform<()> {
         match self {
-            BoardConfig::Simple { layout } => layout,
-            BoardConfig::Area { layout, .. } => layout,
+            BoardConfig::Simple { layout } => layout.clone(),
+            BoardConfig::Area { layout, .. } => layout.clone().mapped(&|_| ()),
         }
     }
 
@@ -85,28 +86,21 @@ impl BoardConfig {
     ///
     /// returns: Vec<(String, TargetIndex), Global>
     pub fn get_display_values_for_area(&self, area_index: i32) -> Vec<(String, TargetIndex)> {
-        let (area_indices, display_values, value_order) = match self {
+        let layout = match self {
             BoardConfig::Simple { .. } => {
                 panic!("Simple board config does not have areas");
             }
-            BoardConfig::Area {
-                area_indices,
-                display_values,
-                value_order,
-                ..
-            } => (area_indices, display_values, value_order),
+            BoardConfig::Area { layout, .. } => layout,
         };
-        let mut unordered_values = area_indices
-            .indexed_iter()
-            .filter_map(|((x, y), &index)| {
+        let mut unordered_values = layout
+            .iter()
+            .filter_map(|prototile| {
+                let data = prototile.data();
+                let index = data.area_index;
                 if index == area_index {
-                    if let Some(value) = display_values.get((x, y))
-                        && let Some(order) = value_order.get((x, y))
-                    {
-                        Some((*order, value.clone(), TargetIndex(x, y)))
-                    } else {
-                        None
-                    }
+                    let value = &data.display_value;
+                    let order = data.value_order;
+                    Some((order, value.clone(), TargetIndex::new(prototile.coord())))
                 } else {
                     None
                 }
@@ -134,11 +128,11 @@ impl BoardConfig {
                 panic!("Simple board config does not have target formatting");
             }
             BoardConfig::Area {
-                display_values,
+                layout,
                 area_configs,
                 target_template,
                 ..
-            } => target_template.format(target, display_values, area_configs),
+            } => target_template.format(target, layout, area_configs),
         }
     }
 }
@@ -149,28 +143,11 @@ impl Hash for BoardConfig {
             BoardConfig::Simple { layout } => {
                 layout.hash(state);
             }
-            BoardConfig::Area {
-                layout,
-                area_indices,
-                ..
-            } => {
+            BoardConfig::Area { layout, .. } => {
                 layout.hash(state);
-                area_indices.hash(state);
             }
         }
     }
-}
-
-pub fn from_predefined_board(name: &str) -> Option<BoardConfig> {
-    let dim: Option<(i32, i32)> = name
-        .split("x")
-        .filter_map(|part| part.parse::<i32>().ok())
-        .collect::<Vec<i32>>()
-        .get(0..2)
-        .map(|dims| (dims[0], dims[1]));
-    dim.map(|(rows, cols)| BoardConfig::Simple {
-        layout: Shape::from_elem((rows as usize, cols as usize), Square, true),
-    })
 }
 
 #[cfg(test)]
@@ -178,20 +155,66 @@ mod tests {
     use super::*;
     use crate::config::area::{AreaConfig, AreaValueFormatter};
     use crate::config::target::{TargetIndex, TargetTemplate};
-    use ndarray::arr2;
-    use puzzled_common::shape::shape_square;
+    use puzzled_polyform::*;
 
     #[test]
     fn test_puzzle_config_get_display_values_for_area() {
-        let board_layout =
-            shape_square(&[[true, true, false], [true, true, true], [false, true, true]]);
-        let area_indices = arr2(&[[0, 0, -1], [0, 1, 1], [-1, 1, 1]]);
-        let display_values = arr2(&[
-            ["A".to_string(), "B".to_string(), "".to_string()],
-            ["C".to_string(), "D".to_string(), "E".to_string()],
-            ["".to_string(), "F".to_string(), "G".to_string()],
-        ]);
-        let value_order = arr2(&[[0, 1, -1], [2, 0, 3], [-1, 2, 1]]);
+        let board_layout = Polyomino::from_vec(
+            &[
+                vec![
+                    AreaBoardData {
+                        area_index: 0,
+                        display_value: "A".to_string(),
+                        value_order: 0,
+                    },
+                    AreaBoardData {
+                        area_index: 0,
+                        display_value: "B".to_string(),
+                        value_order: 1,
+                    },
+                    AreaBoardData {
+                        area_index: -1,
+                        display_value: "".to_string(),
+                        value_order: -1,
+                    },
+                ],
+                vec![
+                    AreaBoardData {
+                        area_index: 0,
+                        display_value: "C".to_string(),
+                        value_order: 2,
+                    },
+                    AreaBoardData {
+                        area_index: 1,
+                        display_value: "D".to_string(),
+                        value_order: 0,
+                    },
+                    AreaBoardData {
+                        area_index: 1,
+                        display_value: "E".to_string(),
+                        value_order: 3,
+                    },
+                ],
+                vec![
+                    AreaBoardData {
+                        area_index: -1,
+                        display_value: "".to_string(),
+                        value_order: -1,
+                    },
+                    AreaBoardData {
+                        area_index: 1,
+                        display_value: "F".to_string(),
+                        value_order: 2,
+                    },
+                    AreaBoardData {
+                        area_index: 1,
+                        display_value: "G".to_string(),
+                        value_order: 1,
+                    },
+                ],
+            ],
+            &|a, _| Some(a.clone()),
+        );
         let area_configs = vec![
             AreaConfig::new(
                 "Area 0".to_string(),
@@ -206,10 +229,7 @@ mod tests {
         ];
 
         let board_config = BoardConfig::Area {
-            layout: Box::new(board_layout),
-            area_indices: Box::new(area_indices),
-            display_values: Box::new(display_values),
-            value_order: Box::new(value_order),
+            layout: board_layout.into(),
             area_configs,
             target_template: TargetTemplate::new("{0}, {1}, {2}"),
         };
@@ -218,9 +238,18 @@ mod tests {
         assert_eq!(
             area_0_values,
             vec![
-                ("A".to_string(), TargetIndex(0, 0)),
-                ("B".to_string(), TargetIndex(0, 1)),
-                ("C".to_string(), TargetIndex(1, 0)),
+                (
+                    "A".to_string(),
+                    TargetIndex::new(RegularCoord::new(0, 0).into())
+                ),
+                (
+                    "B".to_string(),
+                    TargetIndex::new(RegularCoord::new(0, 1).into())
+                ),
+                (
+                    "C".to_string(),
+                    TargetIndex::new(RegularCoord::new(1, 0).into())
+                ),
             ]
         );
 
@@ -228,10 +257,22 @@ mod tests {
         assert_eq!(
             area_1_values,
             vec![
-                ("D".to_string(), TargetIndex(1, 1)),
-                ("G".to_string(), TargetIndex(2, 2)),
-                ("F".to_string(), TargetIndex(2, 1)),
-                ("E".to_string(), TargetIndex(1, 2)),
+                (
+                    "D".to_string(),
+                    TargetIndex::new(RegularCoord::new(1, 1).into())
+                ),
+                (
+                    "G".to_string(),
+                    TargetIndex::new(RegularCoord::new(2, 2).into())
+                ),
+                (
+                    "F".to_string(),
+                    TargetIndex::new(RegularCoord::new(2, 1).into())
+                ),
+                (
+                    "E".to_string(),
+                    TargetIndex::new(RegularCoord::new(1, 2).into())
+                ),
             ]
         );
     }

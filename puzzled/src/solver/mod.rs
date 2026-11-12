@@ -6,6 +6,7 @@ use puzzle_solver::board::Board;
 use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
 use puzzle_solver::tile::Tile;
+use puzzled_polyform::{Poly, Polyform, Polyomino, UnitPoly};
 use std::cmp::PartialEq;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -156,7 +157,7 @@ impl Solver {
     /// returns: bool
     pub fn is_solved(&self, puzzle_state: &PuzzleState) -> bool {
         let board = self.create_board(puzzle_state);
-        board.get_shape().iter().all(|cell| *cell)
+        board.get_polyform().iter().count() == 0
     }
 
     /// Creates a board representation from the given puzzle state and target to give to the solver.
@@ -168,20 +169,26 @@ impl Solver {
     ///
     /// returns: Board
     fn create_board(&self, puzzle_state: &PuzzleState) -> Board {
-        let dims = puzzle_state.grid.dim();
-        let mut board = Board::new(dims);
+        let mut board: Polyform<()> = match &puzzle_state.grid {
+            Polyform::Polyomino(polyomino) => Polyomino::sized(polyomino.dim(), ()).into(),
+            Polyform::Hexomino(_) => {
+                todo!()
+            }
+        };
 
-        puzzle_state.grid.indexed_iter().for_each(|((x, y), cell)| {
-            let is_filled = match cell {
-                Cell::Empty(cell_data) => !cell_data.is_on_board,
-                Cell::One(_, _) => true,
-                Cell::Many(_, _) => true,
-            };
+        board.remove_parent(&puzzle_state.grid.filter_mapped(&|cell| match cell {
+            Cell::Empty(cell_data) => {
+                if cell_data.allowed {
+                    Some(())
+                } else {
+                    None
+                }
+            }
+            Cell::One(_, _) => None,
+            Cell::Many(_, _) => None,
+        }));
 
-            board[[x, y]] = is_filled;
-        });
-
-        board
+        Board::new(board)
     }
 }
 

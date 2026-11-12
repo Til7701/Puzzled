@@ -1,10 +1,10 @@
 use crate::app::components::tile::TileView;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
-use crate::offset::CellOffset;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{FixedExt, WidgetExt};
 use puzzle_config::ColorConfig;
 use puzzle_solver::result::TilePlacement;
+use puzzled_polyform::{CoordBox, RegularCoord};
 
 impl PuzzleArea {
     /// Show the placement of a tile as a hint.
@@ -34,7 +34,11 @@ impl PuzzleArea {
             .as_ref()
             .unwrap()
             .init_hint_tile(
-                CellOffset::from(placement.position()) - CellOffset(1, 1), // Plus 1, 1 because the puzzle state has a border of one cell to provide information for highlighting
+                placement.position()
+                    - match placement.position() {
+                        CoordBox::Regular(_) => RegularCoord::new(1, 1).into(),
+                        CoordBox::Hex(_) => todo!(),
+                    }, // Minus 1, 1 because the puzzle state has a border of one cell to provide information for highlighting
                 placement.rotation().clone(),
             );
 

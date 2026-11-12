@@ -1,33 +1,28 @@
-use crate::offset::{CellOffset, PixelOffset};
-use puzzled_common::Shape;
+use crate::model::placement::PixelPosition;
+use puzzled_polyform::{Coord, UnitPoly};
 
 #[derive(Clone, Debug, Default)]
-pub struct PlacedTile {
+pub struct PlacedTile<P: UnitPoly, C: Coord> {
     name: Option<String>,
-    base: Shape,
-    current_rotation: Shape,
-    cell_size: CellOffset,
-    pixel_size: PixelOffset,
-    position_cells: CellOffset,
-    position_pixels: PixelOffset,
+    base: P,
+    current_rotation: P,
+    cell_size: C,
+    pixel_size: PixelPosition,
+    position_cells: C,
+    position_pixels: PixelPosition,
     dragged: bool,
 }
 
-impl PlacedTile {
-    pub fn new(
-        name: Option<String>,
-        base: Shape,
-        cell_size: CellOffset,
-        position_cells: CellOffset,
-    ) -> Self {
+impl<P: UnitPoly, C: Coord> PlacedTile<P, C> {
+    pub fn new(name: Option<String>, base: P, cell_size: C, position_cells: C) -> Self {
         PlacedTile {
             name,
             base: base.clone(),
             current_rotation: base,
             cell_size,
-            pixel_size: PixelOffset::default(),
+            pixel_size: PixelPosition::default(),
             position_cells,
-            position_pixels: PixelOffset::default(),
+            position_pixels: PixelPosition::default(),
             dragged: false,
         }
     }
@@ -36,27 +31,27 @@ impl PlacedTile {
         &self.name
     }
 
-    pub fn base(&self) -> &Shape {
+    pub fn base(&self) -> &P {
         &self.base
     }
 
-    pub fn current_rotation(&self) -> &Shape {
+    pub fn current_rotation(&self) -> &P {
         &self.current_rotation
     }
 
-    pub fn cell_size(&self) -> CellOffset {
+    pub fn cell_size(&self) -> C {
         self.cell_size
     }
 
-    pub fn pixel_size(&self) -> PixelOffset {
+    pub fn pixel_size(&self) -> PixelPosition {
         self.pixel_size
     }
 
-    pub fn position_cells(&self) -> CellOffset {
+    pub fn position_cells(&self) -> C {
         self.position_cells
     }
 
-    pub fn position_pixels(&self) -> PixelOffset {
+    pub fn position_pixels(&self) -> PixelPosition {
         self.position_pixels
     }
 
@@ -64,23 +59,23 @@ impl PlacedTile {
         self.dragged
     }
 
-    pub fn set_current_rotation(&mut self, current_rotation: Shape) {
+    pub fn set_current_rotation(&mut self, current_rotation: P) {
         self.current_rotation = current_rotation;
     }
 
-    pub fn set_cell_size(&mut self, cell_size: CellOffset) {
+    pub fn set_cell_size(&mut self, cell_size: C) {
         self.cell_size = cell_size;
     }
 
-    pub fn set_pixel_size(&mut self, pixel_size: PixelOffset) {
+    pub fn set_pixel_size(&mut self, pixel_size: PixelPosition) {
         self.pixel_size = pixel_size;
     }
 
-    pub fn set_position_cells(&mut self, position_cells: CellOffset) {
+    pub fn set_position_cells(&mut self, position_cells: C) {
         self.position_cells = position_cells;
     }
 
-    pub fn set_position_pixels(&mut self, position_pixels: PixelOffset) {
+    pub fn set_position_pixels(&mut self, position_pixels: PixelPosition) {
         self.position_pixels = position_pixels;
     }
 

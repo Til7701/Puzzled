@@ -1,36 +1,40 @@
-use crate::offset::CellOffset;
 use puzzle_config::{PuzzleConfig, TileConfig};
+use puzzled_polyform::{CoordBox, Poly, RegularCoord};
 
 pub fn calculate_tile_start_positions(
     tiles: &[TileConfig],
     puzzle_config: &PuzzleConfig,
-    board_offset_cells: CellOffset,
-) -> Vec<CellOffset> {
-    let mut positions: Vec<CellOffset> = Vec::new();
+    board_offset_cells: RegularCoord,
+) -> Vec<RegularCoord> {
+    let mut positions: Vec<RegularCoord> = Vec::new();
+
+    let board_dim = match puzzle_config.board_config().layout().dim() {
+        CoordBox::Regular(r) => r,
+        CoordBox::Hex(_) => unreachable!(),
+    };
 
     // Left
     place_in_column(
-        CellOffset(1, 1),
-        puzzle_config.board_config().layout().dim().1 as i32,
+        &RegularCoord::new(1, 1),
+        board_dim.y(),
         tiles,
         &mut positions,
     );
 
     // Right
     place_in_column(
-        board_offset_cells
-            + CellOffset(puzzle_config.board_config().layout().dim().0 as i32 + 1, 0),
-        puzzle_config.board_config().layout().dim().1 as i32,
+        &(board_offset_cells + RegularCoord::new(board_dim.x() + 1, 0)),
+        board_dim.y(),
         tiles,
         &mut positions,
     );
 
     // Bottom Rows
-    let mut start_y = 2 + puzzle_config.board_config().layout().dim().1 as i32;
+    let mut start_y = 2 + board_dim.y();
     while tiles.len() > positions.len() {
         let end = place_in_row(
-            CellOffset(1, start_y),
-            board_offset_cells.0 * 2 + puzzle_config.board_config().layout().dim().0 as i32,
+            &RegularCoord::new(1, start_y),
+            board_offset_cells.x() * 2 + board_dim.x(),
             tiles,
             &mut positions,
         );
@@ -45,48 +49,61 @@ pub fn calculate_tile_start_positions(
 }
 
 fn place_in_column(
-    start: CellOffset,
+    start: &RegularCoord,
     end: i32,
     tiles: &[TileConfig],
-    positions: &mut Vec<CellOffset>,
+    positions: &mut Vec<RegularCoord>,
 ) {
     if tiles.len() != positions.len() {
-        let mut next_pos = start;
+        let mut next_pos = *start;
         let mut next_tile_index = positions.len();
-        while end > next_pos.1 {
+        while end > next_pos.y() {
             positions.push(next_pos);
             if tiles.len() == positions.len() {
                 break;
             }
             let tile = &tiles[next_tile_index];
-            next_pos.1 += tile.base().dim().1 as i32;
+            let tile_dim = match tile.base().dim() {
+                CoordBox::Regular(r) => r,
+                CoordBox::Hex(_) => unreachable!(),
+            };
+            next_pos = next_pos.with_y(next_pos.y() + tile_dim.y());
             next_tile_index += 1;
         }
     }
 }
 
 fn place_in_row(
-    start: CellOffset,
+    start: &RegularCoord,
     end: i32,
     tiles: &[TileConfig],
-    positions: &mut Vec<CellOffset>,
+    positions: &mut Vec<RegularCoord>,
 ) -> i32 {
     let mut highest_tile: i32 = 0;
     if tiles.len() != positions.len() {
-        let mut next_pos = start;
+        let mut next_pos = *start;
         let mut next_tile_index = positions.len();
-        while end > next_pos.0 + tiles[next_tile_index].base().dim().0 as i32 {
+        let mut tile = &tiles[next_tile_index];
+        let mut tile_dim = match tile.base().dim() {
+            CoordBox::Regular(r) => r,
+            CoordBox::Hex(_) => unreachable!(),
+        };
+        while end > next_pos.x() + tile_dim.x() {
             positions.push(next_pos);
             if tiles.len() == positions.len() {
                 break;
             }
-            let tile = &tiles[next_tile_index];
-            next_pos.0 += tile.base().dim().0 as i32;
+            next_pos = next_pos.with_x(next_pos.x() + tile_dim.x());
+            if tile_dim.y() > highest_tile {
+                highest_tile = tile_dim.y();
+            }
             next_tile_index += 1;
-            if tile.base().dim().1 as i32 > highest_tile {
-                highest_tile = tile.base().dim().1 as i32;
+            tile = &tiles[next_tile_index];
+            tile_dim = match tile.base().dim() {
+                CoordBox::Regular(r) => r,
+                CoordBox::Hex(_) => unreachable!(),
             }
         }
     }
-    start.1 + highest_tile
+    start.y() + highest_tile
 }

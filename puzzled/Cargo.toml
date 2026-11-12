@@ -4,13 +4,13 @@ edition.workspace = true
 version.workspace = true
 
 [dependencies]
-puzzled_common = { workspace = true }
+puzzled_polyform = { workspace = true }
 puzzle_solver = { workspace = true }
 puzzle_config = { workspace = true }
 gettext-rs = { workspace = true }
 gtk = { workspace = true }
 adw = { workspace = true }
-ndarray = { workspace = true }
+pangocairo = { workspace = true }
 log = { workspace = true }
 simple_logger = { workspace = true }
 rand = { workspace = true }

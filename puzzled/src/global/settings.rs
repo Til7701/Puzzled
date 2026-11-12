@@ -18,6 +18,7 @@ impl Default for Preferences {
 
 impl Preferences {
     /// Returns the value of the given setting.
+    #[allow(unused)]
     pub fn get<S: SettingKey>(&self, setting: S) -> S::Value {
         setting.get(&self.settings)
     }
@@ -36,6 +37,7 @@ pub trait SettingKey {
     fn key(&self) -> &'static str;
 
     /// Returns the value of the setting from the given `Settings` object.
+    #[allow(unused)]
     fn get(&self, settings: &Settings) -> Self::Value;
 
     /// Binds the setting to the specified property of the given object.

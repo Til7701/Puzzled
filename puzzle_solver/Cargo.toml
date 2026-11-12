@@ -4,6 +4,6 @@ edition.workspace = true
 version.workspace = true
 
 [dependencies]
-puzzled_common = { workspace = true }
+puzzled_polyform = { workspace = true }
 log = { workspace = true }
 dlx-rs = { workspace = true }

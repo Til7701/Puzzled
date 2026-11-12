@@ -1,5 +1,5 @@
 use crate::app::puzzle::puzzle_area::PuzzleArea;
-use crate::offset::PixelOffset;
+use crate::model::placement::PixelPosition;
 use crate::window::{MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH};
 use adw::glib;
 use adw::subclass::prelude::ObjectSubclassIsExt;
@@ -30,7 +30,7 @@ impl PuzzleArea {
     /// This moves the puzzle area elements according to the current window size.
     pub fn update_layout(&self) {
         let window = self.imp().window.get().unwrap();
-        let size = PixelOffset(
+        let size = PixelPosition(
             window.width() as f64,
             (window.height() - window.puzzle_area_nav_page().header_bar().height()) as f64,
         );

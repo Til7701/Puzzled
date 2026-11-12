@@ -9,6 +9,7 @@ use gtk::prelude::{BoxExt, ButtonExt, WidgetExt};
 use gtk::{Image, Label, Widget};
 use puzzle_solver::cancellation_token::CancellationToken;
 use puzzle_solver::result::{Solution, UnsolvableReason};
+use puzzled_polyform::{Coord, Poly};
 use std::sync::mpsc;
 
 pub type OnComplete = Box<dyn Fn(Result<Solution, UnsolvableReason>)>;
@@ -30,7 +31,7 @@ impl PuzzlePage {
                             if let Some(placement) = solution.placements().iter().max_by(|a, b| {
                                 let a_dim = a.base().dim();
                                 let b_dim = b.base().dim();
-                                (a_dim.0 * a_dim.1).cmp(&(b_dim.0 * b_dim.1))
+                                a_dim.area().cmp(&(b_dim.area()))
                             }) {
                                 self_clone.imp().grid.show_hint_tile(placement)
                             }

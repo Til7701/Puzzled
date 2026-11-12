@@ -1,6 +1,6 @@
 use crate::app::components::tile::TileView;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
-use crate::offset::PixelOffset;
+use crate::model::placement::PixelPosition;
 use adw::gdk::{BUTTON_MIDDLE, BUTTON_SECONDARY};
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{
@@ -15,7 +15,7 @@ impl PuzzleArea {
 
         self.setup_drag_and_drop(tile_id, tile_view.upcast_ref());
         self.setup_tile_rotation_and_flip(tile_id, tile_view.upcast_ref());
-        self.add(tile_view.upcast_ref(), &PixelOffset(0.0, 0.0));
+        self.add(tile_view.upcast_ref(), &PixelPosition(0.0, 0.0));
         self.imp().tiles.borrow_mut().push(tile_view);
     }
 
@@ -46,8 +46,8 @@ impl PuzzleArea {
                             None => return,
                         }
                     };
-                    let mut pos: PixelOffset = self_clone.child_position(tile_view).into();
-                    pos = pos.add_tuple((dx, dy));
+                    let mut pos: PixelPosition = self_clone.child_position(tile_view).into();
+                    pos.add_tuple((dx, dy));
 
                     let max_x = self_clone.width() as f64 - tile_view.width() as f64;
                     let max_y = self_clone.height() as f64 - tile_view.height() as f64;
@@ -70,7 +70,7 @@ impl PuzzleArea {
                         None => return,
                     }
                 };
-                let pos: PixelOffset = self_clone.child_position(tile_view).into();
+                let pos: PixelPosition = self_clone.child_position(tile_view).into();
                 let placement_model_borrow = self_clone.imp().placement_model.borrow();
                 let placement_model = placement_model_borrow.as_ref().unwrap();
                 placement_model.update_tile_dragged(tile_view_index, false);
@@ -87,15 +87,14 @@ impl PuzzleArea {
         gesture.set_button(BUTTON_SECONDARY);
         self.setup_tile_updating_gesture(tile_view_index, &gesture, {
             let self_clone = self.clone();
-            move |tile_view| {
-                tile_view.rotate_clockwise();
-                self_clone
-                    .imp()
-                    .placement_model
-                    .borrow()
-                    .as_ref()
-                    .unwrap()
-                    .update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+            move |tile_view, x, y| {
+                let placement_model = self_clone.imp().placement_model.borrow();
+                let pm = placement_model.as_ref().unwrap();
+                tile_view.rotate_clockwise(
+                    pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
+                        .unwrap(),
+                );
+                pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
             }
         });
         draggable.add_controller(gesture.upcast::<EventController>());
@@ -105,21 +104,20 @@ impl PuzzleArea {
         gesture.set_button(BUTTON_MIDDLE);
         self.setup_tile_updating_gesture(tile_view_index, &gesture, {
             let self_clone = self.clone();
-            move |tile_view| {
-                tile_view.flip_horizontal();
-                self_clone
-                    .imp()
-                    .placement_model
-                    .borrow()
-                    .as_ref()
-                    .unwrap()
-                    .update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+            move |tile_view, x, y| {
+                let placement_model = self_clone.imp().placement_model.borrow();
+                let pm = placement_model.as_ref().unwrap();
+                tile_view.flip(
+                    pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
+                        .unwrap(),
+                );
+                pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
             }
         });
         draggable.add_controller(gesture.upcast::<EventController>());
     }
 
-    fn setup_tile_updating_gesture<F: Fn(&TileView) + 'static>(
+    fn setup_tile_updating_gesture<F: Fn(&TileView, f64, f64) + 'static>(
         &self,
         tile_view_index: usize,
         gesture: &GestureClick,
@@ -127,7 +125,7 @@ impl PuzzleArea {
     ) {
         gesture.connect_pressed({
             let self_clone = self.clone();
-            move |_, _n_press, _x, _y| {
+            move |_, _n_press, x, y| {
                 let tiles = self_clone.imp().tiles.borrow();
                 let tile_view = tiles.get(tile_view_index);
                 let tile_view = match tile_view {
@@ -135,7 +133,7 @@ impl PuzzleArea {
                     None => return,
                 };
 
-                tile_update_function(tile_view);
+                tile_update_function(tile_view, x, y);
             }
         });
     }
@@ -143,7 +141,7 @@ impl PuzzleArea {
     pub fn update_tile_layout(&self) {
         let len = self.imp().tiles.borrow().len();
         for i in 0..len {
-            let pos: Option<PixelOffset> = {
+            let pos: Option<PixelPosition> = {
                 let tiles = self.imp().tiles.borrow();
                 let placement_borrow = self.imp().placement_model.borrow();
                 let placement_model = placement_borrow.as_ref().unwrap();
@@ -162,7 +160,7 @@ impl PuzzleArea {
     }
 
     /// Move the tile to the specified (x, y) position in pixels.
-    fn move_to(&self, tile_view_index: usize, pos_pixel: PixelOffset) {
+    fn move_to(&self, tile_view_index: usize, pos_pixel: PixelPosition) {
         let tiles = self.imp().tiles.borrow();
         if let Some(tile_view) = tiles.get(tile_view_index) {
             self.move_(tile_view, pos_pixel.0, pos_pixel.1);

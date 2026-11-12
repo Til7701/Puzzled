@@ -1,6 +1,6 @@
 use crate::board::Board;
 use crate::tile::Tile;
-use puzzled_common::Shape;
+use puzzled_polyform::{Polyform, UnitPoly};
 
 /// The pruner provides some functions to exclude various positions from evaluation.
 pub struct Pruner {
@@ -13,10 +13,7 @@ impl Pruner {
     pub fn new(_: &Board, tiles: &[Tile]) -> Self {
         let min_tile_size = tiles
             .iter()
-            .map(|tile| {
-                tile.base()
-                    .count_biggest_connected_area_of_cells_matching(true)
-            })
+            .map(|tile| tile.base().count_biggest_connected_area_of_cells())
             .min()
             .unwrap_or(0);
 
@@ -27,7 +24,7 @@ impl Pruner {
     /// there are spaces, where no tiles can be placed. This means that if this method returns true,
     /// the given path can be abandoned.
     #[inline(always)]
-    pub fn prune_positioned_tile_with_board(&self, shape: &Shape) -> bool {
-        shape.count_smallest_connected_area_of_cells_matching(false) < self.min_tile_size
+    pub fn prune_positioned_tile_with_board(&self, shape: &Polyform<()>) -> bool {
+        shape.inverted().count_smallest_connected_area_of_cells() < self.min_tile_size
     }
 }
