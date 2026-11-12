@@ -153,32 +153,20 @@ impl TileView {
             let data = prototile.data_mut();
             match (coord, &mut data.special) {
                 (CoordBox::Regular(c), PolyformDrawingDataSpecial::Polyomino(s)) => {
-                    if c.x() > 0
+                    s.x_neg_neighbour = c.x() > 0
                         && current_rotation_lookup
                             .get(CoordBox::Regular(c - RegularCoord::new(1, 0)))
-                            .is_some()
-                    {
-                        s.x_neg_neighbour = true;
-                    }
-                    if current_rotation_lookup
+                            .is_some();
+                    s.x_pos_neighbour = current_rotation_lookup
                         .get(CoordBox::Regular(c + RegularCoord::new(1, 0)))
-                        .is_some()
-                    {
-                        s.x_pos_neighbour = true;
-                    }
-                    if c.y() > 0
+                        .is_some();
+                    s.y_neg_neighbour = c.y() > 0
                         && current_rotation_lookup
                             .get(CoordBox::Regular(c - RegularCoord::new(0, 1)))
-                            .is_some()
-                    {
-                        s.y_neg_neighbour = true;
-                    }
-                    if current_rotation_lookup
+                            .is_some();
+                    s.y_pos_neighbour = current_rotation_lookup
                         .get(CoordBox::Regular(c + RegularCoord::new(0, 1)))
-                        .is_some()
-                    {
-                        s.y_pos_neighbour = true;
-                    }
+                        .is_some();
                 }
                 (CoordBox::Hex(_), PolyformDrawingDataSpecial::Hexomino()) => {
                     todo!()
