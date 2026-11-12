@@ -33,11 +33,11 @@ pub mod tile;
 /// # Examples
 ///
 /// ```
-/// use puzzle_solver::board::Board;
-/// use puzzle_solver::tile::Tile;
-/// use puzzle_solver::cancellation_token::CancellationToken;
+/// use puzzled_solver::board::Board;
+/// use puzzled_solver::tile::Tile;
+/// use puzzled_solver::cancellation_token::CancellationToken;
 /// use puzzled_polyform::*;
-/// use puzzle_solver::solve_all_filling;
+/// use puzzled_solver::solve_all_filling;
 ///
 /// let board = Board::new(Polyomino::from_bool_slice(&[
 ///     [true, false, false],

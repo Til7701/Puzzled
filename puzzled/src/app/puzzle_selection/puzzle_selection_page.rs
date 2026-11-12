@@ -7,7 +7,7 @@ use adw::subclass::prelude::*;
 use gtk::prelude::*;
 use gtk::{Adjustment, glib};
 use log::debug;
-use puzzle_config::ProgressionConfig;
+use puzzled_config::ProgressionConfig;
 
 const PUZZLE_SELECTED_SIGNAL_NAME: &str = "puzzle-selected";
 

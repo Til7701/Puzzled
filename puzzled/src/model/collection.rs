@@ -5,7 +5,7 @@ use crate::model::store::with_puzzle_collection_store;
 use adw::glib;
 use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
-use puzzle_config::PuzzleConfigCollection;
+use puzzled_config::PuzzleConfigCollection;
 
 const PROGRESS_CHANGED_SIGNAL_NAME: &str = "progress-changed";
 const DELETED_SIGNAL_NAME: &str = "deleted";

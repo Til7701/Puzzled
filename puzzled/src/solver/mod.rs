@@ -2,11 +2,11 @@ pub mod combination_solutions;
 
 use crate::app::puzzle::puzzle_area::puzzle_state::{Cell, PuzzleState};
 use log::debug;
-use puzzle_solver::board::Board;
-use puzzle_solver::cancellation_token::CancellationToken;
-use puzzle_solver::result::{Solution, UnsolvableReason};
-use puzzle_solver::tile::Tile;
 use puzzled_polyform::{Poly, Polyform, Polyomino, UnitPoly};
+use puzzled_solver::board::Board;
+use puzzled_solver::cancellation_token::CancellationToken;
+use puzzled_solver::result::{Solution, UnsolvableReason};
+use puzzled_solver::tile::Tile;
 use std::cmp::PartialEq;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -96,7 +96,7 @@ impl Solver {
             let cancel_token = cancel_token.clone();
             move || {
                 debug!("Starting Solver task. Solver call id: {:?}", solver_call_id);
-                let result = puzzle_solver::solve_all_filling(board, &tiles, cancel_token);
+                let result = puzzled_solver::solve_all_filling(board, &tiles, cancel_token);
                 let end = Instant::now();
                 let duration = end.duration_since(now);
                 debug!(

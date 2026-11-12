@@ -8,7 +8,7 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{AlertDialog, ComboRow, PreferencesGroup, PreferencesPage, ResponseAppearance};
 use gtk::StringList;
 use gtk::prelude::{ButtonExt, WidgetExt};
-use puzzle_config::{AreaBoardData, AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
+use puzzled_config::{AreaBoardData, AreaConfig, BoardConfig, PuzzleConfig, Target, TargetIndex};
 use puzzled_polyform::{Poly, Polyform, Prototile};
 
 #[derive(Debug, Clone, PartialEq)]

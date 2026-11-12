@@ -4,7 +4,7 @@ use adw::glib;
 use adw::subclass::prelude::*;
 use gtk::Widget;
 use gtk::prelude::{BoxExt, WidgetExt};
-use puzzle_config::PuzzleDifficultyConfig;
+use puzzled_config::PuzzleDifficultyConfig;
 
 mod imp {
     use super::*;

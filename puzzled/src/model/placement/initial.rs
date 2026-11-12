@@ -1,4 +1,4 @@
-use puzzle_config::{PuzzleConfig, TileConfig};
+use puzzled_config::{PuzzleConfig, TileConfig};
 use puzzled_polyform::{CoordBox, Poly, RegularCoord};
 
 pub fn calculate_tile_start_positions(

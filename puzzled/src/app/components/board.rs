@@ -11,7 +11,7 @@ use adw::subclass::prelude::*;
 use adw::{StyleManager, gio};
 use gtk::Widget;
 use gtk::prelude::*;
-use puzzle_config::BoardConfig;
+use puzzled_config::BoardConfig;
 use puzzled_polyform::{CoordBox, MutPrototile, Poly, Polyform};
 use std::ops::Deref;
 

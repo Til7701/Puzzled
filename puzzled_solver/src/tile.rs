@@ -30,7 +30,7 @@ impl Tile {
     /// # Examples
     ///
     /// ```rust
-    /// use puzzle_solver::tile::Tile;
+    /// use puzzled_solver::tile::Tile;
     /// use puzzled_polyform::*;
     ///
     /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
@@ -66,7 +66,7 @@ impl Tile {
     /// # Examples
     ///
     /// ```rust
-    /// use puzzle_solver::tile::Tile;
+    /// use puzzled_solver::tile::Tile;
     /// use puzzled_polyform::*;
     ///
     /// let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();

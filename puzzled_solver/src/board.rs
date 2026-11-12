@@ -19,7 +19,7 @@ impl Board {
     /// # Examples
     ///
     /// ```rust
-    /// use puzzle_solver::board::Board;
+    /// use puzzled_solver::board::Board;
     /// use puzzled_polyform::*;
     ///
     /// let board = Board::new(Polyomino::sized(RegularCoord::new(3, 4), ()).into());
@@ -40,7 +40,7 @@ impl Board {
     /// # Examples
     ///
     /// ```rust
-    /// use puzzle_solver::board::Board;
+    /// use puzzled_solver::board::Board;
     /// use puzzled_polyform::*;
     ///
     /// let board = Board::new(Polyomino::sized(RegularCoord::new(3, 4), ()).into());

@@ -9,7 +9,7 @@ use adw::glib;
 use adw::subclass::prelude::*;
 use gtk::cairo::Context;
 use gtk::prelude::{DrawingAreaExtManual, WidgetExt};
-use puzzle_config::ColorConfig;
+use puzzled_config::ColorConfig;
 use puzzled_polyform::{CoordBox, MutPrototile, Poly, Polyform, Prototile, RegularCoord};
 use std::ops::DerefMut;
 

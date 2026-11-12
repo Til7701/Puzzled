@@ -1,5 +1,5 @@
 [package]
-name = "puzzle_config"
+name = "puzzled_config"
 edition.workspace = true
 version.workspace = true
 

@@ -6,7 +6,7 @@ use crate::model::stars::Stars;
 use adw::glib;
 use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
-use puzzle_config::PuzzleConfig;
+use puzzled_config::PuzzleConfig;
 
 const PROGRESS_IMPROVED_SIGNAL_NAME: &str = "progress-improved";
 const MARKED_UNSOLVED_SIGNAL_NAME: &str = "marked-unsolved";

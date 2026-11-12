@@ -2,9 +2,9 @@ use crate::app::components::tile::TileView;
 use crate::app::puzzle::puzzle_area::PuzzleArea;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::prelude::{FixedExt, WidgetExt};
-use puzzle_config::ColorConfig;
-use puzzle_solver::result::TilePlacement;
+use puzzled_config::ColorConfig;
 use puzzled_polyform::{CoordBox, RegularCoord};
+use puzzled_solver::result::TilePlacement;
 
 impl PuzzleArea {
     /// Show the placement of a tile as a hint.

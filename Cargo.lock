@@ -778,7 +778,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "puzzle_config"
+name = "puzzled"
+version = "1.2.4"
+dependencies = [
+ "gettext-rs",
+ "gtk4",
+ "libadwaita",
+ "log",
+ "pangocairo",
+ "puzzled_config",
+ "puzzled_polyform",
+ "puzzled_solver",
+ "rand",
+ "simple_logger",
+]
+
+[[package]]
+name = "puzzled_config"
 version = "1.2.4"
 dependencies = [
  "puzzled_polyform",
@@ -791,33 +807,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "puzzle_solver"
+name = "puzzled_polyform"
+version = "1.2.4"
+
+[[package]]
+name = "puzzled_solver"
 version = "1.2.4"
 dependencies = [
  "dlx-rs",
  "log",
  "puzzled_polyform",
 ]
-
-[[package]]
-name = "puzzled"
-version = "1.2.4"
-dependencies = [
- "gettext-rs",
- "gtk4",
- "libadwaita",
- "log",
- "pangocairo",
- "puzzle_config",
- "puzzle_solver",
- "puzzled_polyform",
- "rand",
- "simple_logger",
-]
-
-[[package]]
-name = "puzzled_polyform"
-version = "1.2.4"
 
 [[package]]
 name = "quote"

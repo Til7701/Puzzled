@@ -4,7 +4,7 @@ use adw::prelude::{ActionMapExtManual, AdwDialogExt, Cast, PreferencesGroupExt};
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{ActionRow, Dialog, gio};
 use gtk::prelude::WidgetExt;
-use puzzle_config::PuzzleConfig;
+use puzzled_config::PuzzleConfig;
 use puzzled_polyform::Poly;
 use std::ops::Deref;
 
