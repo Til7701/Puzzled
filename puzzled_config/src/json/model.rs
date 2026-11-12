@@ -26,7 +26,6 @@ fn default_true() -> bool {
 }
 
 #[derive(Deserialize, Clone, Copy)]
-#[serde(tag = "type")]
 pub enum PolyformKind {
     Polyomino,
     Polyhex,

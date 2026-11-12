@@ -9,12 +9,13 @@ use log::error;
 use puzzled_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::cell::RefCell;
 
-const CORE_COLLECTIONS: [&str; 9] = [
+const CORE_COLLECTIONS: [&str; 10] = [
     "puzzle_a_day",
     "trominoes",
     "tetrominoes",
     "pentominoes",
     "hexominoes",
+    "polyhex",
     "chess",
     "circles",
     "recursive_construction",

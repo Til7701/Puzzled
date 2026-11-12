@@ -1,0 +1,17 @@
+{
+  "puzzled": "1.0.0",
+  "name": "Polyhex Test",
+  "author": "Puzzled",
+  "id": "de.til7701.Puzzled.Polyhex",
+  "polyform_kind": "Polyhex",
+  "puzzles": [
+    {
+      "name": "Test 1",
+      "difficulty": "Expert",
+      "tiles": [
+        [[1, 1, 1, 1]]
+      ],
+      "board": "4x7"
+    }
+  ]
+}
