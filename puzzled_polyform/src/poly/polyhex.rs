@@ -4,7 +4,7 @@ use crate::prototile::{Hexagon, PrototileMutRef, PrototileRef};
 use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Hexomino<T>
+pub struct Polyhex<T>
 where
     T: Clone + Hash,
 {
@@ -12,7 +12,7 @@ where
     cells: Vec<Hexagon<T, HexCoord>>,
 }
 
-impl<T> Hexomino<T>
+impl<T> Polyhex<T>
 where
     T: Clone + Hash,
 {
@@ -36,7 +36,7 @@ where
     }
 }
 
-impl<T> Poly<T, HexCoord> for Hexomino<T>
+impl<T> Poly<T, HexCoord> for Polyhex<T>
 where
     T: Clone + Hash,
 {
@@ -77,7 +77,7 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped<R: Clone + Hash, M>(&self, _mapper: &M) -> Hexomino<R>
+    fn mapped<R: Clone + Hash, M>(&self, _mapper: &M) -> Polyhex<R>
     where
         M: Fn(&T) -> R,
     {
@@ -85,7 +85,7 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped_indexed<R: Clone + Hash, M>(&self, _mapper: &M) -> Hexomino<R>
+    fn mapped_indexed<R: Clone + Hash, M>(&self, _mapper: &M) -> Polyhex<R>
     where
         M: Fn(&T, HexCoord) -> R,
     {
@@ -93,7 +93,7 @@ where
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn filter_mapped<R: Clone + Hash, M>(&self, _mapper: &M) -> Hexomino<R>
+    fn filter_mapped<R: Clone + Hash, M>(&self, _mapper: &M) -> Polyhex<R>
     where
         M: Fn(&T) -> Option<R>,
     {
@@ -109,7 +109,7 @@ where
     }
 }
 
-impl UnitPoly for Hexomino<()> {
+impl UnitPoly for Polyhex<()> {
     fn place_on_all_positions(&self, _child: &Self) -> Vec<Self> {
         todo!()
     }

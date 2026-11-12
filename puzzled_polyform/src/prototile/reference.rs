@@ -10,7 +10,7 @@ where
     T: Clone + Hash,
 {
     Polyomino(&'a Square<T, RegularCoord>),
-    Hexomino(&'a Hexagon<T, HexCoord>),
+    Polyhex(&'a Hexagon<T, HexCoord>),
 }
 
 impl<'a, T> Prototile<T, CoordBox, Orientation> for PrototileRef<'a, T>
@@ -20,21 +20,21 @@ where
     fn coord(&self) -> CoordBox {
         match self {
             PrototileRef::Polyomino(square) => square.coord().into(),
-            PrototileRef::Hexomino(hexagon) => hexagon.coord().into(),
+            PrototileRef::Polyhex(hexagon) => hexagon.coord().into(),
         }
     }
 
     fn orientation(&self) -> Orientation {
         match self {
             PrototileRef::Polyomino(square) => square.orientation().into(),
-            PrototileRef::Hexomino(hexagon) => hexagon.orientation().into(),
+            PrototileRef::Polyhex(hexagon) => hexagon.orientation().into(),
         }
     }
 
     fn data(&self) -> &T {
         match self {
             PrototileRef::Polyomino(square) => square.data(),
-            PrototileRef::Hexomino(hexagon) => hexagon.data(),
+            PrototileRef::Polyhex(hexagon) => hexagon.data(),
         }
     }
 }
@@ -53,6 +53,6 @@ where
     T: Clone + Hash,
 {
     fn from(value: &'a Hexagon<T, HexCoord>) -> Self {
-        PrototileRef::Hexomino(value)
+        PrototileRef::Polyhex(value)
     }
 }

@@ -72,7 +72,7 @@ mod imp {
                         .get(CoordBox::Regular(RegularCoord::new(cell_x, cell_y)))
                         .is_some()
                 }
-                Polyform::Hexomino { .. } => {
+                Polyform::Polyhex { .. } => {
                     todo!()
                 }
             }
@@ -168,7 +168,7 @@ impl TileView {
                         .get(CoordBox::Regular(c + RegularCoord::new(0, 1)))
                         .is_some();
                 }
-                (CoordBox::Hex(_), PolyformDrawingDataSpecial::Hexomino()) => {
+                (CoordBox::Hex(_), PolyformDrawingDataSpecial::Polyhex()) => {
                     todo!()
                 }
                 _ => unreachable!(),
