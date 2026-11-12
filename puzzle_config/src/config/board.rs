@@ -149,3 +149,131 @@ impl Hash for BoardConfig {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::area::{AreaConfig, AreaValueFormatter};
+    use crate::config::target::{TargetIndex, TargetTemplate};
+    use puzzled_polyform::*;
+
+    #[test]
+    fn test_puzzle_config_get_display_values_for_area() {
+        let board_layout = Polyomino::from_vec(
+            &[
+                vec![
+                    AreaBoardData {
+                        area_index: 0,
+                        display_value: "A".to_string(),
+                        value_order: 0,
+                    },
+                    AreaBoardData {
+                        area_index: 0,
+                        display_value: "B".to_string(),
+                        value_order: 1,
+                    },
+                    AreaBoardData {
+                        area_index: -1,
+                        display_value: "".to_string(),
+                        value_order: -1,
+                    },
+                ],
+                vec![
+                    AreaBoardData {
+                        area_index: 0,
+                        display_value: "C".to_string(),
+                        value_order: 2,
+                    },
+                    AreaBoardData {
+                        area_index: 1,
+                        display_value: "D".to_string(),
+                        value_order: 0,
+                    },
+                    AreaBoardData {
+                        area_index: 1,
+                        display_value: "E".to_string(),
+                        value_order: 3,
+                    },
+                ],
+                vec![
+                    AreaBoardData {
+                        area_index: -1,
+                        display_value: "".to_string(),
+                        value_order: -1,
+                    },
+                    AreaBoardData {
+                        area_index: 1,
+                        display_value: "F".to_string(),
+                        value_order: 2,
+                    },
+                    AreaBoardData {
+                        area_index: 1,
+                        display_value: "G".to_string(),
+                        value_order: 1,
+                    },
+                ],
+            ],
+            &|a, _| Some(a.clone()),
+        );
+        let area_configs = vec![
+            AreaConfig::new(
+                "Area 0".to_string(),
+                AreaValueFormatter::Plain,
+                "".to_string(),
+            ),
+            AreaConfig::new(
+                "Area 1".to_string(),
+                AreaValueFormatter::Plain,
+                "".to_string(),
+            ),
+        ];
+
+        let board_config = BoardConfig::Area {
+            layout: board_layout.into(),
+            area_configs,
+            target_template: TargetTemplate::new("{0}, {1}, {2}"),
+        };
+
+        let area_0_values = board_config.get_display_values_for_area(0);
+        assert_eq!(
+            area_0_values,
+            vec![
+                (
+                    "A".to_string(),
+                    TargetIndex::new(RegularCoord::new(0, 0).into())
+                ),
+                (
+                    "B".to_string(),
+                    TargetIndex::new(RegularCoord::new(0, 1).into())
+                ),
+                (
+                    "C".to_string(),
+                    TargetIndex::new(RegularCoord::new(1, 0).into())
+                ),
+            ]
+        );
+
+        let area_1_values = board_config.get_display_values_for_area(1);
+        assert_eq!(
+            area_1_values,
+            vec![
+                (
+                    "D".to_string(),
+                    TargetIndex::new(RegularCoord::new(1, 1).into())
+                ),
+                (
+                    "G".to_string(),
+                    TargetIndex::new(RegularCoord::new(2, 2).into())
+                ),
+                (
+                    "F".to_string(),
+                    TargetIndex::new(RegularCoord::new(2, 1).into())
+                ),
+                (
+                    "E".to_string(),
+                    TargetIndex::new(RegularCoord::new(1, 2).into())
+                ),
+            ]
+        );
+    }
+}

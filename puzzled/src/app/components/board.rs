@@ -147,7 +147,7 @@ impl BoardView {
     }
 
     pub fn get_min_element_size(&self) -> u32 {
-        10u32 // FIXME
+        10u32
     }
 
     pub fn highlight(&self, coord: CoordBox) {

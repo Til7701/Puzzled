@@ -121,7 +121,8 @@ fn draw_square<const M: usize>(
     };
 
     // Main Area
-    let color = drawing_settings.main_colors[drawing_data.main_color_index];
+    let color = drawing_settings.main_colors
+        [drawing_data.main_color_index % drawing_settings.main_colors.len()];
     let color = match drawing_data.drawing_mode {
         PrototileDrawingMode::Normal => color,
         PrototileDrawingMode::Overlapping => color.with_alpha(TRANSPARENT_PROTOTILE_ALPHA),
