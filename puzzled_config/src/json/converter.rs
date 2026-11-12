@@ -1,7 +1,7 @@
 use crate::config::board::AreaBoardData;
 use crate::json::model::{
-    Area, AreaFormatter, Board, Color, DefaultFactory, Preview, Progression, PuzzleCollection,
-    PuzzleDifficulty, Tile, TileLayout,
+    Area, AreaFormatter, Board, Color, DefaultFactory, PolyformKind, Preview, Progression,
+    PuzzleCollection, PuzzleDifficulty, Tile, TileLayout,
 };
 use crate::json::predefined::{Custom, Predefined};
 use crate::{
@@ -9,7 +9,8 @@ use crate::{
     PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate,
     TileConfig, validation,
 };
-use puzzled_polyform::{Poly, Polyform, Polyomino};
+use puzzled_polyform::{Hexomino, Poly, Polyform, Polyomino};
+use std::hash::Hash;
 use std::num::NonZero;
 use time::OffsetDateTime;
 
@@ -43,17 +44,22 @@ impl<'a> Converter<'a> {
 
         let mut puzzle_configs = Vec::new();
         for (i, puzzle) in collection_config.puzzles.into_iter().enumerate() {
+            let polyform_kind = collection_config
+                .polyform_kind
+                .or(puzzle.polyform_kind)
+                .unwrap_or(PolyformKind::Polyomino);
             let difficulty_config = self.convert_puzzle_difficulty(puzzle.difficulty)?;
 
             let mut tiles = Vec::with_capacity(puzzle.tiles.len());
             let mut index_offset = 0;
             for (tile_index, tile) in puzzle.tiles.into_iter().enumerate() {
-                let converted_tile = self.convert_tile(index_offset + tile_index, tile, None)?;
+                let converted_tile =
+                    self.convert_tile(index_offset + tile_index, tile, None, polyform_kind)?;
                 index_offset += converted_tile.len() - 1;
                 tiles.extend(converted_tile);
             }
 
-            let mut board_config = self.convert_board(puzzle.board)?;
+            let mut board_config = self.convert_board(puzzle.board, polyform_kind)?;
             if collection_config.allow_board_rotation {
                 board_config = Converter::rotate_board(board_config);
             }
@@ -134,19 +140,21 @@ impl<'a> Converter<'a> {
         tile_id: usize,
         tile: Tile,
         name: Option<String>,
+        polyform_kind: PolyformKind,
     ) -> Result<Vec<TileConfig>, ReadError> {
         match tile {
             Tile::Ref(name) => {
                 if let Some(custom_tile) = self.custom.get_tile(&name) {
-                    self.convert_tile(tile_id, custom_tile, Some(name))
+                    self.convert_tile(tile_id, custom_tile, Some(name), polyform_kind)
                 } else if let Some(predefined_tile) = self.predefined.get_tile(&name) {
-                    self.convert_tile(tile_id, predefined_tile, Some(name))
+                    self.convert_tile(tile_id, predefined_tile, Some(name), polyform_kind)
                 } else {
                     Err(ReadError::UnknownPredefinedTile { name })
                 }
             }
             Tile::Layout(layout) => {
-                let (base, layout_name) = self.convert_tile_layout(tile_id, layout)?;
+                let (base, layout_name) =
+                    self.convert_tile_layout(tile_id, layout, polyform_kind)?;
                 let color = self.convert_tile_color(tile_id, None)?;
                 Ok(vec![TileConfig::new(base, color, layout_name.or(name))])
             }
@@ -155,7 +163,7 @@ impl<'a> Converter<'a> {
                 color,
                 count,
             } => {
-                let (base, name) = self.convert_tile_layout(tile_id, layout)?;
+                let (base, name) = self.convert_tile_layout(tile_id, layout, polyform_kind)?;
                 let count = count.unwrap_or_else(|| NonZero::new(1).unwrap());
 
                 let mut tiles = Vec::with_capacity(count.get() as usize);
@@ -173,12 +181,13 @@ impl<'a> Converter<'a> {
         &mut self,
         tile_id: usize,
         layout: TileLayout,
+        polyform_kind: PolyformKind,
     ) -> Result<(Polyform<()>, Option<String>), ReadError> {
         match layout {
             TileLayout::Ref(name) => {
                 if let Some(custom_tile) = self.custom.get_tile(&name) {
                     Ok((
-                        self.convert_tile(tile_id, custom_tile, Some(name.clone()))?
+                        self.convert_tile(tile_id, custom_tile, Some(name.clone()), polyform_kind)?
                             .first()
                             .unwrap()
                             .base()
@@ -187,11 +196,16 @@ impl<'a> Converter<'a> {
                     ))
                 } else if let Some(predefined_tile) = self.predefined.get_tile(&name) {
                     Ok((
-                        self.convert_tile(tile_id, predefined_tile, Some(name.clone()))?
-                            .first()
-                            .unwrap()
-                            .base()
-                            .clone(),
+                        self.convert_tile(
+                            tile_id,
+                            predefined_tile,
+                            Some(name.clone()),
+                            polyform_kind,
+                        )?
+                        .first()
+                        .unwrap()
+                        .base()
+                        .clone(),
                         Some(name),
                     ))
                 } else {
@@ -209,11 +223,12 @@ impl<'a> Converter<'a> {
                         return Err(ReadError::TileWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut base = Polyomino::from_vec(&array, &|value, _| {
+                let mapper = |value: &i8, _| {
                     if *value != 0 { Some(()) } else { None }
-                });
-                base.transpose();
-                Ok((base.into(), None))
+                };
+                let base = Self::create_polyform(&array, mapper, polyform_kind);
+
+                Ok((base, None))
             }
         }
     }
@@ -231,13 +246,17 @@ impl<'a> Converter<'a> {
         }
     }
 
-    fn convert_board(&mut self, board: Board) -> Result<BoardConfig, ReadError> {
+    fn convert_board(
+        &mut self,
+        board: Board,
+        polyform_kind: PolyformKind,
+    ) -> Result<BoardConfig, ReadError> {
         match board {
             Board::Ref(name) => {
                 if let Some(custom_board) = self.custom.get_board(&name) {
-                    self.convert_board(custom_board)
+                    self.convert_board(custom_board, polyform_kind)
                 } else if let Some(predefined_board) = self.predefined.get_board(&name) {
-                    self.convert_board(predefined_board)
+                    self.convert_board(predefined_board, polyform_kind)
                 } else if let Some(predefined_board) =
                     self.predefined.predefined_board_from_str(&name)
                 {
@@ -260,13 +279,13 @@ impl<'a> Converter<'a> {
                         return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                     }
                 }
-                let mut polyform = Polyomino::from_vec(&layout, &|value, _| {
+
+                let mapper = |value: &u8, _| {
                     if *value < 1 { Some(()) } else { None }
-                });
-                polyform.transpose();
-                Ok(BoardConfig::Simple {
-                    layout: polyform.into(),
-                })
+                };
+                let polyform = Self::create_polyform(&layout, mapper, polyform_kind);
+
+                Ok(BoardConfig::Simple { layout: polyform })
             }
             Board::AreaBoard {
                 area_layout,
@@ -291,7 +310,8 @@ impl<'a> Converter<'a> {
                             return Err(ReadError::BoardWidthOrHeightCannotBeZero);
                         }
                     }
-                    let mut array = Polyomino::from_vec(&area_layout, &|value, (x, y)| {
+
+                    let mapper = |value: &i32, (x, y): (usize, usize)| -> Option<AreaBoardData> {
                         if *value >= 0 {
                             let area_index = area_layout.get(x).and_then(|v| v.get(y))?;
                             let display_value = values.get(x).and_then(|v| v.get(y))?;
@@ -304,14 +324,12 @@ impl<'a> Converter<'a> {
                         } else {
                             None
                         }
-                    });
-
-                    array.transpose();
-                    array
+                    };
+                    Self::create_polyform(&area_layout, mapper, polyform_kind)
                 };
 
                 Ok(BoardConfig::Area {
-                    layout: board_layout.into(),
+                    layout: board_layout,
                     area_configs,
                     target_template: TargetTemplate::new(&target_template),
                 })
@@ -382,6 +400,26 @@ impl<'a> Converter<'a> {
             }
         }
     }
+
+    fn create_polyform<T, M, R>(
+        vec: &[Vec<T>],
+        mapper: M,
+        polyform_kind: PolyformKind,
+    ) -> Polyform<R>
+    where
+        T: Clone + Hash,
+        M: Fn(&T, (usize, usize)) -> Option<R>,
+        R: Clone + Hash,
+    {
+        match polyform_kind {
+            PolyformKind::Polyomino => {
+                let mut polyomino = Polyomino::from_vec(vec, &mapper);
+                polyomino.transpose();
+                polyomino.into()
+            }
+            PolyformKind::Polyhex => Hexomino::from_vec(vec, &mapper).into(),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -400,7 +438,7 @@ mod tests {
 
         let tile = Tile::Ref("L3".to_string());
         let converted_tile = converter
-            .convert_tile(0, tile, Some("L3".to_string()))
+            .convert_tile(0, tile, Some("L3".to_string()), PolyformKind::Polyomino)
             .unwrap();
         let expected_tile = TileConfig::new(
             {
@@ -420,7 +458,8 @@ mod tests {
         let mut converter = Converter::new(&predefined);
 
         let tile = Tile::Ref("test".to_string());
-        let converted_tile = converter.convert_tile(0, tile, Some("L3".to_string()));
+        let converted_tile =
+            converter.convert_tile(0, tile, Some("L3".to_string()), PolyformKind::Polyomino);
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),
@@ -437,7 +476,7 @@ mod tests {
 
         let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![1, 1]]));
         let converted_tile = converter
-            .convert_tile(0, tile, Some("L3".to_string()))
+            .convert_tile(0, tile, Some("L3".to_string()), PolyformKind::Polyomino)
             .unwrap();
         let expected_tile = TileConfig::new(
             {
@@ -457,7 +496,8 @@ mod tests {
         let mut converter = Converter::new(&predefined);
 
         let tile = Tile::Layout(TileLayout::Custom(vec![]));
-        let converted_tile = converter.convert_tile(0, tile, Some("L3".to_string()));
+        let converted_tile =
+            converter.convert_tile(0, tile, Some("L3".to_string()), PolyformKind::Polyomino);
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),
@@ -465,7 +505,8 @@ mod tests {
         );
 
         let tile = Tile::Layout(TileLayout::Custom(vec![vec![1, 0], vec![]]));
-        let converted_tile = converter.convert_tile(0, tile, Some("L3".to_string()));
+        let converted_tile =
+            converter.convert_tile(0, tile, Some("L3".to_string()), PolyformKind::Polyomino);
         assert!(converted_tile.is_err());
         assert_eq!(
             converted_tile.err().unwrap(),
