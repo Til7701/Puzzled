@@ -58,6 +58,7 @@ The fields have the following meaning:
 | description          | `String`             | false    | A short description of the puzzle collection. MUST not be blank if specified.                                                                                                                                                                                                          | None      | 0.2.0   |
 | progression          | `Progression`        | false    | The progression settings for this collection. See [Progression](#progression) for details.                                                                                                                                                                                             | Any       | 0.3.0   |
 | preview              | `Preview`            | false    | Can be used to not show previews of locked puzzles. (See Progression)                                                                                                                                                                                                                  | Any       | 0.3.0   |
+| polyform_kind        | `PolyformKind`       | false    | Sets the default value for the polyform kind.                                                                                                                                                                                                                                          | Polyomino | 2.0.0   |
 | custom_tiles         | `Map<String, Tile>`  | false    | A map of custom tile definitions to reuse in this file. See [Custom Tiles](#custom-tiles) for details.                                                                                                                                                                                 | Empty Map | 0.2.0   |
 | custom_boards        | `Map<String, Board>` | false    | A map of custom board definitions to reuse in this file. See [Custom Boards](#custom-boards) for details.                                                                                                                                                                              | Empty Map | 0.2.0   |
 | puzzles              | `List<Puzzle>`       | true     | The list of puzzles in this collection. See [Puzzles](#puzzles) for details. The order of puzzles in this list SHOULD not change since it MAY be used by Puzzled to bind data to it. When adding a new puzzle to a collection, add it at the end of the list.                          | -         | 0.2.0   |
@@ -90,9 +91,17 @@ It has the following fields:
 | description     | `String`              | false    | A short description of the puzzle. MUST not be blank if specified.                                                                                                                                          | None                                  |
 | difficulty      | `Difficulty`          | false    | The difficulty of the puzzle. If provided, it MUST be one of: `Easy`, `Medium`, `Hard` or `Expert`.                                                                                                         | None                                  |
 | unsolvable      | `Boolean`             | false    | If set to `true`, the puzzle is marked as unsolvable and does not count towards solving all puzzles in the collection.                                                                                      | false                                 |
+| polyform_kind   | `PolyformKind`        | false    | Sets the value for the polyform kind.                                                                                                                                                                       | Polyomino                             | 
 | tiles           | `List<Tile>`          | true     | The list of tiles available to solve the puzzle. This list MUST not be empty.                                                                                                                               | -                                     |
 | board           | `Board`               | true     | The board to solve the puzzle on. See below for details.                                                                                                                                                    | -                                     |   
-| additional_info | `Map<String, String>` | false    | Additional information about the puzzle. This may contain statistics about how many solutions there are, or anything else, which is in a key-value format and does not feel right to be in the description. | Empty Map                             |   
+| additional_info | `Map<String, String>` | false    | Additional information about the puzzle. This may contain statistics about how many solutions there are, or anything else, which is in a key-value format and does not feel right to be in the description. | Empty Map                             |
+
+### PolyformKind
+
+Possible values are:
+
+- `Polyomino`
+- `Polyhex`
 
 ## Tiles
 

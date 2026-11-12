@@ -14,6 +14,7 @@ pub struct PuzzleCollection {
     #[serde(default)]
     pub progression: Progression,
     pub preview: Option<Preview>,
+    pub polyform_kind: Option<PolyformKind>,
     /// Custom tiles to override or extend predefined tiles.
     pub custom_tiles: Option<HashMap<String, Tile>>,
     pub custom_boards: Option<HashMap<String, Board>>,
@@ -22,6 +23,13 @@ pub struct PuzzleCollection {
 
 fn default_true() -> bool {
     true
+}
+
+#[derive(Deserialize, Clone, Copy)]
+#[serde(tag = "type")]
+pub enum PolyformKind {
+    Polyomino,
+    Polyhex,
 }
 
 #[derive(Deserialize, Default)]
@@ -52,6 +60,7 @@ pub struct Puzzle {
     pub difficulty: Option<PuzzleDifficulty>,
     #[serde(default)]
     pub unsolvable: bool,
+    pub polyform_kind: Option<PolyformKind>,
     /// The tiles to use in this puzzle. Can reference predefined tiles, custom tiles or define
     /// them inline.
     pub tiles: Vec<Tile>,
