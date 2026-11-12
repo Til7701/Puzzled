@@ -6,7 +6,7 @@ use crate::model::puzzle_meta::PuzzleMeta;
 use crate::model::store::community::save_community_collection;
 use adw::gio::{ResourceLookupFlags, resources_lookup_data};
 use log::error;
-use puzzle_config::{JsonLoader, PuzzleConfigCollection, ReadError};
+use puzzled_config::{JsonLoader, PuzzleConfigCollection, ReadError};
 use std::cell::RefCell;
 
 const CORE_COLLECTIONS: [&str; 9] = [
@@ -172,7 +172,7 @@ fn load_core_from_resource(filename: &str, json_loader: &JsonLoader) -> PuzzleCo
 /// Creates a JsonLoader and adds predefined tiles from the predefined JSON resource.
 pub fn create_json_loader() -> JsonLoader {
     let predefined_json_str = read_resource("/de/til7701/Puzzled/predefined.json");
-    puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap()
+    puzzled_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap()
 }
 
 /// Convenience function to read a resource file as a string.
@@ -186,11 +186,11 @@ fn read_resource(filename: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use puzzle_config::{BoardConfig, PuzzleConfig, PuzzleId};
-    use puzzle_solver::board::Board;
-    use puzzle_solver::cancellation_token::CancellationToken;
-    use puzzle_solver::tile::Tile;
+    use puzzled_config::{BoardConfig, PuzzleConfig, PuzzleId};
     use puzzled_polyform::UnitPoly;
+    use puzzled_solver::board::Board;
+    use puzzled_solver::cancellation_token::CancellationToken;
+    use puzzled_solver::tile::Tile;
     use std::collections::{HashMap, HashSet};
     use std::fs;
     use std::hash::{DefaultHasher, Hash, Hasher};
@@ -199,7 +199,7 @@ mod tests {
     fn test_load_core_collections() {
         let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
-            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+            puzzled_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
@@ -214,7 +214,7 @@ mod tests {
     fn test_solve_core_collections() {
         let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
-            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+            puzzled_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         // (collection_id, puzzle_name) pairs to skip because they are known to be unsolvable or take too long
         let skip_list = [
@@ -261,7 +261,7 @@ mod tests {
                             .enumerate()
                             .map(|(i, tile_config)| Tile::new(i, tile_config.base().clone()))
                             .collect();
-                        let result = puzzle_solver::solve_all_filling(
+                        let result = puzzled_solver::solve_all_filling(
                             board,
                             &tiles,
                             CancellationToken::new(),
@@ -292,7 +292,7 @@ mod tests {
     fn test_core_collections_ids() {
         let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
-            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+            puzzled_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
@@ -317,7 +317,7 @@ mod tests {
     fn test_core_collections_names() {
         let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
-            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+            puzzled_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         for collection_name in CORE_COLLECTIONS.iter() {
             let json =
@@ -342,7 +342,7 @@ mod tests {
     fn test_core_collections_unique_puzzles() {
         let predefined_json_str = fs::read_to_string("resources/predefined.json").unwrap();
         let json_loader =
-            puzzle_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
+            puzzled_config::create_json_loader(&predefined_json_str, config::VERSION).unwrap();
 
         let mut set: HashMap<u64, String> = HashMap::new();
         for collection_name in CORE_COLLECTIONS.iter() {

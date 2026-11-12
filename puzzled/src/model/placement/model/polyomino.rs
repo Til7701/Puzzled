@@ -4,7 +4,7 @@ use crate::model::placement::prelude::{InternalPlacementModel, SimplePlacementMo
 use crate::model::placement::tile::PlacedTile;
 use crate::model::placement::{PixelPosition, initial};
 use crate::model::puzzle::PuzzleModel;
-use puzzle_config::PuzzleConfig;
+use puzzled_config::PuzzleConfig;
 use puzzled_polyform::{CoordBox, Poly, Polyform, Polyomino, RegularCoord};
 
 pub(in crate::model::placement) const MIN_CELLS_TO_THE_TOP_OF_BOARD: i32 = 1;

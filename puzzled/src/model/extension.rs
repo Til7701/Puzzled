@@ -1,4 +1,4 @@
-use puzzle_config::{BoardConfig, PuzzleConfig, Target};
+use puzzled_config::{BoardConfig, PuzzleConfig, Target};
 
 /// Extra data needed while the puzzle is solved.
 /// The extension may differ a lot and a puzzle as a solved state for each different state.

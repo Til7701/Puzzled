@@ -30,7 +30,7 @@ use adw::subclass::prelude::*;
 use gettextrs::gettext;
 use gtk::{CssProvider, License, STYLE_PROVIDER_PRIORITY_APPLICATION, Settings, gio, glib};
 use log::info;
-use puzzle_config::ColorConfig;
+use puzzled_config::ColorConfig;
 use puzzled_polyform::{CoordBox, Polyomino, RegularCoord, UnitPoly};
 use std::fmt::Debug;
 

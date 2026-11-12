@@ -1,4 +1,4 @@
-use puzzle_config::PuzzleDifficultyConfig;
+use puzzled_config::PuzzleDifficultyConfig;
 
 /// A lookup table to find out how many stars are awarded for a given difficulty and best hint count.
 ///

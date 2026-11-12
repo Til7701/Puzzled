@@ -7,7 +7,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 ///
 /// ```rust
 /// use std::thread;
-/// use puzzle_solver::cancellation_token::CancellationToken;
+/// use puzzled_solver::cancellation_token::CancellationToken;
 ///
 /// let t1 = CancellationToken::new();
 /// let t2 = t1.clone();
@@ -28,7 +28,7 @@ impl CancellationToken {
     /// Creates a new cancellation token.
     ///
     /// ```rust
-    /// use puzzle_solver::cancellation_token::CancellationToken;
+    /// use puzzled_solver::cancellation_token::CancellationToken;
     ///
     /// let token = CancellationToken::new();
     /// assert!(!token.is_cancelled());
@@ -41,7 +41,7 @@ impl CancellationToken {
 
     /// Signals that tasks associated with this token should be canceled.
     /// ```rust
-    /// use puzzle_solver::cancellation_token::CancellationToken;
+    /// use puzzled_solver::cancellation_token::CancellationToken;
     ///
     /// let token = CancellationToken::new();
     /// token.cancel();
@@ -54,7 +54,7 @@ impl CancellationToken {
     /// Returns true, if [CancellationToken::cancel] has been called on this token after
     /// its creation. False otherwise.
     /// ```rust
-    /// use puzzle_solver::cancellation_token::CancellationToken;
+    /// use puzzled_solver::cancellation_token::CancellationToken;
     ///
     /// let token = CancellationToken::new();
     /// assert!(!token.is_cancelled());

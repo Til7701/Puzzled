@@ -7,8 +7,8 @@ use adw::subclass::prelude::ObjectSubclassIsExt;
 use adw::{AlertDialog, ResponseAppearance};
 use gtk::FileFilter;
 use log::debug;
-use puzzle_config::ReadError;
-use puzzle_config::ReadError::FileReadError;
+use puzzled_config::ReadError;
+use puzzled_config::ReadError::FileReadError;
 
 impl CollectionSelectionPage {
     pub(super) fn show_load_collection_dialog(&self) {

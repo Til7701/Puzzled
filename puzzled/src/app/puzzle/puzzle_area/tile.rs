@@ -7,7 +7,7 @@ use gtk::prelude::{
     Cast, EventControllerExt, FixedExt, GestureDragExt, GestureSingleExt, WidgetExt,
 };
 use gtk::{EventController, GestureClick, GestureDrag, PropagationPhase, Widget};
-use puzzle_config::TileConfig;
+use puzzled_config::TileConfig;
 
 impl PuzzleArea {
     pub fn setup_tile(&self, tile: &TileConfig, tile_id: usize) {

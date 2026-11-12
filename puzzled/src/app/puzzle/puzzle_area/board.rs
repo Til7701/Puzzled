@@ -6,7 +6,7 @@ use adw::prelude::Cast;
 use adw::subclass::prelude::ObjectSubclassIsExt;
 use gtk::Widget;
 use gtk::prelude::{FixedExt, WidgetExt};
-use puzzle_config::PuzzleConfig;
+use puzzled_config::PuzzleConfig;
 
 impl PuzzleArea {
     pub fn setup_board(&self, puzzle_config: &PuzzleConfig) {

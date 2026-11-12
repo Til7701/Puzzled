@@ -1,5 +1,5 @@
 [package]
-name = "puzzle_solver"
+name = "puzzled_solver"
 edition.workspace = true
 version.workspace = true
 
