@@ -7,7 +7,7 @@ use adw::glib;
 use adw::prelude::ObjectExt;
 use adw::subclass::prelude::*;
 use log::debug;
-use model::hexomino::HexominoPlacementModel;
+use model::polyhex::PolyhexPlacementModel;
 use model::polyomino::PolyominoPlacementModel;
 use puzzled_polyform::{CoordBox, Polyform};
 use std::cell::Ref;
@@ -86,8 +86,8 @@ impl PlacementModelWrapper {
             Polyform::Polyomino(_) => obj.imp().placement_model.replace(PlacementModel::Polyomino(
                 PolyominoPlacementModel::new(puzzle_model),
             )),
-            Polyform::Hexomino(_) => obj.imp().placement_model.replace(PlacementModel::Hexomino(
-                HexominoPlacementModel::new(puzzle_model),
+            Polyform::Polyhex(_) => obj.imp().placement_model.replace(PlacementModel::Polyhex(
+                PolyhexPlacementModel::new(puzzle_model),
             )),
         };
 

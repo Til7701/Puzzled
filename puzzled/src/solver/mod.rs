@@ -171,7 +171,7 @@ impl Solver {
     fn create_board(&self, puzzle_state: &PuzzleState) -> Board {
         let mut board: Polyform<()> = match &puzzle_state.grid {
             Polyform::Polyomino(polyomino) => Polyomino::sized(polyomino.dim(), ()).into(),
-            Polyform::Hexomino(_) => {
+            Polyform::Polyhex(_) => {
                 todo!()
             }
         };

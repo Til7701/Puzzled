@@ -44,7 +44,7 @@ pub struct DrawingSettings<const M: usize> {
 #[derive(Clone, Hash, Debug)]
 pub enum PolyformDrawingDataSpecial {
     Polyomino(PolyominoSpecial),
-    Hexomino(),
+    Polyhex(),
 }
 
 #[derive(Clone, Hash, Debug, Default)]
@@ -71,7 +71,7 @@ pub fn draw<const M: usize>(
 ) {
     match polyomino {
         Polyform::Polyomino(p) => draw_polyomino(cr, pan, width, height, p, drawing_settings),
-        Polyform::Hexomino(_) => todo!(),
+        Polyform::Polyhex(_) => todo!(),
     }
 }
 

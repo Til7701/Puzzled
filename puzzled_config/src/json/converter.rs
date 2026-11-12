@@ -9,7 +9,7 @@ use crate::{
     PuzzleConfig, PuzzleConfigCollection, PuzzleDifficultyConfig, ReadError, TargetTemplate,
     TileConfig, validation,
 };
-use puzzled_polyform::{Hexomino, Poly, Polyform, Polyomino};
+use puzzled_polyform::{Poly, Polyform, Polyhex, Polyomino};
 use std::hash::Hash;
 use std::num::NonZero;
 use time::OffsetDateTime;
@@ -417,7 +417,7 @@ impl<'a> Converter<'a> {
                 polyomino.transpose();
                 polyomino.into()
             }
-            PolyformKind::Polyhex => Hexomino::from_vec(vec, &mapper).into(),
+            PolyformKind::Polyhex => Polyhex::from_vec(vec, &mapper).into(),
         }
     }
 }

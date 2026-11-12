@@ -58,7 +58,7 @@ impl PolyominoPlacementModel {
                 let config = &puzzle_model.config().tiles()[i];
                 let shape: Polyomino<()> = match config.base() {
                     Polyform::Polyomino(p) => p.clone(),
-                    Polyform::Hexomino(_) => unreachable!(),
+                    Polyform::Polyhex(_) => unreachable!(),
                 };
                 let cell_size = shape.dim();
                 PlacedTile::new(config.name().clone(), shape, cell_size, *pos)
