@@ -2,7 +2,7 @@ use crate::coord::Coord;
 use crate::prototile::{PrototileMutRef, PrototileRef};
 use std::hash::Hash;
 
-pub mod hexomino;
+pub mod polyhex;
 pub mod polyomino;
 
 #[cfg(test)]

@@ -189,7 +189,7 @@ fn shape_to_filled_indices(shape: &Polyform<()>, index_offset: usize) -> Vec<usi
                 (PrototileRef::Polyomino(square), Polyform::Polyomino(polyomino)) => {
                     square.coord().x() * polyomino.dim().y() + square.coord().y()
                 }
-                (PrototileRef::Hexomino(_), Polyform::Hexomino(_)) => {
+                (PrototileRef::Polyhex(_), Polyform::Polyhex(_)) => {
                     todo!()
                 }
                 _ => unreachable!(),

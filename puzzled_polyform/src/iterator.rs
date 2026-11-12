@@ -22,9 +22,7 @@ where
             Polyform::Polyomino(polyomino) => {
                 PolyformIterMut::Polyomino(polyomino.cells_mut().iter_mut())
             }
-            Polyform::Hexomino(hexomino) => {
-                PolyformIterMut::Hexomino(hexomino.cells_mut().iter_mut())
-            }
+            Polyform::Polyhex(polyhex) => PolyformIterMut::Polyhex(polyhex.cells_mut().iter_mut()),
         }
     }
 
@@ -53,7 +51,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let v = match self.polyform {
             Polyform::Polyomino(polyomino) => polyomino.cells().get(self.index).map(|p| p.into()),
-            Polyform::Hexomino(hexomino) => hexomino.cells().get(self.index).map(|p| p.into()),
+            Polyform::Polyhex(polyhex) => polyhex.cells().get(self.index).map(|p| p.into()),
         };
         self.index += 1;
         v
@@ -65,7 +63,7 @@ where
     T: Clone + Hash,
 {
     Polyomino(IterMut<'a, Square<T, RegularCoord>>),
-    Hexomino(IterMut<'a, Hexagon<T, HexCoord>>),
+    Polyhex(IterMut<'a, Hexagon<T, HexCoord>>),
 }
 
 impl<'a, T> Iterator for PolyformIterMut<'a, T>
@@ -77,7 +75,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         match self {
             Self::Polyomino(iter) => iter.next().map(|s| s.into()),
-            Self::Hexomino(iter) => iter.next().map(|h| h.into()),
+            Self::Polyhex(iter) => iter.next().map(|h| h.into()),
         }
     }
 }
@@ -112,7 +110,7 @@ where
                 self.index += 1;
                 v
             }
-            Polyform::Hexomino(_) => {
+            Polyform::Polyhex(_) => {
                 todo!()
             }
         }

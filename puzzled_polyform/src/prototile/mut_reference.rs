@@ -10,7 +10,7 @@ where
     T: Clone + Hash,
 {
     Polyomino(&'a mut Square<T, RegularCoord>),
-    Hexomino(&'a mut Hexagon<T, HexCoord>),
+    Polyhex(&'a mut Hexagon<T, HexCoord>),
 }
 impl<'a, T> Prototile<T, CoordBox, Orientation> for PrototileMutRef<'a, T>
 where
@@ -19,21 +19,21 @@ where
     fn coord(&self) -> CoordBox {
         match self {
             PrototileMutRef::Polyomino(square) => square.coord().into(),
-            PrototileMutRef::Hexomino(hexagon) => hexagon.coord().into(),
+            PrototileMutRef::Polyhex(hexagon) => hexagon.coord().into(),
         }
     }
 
     fn orientation(&self) -> Orientation {
         match self {
             PrototileMutRef::Polyomino(square) => square.orientation().into(),
-            PrototileMutRef::Hexomino(hexagon) => hexagon.orientation().into(),
+            PrototileMutRef::Polyhex(hexagon) => hexagon.orientation().into(),
         }
     }
 
     fn data(&self) -> &T {
         match self {
             PrototileMutRef::Polyomino(square) => square.data(),
-            PrototileMutRef::Hexomino(hexagon) => hexagon.data(),
+            PrototileMutRef::Polyhex(hexagon) => hexagon.data(),
         }
     }
 }
@@ -44,7 +44,7 @@ where
     fn set_coord(&mut self, coord: CoordBox) {
         match (self, coord) {
             (PrototileMutRef::Polyomino(square), CoordBox::Regular(reg)) => square.set_coord(reg),
-            (PrototileMutRef::Hexomino(hexagon), CoordBox::Hex(hex)) => hexagon.set_coord(hex),
+            (PrototileMutRef::Polyhex(hexagon), CoordBox::Hex(hex)) => hexagon.set_coord(hex),
             _ => unreachable!(),
         }
     }
@@ -52,14 +52,14 @@ where
     fn data_mut(&mut self) -> &mut T {
         match self {
             PrototileMutRef::Polyomino(square) => square.data_mut(),
-            PrototileMutRef::Hexomino(hexagon) => hexagon.data_mut(),
+            PrototileMutRef::Polyhex(hexagon) => hexagon.data_mut(),
         }
     }
 
     fn set_data(&mut self, data: T) {
         match self {
             PrototileMutRef::Polyomino(square) => square.set_data(data),
-            PrototileMutRef::Hexomino(hexagon) => hexagon.set_data(data),
+            PrototileMutRef::Polyhex(hexagon) => hexagon.set_data(data),
         }
     }
 
@@ -68,7 +68,7 @@ where
             (PrototileMutRef::Polyomino(square), CoordBox::Regular(p_reg)) => {
                 square.rotate_counterclockwise(p_reg)
             }
-            (PrototileMutRef::Hexomino(hexagon), CoordBox::Hex(p_hex)) => {
+            (PrototileMutRef::Polyhex(hexagon), CoordBox::Hex(p_hex)) => {
                 hexagon.rotate_counterclockwise(p_hex)
             }
             _ => unreachable!(),
@@ -80,7 +80,7 @@ where
             (PrototileMutRef::Polyomino(square), CoordBox::Regular(p_reg)) => {
                 square.flip_default(p_reg)
             }
-            (PrototileMutRef::Hexomino(hexagon), CoordBox::Hex(p_hex)) => {
+            (PrototileMutRef::Polyhex(hexagon), CoordBox::Hex(p_hex)) => {
                 hexagon.flip_default(p_hex)
             }
             _ => unreachable!(),
@@ -90,7 +90,7 @@ where
     fn transpose(&mut self) {
         match self {
             PrototileMutRef::Polyomino(square) => square.transpose(),
-            PrototileMutRef::Hexomino(hexagon) => hexagon.transpose(),
+            PrototileMutRef::Polyhex(hexagon) => hexagon.transpose(),
         }
     }
 }
@@ -109,6 +109,6 @@ where
     T: Clone + Hash,
 {
     fn from(value: &'a mut Hexagon<T, HexCoord>) -> Self {
-        PrototileMutRef::Hexomino(value)
+        PrototileMutRef::Polyhex(value)
     }
 }

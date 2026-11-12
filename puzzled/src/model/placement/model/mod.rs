@@ -7,18 +7,18 @@ use crate::model::placement::prelude::{
     FullPlacementModel, InternalPlacementModel, SimplePlacementModel,
 };
 use crate::model::puzzle::PuzzleModel;
-use hexomino::HexominoPlacementModel;
+use polyhex::PolyhexPlacementModel;
 use polyomino::PolyominoPlacementModel;
 use puzzled_polyform::{CoordBox, MutPrototile, Poly, Polyform, Prototile, RegularCoord};
 use std::cell::Ref;
 
-pub mod hexomino;
+pub mod polyhex;
 pub mod polyomino;
 
 #[derive(Debug)]
 pub enum PlacementModel {
     Polyomino(PolyominoPlacementModel),
-    Hexomino(HexominoPlacementModel),
+    Polyhex(PolyhexPlacementModel),
 }
 
 impl Default for PlacementModel {
@@ -36,7 +36,7 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
                 .enumerate()
                 .find(|t| t.1.base() == b)
                 .map(|t| t.0),
-            (PlacementModel::Hexomino(h), Polyform::Hexomino(b)) => h
+            (PlacementModel::Polyhex(h), Polyform::Polyhex(b)) => h
                 .tiles()
                 .iter()
                 .enumerate()
@@ -71,7 +71,7 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
                     self.add_tile(&mut state, board_position, board_size, to_place)?;
                 }
             }
-            PlacementModel::Hexomino(h) => {
+            PlacementModel::Polyhex(h) => {
                 for (i, tile) in h.tiles().iter().enumerate() {
                     let to_place = TileToPlace {
                         i,
@@ -91,56 +91,56 @@ impl FullPlacementModel<Polyform<()>, CoordBox> for PlacementModel {
     fn board_pixel_position(&self) -> PixelPosition {
         match self {
             PlacementModel::Polyomino(p) => p.board().position_pixel(),
-            PlacementModel::Hexomino(h) => h.board().position_pixel(),
+            PlacementModel::Polyhex(h) => h.board().position_pixel(),
         }
     }
 
     fn board_cell_position(&self) -> CoordBox {
         match self {
             PlacementModel::Polyomino(p) => p.board().position_cells().into(),
-            PlacementModel::Hexomino(h) => h.board().position_cells().into(),
+            PlacementModel::Polyhex(h) => h.board().position_cells().into(),
         }
     }
 
     fn board_size(&self) -> PixelPosition {
         match self {
             PlacementModel::Polyomino(p) => p.board().pixel_size(),
-            PlacementModel::Hexomino(h) => h.board().pixel_size(),
+            PlacementModel::Polyhex(h) => h.board().pixel_size(),
         }
     }
 
     fn tile_pixel_position(&self, idx: usize) -> Option<PixelPosition> {
         match self {
             PlacementModel::Polyomino(p) => p.tiles().get(idx).map(|t| t.position_pixels()),
-            PlacementModel::Hexomino(h) => h.tiles().get(idx).map(|t| t.position_pixels()),
+            PlacementModel::Polyhex(h) => h.tiles().get(idx).map(|t| t.position_pixels()),
         }
     }
 
     fn tile_cell_position(&self, idx: usize) -> Option<CoordBox> {
         match self {
             PlacementModel::Polyomino(p) => p.tiles().get(idx).map(|t| t.position_cells().into()),
-            PlacementModel::Hexomino(h) => h.tiles().get(idx).map(|t| t.position_cells().into()),
+            PlacementModel::Polyhex(h) => h.tiles().get(idx).map(|t| t.position_cells().into()),
         }
     }
 
     fn tile_size(&self, idx: usize) -> PixelPosition {
         match self {
             PlacementModel::Polyomino(p) => p.tiles().get(idx).map(|t| t.pixel_size()).unwrap(),
-            PlacementModel::Hexomino(h) => h.tiles().get(idx).map(|t| t.pixel_size()).unwrap(),
+            PlacementModel::Polyhex(h) => h.tiles().get(idx).map(|t| t.pixel_size()).unwrap(),
         }
     }
 
     fn hint_tile_position(&self) -> Option<PixelPosition> {
         match self {
             PlacementModel::Polyomino(p) => p.hint_tile().as_ref().map(|t| t.position_pixels()),
-            PlacementModel::Hexomino(h) => h.hint_tile().as_ref().map(|t| t.position_pixels()),
+            PlacementModel::Polyhex(h) => h.hint_tile().as_ref().map(|t| t.position_pixels()),
         }
     }
 
     fn hint_tile_size(&self) -> Option<PixelPosition> {
         match self {
             PlacementModel::Polyomino(p) => p.hint_tile().as_ref().map(|t| t.pixel_size()),
-            PlacementModel::Hexomino(h) => h.hint_tile().as_ref().map(|t| t.pixel_size()),
+            PlacementModel::Polyhex(h) => h.hint_tile().as_ref().map(|t| t.pixel_size()),
         }
     }
 }
@@ -232,7 +232,7 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
             PlacementModel::Polyomino(p) => {
                 p.update_pixel_size(total_view_size_pixel, min_cell_size_pixel)
             }
-            PlacementModel::Hexomino(h) => {
+            PlacementModel::Polyhex(h) => {
                 h.update_pixel_size(total_view_size_pixel, min_cell_size_pixel)
             }
         }
@@ -241,21 +241,21 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
     fn min_area_size(&self) -> PixelPosition {
         match self {
             PlacementModel::Polyomino(p) => p.min_area_size(),
-            PlacementModel::Hexomino(h) => h.min_area_size(),
+            PlacementModel::Polyhex(h) => h.min_area_size(),
         }
     }
 
     fn update_tile_pixel_position(&mut self, idx: usize, position: PixelPosition) {
         match self {
             PlacementModel::Polyomino(p) => p.update_tile_pixel_position(idx, position),
-            PlacementModel::Hexomino(h) => h.update_tile_pixel_position(idx, position),
+            PlacementModel::Polyhex(h) => h.update_tile_pixel_position(idx, position),
         }
     }
 
     fn update_tile_dragged(&mut self, idx: usize, dragged: bool) {
         match self {
             PlacementModel::Polyomino(p) => p.update_tile_dragged(idx, dragged),
-            PlacementModel::Hexomino(h) => h.update_tile_dragged(idx, dragged),
+            PlacementModel::Polyhex(h) => h.update_tile_dragged(idx, dragged),
         }
     }
 
@@ -264,7 +264,7 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
             (PlacementModel::Polyomino(pm), Polyform::Polyomino(po)) => {
                 pm.update_tile_shape(idx, po)
             }
-            (PlacementModel::Hexomino(pm), Polyform::Hexomino(po)) => pm.update_tile_shape(idx, po),
+            (PlacementModel::Polyhex(pm), Polyform::Polyhex(po)) => pm.update_tile_shape(idx, po),
             _ => unreachable!(),
         }
     }
@@ -272,7 +272,7 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
     fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox> {
         match self {
             PlacementModel::Polyomino(p) => p.prototile_coord(idx, pixel_position),
-            PlacementModel::Hexomino(h) => h.prototile_coord(idx, pixel_position),
+            PlacementModel::Polyhex(h) => h.prototile_coord(idx, pixel_position),
         }
     }
 
@@ -281,7 +281,7 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
             (PlacementModel::Polyomino(pm), CoordBox::Regular(r), Polyform::Polyomino(po)) => {
                 pm.init_hint_tile(r, po)
             }
-            (PlacementModel::Hexomino(pm), CoordBox::Hex(r), Polyform::Hexomino(po)) => {
+            (PlacementModel::Polyhex(pm), CoordBox::Hex(r), Polyform::Polyhex(po)) => {
                 pm.init_hint_tile(r, po)
             }
             _ => unreachable!(),
@@ -291,7 +291,7 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
     fn remove_hint_tile(&mut self) {
         match self {
             PlacementModel::Polyomino(p) => p.remove_hint_tile(),
-            PlacementModel::Hexomino(h) => h.remove_hint_tile(),
+            PlacementModel::Polyhex(h) => h.remove_hint_tile(),
         }
     }
 }
