@@ -202,7 +202,7 @@ fn target_key(target: &Target) -> String {
         let coord = index.coord();
         key = match coord {
             CoordBox::Regular(r) => format!("{}x{}-{}", key, r.x(), r.y()),
-            CoordBox::Hex(h) => format!("{}x{}-{}-{}", key, h.x(), h.y(), h.z()),
+            CoordBox::Hex(h) => format!("{}x{}-{}", key, h.q(), h.r()),
         };
     }
     key

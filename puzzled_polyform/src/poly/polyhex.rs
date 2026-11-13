@@ -1,6 +1,7 @@
 use crate::coord::hex::HexCoord;
 use crate::poly::{Poly, TrimSides, UnitPoly};
-use crate::prototile::{Hexagon, PrototileMutRef, PrototileRef};
+use crate::prototile::{PrototileMutRef, PrototileRef};
+use crate::{Coord, Hexagon, HexagonOrientation, MutPrototile, Prototile};
 use std::hash::Hash;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -20,11 +21,35 @@ where
         todo!()
     }
 
-    pub fn from_vec<X, M>(_vec: &[Vec<X>], _mapper: &M) -> Self
+    pub fn from_vec<X, M>(vec: &[Vec<X>], mapper: &M) -> Self
     where
         M: Fn(&X, (usize, usize)) -> Option<T>,
     {
-        todo!()
+        let size = HexCoord::from_offset(
+            vec.len() as i32,
+            if !vec.is_empty() {
+                vec[0].len() as i32
+            } else {
+                0
+            },
+        );
+        let mut hexagons = Vec::with_capacity(size.area());
+        for (i, row) in vec.iter().enumerate() {
+            for (j, value) in row.iter().enumerate() {
+                if let Some(data) = mapper(value, (i, j)) {
+                    hexagons.push(Hexagon::new(
+                        HexCoord::from_offset(i as i32, j as i32),
+                        HexagonOrientation::OnCorner,
+                        data,
+                    ))
+                }
+            }
+        }
+
+        Polyhex {
+            dim: size,
+            cells: hexagons,
+        }
     }
 
     pub fn cells(&self) -> &[Hexagon<T, HexCoord>] {
@@ -34,70 +59,129 @@ where
     pub fn cells_mut(&mut self) -> &mut [Hexagon<T, HexCoord>] {
         &mut self.cells
     }
+
+    fn get_hexagon(&self, coord: HexCoord) -> Option<&Hexagon<T, HexCoord>> {
+        self.cells.iter().find(|p| p.coord() == coord)
+    }
 }
 
 impl<T> Poly<T, HexCoord> for Polyhex<T>
 where
     T: Clone + Hash,
 {
-    fn get(&self, _coord: HexCoord) -> Option<PrototileRef<'_, T>> {
-        todo!()
+    fn get(&self, coord: HexCoord) -> Option<PrototileRef<'_, T>> {
+        self.get_hexagon(coord).map(|s| s.into())
     }
 
-    fn get_mut(&mut self, _coord: HexCoord) -> Option<PrototileMutRef<'_, T>> {
-        todo!()
+    fn get_mut(&mut self, coord: HexCoord) -> Option<PrototileMutRef<'_, T>> {
+        self.cells
+            .iter_mut()
+            .find(|p| p.coord() == coord)
+            .map(|s| s.into())
     }
 
     fn dim(&self) -> HexCoord {
-        todo!()
+        self.dim
     }
 
     fn relative_cartesian_dim(&self) -> (f64, f64) {
-        todo!()
+        (self.dim.q() as f64, self.dim.r() as f64) // FIXME
     }
 
     fn area(&self) -> usize {
-        todo!()
+        self.dim.area()
     }
 
     fn rotate_to_landscape(&mut self) {
-        todo!()
+        if self.dim.q() < self.dim.r() {
+            self.transpose();
+        }
     }
 
-    fn rotate_around(&mut self, _prime: HexCoord) -> HexCoord {
-        todo!()
+    fn rotate_around(&mut self, prime: HexCoord) -> HexCoord {
+        let movement_request = { HexCoord::new(0, 0) };
+
+        for cell in &mut self.cells {
+            cell.set_coord(cell.coord().rotate_around(prime) - movement_request);
+        }
+        self.dim = self.dim.transpose();
+        movement_request
     }
 
-    fn flip(&mut self, _prime: HexCoord) -> HexCoord {
-        todo!()
+    fn flip(&mut self, prime: HexCoord) -> HexCoord {
+        let movement_request = HexCoord::new(0, 0);
+
+        for cell in &mut self.cells {
+            cell.set_coord(cell.coord().flip_default(prime) - movement_request);
+        }
+
+        movement_request
     }
 
     fn transpose(&mut self) {
-        todo!()
+        self.dim = self.dim.transpose();
+        self.cells.iter_mut().for_each(|s| s.transpose())
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped<R: Clone + Hash, M>(&self, _mapper: &M) -> Polyhex<R>
+    fn mapped<R: Clone + Hash, M>(&self, mapper: &M) -> Polyhex<R>
     where
         M: Fn(&T) -> R,
     {
-        todo!()
+        let hexagons = self
+            .cells
+            .iter()
+            .map(|h| {
+                let data = h.data();
+                let new_data = mapper(data);
+                Hexagon::new(h.coord(), h.orientation(), new_data)
+            })
+            .collect();
+        Polyhex {
+            dim: self.dim,
+            cells: hexagons,
+        }
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn mapped_indexed<R: Clone + Hash, M>(&self, _mapper: &M) -> Polyhex<R>
+    fn mapped_indexed<R: Clone + Hash, M>(&self, mapper: &M) -> Polyhex<R>
     where
         M: Fn(&T, HexCoord) -> R,
     {
-        todo!()
+        let hexagons = self
+            .cells
+            .iter()
+            .map(|h| {
+                let data = h.data();
+                let coord = h.coord();
+                let new_data = mapper(data, coord);
+                Hexagon::new(h.coord(), h.orientation(), new_data)
+            })
+            .collect();
+        Polyhex {
+            dim: self.dim,
+            cells: hexagons,
+        }
     }
 
     #[allow(refining_impl_trait_reachable)]
-    fn filter_mapped<R: Clone + Hash, M>(&self, _mapper: &M) -> Polyhex<R>
+    fn filter_mapped<R: Clone + Hash, M>(&self, mapper: &M) -> Polyhex<R>
     where
         M: Fn(&T) -> Option<R>,
     {
-        todo!()
+        let hexagons = self
+            .cells
+            .iter()
+            .filter_map(|h| {
+                let data = h.data();
+                let new_data = mapper(data);
+                new_data.map(|new_data| Hexagon::new(h.coord(), h.orientation(), new_data))
+            })
+            .collect();
+        Polyhex {
+            dim: self.dim,
+            cells: hexagons,
+        }
     }
 
     fn extend_adjacent(&mut self, _value: T) {
@@ -114,8 +198,8 @@ impl UnitPoly for Polyhex<()> {
         todo!()
     }
 
-    fn remove_parent(&mut self, _parent: &Self) {
-        todo!()
+    fn remove_parent(&mut self, parent: &Self) {
+        self.cells.retain(|c| !parent.cells.contains(c));
     }
 
     fn inverted(&self) -> Self {
@@ -134,7 +218,8 @@ impl UnitPoly for Polyhex<()> {
         todo!()
     }
 
-    fn from_bool_slice<const N: usize>(_slice: &[[bool; N]]) -> Self {
-        todo!()
+    fn from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self {
+        let vec: Vec<Vec<bool>> = slice.iter().map(|&v| v.to_vec()).collect();
+        Polyhex::from_vec(&vec, &|b, _| if *b { Some(()) } else { None })
     }
 }
