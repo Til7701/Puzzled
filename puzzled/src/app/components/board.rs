@@ -1,7 +1,7 @@
 use crate::adw_ext;
 use crate::app::components::polyform_drawing;
 use crate::app::components::polyform_drawing::{
-    DrawingSettings, PolyformDrawingData, PrototileDrawingMode,
+    DrawingSettings, PolyformDrawingData, PolyformDrawingDataSpecial, PrototileDrawingMode,
 };
 use crate::global::settings::{Preferences, ShowBoardGridLines};
 use adw::gdk::RGBA;
@@ -76,10 +76,14 @@ impl BoardView {
         let obj: BoardView = glib::Object::builder().build();
 
         let layout = match board_config {
-            BoardConfig::Simple { layout } => layout.mapped(&|_| PolyformDrawingData::default()),
+            BoardConfig::Simple { layout } => layout.mapped(&|_| PolyformDrawingData {
+                special: PolyformDrawingDataSpecial::for_polyform(layout),
+                ..Default::default()
+            }),
             BoardConfig::Area { layout, .. } => layout.mapped(&|value| PolyformDrawingData {
                 text: Some(value.display_value.clone()),
                 main_color_index: value.area_index as usize,
+                special: PolyformDrawingDataSpecial::for_polyform(layout),
                 ..Default::default()
             }),
         };

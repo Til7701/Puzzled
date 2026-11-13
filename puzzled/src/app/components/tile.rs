@@ -96,9 +96,13 @@ impl TileView {
         let obj: TileView = glib::Object::builder().build();
 
         obj.imp().id.replace(id);
+        let data = PolyformDrawingData {
+            special: PolyformDrawingDataSpecial::for_polyform(&base),
+            ..Default::default()
+        };
         obj.imp()
             .current_rotation
-            .replace(base.mapped(&|_| PolyformDrawingData::default()));
+            .replace(base.mapped(&|_| data.clone()));
         obj.update_current_rotation_specials();
         obj.imp().color.replace(Some(RGBA::new(
             color.red() as f32 / 255.0,
@@ -168,8 +172,8 @@ impl TileView {
                         .get(CoordBox::Regular(c + RegularCoord::new(0, 1)))
                         .is_some();
                 }
-                (CoordBox::Hex(_), PolyformDrawingDataSpecial::Polyhex()) => {
-                    todo!()
+                (CoordBox::Hex(_), PolyformDrawingDataSpecial::Polyhex(s)) => {
+                    // TODO
                 }
                 _ => unreachable!(),
             }

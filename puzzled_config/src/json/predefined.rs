@@ -1,6 +1,6 @@
 use crate::BoardConfig;
-use crate::json::model::{Board, Tile};
-use puzzled_polyform::{Polyomino, RegularCoord};
+use crate::json::model::{Board, PolyformKind, Tile};
+use puzzled_polyform::{Polyhex, Polyomino, RegularCoord};
 use serde::Deserialize;
 use std::collections::HashMap;
 
@@ -31,14 +31,32 @@ impl ConfigStore {
         self.boards.get(name).cloned()
     }
 
-    pub fn predefined_board_from_str(&self, name: &str) -> Option<BoardConfig> {
+    pub fn predefined_board_from_str(
+        &self,
+        name: &str,
+        polyform_kind: PolyformKind,
+    ) -> Option<BoardConfig> {
         name.split("x")
             .filter_map(|part| part.parse::<i32>().ok())
             .collect::<Vec<i32>>()
             .get(0..2)
             .map(|dims| (dims[0], dims[1]))
-            .map(|(rows, cols)| BoardConfig::Simple {
-                layout: Polyomino::sized(RegularCoord::new(rows, cols), ()).into(),
+            .map(|(rows, cols)| {
+                let polyform = match polyform_kind {
+                    PolyformKind::Polyomino => {
+                        Polyomino::sized(RegularCoord::new(rows, cols), ()).into()
+                    }
+                    PolyformKind::Polyhex => {
+                        let vec: Vec<Vec<bool>> = (0..rows)
+                            .map(|_| {
+                                let v: Vec<bool> = (0..cols).map(|_| true).collect();
+                                v
+                            })
+                            .collect();
+                        Polyhex::from_vec(&vec, &|_, _| Some(())).into()
+                    }
+                };
+                BoardConfig::Simple { layout: polyform }
             })
     }
 }

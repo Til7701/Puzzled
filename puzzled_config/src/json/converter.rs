@@ -257,8 +257,9 @@ impl<'a> Converter<'a> {
                     self.convert_board(custom_board, polyform_kind)
                 } else if let Some(predefined_board) = self.predefined.get_board(&name) {
                     self.convert_board(predefined_board, polyform_kind)
-                } else if let Some(predefined_board) =
-                    self.predefined.predefined_board_from_str(&name)
+                } else if let Some(predefined_board) = self
+                    .predefined
+                    .predefined_board_from_str(&name, polyform_kind)
                 {
                     Ok(predefined_board)
                 } else {
