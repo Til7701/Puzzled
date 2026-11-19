@@ -13,6 +13,7 @@ use puzzled_polyform::{CoordBox, Polyform};
 use std::cell::Ref;
 
 mod board;
+mod contains;
 mod grid;
 mod initial;
 mod model;
@@ -20,6 +21,8 @@ mod pixel;
 mod prelude;
 mod tile;
 
+pub use contains::polyform_contains_pixel;
+pub use contains::polyomino_contains_pixel;
 pub use pixel::PixelPosition;
 
 const TILE_MOVED_SIGNAL_NAME: &str = "tile-moved";
@@ -194,11 +197,11 @@ impl PlacementModelWrapper {
     /// * `shape`: the new rotation
     ///
     /// returns: ()
-    pub fn update_tile_shape(&self, idx: usize, shape: Polyform<()>) {
+    pub fn update_tile_shape(&self, idx: usize, shape: Polyform<()>, movement_request: CoordBox) {
         self.imp()
             .placement_model
             .borrow_mut()
-            .update_tile_shape(idx, shape);
+            .update_tile_shape(idx, shape, movement_request);
         self.emit_tile_moved();
     }
 
