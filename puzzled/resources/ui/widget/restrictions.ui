@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="PuzzledRestrictionsView" parent="GtkBox">
+        <child>
+            <object class="GtkMenuButton" id="rotate">
+                <property name="icon-name">rotate-cw-symbolic</property>
+                <style>
+                    <class name="flat"/>
+                </style>
+                <property name="popover">
+                    <object class="GtkPopover">
+                        <child>
+                            <object class="GtkLabel" id="rotate_label">
+                                <property name="wrap">True</property>
+                                <property name="max-width-chars">50</property>
+                            </object>
+                        </child>
+                    </object>
+                </property>
+            </object>
+        </child>
+        <child>
+            <object class="GtkMenuButton" id="flip">
+                <property name="icon-name">flip-h-symbolic</property>
+                <style>
+                    <class name="flat"/>
+                </style>
+                <property name="popover">
+                    <object class="GtkPopover">
+                        <child>
+                            <object class="GtkLabel" id="flip_label">
+                                <property name="wrap">True</property>
+                                <property name="max-width-chars">50</property>
+                            </object>
+                        </child>
+                    </object>
+                </property>
+            </object>
+        </child>
+    </template>
+</interface>
