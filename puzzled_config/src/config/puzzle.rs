@@ -1,6 +1,7 @@
 use crate::TileConfig;
 use crate::config::board::BoardConfig;
 use crate::config::difficulty::PuzzleDifficultyConfig;
+use crate::config::restrictions::RestrictionsConfig;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
@@ -21,6 +22,7 @@ pub struct PuzzleConfig {
     description: Option<String>,
     difficulty: Option<PuzzleDifficultyConfig>,
     unsolvable: bool,
+    restrictions: RestrictionsConfig,
     /// The tiles that can be placed on the board.
     tiles: Vec<TileConfig>,
     /// Configuration of the board layout and areas.
@@ -53,6 +55,7 @@ impl PuzzleConfig {
         description: Option<String>,
         difficulty: Option<PuzzleDifficultyConfig>,
         unsolvable: bool,
+        restrictions: RestrictionsConfig,
         tiles: Vec<TileConfig>,
         board_config: BoardConfig,
         additional_info: Option<HashMap<String, String>>,
@@ -64,6 +67,7 @@ impl PuzzleConfig {
             description,
             difficulty,
             unsolvable,
+            restrictions,
             board_config,
             tiles,
             additional_info,
@@ -92,6 +96,10 @@ impl PuzzleConfig {
 
     pub fn is_unsolvable(&self) -> bool {
         self.unsolvable
+    }
+
+    pub fn restrictions(&self) -> &RestrictionsConfig {
+        &self.restrictions
     }
 
     pub fn tiles(&self) -> &Vec<TileConfig> {

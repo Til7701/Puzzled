@@ -1,3 +1,4 @@
+use crate::config::restrictions::RestrictionsConfig;
 use crate::{
     BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig,
     PuzzleConfigCollection, TileConfig,
@@ -48,6 +49,7 @@ pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection 
         None,
         None,
         false,
+        RestrictionsConfig::default(),
         tiles,
         board,
         None,

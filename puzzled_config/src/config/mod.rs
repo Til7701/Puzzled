@@ -8,3 +8,4 @@ pub mod progression;
 pub mod puzzle;
 pub mod target;
 pub mod tile;
+pub mod restrictions;
