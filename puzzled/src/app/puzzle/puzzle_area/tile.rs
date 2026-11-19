@@ -90,11 +90,15 @@ impl PuzzleArea {
             move |tile_view, x, y| {
                 let placement_model = self_clone.imp().placement_model.borrow();
                 let pm = placement_model.as_ref().unwrap();
-                tile_view.rotate_clockwise(
-                    pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
-                        .unwrap(),
-                );
-                pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+                let coord = pm.prototile_coord(tile_view.id(), PixelPosition(x, y));
+                if let Some(c) = coord {
+                    let movement_request = tile_view.rotate_clockwise(c);
+                    pm.update_tile_shape(
+                        tile_view.id(),
+                        tile_view.current_rotation().clone(),
+                        movement_request,
+                    );
+                }
             }
         });
         draggable.add_controller(gesture.upcast::<EventController>());
@@ -107,11 +111,15 @@ impl PuzzleArea {
             move |tile_view, x, y| {
                 let placement_model = self_clone.imp().placement_model.borrow();
                 let pm = placement_model.as_ref().unwrap();
-                tile_view.flip(
-                    pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
-                        .unwrap(),
-                );
-                pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+                let coord = pm.prototile_coord(tile_view.id(), PixelPosition(x, y));
+                if let Some(c) = coord {
+                    let movement_request = tile_view.flip(c);
+                    pm.update_tile_shape(
+                        tile_view.id(),
+                        tile_view.current_rotation().clone(),
+                        movement_request,
+                    );
+                }
             }
         });
         draggable.add_controller(gesture.upcast::<EventController>());
