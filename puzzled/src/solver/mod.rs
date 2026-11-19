@@ -164,7 +164,7 @@ impl Solver {
     /// returns: bool
     pub fn is_solved(&self, puzzle_state: &PuzzleState) -> bool {
         let board = self.create_board(puzzle_state);
-        board.get_polyform().iter().count() == 0
+        board.get_polyform().inverted().iter().count() == 0
     }
 
     /// Creates a board representation from the given puzzle state and target to give to the solver.
