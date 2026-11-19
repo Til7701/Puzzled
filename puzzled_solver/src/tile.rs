@@ -34,7 +34,7 @@ impl Tile {
     /// use puzzled_polyform::*;
     ///
     /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
-    /// let tile = Tile::new(42, base);
+    /// let tile = Tile::new(42, base, true, true);
     /// ```
     pub fn new(id: usize, base: Polyform<()>, allow_rotation: bool, allow_flip: bool) -> Tile {
         let mut all_rotations_set: HashSet<Polyform<()>> = HashSet::new();
@@ -71,7 +71,7 @@ impl Tile {
     /// use puzzled_polyform::*;
     ///
     /// let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
-    /// let tile = Tile::new(42, base.clone());
+    /// let tile = Tile::new(42, base.clone(), true, true);
     /// assert_eq!(tile.base(), &base);
     /// ```
     pub fn base(&self) -> &Polyform<()> {
