@@ -1,3 +1,7 @@
+mod drawable;
+mod square;
+mod style;
+
 use adw::gdk::RGBA;
 use adw::gdk::cairo::Context;
 use adw::gdk::pango::{Alignment, SCALE, WrapMode};
