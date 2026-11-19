@@ -1,5 +1,5 @@
 use crate::model::placement::PixelPosition;
-use puzzled_polyform::{CoordBox, Poly, Polyform, Polyomino, RegularCoord};
+use puzzled_polyform::{CoordBox, Poly, Polyform, Polyomino, Prototile, RegularCoord};
 use std::hash::Hash;
 
 /// Returns the coordinate of the prototile indicated by the location given the size.
@@ -40,5 +40,7 @@ pub fn polyomino_contains_pixel<T: Clone + Hash>(
     let cell_x = (location.0 / cell_width) as i32;
     let cell_y = (location.1 / cell_height) as i32;
 
-    Some(RegularCoord::new(cell_x, cell_y).into())
+    polyomino
+        .get(RegularCoord::new(cell_x, cell_y))
+        .map(|p| p.coord())
 }
