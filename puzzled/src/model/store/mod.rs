@@ -259,7 +259,9 @@ mod tests {
                             .tiles()
                             .iter()
                             .enumerate()
-                            .map(|(i, tile_config)| Tile::new(i, tile_config.base().clone()))
+                            .map(|(i, tile_config)| {
+                                Tile::new(i, tile_config.base().clone(), true, true)
+                            })
                             .collect();
                         let result = puzzled_solver::solve_all_filling(
                             board,

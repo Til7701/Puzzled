@@ -66,10 +66,14 @@ mod tests {
             Tile::new(
                 42,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 43,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into(),
+                true,
+                true,
             ),
         ];
         let pruner = Pruner::new(&board, &tiles);

@@ -6,5 +6,6 @@ pub mod difficulty;
 pub mod preview;
 pub mod progression;
 pub mod puzzle;
+pub mod restrictions;
 pub mod target;
 pub mod tile;

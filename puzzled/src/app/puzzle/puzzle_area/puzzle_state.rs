@@ -1,5 +1,5 @@
 use crate::model::extension::PuzzleTypeExtension;
-use puzzled_config::{BoardConfig, PuzzleConfig};
+use puzzled_config::{BoardConfig, PuzzleConfig, RestrictionsConfig};
 use puzzled_polyform::{CoordBox, Poly, Polyform, Prototile, RegularCoord};
 use std::cell::Ref;
 use std::collections::HashSet;
@@ -62,6 +62,7 @@ pub struct UnusedTile {
 pub struct PuzzleState {
     pub grid: Polyform<Cell>,
     pub unused_tiles: HashSet<UnusedTile>,
+    pub restrictions: RestrictionsConfig,
 }
 
 impl PuzzleState {
@@ -102,6 +103,7 @@ impl PuzzleState {
         PuzzleState {
             grid,
             unused_tiles: HashSet::new(),
+            restrictions: puzzle_config.restrictions().clone(),
         }
     }
 }

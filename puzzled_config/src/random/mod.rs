@@ -1,3 +1,4 @@
+use crate::config::restrictions::RestrictionsConfig;
 use crate::{
     BoardConfig, ColorConfig, PreviewConfig, ProgressionConfig, PuzzleConfig,
     PuzzleConfigCollection, TileConfig,
@@ -48,6 +49,7 @@ pub fn random_puzzle(settings: &RandomPuzzleSettings) -> PuzzleConfigCollection 
         None,
         None,
         false,
+        RestrictionsConfig::default(),
         tiles,
         board,
         None,
@@ -69,7 +71,7 @@ where
     T: Default + Clone + Hash,
 {
     polyform
-        .rotations_flips_iter()
+        .rotations_flips_iter(true, true)
         .nth(rng.random_range(0..8))
         .unwrap()
 }

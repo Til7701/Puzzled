@@ -26,10 +26,16 @@ where
         }
     }
 
-    pub fn rotations_flips_iter(&self) -> PolyformRotationFlipsIter<T> {
+    pub fn rotations_flips_iter(
+        &self,
+        allow_rotation: bool,
+        allow_flip: bool,
+    ) -> PolyformRotationFlipsIter<T> {
         PolyformRotationFlipsIter {
             index: 0,
             polyform: self.clone(),
+            allow_rotation,
+            allow_flip,
         }
     }
 }
@@ -86,6 +92,8 @@ where
 {
     index: usize,
     polyform: Polyform<T>,
+    allow_rotation: bool,
+    allow_flip: bool,
 }
 
 impl<T> Iterator for PolyformRotationFlipsIter<T>
@@ -98,21 +106,244 @@ where
         match &mut self.polyform {
             Polyform::Polyomino(_) => {
                 let polyform = &mut self.polyform;
-                let v = if self.index >= 8 {
-                    None
-                } else if self.index == 4 {
-                    polyform.flip(RegularCoord::new(0, 0).into());
-                    Some(polyform.clone())
+
+                if self.allow_rotation && self.allow_flip {
+                    let v = if self.index >= 8 {
+                        None
+                    } else if self.index == 4 {
+                        polyform.flip(RegularCoord::new(0, 0).into());
+                        Some(polyform.clone())
+                    } else {
+                        polyform.rotate_around(RegularCoord::new(0, 0).into());
+                        Some(polyform.clone())
+                    };
+                    self.index += 1;
+                    v
+                } else if self.allow_rotation && !self.allow_flip {
+                    let v = if self.index >= 4 {
+                        None
+                    } else {
+                        polyform.rotate_around(RegularCoord::new(0, 0).into());
+                        Some(polyform.clone())
+                    };
+                    self.index += 1;
+                    v
+                } else if !self.allow_rotation && self.allow_flip {
+                    let v = if self.index >= 2 {
+                        None
+                    } else if self.index == 0 {
+                        Some(polyform.clone())
+                    } else {
+                        polyform.flip(RegularCoord::new(0, 0).into());
+                        Some(polyform.clone())
+                    };
+                    self.index += 1;
+                    v
                 } else {
-                    polyform.rotate_around(RegularCoord::new(0, 0).into());
-                    Some(polyform.clone())
-                };
-                self.index += 1;
-                v
+                    let v = if self.index == 0 {
+                        Some(self.polyform.clone())
+                    } else {
+                        None
+                    };
+                    self.index += 1;
+                    v
+                }
             }
             Polyform::Polyhex(_) => {
                 todo!()
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{Polyform, Polyomino, UnitPoly};
+
+    #[test]
+    fn test_polyomino_rotation_flip() {
+        let polyomino: Polyform<()> = Polyomino::from_bool_slice(&[
+            [true, false, false],
+            [true, true, true],
+            [true, false, true],
+        ])
+        .into();
+
+        let rfs: Vec<Polyform<()>> = polyomino.rotations_flips_iter(true, true).collect();
+        assert_eq!(rfs.len(), 8);
+        assert_eq!(
+            rfs[0],
+            Polyomino::from_bool_slice(&[
+                [false, true, true],
+                [false, true, false],
+                [true, true, true],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[1],
+            Polyomino::from_bool_slice(&[
+                [true, false, true],
+                [true, true, true],
+                [false, false, true],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[2],
+            Polyomino::from_bool_slice(&[
+                [true, true, true],
+                [false, true, false],
+                [true, true, false],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[3],
+            Polyomino::from_bool_slice(&[
+                [true, false, false],
+                [true, true, true],
+                [true, false, true],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[4],
+            Polyomino::from_bool_slice(&[
+                [true, false, true],
+                [true, true, true],
+                [true, false, false],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[5],
+            Polyomino::from_bool_slice(&[
+                [true, true, false],
+                [false, true, false],
+                [true, true, true],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[6],
+            Polyomino::from_bool_slice(&[
+                [false, false, true],
+                [true, true, true],
+                [true, false, true],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[7],
+            Polyomino::from_bool_slice(&[
+                [true, true, true],
+                [false, true, false],
+                [false, true, true],
+            ])
+            .into()
+        );
+    }
+
+    #[test]
+    fn test_polyomino_no_rotation_flip() {
+        let polyomino: Polyform<()> = Polyomino::from_bool_slice(&[
+            [true, false, false],
+            [true, true, true],
+            [true, false, true],
+        ])
+        .into();
+
+        let rfs: Vec<Polyform<()>> = polyomino.rotations_flips_iter(false, true).collect();
+        assert_eq!(rfs.len(), 2);
+        assert_eq!(
+            rfs[0],
+            Polyomino::from_bool_slice(&[
+                [true, false, false],
+                [true, true, true],
+                [true, false, true],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[1],
+            Polyomino::from_bool_slice(&[
+                [true, false, true],
+                [true, true, true],
+                [true, false, false],
+            ])
+            .into()
+        );
+    }
+
+    #[test]
+    fn test_polyomino_rotation_no_flip() {
+        let polyomino: Polyform<()> = Polyomino::from_bool_slice(&[
+            [true, false, false],
+            [true, true, true],
+            [true, false, true],
+        ])
+        .into();
+
+        let rfs: Vec<Polyform<()>> = polyomino.rotations_flips_iter(true, false).collect();
+        assert_eq!(rfs.len(), 4);
+        assert_eq!(
+            rfs[0],
+            Polyomino::from_bool_slice(&[
+                [false, true, true],
+                [false, true, false],
+                [true, true, true],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[1],
+            Polyomino::from_bool_slice(&[
+                [true, false, true],
+                [true, true, true],
+                [false, false, true],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[2],
+            Polyomino::from_bool_slice(&[
+                [true, true, true],
+                [false, true, false],
+                [true, true, false],
+            ])
+            .into()
+        );
+        assert_eq!(
+            rfs[3],
+            Polyomino::from_bool_slice(&[
+                [true, false, false],
+                [true, true, true],
+                [true, false, true],
+            ])
+            .into()
+        );
+    }
+
+    #[test]
+    fn test_polyomino_no_rotation_no_flip() {
+        let polyomino: Polyform<()> = Polyomino::from_bool_slice(&[
+            [true, false, false],
+            [true, true, true],
+            [true, false, true],
+        ])
+        .into();
+
+        let rfs: Vec<Polyform<()>> = polyomino.rotations_flips_iter(false, false).collect();
+        assert_eq!(rfs.len(), 1);
+        assert_eq!(
+            rfs[0],
+            Polyomino::from_bool_slice(&[
+                [true, false, false],
+                [true, true, true],
+                [true, false, true],
+            ])
+            .into()
+        );
     }
 }

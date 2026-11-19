@@ -46,8 +46,8 @@ pub mod tile;
 ///     [false, false, false]
 /// ]).into());
 /// let tiles = vec![
-///     Tile::new(42, Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into()),
-///     Tile::new(43, Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]]).into()),
+///     Tile::new(42, Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into(), true, true),
+///     Tile::new(43, Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]]).into(), true, true),
 /// ];
 /// let cancel_token = CancellationToken::new();
 ///
@@ -103,10 +103,14 @@ mod tests {
             Tile::new(
                 42,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 43,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into(),
+                true,
+                true,
             ),
         ];
 
@@ -155,10 +159,14 @@ mod tests {
             Tile::new(
                 42,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 43,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into(),
+                true,
+                true,
             ),
         ];
 
@@ -192,6 +200,8 @@ mod tests {
         let tiles = vec![Tile::new(
             42,
             Polyomino::from_bool_slice(&[[true, true, true], [true, false, true]]).into(),
+            true,
+            true,
         )];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -223,10 +233,14 @@ mod tests {
             Tile::new(
                 42,
                 Polyomino::from_bool_slice(&[[true, true, true], [false, true, true]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 43,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, false]]).into(),
+                true,
+                true,
             ),
         ];
 
@@ -265,6 +279,8 @@ mod tests {
         let tiles = vec![Tile::new(
             42,
             Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into(),
+            true,
+            true,
         )];
 
         let result = solve_all_filling(board, &tiles, CancellationToken::new());
@@ -286,14 +302,20 @@ mod tests {
             Tile::new(
                 42,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 43,
                 Polyomino::from_bool_slice(&[[true, true, false], [true, false, true]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 44,
                 Polyomino::from_bool_slice(&[[true, false, true], [true, true, true]]).into(),
+                true,
+                true,
             ),
         ];
 
@@ -316,10 +338,14 @@ mod tests {
             Tile::new(
                 42,
                 Polyomino::from_bool_slice(&[[true, false, true], [true, true, true]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 43,
                 Polyomino::from_bool_slice(&[[true, true, true], [true, true, true]]).into(),
+                true,
+                true,
             ),
         ];
 
@@ -361,6 +387,8 @@ mod tests {
             Tile::new(
                 42,
                 Polyomino::from_bool_slice(&[[false, true, true], [true, true, true]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 43,
@@ -370,6 +398,8 @@ mod tests {
                     [false, true, true],
                 ])
                 .into(),
+                true,
+                true,
             ),
         ];
 
@@ -411,6 +441,8 @@ mod tests {
         let tiles = vec![Tile::new(
             42,
             Polyomino::from_bool_slice(&[[true, true, true, true]]).into(),
+            true,
+            true,
         )];
 
         let result = solve_all_filling(board.into(), &tiles, CancellationToken::new());
@@ -431,10 +463,14 @@ mod tests {
             Tile::new(
                 42,
                 Polyomino::from_bool_slice(&[[false, true], [true, true]]).into(),
+                true,
+                true,
             ),
             Tile::new(
                 43,
                 Polyomino::from_bool_slice(&[[false, true], [true, true]]).into(),
+                true,
+                true,
             ),
         ];
 

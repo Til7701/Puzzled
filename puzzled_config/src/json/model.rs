@@ -60,6 +60,7 @@ pub struct Puzzle {
     pub difficulty: Option<PuzzleDifficulty>,
     #[serde(default)]
     pub unsolvable: bool,
+    pub restrictions: Option<Restrictions>,
     pub polyform_kind: Option<PolyformKind>,
     /// The tiles to use in this puzzle. Can reference predefined tiles, custom tiles or define
     /// them inline.
@@ -76,6 +77,14 @@ pub enum PuzzleDifficulty {
     Medium,
     Hard,
     Expert,
+}
+
+#[derive(Deserialize)]
+pub struct Restrictions {
+    #[serde(default = "default_true")]
+    pub allow_rotation: bool,
+    #[serde(default = "default_true")]
+    pub allow_flip: bool,
 }
 
 #[derive(Debug, Deserialize, Clone)]
