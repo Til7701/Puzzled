@@ -57,7 +57,7 @@ impl SimplePlacementModel<Polyhex<()>, HexCoord> for PolyhexPlacementModel {
         todo!()
     }
 
-    fn update_tile_shape(&mut self, _idx: usize, _shape: Polyhex<()>) {
+    fn update_tile_shape(&mut self, _idx: usize, _shape: Polyhex<()>, _movement_request: HexCoord) {
         todo!()
     }
 
