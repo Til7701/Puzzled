@@ -71,7 +71,7 @@ where
     T: Default + Clone + Hash,
 {
     polyform
-        .rotations_flips_iter()
+        .rotations_flips_iter(true, true)
         .nth(rng.random_range(0..8))
         .unwrap()
 }

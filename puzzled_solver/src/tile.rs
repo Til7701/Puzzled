@@ -36,12 +36,13 @@ impl Tile {
     /// let base = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
     /// let tile = Tile::new(42, base);
     /// ```
-    pub fn new(id: usize, base: Polyform<()>) -> Tile {
+    pub fn new(id: usize, base: Polyform<()>, allow_rotation: bool, allow_flip: bool) -> Tile {
         let mut all_rotations_set: HashSet<Polyform<()>> = HashSet::new();
 
-        base.rotations_flips_iter().for_each(|rotation| {
-            all_rotations_set.insert(rotation);
-        });
+        base.rotations_flips_iter(allow_rotation, allow_flip)
+            .for_each(|rotation| {
+                all_rotations_set.insert(rotation);
+            });
 
         let all_rotations = all_rotations_set.into_iter().collect();
         Tile {
@@ -86,7 +87,7 @@ mod tests {
     #[test]
     fn test_new() {
         let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false], [true, true]]).into();
-        let tile = Tile::new(42, base.clone());
+        let tile = Tile::new(42, base.clone(), true, true);
 
         assert_eq!(tile.id(), 42);
         assert_eq!(tile.base(), &base);
@@ -112,7 +113,7 @@ mod tests {
     #[test]
     fn test_new_1x1() {
         let base: Polyform<()> = Polyomino::from_bool_slice(&[[true]]).into();
-        let tile = Tile::new(42, base.clone());
+        let tile = Tile::new(42, base.clone(), true, true);
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 1);
@@ -125,7 +126,7 @@ mod tests {
     #[test]
     fn test_new_1x2() {
         let base: Polyform<()> = Polyomino::from_bool_slice(&[[true, false]]).into();
-        let tile = Tile::new(42, base.clone());
+        let tile = Tile::new(42, base.clone(), true, true);
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 4);
@@ -151,7 +152,7 @@ mod tests {
     fn test_new_2x3() {
         let base: Polyform<()> =
             Polyomino::from_bool_slice(&[[true, false], [true, true], [true, true]]).into();
-        let tile = Tile::new(42, base.clone());
+        let tile = Tile::new(42, base.clone(), true, true);
 
         assert_eq!(tile.base(), &base);
         assert_eq!(tile.all_rotations.len(), 8);

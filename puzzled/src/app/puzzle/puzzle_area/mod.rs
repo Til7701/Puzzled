@@ -105,7 +105,7 @@ impl PuzzleArea {
         self.setup_board(puzzle_config);
 
         for (i, tile) in puzzle_config.tiles().iter().enumerate() {
-            self.setup_tile(tile, i);
+            self.setup_tile(tile, i, puzzle_config.restrictions());
         }
 
         self.update_highlights();

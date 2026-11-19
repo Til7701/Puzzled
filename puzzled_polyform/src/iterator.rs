@@ -26,10 +26,16 @@ where
         }
     }
 
-    pub fn rotations_flips_iter(&self) -> PolyformRotationFlipsIter<T> {
+    pub fn rotations_flips_iter(
+        &self,
+        allow_rotation: bool,
+        allow_flip: bool,
+    ) -> PolyformRotationFlipsIter<T> {
         PolyformRotationFlipsIter {
             index: 0,
             polyform: self.clone(),
+            allow_rotation,
+            allow_flip,
         }
     }
 }
@@ -86,6 +92,8 @@ where
 {
     index: usize,
     polyform: Polyform<T>,
+    allow_rotation: bool,
+    allow_flip: bool,
 }
 
 impl<T> Iterator for PolyformRotationFlipsIter<T>
@@ -98,17 +106,46 @@ where
         match &mut self.polyform {
             Polyform::Polyomino(_) => {
                 let polyform = &mut self.polyform;
-                let v = if self.index >= 8 {
-                    None
-                } else if self.index == 4 {
-                    polyform.flip(RegularCoord::new(0, 0).into());
-                    Some(polyform.clone())
+
+                if self.allow_rotation && self.allow_flip {
+                    let v = if self.index >= 8 {
+                        None
+                    } else if self.index == 4 {
+                        polyform.flip(RegularCoord::new(0, 0).into());
+                        Some(polyform.clone())
+                    } else {
+                        polyform.rotate_around(RegularCoord::new(0, 0).into());
+                        Some(polyform.clone())
+                    };
+                    self.index += 1;
+                    v
+                } else if self.allow_rotation && !self.allow_flip {
+                    let v = if self.index >= 4 {
+                        None
+                    } else {
+                        polyform.rotate_around(RegularCoord::new(0, 0).into());
+                        Some(polyform.clone())
+                    };
+                    self.index += 1;
+                    v
+                } else if !self.allow_rotation && self.allow_flip {
+                    let v = if self.index >= 2 {
+                        None
+                    } else {
+                        polyform.flip(RegularCoord::new(0, 0).into());
+                        Some(polyform.clone())
+                    };
+                    self.index += 1;
+                    v
                 } else {
-                    polyform.rotate_around(RegularCoord::new(0, 0).into());
-                    Some(polyform.clone())
-                };
-                self.index += 1;
-                v
+                    let v = if self.index == 0 {
+                        Some(self.polyform.clone())
+                    } else {
+                        None
+                    };
+                    self.index += 1;
+                    v
+                }
             }
             Polyform::Polyhex(_) => {
                 todo!()

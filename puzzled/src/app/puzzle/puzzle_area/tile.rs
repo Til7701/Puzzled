@@ -7,14 +7,14 @@ use gtk::prelude::{
     Cast, EventControllerExt, FixedExt, GestureDragExt, GestureSingleExt, WidgetExt,
 };
 use gtk::{EventController, GestureClick, GestureDrag, PropagationPhase, Widget};
-use puzzled_config::TileConfig;
+use puzzled_config::{RestrictionsConfig, TileConfig};
 
 impl PuzzleArea {
-    pub fn setup_tile(&self, tile: &TileConfig, tile_id: usize) {
+    pub fn setup_tile(&self, tile: &TileConfig, tile_id: usize, restrictions: &RestrictionsConfig) {
         let tile_view = TileView::new(tile_id, tile.base().clone(), tile.color());
 
         self.setup_drag_and_drop(tile_id, tile_view.upcast_ref());
-        self.setup_tile_rotation_and_flip(tile_id, tile_view.upcast_ref());
+        self.setup_tile_rotation_and_flip(tile_id, tile_view.upcast_ref(), restrictions);
         self.add(tile_view.upcast_ref(), &PixelPosition(0.0, 0.0));
         self.imp().tiles.borrow_mut().push(tile_view);
     }
@@ -81,39 +81,48 @@ impl PuzzleArea {
         draggable.add_controller(drag);
     }
 
-    fn setup_tile_rotation_and_flip(&self, tile_view_index: usize, draggable: &Widget) {
+    fn setup_tile_rotation_and_flip(
+        &self,
+        tile_view_index: usize,
+        draggable: &Widget,
+        restrictions: &RestrictionsConfig,
+    ) {
         // Rotation
         let gesture = GestureClick::new();
         gesture.set_button(BUTTON_SECONDARY);
-        self.setup_tile_updating_gesture(tile_view_index, &gesture, {
-            let self_clone = self.clone();
-            move |tile_view, x, y| {
-                let placement_model = self_clone.imp().placement_model.borrow();
-                let pm = placement_model.as_ref().unwrap();
-                tile_view.rotate_clockwise(
-                    pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
-                        .unwrap(),
-                );
-                pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
-            }
-        });
+        if restrictions.allow_rotation() {
+            self.setup_tile_updating_gesture(tile_view_index, &gesture, {
+                let self_clone = self.clone();
+                move |tile_view, x, y| {
+                    let placement_model = self_clone.imp().placement_model.borrow();
+                    let pm = placement_model.as_ref().unwrap();
+                    tile_view.rotate_clockwise(
+                        pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
+                            .unwrap(),
+                    );
+                    pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+                }
+            });
+        }
         draggable.add_controller(gesture.upcast::<EventController>());
 
         // Flip
         let gesture = GestureClick::new();
         gesture.set_button(BUTTON_MIDDLE);
-        self.setup_tile_updating_gesture(tile_view_index, &gesture, {
-            let self_clone = self.clone();
-            move |tile_view, x, y| {
-                let placement_model = self_clone.imp().placement_model.borrow();
-                let pm = placement_model.as_ref().unwrap();
-                tile_view.flip(
-                    pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
-                        .unwrap(),
-                );
-                pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
-            }
-        });
+        if restrictions.allow_flip() {
+            self.setup_tile_updating_gesture(tile_view_index, &gesture, {
+                let self_clone = self.clone();
+                move |tile_view, x, y| {
+                    let placement_model = self_clone.imp().placement_model.borrow();
+                    let pm = placement_model.as_ref().unwrap();
+                    tile_view.flip(
+                        pm.prototile_coord(tile_view.id(), PixelPosition(x, y))
+                            .unwrap(),
+                    );
+                    pm.update_tile_shape(tile_view.id(), tile_view.current_rotation().clone());
+                }
+            });
+        }
         draggable.add_controller(gesture.upcast::<EventController>());
     }
 
