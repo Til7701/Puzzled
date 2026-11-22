@@ -87,7 +87,14 @@ impl Solver {
         let tiles: Vec<Tile> = puzzle_state
             .unused_tiles
             .iter()
-            .map(|tile_state| Tile::new(tile_state.id, tile_state.base.clone()))
+            .map(|tile_state| {
+                Tile::new(
+                    tile_state.id,
+                    tile_state.base.clone(),
+                    puzzle_state.restrictions.allow_rotation(),
+                    puzzle_state.restrictions.allow_flip(),
+                )
+            })
             .collect();
 
         let now = Instant::now();
@@ -157,7 +164,7 @@ impl Solver {
     /// returns: bool
     pub fn is_solved(&self, puzzle_state: &PuzzleState) -> bool {
         let board = self.create_board(puzzle_state);
-        board.get_polyform().iter().count() == 0
+        board.get_polyform().inverted().iter().count() == 0
     }
 
     /// Creates a board representation from the given puzzle state and target to give to the solver.

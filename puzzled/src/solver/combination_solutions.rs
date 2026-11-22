@@ -45,6 +45,7 @@ impl CombinationsSolver {
             let new_puzzle_state = PuzzleState {
                 grid,
                 unused_tiles: tiles.clone(),
+                restrictions: puzzle_state.restrictions.clone(),
             };
             self.solver.solver_for_target_maybe_callback(
                 &new_puzzle_state,

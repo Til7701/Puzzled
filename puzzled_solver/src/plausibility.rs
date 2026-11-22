@@ -47,10 +47,14 @@ mod tests {
         let tile1 = Tile::new(
             42,
             Polyomino::from_bool_slice(&[[true, true], [true, true], [true, false]]).into(),
+            true,
+            true,
         );
         let tile2 = Tile::new(
             43,
             Polyomino::from_bool_slice(&[[false, true], [false, true], [true, true]]).into(),
+            true,
+            true,
         );
         let tiles = vec![tile1, tile2];
 
@@ -70,10 +74,14 @@ mod tests {
         let tile1 = Tile::new(
             42,
             Polyomino::from_bool_slice(&[[true, true], [true, false]]).into(),
+            true,
+            true,
         );
         let tile2 = Tile::new(
             43,
             Polyomino::from_bool_slice(&[[false, true], [false, true]]).into(),
+            true,
+            true,
         );
         let tiles = vec![tile1, tile2];
 

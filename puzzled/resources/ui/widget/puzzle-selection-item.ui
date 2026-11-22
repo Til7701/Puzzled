@@ -75,6 +75,24 @@
                                 <property name="icon-name">brain-symbolic</property>
                             </object>
                         </child>
+                        <child>
+                            <object class="PuzzledInfoPill" id="rotation_pill">
+                                <property name="icon-name">rotate-cw-symbolic</property>
+                                <property name="label">No Rotating</property>
+                                <style>
+                                    <class name="error"/>
+                                </style>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="PuzzledInfoPill" id="flip_pill">
+                                <property name="icon-name">flip-h-symbolic</property>
+                                <property name="label">No Flipping</property>
+                                <style>
+                                    <class name="error"/>
+                                </style>
+                            </object>
+                        </child>
                     </object>
                 </child>
                 <child>

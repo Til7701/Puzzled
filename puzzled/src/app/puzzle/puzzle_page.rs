@@ -11,6 +11,7 @@ use log::debug;
 
 mod imp {
     use super::*;
+    use crate::app::components::restrictions::RestrictionsView;
     use crate::app::puzzle::puzzle_area::PuzzleArea;
     use crate::model::extension::PuzzleTypeExtension;
     use crate::solver::combination_solutions::CombinationsSolver;
@@ -28,6 +29,8 @@ mod imp {
         pub grid: TemplateChild<PuzzleArea>,
         #[template_child]
         pub puzzle_info_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub restrictions_view: TemplateChild<RestrictionsView>,
         #[template_child]
         pub extension_separator: TemplateChild<gtk::Separator>,
         #[template_child]
@@ -125,6 +128,9 @@ impl PuzzlePage {
         )));
         self.imp().hint_count.replace(0);
         self.imp().grid.show_puzzle(puzzle);
+        self.imp()
+            .restrictions_view
+            .set(puzzle.config().restrictions());
         self.show_puzzle_extension();
 
         let title = format!(

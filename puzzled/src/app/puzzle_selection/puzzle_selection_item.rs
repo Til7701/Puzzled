@@ -44,6 +44,10 @@ mod imp {
         pub tile_count_pill: TemplateChild<InfoPill>,
         #[template_child]
         pub difficulty_pill: TemplateChild<InfoPill>,
+        #[template_child]
+        pub rotation_pill: TemplateChild<InfoPill>,
+        #[template_child]
+        pub flip_pill: TemplateChild<InfoPill>,
 
         #[template_child]
         pub tile_preview_parent: TemplateChild<gtk::ScrolledWindow>,
@@ -121,6 +125,13 @@ impl PuzzleSelectionItem {
             imp.difficulty_pill.set_label(label);
         } else {
             imp.info_box.remove(&imp.difficulty_pill.get());
+        }
+
+        if puzzle.config().restrictions().allow_rotation() {
+            imp.info_box.remove(&imp.rotation_pill.get());
+        }
+        if puzzle.config().restrictions().allow_flip() {
+            imp.info_box.remove(&imp.flip_pill.get());
         }
 
         Self::create_tiles_preview(puzzle.config().tiles(), &imp.tile_preview_fixed.get());

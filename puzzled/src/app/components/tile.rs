@@ -19,9 +19,9 @@ const HIGHLIGHT_OUT_OF_BOUNDS_COLOR: RGBA = adw_ext::WARNING_BG_LIGHT;
 mod imp {
     use super::*;
     use crate::app::components::polyform_drawing::PolyformDrawingData;
-    use puzzled_polyform::{CoordBox, Poly, RegularCoord};
+    use crate::model::placement::PixelPosition;
+    use crate::model::placement::polyform_contains_pixel;
     use std::cell::{Cell, RefCell};
-    use std::ops::Deref;
 
     #[derive(Debug, Default)]
     pub struct PuzzledTileView {
@@ -44,38 +44,12 @@ mod imp {
     impl ObjectImpl for PuzzledTileView {}
     impl WidgetImpl for PuzzledTileView {
         fn contains(&self, x: f64, y: f64) -> bool {
-            if x < 0.0 || y < 0.0 {
-                return false;
-            }
-
-            let obj = self.obj();
-            let width = obj.width() as f64;
-            if x > width {
-                return false;
-            }
-            let height = obj.height() as f64;
-            if y > height {
-                return false;
-            }
-
-            let current_rotation = self.current_rotation.borrow();
-            match current_rotation.deref() {
-                Polyform::Polyomino(polyomino) => {
-                    let tile_dims = polyomino.dim();
-                    let cell_width = width / tile_dims.x() as f64;
-                    let cell_height = height / tile_dims.y() as f64;
-
-                    let cell_x = (x / cell_width) as i32;
-                    let cell_y = (y / cell_height) as i32;
-
-                    current_rotation
-                        .get(CoordBox::Regular(RegularCoord::new(cell_x, cell_y)))
-                        .is_some()
-                }
-                Polyform::Polyhex { .. } => {
-                    todo!()
-                }
-            }
+            polyform_contains_pixel(
+                &self.current_rotation.borrow(),
+                PixelPosition(self.obj().width() as f64, self.obj().height() as f64),
+                PixelPosition(x, y),
+            )
+            .is_some()
         }
     }
     impl DrawingAreaImpl for PuzzledTileView {}
@@ -181,19 +155,22 @@ impl TileView {
     }
 
     /// Rotates the tile one step clockwise.
-    pub fn rotate_clockwise(&self, prime: CoordBox) {
+    pub fn rotate_clockwise(&self, prime: CoordBox) -> CoordBox {
         // We are calling counterclockwise here, since the tile is drawn transposed.
-        self.imp()
+        let movement_request = self
+            .imp()
             .current_rotation
             .borrow_mut()
             .rotate_around(prime);
         self.update_current_rotation_specials();
+        movement_request
     }
 
     /// Flips the tile horizontally.
-    pub fn flip(&self, prime: CoordBox) {
-        self.imp().current_rotation.borrow_mut().flip(prime);
+    pub fn flip(&self, prime: CoordBox) -> CoordBox {
+        let movement_request = self.imp().current_rotation.borrow_mut().flip(prime);
         self.update_current_rotation_specials();
+        movement_request
     }
 
     /// Returns the current layout of the tile, which changes when the tile is rotated or flipped.

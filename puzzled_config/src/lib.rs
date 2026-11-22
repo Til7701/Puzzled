@@ -15,6 +15,7 @@ pub use config::preview::PreviewConfig;
 pub use config::progression::ProgressionConfig;
 pub use config::puzzle::PuzzleConfig;
 pub use config::puzzle::PuzzleId;
+pub use config::restrictions::RestrictionsConfig;
 pub use config::target::{Target, TargetIndex, TargetTemplate};
 pub use config::tile::TileConfig;
 pub use error::ReadError;

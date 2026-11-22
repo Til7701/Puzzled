@@ -1,5 +1,6 @@
 use crate::model::placement::board::PlacedBoard;
 use crate::model::placement::grid::GridConfig;
+use crate::model::placement::polyomino_contains_pixel;
 use crate::model::placement::prelude::{InternalPlacementModel, SimplePlacementModel};
 use crate::model::placement::tile::PlacedTile;
 use crate::model::placement::{PixelPosition, initial};
@@ -292,14 +293,21 @@ impl SimplePlacementModel<Polyomino<()>, RegularCoord> for PolyominoPlacementMod
         tile.set_dragged(dragged);
     }
 
-    fn update_tile_shape(&mut self, idx: usize, shape: Polyomino<()>) {
+    fn update_tile_shape(
+        &mut self,
+        idx: usize,
+        shape: Polyomino<()>,
+        movement_request: RegularCoord,
+    ) {
         let old = self.tiles.get_mut(idx).unwrap();
         old.set_cell_size(shape.dim());
         old.set_current_rotation(shape);
+        old.set_position_cells(old.position_cells() + movement_request);
     }
 
-    fn prototile_coord(&self, _idx: usize, _pixel_position: PixelPosition) -> Option<CoordBox> {
-        Some(RegularCoord::new(0, 0).into()) // FIXME see #255
+    fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox> {
+        let tile = self.tiles.get(idx)?;
+        polyomino_contains_pixel(tile.current_rotation(), tile.pixel_size(), pixel_position)
     }
 
     fn init_hint_tile(&mut self, position_on_board: RegularCoord, shape: Polyomino<()>) {

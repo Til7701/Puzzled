@@ -70,7 +70,7 @@ pub trait SimplePlacementModel<P: UnitPoly, C: Coord> {
     /// * `shape`: the new rotation
     ///
     /// returns: ()
-    fn update_tile_shape(&mut self, idx: usize, shape: P);
+    fn update_tile_shape(&mut self, idx: usize, shape: P, movement_request: C);
 
     fn prototile_coord(&self, idx: usize, pixel_position: PixelPosition) -> Option<CoordBox>;
 

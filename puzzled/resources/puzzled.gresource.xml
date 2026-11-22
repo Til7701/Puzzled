@@ -6,6 +6,7 @@
         <file preprocess="xml-stripblanks">ui/page/puzzle-selection-page.ui</file>
         <file preprocess="xml-stripblanks">ui/page/puzzle-page.ui</file>
         <file preprocess="xml-stripblanks">ui/page/random-puzzle-page.ui</file>
+        <file preprocess="xml-stripblanks">ui/widget/restrictions.ui</file>
         <file preprocess="xml-stripblanks">ui/widget/info-pill.ui</file>
         <file preprocess="xml-stripblanks">ui/widget/stars-view.ui</file>
         <file preprocess="xml-stripblanks">ui/widget/puzzle-mod.ui</file>
@@ -52,6 +53,8 @@
         <file preprocess="xml-stripblanks" alias="star-large-symbolic.svg">icons/star-large-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="star-outline-rounded-symbolic.svg">icons/star-outline-rounded-symbolic.svg</file>
         <file preprocess="xml-stripblanks" alias="dice3-symbolic.svg">icons/dice3-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="rotate-cw-symbolic.svg">icons/rotate-cw-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="flip-h-symbolic.svg">icons/flip-h-symbolic.svg</file>
     </gresource>
     <!-- @formatter:on -->
 </gresources>

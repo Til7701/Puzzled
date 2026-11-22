@@ -259,12 +259,14 @@ impl SimplePlacementModel<Polyform<()>, CoordBox> for PlacementModel {
         }
     }
 
-    fn update_tile_shape(&mut self, idx: usize, shape: Polyform<()>) {
-        match (self, shape) {
-            (PlacementModel::Polyomino(pm), Polyform::Polyomino(po)) => {
-                pm.update_tile_shape(idx, po)
+    fn update_tile_shape(&mut self, idx: usize, shape: Polyform<()>, movement_request: CoordBox) {
+        match (self, shape, movement_request) {
+            (PlacementModel::Polyomino(pm), Polyform::Polyomino(po), CoordBox::Regular(mv_reg)) => {
+                pm.update_tile_shape(idx, po, mv_reg)
             }
-            (PlacementModel::Polyhex(pm), Polyform::Polyhex(po)) => pm.update_tile_shape(idx, po),
+            (PlacementModel::Polyhex(pm), Polyform::Polyhex(po), CoordBox::Hex(mv_hex)) => {
+                pm.update_tile_shape(idx, po, mv_hex)
+            }
             _ => unreachable!(),
         }
     }

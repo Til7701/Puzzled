@@ -16,6 +16,9 @@
                             </object>
                         </child>
                         <child type="start">
+                            <object class="PuzzledRestrictionsView" id="restrictions_view"/>
+                        </child>
+                        <child type="start">
                             <object class="GtkButton" id="hint_button">
                                 <property name="icon-name">lightbulb-symbolic</property>
                                 <property name="tooltip-text" translatable="yes">Hint</property>

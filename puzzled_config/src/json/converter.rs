@@ -1,7 +1,8 @@
 use crate::config::board::AreaBoardData;
+use crate::config::restrictions::RestrictionsConfig;
 use crate::json::model::{
     Area, AreaFormatter, Board, Color, DefaultFactory, PolyformKind, Preview, Progression,
-    PuzzleCollection, PuzzleDifficulty, Tile, TileLayout,
+    PuzzleCollection, PuzzleDifficulty, Restrictions, Tile, TileLayout,
 };
 use crate::json::predefined::{Custom, Predefined};
 use crate::{
@@ -63,6 +64,7 @@ impl<'a> Converter<'a> {
             if collection_config.allow_board_rotation {
                 board_config = Converter::rotate_board(board_config);
             }
+            let restrictions_config = self.convert_restriction(puzzle.restrictions);
             let puzzle_config = PuzzleConfig::new(
                 i,
                 puzzle.id.unwrap_or_else(|| format!("{i}")),
@@ -70,6 +72,7 @@ impl<'a> Converter<'a> {
                 puzzle.description,
                 difficulty_config,
                 puzzle.unsolvable,
+                restrictions_config,
                 tiles,
                 board_config,
                 puzzle.additional_info,
@@ -400,6 +403,14 @@ impl<'a> Converter<'a> {
                 Ok(second_digit.to_string())
             }
         }
+    }
+
+    fn convert_restriction(&self, restrictions: Option<Restrictions>) -> RestrictionsConfig {
+        restrictions
+            .map(|restrictions| {
+                RestrictionsConfig::new(restrictions.allow_rotation, restrictions.allow_flip)
+            })
+            .unwrap_or_default()
     }
 
     fn create_polyform<T, M, R>(
