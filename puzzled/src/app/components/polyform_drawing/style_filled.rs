@@ -23,7 +23,6 @@ pub fn draw_drawable<const M: usize>(
     drawing_settings: &DrawingSettings<M>,
 ) {
     let drawing_data = drawable.drawing_data();
-    let shape_path = drawable.normalized_shape_path();
 
     // Main Area
     let color = drawing_settings.main_colors
@@ -35,6 +34,17 @@ pub fn draw_drawable<const M: usize>(
         PrototileDrawingMode::Highlighted => color,
     };
     cr.set_source_color(&color);
+    // Due to floating point inaccuracies, there might be 2px gaps between cells, so
+    // additional rectangles are drawn to fill those gaps if the adjacent cells are filled.
+    // This only solves the problem, if the color is not transparent, otherwise there
+    // would be visible lines between the cells of the tile.
+    if color.alpha() == 1.0 {
+        for path in drawable.pixel_line_paths(size) {
+            set_path(cr, &path, x, y);
+            cr.fill().expect("Failed to fill");
+        }
+    }
+    let shape_path = drawable.normalized_shape_path();
     set_normalized_path(cr, &shape_path, x, y, size);
     cr.clip_preserve();
     cr.fill_preserve().expect("Failed to fill");
@@ -90,6 +100,16 @@ fn set_normalized_path(cr: &Context, path: &[(f64, f64)], x: f64, y: f64, size: 
     for v in path.iter().skip(1) {
         let converted = convert_coords(*v, x, y, size);
         cr.line_to(converted.0, converted.1);
+    }
+    cr.close_path();
+}
+
+fn set_path(cr: &Context, path: &[(f64, f64)], x: f64, y: f64) {
+    cr.new_path();
+    let start = path[0];
+    cr.move_to(x + start.0, y + start.1);
+    for v in path.iter().skip(1) {
+        cr.line_to(x + v.0, y + v.1);
     }
     cr.close_path();
 }

@@ -8,5 +8,7 @@ pub trait Drawable {
     /// The bounding box for text to draw into this shape
     fn normalized_text_box(&self, dead_zone: f64) -> ((f64, f64), (f64, f64));
 
+    fn pixel_line_paths(&self, size: f64) -> Vec<Vec<(f64, f64)>>;
+
     fn drawing_data(&self) -> &PolyformDrawingData;
 }
