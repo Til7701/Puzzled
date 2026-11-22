@@ -6,7 +6,7 @@ impl<C> Drawable for Square<PolyformDrawingData, C>
 where
     C: Coord,
 {
-    fn shape_path(&self) -> Vec<(f64, f64)> {
+    fn normalized_shape_path(&self) -> Vec<(f64, f64)> {
         match self.orientation() {
             SquareOrientation::OnSide => vec![(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)],
             SquareOrientation::OnCorner => {
@@ -15,25 +15,12 @@ where
         }
     }
 
-    fn outline_path(&self, width: f64) -> Vec<(f64, f64)> {
+    fn normalized_text_box(&self, dead_zone: f64) -> ((f64, f64), (f64, f64)) {
         match self.orientation() {
-            SquareOrientation::OnSide => vec![
-                (0.0 + width, 0.0 + width),
-                (1.0 - width, 0.0 + width),
-                (1.0 - width, 1.0 - width),
-                (0.0 + width, 1.0 - width),
-            ],
-            SquareOrientation::OnCorner => {
-                todo!()
-            }
-        }
-    }
-
-    fn text_box(&self, dead_zone: f64) -> ((f64, f64), (f64, f64)) {
-        match self.orientation() {
-            SquareOrientation::OnSide => {
-                ((dead_zone, dead_zone), (1.0 - dead_zone, 1.0 - dead_zone))
-            }
+            SquareOrientation::OnSide => (
+                (dead_zone, dead_zone),
+                (1.0 - dead_zone - dead_zone, 1.0 - dead_zone - dead_zone),
+            ),
             SquareOrientation::OnCorner => {
                 todo!()
             }

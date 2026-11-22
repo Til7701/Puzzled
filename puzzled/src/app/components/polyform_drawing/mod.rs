@@ -4,14 +4,13 @@ mod style;
 mod style_filled;
 
 use crate::app::components::polyform_drawing::drawable::Drawable;
+use crate::app::components::polyform_drawing::style::DrawingStyle;
 use adw::gdk::RGBA;
 use adw::gdk::cairo::Context;
 use adw::gdk::pango::{Alignment, SCALE, WrapMode};
 use gtk::pango;
 use puzzled_polyform::{Poly, Polyform, Polyomino, Prototile};
 
-const BORDER_SIZE_RATIO: f64 = 0.03;
-const HIGHLIGHT_SIZE_RATIO: f64 = 0.08;
 const TEXT_DEAD_ZONE: f64 = 0.15;
 
 #[derive(Clone, Hash, Debug, Default)]
@@ -72,13 +71,17 @@ pub fn draw<const M: usize>(
     polyomino: &Polyform<PolyformDrawingData>,
     drawing_settings: &DrawingSettings<M>,
 ) {
+    let style: DrawingStyle = DrawingStyle::Filled; // TODO read from settings
     match polyomino {
-        Polyform::Polyomino(p) => draw_polyomino(cr, pan, width, height, p, drawing_settings),
+        Polyform::Polyomino(p) => {
+            draw_polyomino(style, cr, pan, width, height, p, drawing_settings)
+        }
         Polyform::Polyhex(_) => todo!(),
     }
 }
 
 fn draw_polyomino<const M: usize>(
+    style: DrawingStyle,
     cr: &Context,
     pan: &pango::Layout,
     width: i32,
@@ -92,7 +95,7 @@ fn draw_polyomino<const M: usize>(
     let cell_width = width as f64 / dim.x() as f64;
     let cell_height = height as f64 / dim.y() as f64;
     let first = &squares[0];
-    let text_box = first.text_box(TEXT_DEAD_ZONE);
+    let text_box = first.normalized_text_box(TEXT_DEAD_ZONE);
     let text_box_width = (text_box.1.0 - text_box.0.0) * cell_width;
     let text_box_height = (text_box.1.1 - text_box.0.1) * cell_height;
     pan.set_alignment(Alignment::Center);
@@ -102,13 +105,16 @@ fn draw_polyomino<const M: usize>(
         text_box_width,
         text_box_height,
     );
+    let draw_function = match style {
+        DrawingStyle::Filled => style_filled::draw_drawable,
+    };
     for cell in squares.iter() {
         let coord = cell.coord();
         let x = coord.x();
         let y = coord.y();
         let cell_x = x as f64 * cell_width;
         let cell_y = y as f64 * cell_height;
-        style_filled::draw_drawable(cr, pan, cell_x, cell_y, cell_width, cell, drawing_settings);
+        draw_function(cr, pan, cell_x, cell_y, cell_width, cell, drawing_settings);
     }
 }
 
@@ -134,7 +140,7 @@ fn fit_font_size<'a>(
         return;
     }
     layout.set_text(largest_text.0.unwrap());
-    let max_font_size = cell_height * 0.7;
+    let max_font_size = cell_height;
     let max_width = cell_width as i32;
     let max_height = cell_height as i32;
 
