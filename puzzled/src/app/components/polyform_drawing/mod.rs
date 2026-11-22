@@ -2,23 +2,16 @@ mod drawable;
 mod square;
 mod style;
 mod style_filled;
-mod polyhex;
-mod polyomino;
 
 use crate::app::components::polyform_drawing::drawable::Drawable;
 use crate::app::components::polyform_drawing::style::DrawingStyle;
 
-
-use crate::app::components::polyform_drawing::polyhex::draw_polyhex;
-use crate::app::components::polyform_drawing::polyomino::draw_polyomino;
 use adw::gdk::RGBA;
 use adw::gdk::cairo::Context;
-use adw::gdk::pango::{SCALE, WrapMode};
 use adw::gdk::pango::{Alignment, SCALE, WrapMode};
 use gtk::pango;
-use puzzled_polyform::Polyform;
-use std::hash::Hash;
 use puzzled_polyform::{Poly, Polyform, Polyomino, Prototile};
+use std::hash::Hash;
 
 const TEXT_DEAD_ZONE: f64 = 0.15;
 
