@@ -91,6 +91,11 @@ pub fn draw_drawable<const M: usize>(
         cr.restore().expect("Failed to restore");
     }
     cr.reset_clip();
+
+    // cr.rectangle(x, y, size, size);
+    // cr.set_line_width(1.0);
+    // cr.set_source_color(&adw_ext::RED_1);
+    // cr.stroke().unwrap();
 }
 
 fn set_normalized_path(cr: &Context, path: &[(f64, f64)], x: f64, y: f64, size: f64) {

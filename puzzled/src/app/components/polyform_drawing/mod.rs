@@ -1,4 +1,6 @@
 mod drawable;
+mod hexagon;
+mod prototile;
 mod square;
 mod style;
 mod style_filled;
@@ -6,11 +8,13 @@ mod style_filled;
 use crate::app::components::polyform_drawing::drawable::Drawable;
 use crate::app::components::polyform_drawing::style::DrawingStyle;
 
+use crate::adw_ext;
 use adw::gdk::RGBA;
 use adw::gdk::cairo::Context;
 use adw::gdk::pango::{Alignment, SCALE, WrapMode};
+use adw::prelude::GdkCairoContextExt;
 use gtk::pango;
-use puzzled_polyform::{Poly, Polyform, Polyomino, Prototile};
+use puzzled_polyform::{HexagonOrientation, Poly, Polyform, Polyhex, Polyomino, Prototile};
 use std::hash::Hash;
 
 const TEXT_DEAD_ZONE: f64 = 0.15;
@@ -91,15 +95,15 @@ pub fn draw<const M: usize>(
     pan: &pango::Layout,
     width: i32,
     height: i32,
-    polyomino: &Polyform<PolyformDrawingData>,
+    polyform: &Polyform<PolyformDrawingData>,
     drawing_settings: &DrawingSettings<M>,
 ) {
     let style: DrawingStyle = DrawingStyle::Filled; // TODO read from settings
-    match polyomino {
+    match polyform {
         Polyform::Polyomino(p) => {
             draw_polyomino(style, cr, pan, width, height, p, drawing_settings)
         }
-        Polyform::Polyhex(_) => todo!(),
+        Polyform::Polyhex(p) => draw_polyhex(style, cr, pan, width, height, p, drawing_settings),
     }
 }
 
@@ -117,17 +121,16 @@ fn draw_polyomino<const M: usize>(
 
     let cell_width = width as f64 / dim.x() as f64;
     let cell_height = height as f64 / dim.y() as f64;
+
     let first = &squares[0];
     let text_box = first.normalized_text_box(TEXT_DEAD_ZONE);
-    let text_box_width = (text_box.1.0 - text_box.0.0) * cell_width;
-    let text_box_height = (text_box.1.1 - text_box.0.1) * cell_height;
-    pan.set_alignment(Alignment::Center);
     fit_font_size(
         pan,
         polyomino.cells().iter().map(|c| &c.data().text),
-        text_box_width,
-        text_box_height,
+        (text_box.1.0 - text_box.0.0) * cell_width,
+        (text_box.1.1 - text_box.0.1) * cell_height,
     );
+
     let draw_function = match style {
         DrawingStyle::Filled => style_filled::draw_drawable,
     };
@@ -141,6 +144,66 @@ fn draw_polyomino<const M: usize>(
     }
 }
 
+fn draw_polyhex<const M: usize>(
+    style: DrawingStyle,
+    cr: &Context,
+    pan: &pango::Layout,
+    width: i32,
+    height: i32,
+    polyhex: &Polyhex<PolyformDrawingData>,
+    drawing_settings: &DrawingSettings<M>,
+) {
+    let dim = polyhex.dim();
+    let hexagons = polyhex.cells();
+    let first = &hexagons[0];
+    let orientation = first.orientation();
+
+    let size = match orientation {
+        HexagonOrientation::OnSide => todo!(),
+        HexagonOrientation::OnCorner => {
+            let pixel_dim = dim.to_pixel();
+            log::debug!("{:?}", dim);
+            log::debug!("{:?}", pixel_dim);
+            let cell_width = width as f64 / pixel_dim.0;
+            let cell_height = height as f64 / pixel_dim.1;
+            cell_width.max(cell_height)
+        }
+    };
+
+    let text_box = first.normalized_text_box(TEXT_DEAD_ZONE);
+    fit_font_size(
+        pan,
+        polyhex.cells().iter().map(|c| &c.data().text),
+        (text_box.1.0 - text_box.0.0) * size,
+        (text_box.1.1 - text_box.0.1) * size,
+    );
+
+    let draw_function = match style {
+        DrawingStyle::Filled => style_filled::draw_drawable,
+    };
+    for cell in hexagons.iter() {
+        let coord = cell.coord();
+        let offset = match orientation {
+            HexagonOrientation::OnSide => todo!(),
+            HexagonOrientation::OnCorner => {
+                let offset_coord = coord.to_offset();
+                let hex_width = (size / 2.0) * 3f64.sqrt();
+                let side = (size - hex_width) / 2.0;
+                ((offset_coord.0 * 2 + 1) as f64 * -side, 0.0)
+            }
+        };
+        let (x, y) = coord.to_pixel();
+        let cell_x = x * (size / 3f64.sqrt()) + offset.0;
+        let cell_y = y * (size / 2.0) + offset.1;
+        draw_function(cr, pan, cell_x, cell_y, size, cell, drawing_settings);
+    }
+
+    // cr.rectangle(0.0, 0.0, width as f64, height as f64);
+    // cr.set_line_width(1.0);
+    // cr.set_source_color(&adw_ext::RED_1);
+    // cr.stroke().unwrap();
+}
+
 fn fit_font_size<'a>(
     layout: &pango::Layout,
     texts: impl Iterator<Item = &'a Option<String>>,
@@ -150,6 +213,7 @@ fn fit_font_size<'a>(
     layout.set_width(cell_width as i32 * SCALE);
     layout.set_height(-1);
     layout.set_wrap(WrapMode::Word);
+    layout.set_alignment(Alignment::Center);
 
     let mut largest_text = (None, 0);
     for t in texts.flat_map(|t| t.iter()) {

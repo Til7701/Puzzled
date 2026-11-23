@@ -23,6 +23,13 @@ impl HexCoord {
         HexCoord::new(q, r)
     }
 
+    pub const fn to_offset(&self) -> (i32, i32) {
+        let parity = self.r & 1;
+        let col = self.q + (self.r - parity) / 2;
+        let row = self.r;
+        (col, row)
+    }
+
     pub fn to_pixel(&self) -> (f64, f64) {
         let x = 3.0f64.sqrt() * self.q as f64 + 3.0f64.sqrt() / 2.0 * self.r as f64;
         let y = 3.0 / 2.0 * self.r as f64;
