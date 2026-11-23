@@ -1,5 +1,7 @@
 use crate::model::placement::PixelPosition;
-use puzzled_polyform::{CoordBox, Poly, Polyform, Polyomino, Prototile, RegularCoord};
+use puzzled_polyform::{
+    CoordBox, HexCoord, Poly, Polyform, Polyhex, Polyomino, Prototile, RegularCoord,
+};
 use std::hash::Hash;
 
 /// Returns the coordinate of the prototile indicated by the location given the size.
@@ -11,7 +13,7 @@ pub fn polyform_contains_pixel<T: Clone + Hash>(
 ) -> Option<CoordBox> {
     match polyform {
         Polyform::Polyomino(polyomino) => polyomino_contains_pixel(polyomino, size, location),
-        Polyform::Polyhex(_) => todo!(),
+        Polyform::Polyhex(polyhex) => polyhex_contains_pixel(polyhex, size, location),
     }
 }
 
@@ -42,5 +44,33 @@ pub fn polyomino_contains_pixel<T: Clone + Hash>(
 
     polyomino
         .get(RegularCoord::new(cell_x, cell_y))
+        .map(|p| p.coord())
+}
+
+pub fn polyhex_contains_pixel<T: Clone + Hash>(
+    polyhex: &Polyhex<T>,
+    size: PixelPosition,
+    location: PixelPosition,
+) -> Option<CoordBox> {
+    if location.0 < 0.0 || location.1 < 0.0 {
+        return None;
+    }
+
+    let width = size.0;
+    if location.0 > width {
+        return None;
+    }
+    let height = size.1;
+    if location.1 > height {
+        return None;
+    }
+
+    let x = location.0 / size.0;
+    let y = location.1 / size.1;
+    let q = 3f64.sqrt() / 3.0 * x - 1.0 / 3.0 * y;
+    let r = 2.0 / 3.0 * y;
+
+    polyhex
+        .get(HexCoord::new(q as i32, r as i32))
         .map(|p| p.coord())
 }
