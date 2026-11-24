@@ -77,6 +77,20 @@ impl Coord for RegularCoord {
     fn area(&self) -> usize {
         self.x as usize * self.y as usize
     }
+
+    fn neighbours(&self) -> impl Iterator<Item = Self> {
+        [
+            Self::new(self.x - 1, self.y),
+            Self::new(self.x + 1, self.y),
+            Self::new(self.x, self.y - 1),
+            Self::new(self.x, self.y + 1),
+        ]
+        .into_iter()
+    }
+
+    fn contained_by_span(&self) -> impl Iterator<Item = Self> {
+        (0..self.x).flat_map(|x| (0..self.y).map(move |y| Self::new(x, y)))
+    }
 }
 
 impl Display for RegularCoord {

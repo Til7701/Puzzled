@@ -31,4 +31,8 @@ pub trait Coord: Clone + Copy + Hash + PartialEq + Eq {
 
     /// Returns the amount of cells spanned by this one when looking from the origin.
     fn area(&self) -> usize;
+
+    fn neighbours(&self) -> impl Iterator<Item = Self>;
+
+    fn contained_by_span(&self) -> impl Iterator<Item = Self>;
 }

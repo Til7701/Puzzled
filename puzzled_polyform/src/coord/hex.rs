@@ -40,6 +40,14 @@ impl Coord for HexCoord {
     fn area(&self) -> usize {
         todo!()
     }
+
+    fn neighbours(&self) -> impl Iterator<Item = Self> {
+        [*self].into_iter() // TODO
+    }
+
+    fn contained_by_span(&self) -> impl Iterator<Item = Self> {
+        [*self].into_iter() // TODO
+    }
 }
 
 impl Display for HexCoord {

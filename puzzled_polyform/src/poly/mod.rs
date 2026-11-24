@@ -7,6 +7,7 @@ pub mod polyomino;
 
 #[cfg(test)]
 mod polyomino_tests;
+mod util;
 
 /// All the operations a polyform with any data value should be able to do.
 ///

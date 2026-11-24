@@ -42,6 +42,36 @@ impl Coord for CoordBox {
             CoordBox::Hex(hex) => hex.area(),
         }
     }
+
+    fn neighbours(&self) -> impl Iterator<Item = CoordBox> {
+        match self {
+            CoordBox::Regular(regular) => regular
+                .neighbours()
+                .map(CoordBox::from)
+                .collect::<Vec<_>>()
+                .into_iter(),
+            CoordBox::Hex(hex) => hex
+                .neighbours()
+                .map(CoordBox::from)
+                .collect::<Vec<_>>()
+                .into_iter(),
+        }
+    }
+
+    fn contained_by_span(&self) -> impl Iterator<Item = Self> {
+        match self {
+            CoordBox::Regular(regular) => regular
+                .contained_by_span()
+                .map(CoordBox::from)
+                .collect::<Vec<_>>()
+                .into_iter(),
+            CoordBox::Hex(hex) => hex
+                .contained_by_span()
+                .map(CoordBox::from)
+                .collect::<Vec<_>>()
+                .into_iter(),
+        }
+    }
 }
 
 impl From<RegularCoord> for CoordBox {

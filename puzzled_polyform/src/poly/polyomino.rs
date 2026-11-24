@@ -1,6 +1,6 @@
 use crate::coord::Coord;
 use crate::coord::regular::RegularCoord;
-use crate::poly::{Poly, TrimSides, UnitPoly};
+use crate::poly::{Poly, TrimSides, UnitPoly, util};
 use crate::prototile::{
     MutPrototile, Prototile, PrototileMutRef, PrototileRef, Square, SquareOrientation,
 };
@@ -227,29 +227,12 @@ where
         let mut placed_coords = HashSet::new();
         let mut new_cells = Vec::new();
 
-        for i in 1..self.dim.x() - 1 {
-            for j in 1..self.dim.y() - 1 {
-                if let Some(cell) = self.get_square(RegularCoord::new(i, j)) {
-                    let x_neg = RegularCoord::new(i - 1, j);
-                    if self.get(x_neg).is_none() && !placed_coords.contains(&x_neg) {
-                        new_cells.push(Square::new(x_neg, cell.orientation(), value.clone()));
-                        placed_coords.insert(x_neg);
-                    }
-                    let x_pos = RegularCoord::new(i + 1, j);
-                    if self.get(x_pos).is_none() && !placed_coords.contains(&x_pos) {
-                        new_cells.push(Square::new(x_pos, cell.orientation(), value.clone()));
-                        placed_coords.insert(x_pos);
-                    }
-                    let y_neg = RegularCoord::new(i, j - 1);
-                    if self.get(y_neg).is_none() && !placed_coords.contains(&y_neg) {
-                        new_cells.push(Square::new(y_neg, cell.orientation(), value.clone()));
-                        placed_coords.insert(y_neg);
-                    }
-                    let y_pos = RegularCoord::new(i, j + 1);
-                    if self.get(y_pos).is_none() && !placed_coords.contains(&y_pos) {
-                        new_cells.push(Square::new(y_pos, cell.orientation(), value.clone()));
-                        placed_coords.insert(y_pos);
-                    }
+        for cell in &self.cells {
+            let coord = cell.coord();
+            for neighbour in coord.neighbours() {
+                if self.get(neighbour).is_none() && !placed_coords.contains(&neighbour) {
+                    new_cells.push(Square::new(neighbour, cell.orientation(), value.clone()));
+                    placed_coords.insert(neighbour);
                 }
             }
         }
@@ -310,43 +293,59 @@ where
 }
 
 impl UnitPoly for Polyomino<()> {
+    // fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
+    //     if child.dim.x() > self.dim.x() || child.dim.y() > self.dim.y() {
+    //         return vec![];
+    //     }
+    //
+    //     util::place_on_if_possible(
+    //         self,
+    //         child,
+    //         (0..=(self.dim.x() - child.dim.x())).flat_map(|x| {
+    //             (0..=(self.dim.y() - child.dim.y())).map(move |y| RegularCoord::new(x, y))
+    //         }),
+    //     )
+    //     .into_iter()
+    //     .map(|placement| Polyomino {
+    //         dim: self.dim,
+    //         cells: placement
+    //             .into_iter()
+    //             .map(|c| Square::new(c, SquareOrientation::OnSide, ()))
+    //             .collect(),
+    //     })
+    //     .collect()
+    // }
+
     fn place_on_all_positions(&self, child: &Self) -> Vec<Self> {
         let mut placements = Vec::new();
-        let parent_rows = self.dim.x();
-        let parent_cols = self.dim.y();
-        let child_rows = child.dim.x();
-        let child_cols = child.dim.y();
 
-        if child_rows > parent_rows || child_cols > parent_cols {
+        if child.dim.x() > self.dim.x() || child.dim.y() > self.dim.y() {
             return placements;
         }
 
-        for row_offset in 0..=(parent_rows - child_rows) {
-            for col_offset in 0..=(parent_cols - child_cols) {
+        for row_offset in 0..=(self.dim.x() - child.dim.x()) {
+            for col_offset in 0..=(self.dim.y() - child.dim.y()) {
                 let mut new_array = self.clone();
                 let mut valid = true;
-                for r in 0..child_rows {
-                    for c in 0..child_cols {
-                        let child_cell = child.get(RegularCoord::new(r, c));
-                        let parent_coord = RegularCoord::new(row_offset + r, col_offset + c);
-                        let parent_cell = self.get(parent_coord);
-                        match (parent_cell, child_cell) {
-                            (Some(_), Some(_)) => {
-                                valid = false;
-                                break;
-                            }
-                            (Some(_), None) => {} // Already in cells due to clone above
-                            (None, Some(PrototileRef::Polyomino(child_c))) => {
-                                let new_cell =
-                                    { Square::new(parent_coord, child_c.orientation(), ()) };
-                                new_array.cells.push(new_cell);
-                            }
-                            (None, None) => {}
-                            (_, _) => unreachable!(),
+                for child_coord in child.dim.contained_by_span() {
+                    let child_cell = child.get(child_coord);
+                    let parent_coord = RegularCoord::new(
+                        row_offset + child_coord.x(),
+                        col_offset + child_coord.y(),
+                    );
+                    let parent_cell = self.get(parent_coord);
+                    match (parent_cell, child_cell) {
+                        (Some(_), Some(_)) => {
+                            valid = false;
+                            break;
                         }
-                    }
-                    if !valid {
-                        break;
+                        (Some(_), None) => {} // Already in cells due to clone above
+                        (None, Some(PrototileRef::Polyomino(child_c))) => {
+                            let new_cell = { Square::new(parent_coord, child_c.orientation(), ()) };
+                            new_array.cells.push(new_cell);
+                        }
+                        (None, None) => {}
+                        (_, _) => unreachable!(),
                     }
                 }
                 if valid {
@@ -363,23 +362,19 @@ impl UnitPoly for Polyomino<()> {
     }
 
     fn inverted(&self) -> Self {
-        let mut result = Self {
+        let new_cells = util::inverted_cells(
+            self.dim,
+            |c| self.get_square(c).is_some(),
+            (self.dim.x() * self.dim.y()) as usize - self.cells.len(),
+        );
+
+        Self {
             dim: self.dim,
-            cells: Vec::with_capacity((self.dim.x() * self.dim.y()) as usize - self.cells.len()),
-        };
-
-        for i in 0..self.dim.x() {
-            for j in 0..self.dim.y() {
-                let coord = RegularCoord::new(i, j);
-                if !self.cells.iter().any(|c| c.coord() == coord) {
-                    result
-                        .cells
-                        .push(Square::new(coord, SquareOrientation::OnSide, ()));
-                }
-            }
+            cells: new_cells
+                .into_iter()
+                .map(|c| Square::new(c, SquareOrientation::OnSide, ()))
+                .collect(),
         }
-
-        result
     }
 
     fn as_2d_slice(&self) -> String {
@@ -408,79 +403,15 @@ impl UnitPoly for Polyomino<()> {
     }
 
     fn count_biggest_connected_area_of_cells(&self) -> usize {
-        let mut visited_cells = HashSet::new();
-        let mut max_area = 0;
-
-        for square in self.cells.iter() {
-            let coord = square.coord();
-            if !visited_cells.contains(&coord) {
-                let mut area = 0;
-                let mut stack = vec![coord];
-
-                while let Some(c) = stack.pop() {
-                    if !visited_cells.contains(&c) && self.get_square(c).is_some() {
-                        visited_cells.insert(c);
-                        area += 1;
-
-                        // Add neighbors to the stack
-                        if c.x() > 0 {
-                            stack.push(RegularCoord::new(c.x() - 1, c.y()));
-                        }
-                        if c.x() < self.dim.x() - 1 {
-                            stack.push(RegularCoord::new(c.x() + 1, c.y()));
-                        }
-                        if c.y() > 0 {
-                            stack.push(RegularCoord::new(c.x(), c.y() - 1));
-                        }
-                        if c.y() < self.dim.y() - 1 {
-                            stack.push(RegularCoord::new(c.x(), c.y() + 1));
-                        }
-                    }
-                }
-
-                max_area = max_area.max(area);
-            }
-        }
-
-        max_area
+        util::count_biggest_connected_area_of_cells(self.cells.iter(), |c| {
+            self.get_square(c).is_some()
+        })
     }
 
     fn count_smallest_connected_area_of_cells(&self) -> usize {
-        let mut visited_cells = HashSet::new();
-        let mut min_area = usize::MAX;
-
-        for square in self.cells.iter() {
-            let coord = square.coord();
-            if !visited_cells.contains(&coord) {
-                let mut area = 0;
-                let mut stack = vec![coord];
-
-                while let Some(c) = stack.pop() {
-                    if !visited_cells.contains(&c) && self.get_square(c).is_some() {
-                        visited_cells.insert(c);
-                        area += 1;
-
-                        // Add neighbors to the stack
-                        if c.x() > 0 {
-                            stack.push(RegularCoord::new(c.x() - 1, c.y()));
-                        }
-                        if c.x() < self.dim.x() - 1 {
-                            stack.push(RegularCoord::new(c.x() + 1, c.y()));
-                        }
-                        if c.y() > 0 {
-                            stack.push(RegularCoord::new(c.x(), c.y() - 1));
-                        }
-                        if c.y() < self.dim.y() - 1 {
-                            stack.push(RegularCoord::new(c.x(), c.y() + 1));
-                        }
-                    }
-                }
-
-                min_area = min_area.min(area);
-            }
-        }
-
-        min_area
+        util::count_smallest_connected_area_of_cells(self.cells.iter(), |c| {
+            self.get_square(c).is_some()
+        })
     }
 
     fn from_bool_slice<const N: usize>(slice: &[[bool; N]]) -> Self {
